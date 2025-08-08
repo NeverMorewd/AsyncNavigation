@@ -8,8 +8,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\AsyncNavigation.Abstractions\AsyncNavigation.Abstractions.csproj" />
-    <ProjectReference Include="..\AsyncNavigation.Core\AsyncNavigation.Core.csproj" />
+    <ProjectReference Include="..\AsyncNavigation\AsyncNavigation.csproj" />
   </ItemGroup>
 
 </Project>

@@ -1,0 +1,94 @@
+﻿<UserControl
+    x:Class="Sample.Avalonia.Views.CView"
+    xmlns="https://github.com/avaloniaui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:an="https://github.com/NeverMorewd/AsyncNavigation"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    d:DesignHeight="450"
+    d:DesignWidth="800"
+    mc:Ignorable="d">
+    <UserControl.Styles>
+        <Style Selector="StackPanel.ViewNavigation">
+            <Setter Property="Spacing" Value="5" />
+            <Setter Property="Orientation" Value="Vertical" />
+        </Style>
+        <Style Selector="ToggleButton.Switch[IsChecked=True]">
+            <Setter Property="Content" Value="&gt;" />
+        </Style>
+        <Style Selector="ToggleButton.Switch[IsChecked=False]">
+            <Setter Property="Content" Value="&lt;" />
+        </Style>
+        <Style Selector="Border.HSeparator">
+            <Setter Property="Background" Value="Gray" />
+            <Setter Property="BorderThickness" Value="0" />
+            <Setter Property="Height" Value="2" />
+            <Setter Property="Margin" Value="5,0,5,0" />
+        </Style>
+        <Style Selector="Button.ViewNavigation">
+            <Setter Property="Height" Value="30" />
+            <Setter Property="Width" Value="200" />
+            <Setter Property="Command" Value="{Binding NavigateCommand}" />
+            <Setter Property="CommandParameter" Value="{Binding $self.Tag}" />
+            <Setter Property="VerticalContentAlignment" Value="Center" />
+        </Style>
+        <Style Selector="Button.DialogShow">
+            <Setter Property="Height" Value="30" />
+            <Setter Property="Width" Value="300" />
+            <Setter Property="Command" Value="{Binding ShowCommand}" />
+            <Setter Property="CommandParameter" Value="{Binding $self.Tag}" />
+            <Setter Property="VerticalContentAlignment" Value="Center" />
+        </Style>
+        <Style Selector="Button.DialogShowDialog">
+            <Setter Property="Height" Value="30" />
+            <Setter Property="Width" Value="300" />
+            <Setter Property="Command" Value="{Binding ShowDialogCommand}" />
+            <Setter Property="CommandParameter" Value="{Binding $self.Tag}" />
+            <Setter Property="VerticalContentAlignment" Value="Center" />
+        </Style>
+        <Style Selector="Button.DialogShowDialogSync">
+            <Setter Property="Height" Value="30" />
+            <Setter Property="Width" Value="300" />
+            <Setter Property="Command" Value="{Binding ShowDialogSyncCommand}" />
+            <Setter Property="CommandParameter" Value="{Binding $self.Tag}" />
+            <Setter Property="VerticalContentAlignment" Value="Center" />
+        </Style>
+    </UserControl.Styles>
+    <DockPanel LastChildFill="True">
+        <Border
+            HorizontalAlignment="Stretch"
+            Background="GreenYellow"
+            BorderBrush="BurlyWood"
+            BorderThickness="1"
+            DockPanel.Dock="Top">
+            <StackPanel>
+                <TextBlock Text="{Binding Name}" />
+                <Button
+                    HorizontalContentAlignment="Center"
+                    VerticalContentAlignment="Center"
+                    Command="{Binding UnloadViewCommand}"
+                    Content="UnloadView"
+                    IsVisible="{Binding !IsDialog}" />
+                <Button
+                    Command="{Binding CloseCommand}"
+                    Content="CloseDialog"
+                    IsVisible="{Binding IsDialog}" />
+            </StackPanel>
+        </Border>
+        <StackPanel Orientation="Vertical">
+            <Button
+                Classes="ViewNavigation"
+                Content="ToA"
+                Tag="AView" />
+            <Button
+                Classes="ViewNavigation"
+                Content="ToB"
+                Tag="BView" />
+			<Button
+                Classes="ViewNavigation"
+                Content="ToC"
+                Tag="CView" />
+        </StackPanel>
+        <ContentControl an:RegionManager.RegionName="ChildRegion" />
+    </DockPanel>
+</UserControl>

@@ -1,0 +1,19 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Remove="AsyncViewFactory.cs" />
+    <Compile Remove="RegionManagerAccessor.cs" />
+    <Compile Remove="ViewContext.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\AsyncNavigation.Abstractions\AsyncNavigation.Abstractions.csproj" />
+  </ItemGroup>
+
+</Project>

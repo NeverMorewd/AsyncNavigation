@@ -7,12 +7,15 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="ViewTemplateSelector.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="Avalonia" Version="11.1.5" />
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\AsyncNavigation.Abstractions\AsyncNavigation.Abstractions.csproj" />
-    <ProjectReference Include="..\AsyncNavigation.Core\AsyncNavigation.Core.csproj" />
+    <ProjectReference Include="..\AsyncNavigation\AsyncNavigation.csproj" />
   </ItemGroup>
 
 </Project>

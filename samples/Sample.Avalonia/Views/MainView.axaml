@@ -1,16 +1,101 @@
-<UserControl xmlns="https://github.com/avaloniaui"
-             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-             xmlns:vm="clr-namespace:Sample.Avalonia.ViewModels"
-             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
-             x:Class="Sample.Avalonia.Views.MainView"
-             x:DataType="vm:MainViewModel">
-  <Design.DataContext>
-    <!-- This only sets the DataContext for the previewer in an IDE,
-         to set the actual DataContext for runtime, set the DataContext property in code (look at App.axaml.cs) -->
-    <vm:MainViewModel />
-  </Design.DataContext>
+﻿<UserControl
+    x:Class="Sample.Avalonia.Views.MainView"
+    xmlns="https://github.com/avaloniaui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:an="https://github.com/NeverMorewd/AsyncNavigation"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:vm="clr-namespace:Sample.Common;assembly=Sample.Common"
+    d:DesignHeight="450"
+    d:DesignWidth="800"
+    mc:Ignorable="d">
+    <Design.DataContext>
+        <vm:MainViewModel />
+    </Design.DataContext>
+    <UserControl.Styles>
+        <Style Selector="StackPanel.ViewNavigation">
+            <Setter Property="Spacing" Value="5" />
+            <Setter Property="Orientation" Value="Vertical" />
+        </Style>
+        <Style Selector="ToggleButton.Switch[IsChecked=True]">
+            <Setter Property="Content" Value="&gt;" />
+        </Style>
+        <Style Selector="ToggleButton.Switch[IsChecked=False]">
+            <Setter Property="Content" Value="&lt;" />
+        </Style>
+        <Style Selector="Border.HSeparator">
+            <Setter Property="Background" Value="Gray" />
+            <Setter Property="BorderThickness" Value="0" />
+            <Setter Property="Height" Value="2" />
+            <Setter Property="Margin" Value="5,0,5,0" />
+        </Style>
+        <Style Selector="Button.ViewNavigation">
+            <Setter Property="Height" Value="30" />
+            <Setter Property="Width" Value="200" />
+            <Setter Property="Command" Value="{Binding NavigateCommand}" />
+            <Setter Property="CommandParameter" Value="{Binding $self.Tag}" />
+            <Setter Property="VerticalContentAlignment" Value="Center" />
+        </Style>
+        <Style Selector="Button.DialogShow">
+            <Setter Property="Height" Value="30" />
+            <Setter Property="Width" Value="300" />
+            <Setter Property="Command" Value="{Binding ShowCommand}" />
+            <Setter Property="CommandParameter" Value="{Binding $self.Tag}" />
+            <Setter Property="VerticalContentAlignment" Value="Center" />
+        </Style>
+        <Style Selector="Button.DialogShowDialog">
+            <Setter Property="Height" Value="30" />
+            <Setter Property="Width" Value="300" />
+            <Setter Property="Command" Value="{Binding ShowDialogCommand}" />
+            <Setter Property="CommandParameter" Value="{Binding $self.Tag}" />
+            <Setter Property="VerticalContentAlignment" Value="Center" />
+        </Style>
+        <Style Selector="Button.DialogShowDialogSync">
+            <Setter Property="Height" Value="30" />
+            <Setter Property="Width" Value="300" />
+            <Setter Property="Command" Value="{Binding ShowDialogSyncCommand}" />
+            <Setter Property="CommandParameter" Value="{Binding $self.Tag}" />
+            <Setter Property="VerticalContentAlignment" Value="Center" />
+        </Style>
+    </UserControl.Styles>
+    <SplitView
+        DisplayMode="CompactInline"
+        IsPaneOpen="{Binding IsSplitViewPaneOpen}"
+        OpenPaneLength="210"
+        PanePlacement="Right">
+        <SplitView.Pane>
+            <DockPanel>
+                <ToggleButton
+                    Classes="Switch"
+                    DockPanel.Dock="Top"
+                    IsChecked="{Binding IsSplitViewPaneOpen}" />
+                <StackPanel Classes="ViewNavigation" IsVisible="{Binding IsSplitViewPaneOpen}">
+                    <Button
+                        Classes="ViewNavigation"
+                        Content="ToA"
+                        Tag="AView" />
+                    <Button
+                        Classes="ViewNavigation"
+                        Content="ToB"
+                        Tag="BView" />
+                    <Button
+                        Classes="ViewNavigation"
+                        Content="ToC"
+                        Tag="CView" />
+                    <Button
+                        Classes="ViewNavigation"
+                        Content="ToAWithNew"
+                        Tag="AView:ToAWithNew" />
+                    <Button
+                        Classes="ViewNavigation"
+                        Content="ToBWithError"
+                        Tag="BView:ToBWithError" />
+                </StackPanel>
+            </DockPanel>
+        </SplitView.Pane>
 
-  <TextBlock Text="{Binding Greeting}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+        <DockPanel>
+            <ContentControl an:RegionManager.RegionName="MainRegion" />
+        </DockPanel>
+    </SplitView>
 </UserControl>
