@@ -56,22 +56,25 @@ public class RegionNavigationService<T> : IRegionNavigationService<T> where T : 
                 if (_regionProcessor!.AllowMultipleViews)
                 {
                     var indicator = _indicatorContainers.GetOrAdd(navigationContext, _ => new ContentControl());
-                    indicator.Content = _loadingTemplate!.Build(navigationContext);
                     navigationContext.Indicator.Value = indicator;
                 }
                 else
                 {
                     _indicatorContainer ??= new ContentControl();
-                    _indicatorContainer.Content = _loadingTemplate!.Build(navigationContext);
                     navigationContext.Indicator.Value = _indicatorContainer;
                 }
-                _ = StartProcessNavigation(navigationContext).ConfigureAwait(false);
+                var processTask = StartProcessNavigation(navigationContext);
+                await Task.WhenAny(processTask, Task.Delay(AsyncNavigationOptions.LoadingDisplayDelay, navigationContext.CancellationToken));
+                if (!processTask.IsCompleted)
+                {
+                    ((ContentControl)navigationContext.Indicator.Value).Content = _loadingTemplate!.Build(navigationContext);
+                }
+                await processTask;
             }
             else
             {
                 await StartProcessNavigation(navigationContext);
                 navigationContext.Indicator.Value = navigationContext.Target.Value;
-                //return (navigationContext.Target as Control)!;
             }
             _regionProcessor!.ProcessActivate(navigationContext);
             await WaitNavigationAsync(navigationContext);
@@ -81,15 +84,15 @@ public class RegionNavigationService<T> : IRegionNavigationService<T> where T : 
         {
             if (AsyncNavigationOptions.EnableErrorIndicator)
             {
-                if (navigationContext.Indicator.IsSet 
+                if (navigationContext.Indicator.IsSet
                     && navigationContext.Indicator.Value is ContentControl indicatorContainer)
                 {
                     indicatorContainer!.Content = _errorTemplate!.Build(navigationContext.WithStatus(NavigationStatus.Failed, ex));
-                }               
+                }
             }
             throw;
         }
-    }  
+    }
     public async Task WaitNavigationAsync(NavigationContext navigationContext)
     {
         if (_taskFacades.TryRemove(navigationContext, out var taskFacade))
@@ -275,15 +278,11 @@ public class RegionNavigationService<T> : IRegionNavigationService<T> where T : 
         var tasks = new NavigationTaskFacade(precedingTask, resolveViewTask, remainingTask, navigationContext);
         _taskFacades[navigationContext] = tasks;
 
+        await tasks;
         if (navigationContext.Indicator.Value != null 
             && navigationContext.Indicator.Value is ContentControl container)
         {
-            await tasks;
             container.Content = navigationContext.Target.Value;
-        }
-        else
-        {
-            await tasks.WaitResolveViewTaskAsync();
         }
     }
 }
