@@ -1,7 +1,7 @@
 ﻿namespace AsyncNavigation.Abstractions;
 
-public interface IRegionAdapter
+public interface IRegionAdapter<T> : IRegionAdapter
 {
-    bool IsAdapted(object control);
-    IRegion CreateRegion(string name, object control, IServiceProvider serviceProvider);
+    bool IsAdapted(T control);
+    IRegion CreateRegion(string name, T control, IServiceProvider serviceProvider);
 }

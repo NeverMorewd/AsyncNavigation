@@ -120,7 +120,6 @@ public class RegionManager :
             throw new InvalidOperationException($"Duplicated RegionName found:{name}");
         var region = _regionFactory.CreateRegion(name, value.Sender, _serviceProvider);
         _regions.TryAdd(name, region);
-        region.ServiceProvider = _serviceProvider;
     }
 
     public void OnNext(AvaloniaPropertyChangedEventArgs<IServiceProvider> value)

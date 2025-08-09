@@ -3,19 +3,10 @@ using Avalonia.Controls;
 
 namespace AsyncNavigation.Avalonia;
 
-public class ContentControlAdapter : IRegionAdapter
+public class ContentControlAdapter : RegionAdapterBase<ContentControl>
 {
-    public bool IsAdapted(object control)
+    public override IRegion CreateRegion(string name, ContentControl control, IServiceProvider serviceProvider)
     {
-        return control is ContentControl;
-    }
-
-    public IRegion CreateRegion(string name, object control, IServiceProvider serviceProvider)
-    {
-        if (control is ContentControl contentControl)
-        {
-            return new ContentRegion(name, contentControl, serviceProvider);
-        }
-        throw new InvalidOperationException($"{control.GetType()} does not match {typeof(ContentControl)}");
+        return new ContentRegion(name, control, serviceProvider);
     }
 }

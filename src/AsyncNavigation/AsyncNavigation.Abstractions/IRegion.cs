@@ -3,9 +3,9 @@ using AsyncNavigation.Core;
 
 namespace AsyncNavigation;
 
-public interface IRegion : IAsyncDisposable
+public interface IRegion : IAsyncDisposable, IRegionProcessor
 {
-    IServiceProvider? ServiceProvider { get; set; }
+    //IServiceProvider? ServiceProvider { get; set; }
     string Name { get; }
     INavigationAware? ActiveView { get; }
     IReadOnlyCollection<IView> Views { get; }

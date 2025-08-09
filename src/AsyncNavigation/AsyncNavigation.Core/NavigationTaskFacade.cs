@@ -33,7 +33,7 @@ internal class NavigationTaskFacade
         ThrowIfHasError();
         await _precedingTask;
         await _resolveViewTask;
-        return _context.Target!;
+        return _context.Target.Value!;
     }
     private void ThrowIfHasError()
     {

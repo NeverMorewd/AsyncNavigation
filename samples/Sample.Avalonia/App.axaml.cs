@@ -1,5 +1,4 @@
-﻿using AsyncNavigation.Avalonia;
-using AsyncNavigation.Core;
+﻿using AsyncNavigation.Core;
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Controls.ApplicationLifetimes;

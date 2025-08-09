@@ -21,6 +21,7 @@ public class RegionNavigationService<T> : IRegionNavigationService<T> where T : 
     private readonly IDataTemplate? _errorTemplate;
     private ContentControl? _indicatorContainer;
     private IRegionProcessor? _regionProcessor;
+    private readonly ConcurrentDictionary<NavigationContext, ContentControl> _indicatorContainers = [];
 
     public RegionNavigationService(IServiceProvider serviceProvider)
     {
@@ -43,28 +44,36 @@ public class RegionNavigationService<T> : IRegionNavigationService<T> where T : 
 
     public async Task RequestNavigateAsync(NavigationContext navigationContext)
     {
+        using var reg = navigationContext.CancellationToken.Register(() =>
+        {
+            navigationContext.WithStatus(NavigationStatus.Cancelled);
+        });
+        navigationContext.WithStatus(NavigationStatus.InProgress);
         try
         {
-            using var reg = navigationContext.CancellationToken.Register(() => 
-            {
-                navigationContext.WithStatus(NavigationStatus.Cancelled);
-            });
-            navigationContext.WithStatus(NavigationStatus.InProgress);
-            object activeView;
             if (AsyncNavigationOptions.EnableLoadingIndicator)
             {
-                _indicatorContainer ??= new ContentControl();
-                _indicatorContainer.Content = _loadingTemplate!.Build(navigationContext);
-                activeView = _indicatorContainer;
-                _ = StartProcessNavigation(navigationContext, _indicatorContainer).ConfigureAwait(false);
+                if (_regionProcessor!.AllowMultipleViews)
+                {
+                    var indicator = _indicatorContainers.GetOrAdd(navigationContext, _ => new ContentControl());
+                    indicator.Content = _loadingTemplate!.Build(navigationContext);
+                    navigationContext.Indicator.Value = indicator;
+                }
+                else
+                {
+                    _indicatorContainer ??= new ContentControl();
+                    _indicatorContainer.Content = _loadingTemplate!.Build(navigationContext);
+                    navigationContext.Indicator.Value = _indicatorContainer;
+                }
+                _ = StartProcessNavigation(navigationContext).ConfigureAwait(false);
             }
             else
             {
                 await StartProcessNavigation(navigationContext);
-                activeView = navigationContext.Target!;
+                navigationContext.Indicator.Value = navigationContext.Target.Value;
                 //return (navigationContext.Target as Control)!;
             }
-            _regionProcessor!.ProcessActivate(navigationContext, activeView);
+            _regionProcessor!.ProcessActivate(navigationContext);
             await WaitNavigationAsync(navigationContext);
             navigationContext.WithStatus(NavigationStatus.Succeeded);
         }
@@ -72,7 +81,11 @@ public class RegionNavigationService<T> : IRegionNavigationService<T> where T : 
         {
             if (AsyncNavigationOptions.EnableErrorIndicator)
             {
-                _indicatorContainer!.Content = _errorTemplate!.Build(navigationContext.WithStatus(NavigationStatus.Failed, ex));
+                if (navigationContext.Indicator.IsSet 
+                    && navigationContext.Indicator.Value is ContentControl indicatorContainer)
+                {
+                    indicatorContainer!.Content = _errorTemplate!.Build(navigationContext.WithStatus(NavigationStatus.Failed, ex));
+                }               
             }
             throw;
         }
@@ -134,14 +147,18 @@ public class RegionNavigationService<T> : IRegionNavigationService<T> where T : 
         try
         {
             navigationContext.CancellationToken.ThrowIfCancellationRequested();
-            if (_viewCache.TryGetValue(navigationContext.ViewName, out var cacheView))
+
+            if (_regionProcessor!.ShouldCheckSameNameViewCache)
             {
-                var cacheAware = (cacheView.DataContext as INavigationAware)!;
-                if (await cacheAware.IsNavigationTargetAsync(navigationContext, navigationContext.CancellationToken))
+                if (_viewCache.TryGetValue(navigationContext.ViewName, out var cacheView))
                 {
-                    navigationContext.CancellationToken.ThrowIfCancellationRequested();
-                    navigationContext.Target = cacheView;
-                    return;
+                    var cacheAware = (cacheView.DataContext as INavigationAware)!;
+                    if (await cacheAware.IsNavigationTargetAsync(navigationContext, navigationContext.CancellationToken))
+                    {
+                        navigationContext.CancellationToken.ThrowIfCancellationRequested();
+                        navigationContext.Target.Value = cacheView;
+                        return;
+                    }
                 }
             }
             var template = _availableViewTemplates.GetOrAdd(navigationContext.ViewName, name =>
@@ -163,17 +180,19 @@ public class RegionNavigationService<T> : IRegionNavigationService<T> where T : 
             });
             var view = template.Build(navigationContext) ?? throw new InvalidOperationException($"Template for view '{navigationContext.ViewName}' returned null");
             navigationContext.CancellationToken.ThrowIfCancellationRequested();
-            navigationContext.Target = view;
+            navigationContext.Target.Value = view;
 
             if (view.DataContext is INavigationAware aware)
             {
                 await aware.InitializeAsync(navigationContext.CancellationToken);
             }
-
-            //_viewCache.TryAdd(navigationContext.ViewName, (view as IView)!);
-            _viewCache.AddOrUpdate(navigationContext.ViewName, 
-                (name) => (view as IView)!,
-                (name, oldView) => (view as IView)!);
+            if (_regionProcessor!.ShouldCheckSameNameViewCache)
+            {
+                //_viewCache.TryAdd(navigationContext.ViewName, (view as IView)!);
+                _viewCache.AddOrUpdate(navigationContext.ViewName,
+                    (name) => (view as IView)!,
+                    (name, oldView) => (view as IView)!);
+            }
         }
         catch (Exception ex)
         {
@@ -196,7 +215,7 @@ public class RegionNavigationService<T> : IRegionNavigationService<T> where T : 
     private async Task HandleAfterNavigationAsync(NavigationContext navigationContext)
     {
         navigationContext.CancellationToken.ThrowIfCancellationRequested();
-        if (navigationContext.Target is IView view
+        if (navigationContext.Target.Value is IView view
             && view.DataContext is INavigationAware aware)
         {
             await aware.OnNavigatedToAsync(navigationContext, navigationContext.CancellationToken);
@@ -238,7 +257,7 @@ public class RegionNavigationService<T> : IRegionNavigationService<T> where T : 
             _viewCache.Clear();
         }
     }
-    private async Task StartProcessNavigation(NavigationContext navigationContext, ContentControl? container = null)
+    private async Task StartProcessNavigation(NavigationContext navigationContext)
     {
         var precedingTask = HandleBeforeNavigationAsync(navigationContext);
         var resolveViewTask = ResovleViewAsync(navigationContext);
@@ -256,10 +275,11 @@ public class RegionNavigationService<T> : IRegionNavigationService<T> where T : 
         var tasks = new NavigationTaskFacade(precedingTask, resolveViewTask, remainingTask, navigationContext);
         _taskFacades[navigationContext] = tasks;
 
-        if (container != null)
+        if (navigationContext.Indicator.Value != null 
+            && navigationContext.Indicator.Value is ContentControl container)
         {
             await tasks;
-            container.Content = navigationContext.Target;
+            container.Content = navigationContext.Target.Value;
         }
         else
         {

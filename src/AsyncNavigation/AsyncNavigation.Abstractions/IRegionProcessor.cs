@@ -4,6 +4,8 @@ namespace AsyncNavigation.Abstractions;
 
 public interface IRegionProcessor
 {
-    void ProcessActivate(NavigationContext navigationContext, object content);
-    void ProcessDeactivate(NavigationContext navigationContext, object content);
+    bool ShouldCheckSameNameViewCache { get; }
+    bool AllowMultipleViews { get; }
+    void ProcessActivate(NavigationContext navigationContext);
+    void ProcessDeactivate(NavigationContext navigationContext);
 }

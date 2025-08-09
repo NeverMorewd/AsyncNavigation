@@ -1,4 +1,4 @@
-<Window xmlns="https://github.com/avaloniaui"
+﻿<Window xmlns="https://github.com/avaloniaui"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:vm="using:Sample.Avalonia.ViewModels"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
@@ -7,6 +7,8 @@
         mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
         x:Class="Sample.Avalonia.Views.MainWindow"
         Icon="/Assets/avalonia-logo.ico"
+		WindowStartupLocation="CenterScreen"
+		WindowState="Maximized"
         Title="Sample.Avalonia">
         <views:MainView />
 </Window>

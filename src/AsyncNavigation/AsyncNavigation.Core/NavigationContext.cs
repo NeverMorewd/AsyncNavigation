@@ -27,15 +27,11 @@ public class NavigationContext
     /// </summary>
     public NavigationParameters Parameters { get; init; } = [];
 
-    ///// <summary>
-    ///// Gets the source view that initiated the navigation.
-    ///// </summary>
-    public object? Source { get; set; }
 
-    ///// <summary>
-    ///// Gets the target view instance after navigation.
-    ///// </summary>
-    public object? Target { get; set; }
+    public SetOnce<object?> Source { get; } = new();
+    public SetOnce<object?> Target { get; } = new();
+    public SetOnce<object?> Indicator { get; } = new();
+
 
     /// <summary>
     /// Gets the timestamp when navigation was initiated.
@@ -105,8 +101,6 @@ public class NavigationContext
     {
         RegionName = string.Empty,
         ViewName = string.Empty,
-        Source = null,
-        Target = null,
         NavigationTime = DateTime.MinValue,
         IsBackNavigation = false,
         Status = NavigationStatus.Failed,

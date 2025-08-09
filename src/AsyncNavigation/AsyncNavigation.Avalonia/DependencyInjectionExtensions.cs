@@ -77,6 +77,7 @@ public static class DependencyInjectionExtensions
     {
         return serviceDescriptors
             .RegisterRegionAdapter<ContentControlAdapter>()
+            .RegisterRegionAdapter<ItemsControlAdapter>()
             .AddTransient(typeof(IRegionNavigationService<>), typeof(RegionNavigationService<>))
             .AddSingleton<RegionFactory>()
             //.AddSingleton<IAsyncViewFactory, AsyncViewFactory>()

@@ -1,26 +1,56 @@
-﻿<UserControl xmlns="https://github.com/avaloniaui"
-             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
-             x:Class="Sample.Avalonia.Views.AView">
-	<Border
-			Background="CadetBlue"
-			BorderBrush="LemonChiffon"
-			HorizontalAlignment="Stretch"
-			BorderThickness="1">
-		<StackPanel>
-			<TextBlock Text="{Binding Name}" />
-			<Button
-                HorizontalContentAlignment="Center"
-                VerticalContentAlignment="Center"
-                Command="{Binding UnloadViewCommand}"
-                Content="UnloadView"
-                IsVisible="{Binding !IsDialog}"/>
-			<Button
-                Command="{Binding CloseCommand}"
-                Content="CloseDialog"
-                IsVisible="{Binding IsDialog}" />
-		</StackPanel>
-	</Border>
+﻿<UserControl
+    x:Class="Sample.Avalonia.Views.AView"
+    xmlns="https://github.com/avaloniaui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:an="https://github.com/NeverMorewd/AsyncNavigation"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    d:DesignHeight="450"
+    d:DesignWidth="800"
+    mc:Ignorable="d">
+    <DockPanel LastChildFill="True">
+        <Border
+            HorizontalAlignment="Stretch"
+            Background="CadetBlue"
+            BorderBrush="LemonChiffon"
+            BorderThickness="1"
+            DockPanel.Dock="Top">
+            <StackPanel>
+                <TextBlock Text="{Binding Name}" />
+                <Button
+                    HorizontalContentAlignment="Center"
+                    VerticalContentAlignment="Center"
+                    Command="{Binding UnloadViewCommand}"
+                    Content="UnloadView"
+                    IsVisible="{Binding !IsDialog}" />
+                <Button
+                    Command="{Binding CloseCommand}"
+                    Content="CloseDialog"
+                    IsVisible="{Binding IsDialog}" />
+            </StackPanel>
+        </Border>
+        <StackPanel Orientation="Vertical">
+            <Button
+                Classes="ViewNavigation"
+                Content="ToA"
+                Tag="AView" />
+            <Button
+                Classes="ViewNavigation"
+                Content="ToB"
+                Tag="BView" />
+            <Button
+                Classes="ViewNavigation"
+                Content="ToC"
+                Tag="CView" />
+        </StackPanel>
+        <ScrollViewer>
+            <ItemsControl an:RegionManager.RegionName="ItemsRegion">
+                <ItemsControl.ItemsPanel>
+                    <ItemsPanelTemplate>
+                        <StackPanel />
+                    </ItemsPanelTemplate>
+                </ItemsControl.ItemsPanel>
+            </ItemsControl>
+        </ScrollViewer>
+    </DockPanel>
 </UserControl>

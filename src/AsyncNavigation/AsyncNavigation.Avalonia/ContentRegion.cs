@@ -45,7 +45,8 @@ public class ContentRegion : IContentRegion<ContentControl>, IRegionProcessor
         _regionNavigationService.Setup(this);
     }
     public ContentControl ContentControl => _contentControl;
-    
+    public bool ShouldCheckSameNameViewCache => true;
+    public bool AllowMultipleViews => false;
     #region IRegion Methods
     public async Task<NavigationResult> ActivateViewAsync(NavigationContext navigationContext)
     {
@@ -130,12 +131,12 @@ public class ContentRegion : IContentRegion<ContentControl>, IRegionProcessor
         throw new NotImplementedException();
     }
 
-    public void ProcessActivate(NavigationContext navigationContext, object content)
+    public void ProcessActivate(NavigationContext navigationContext)
     {
-        _contentControl.Content = content;
+        _contentControl.Content = navigationContext.Indicator.Value;
     }
 
-    public void ProcessDeactivate(NavigationContext navigationContext, object content)
+    public void ProcessDeactivate(NavigationContext navigationContext)
     {
         _contentControl.Content = null;
     }
