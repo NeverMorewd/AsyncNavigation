@@ -2,7 +2,7 @@
 
 namespace Microsoft.Extensions.DependencyInjection;
 
-public static class Extensions
+public static class DependencyInjectionExtensions
 {
     public static IServiceCollection RegisterNavigation<TView, TViewModel>(this IServiceCollection serviceDescriptors, string viewKey)
         where TView : class, IView
@@ -22,7 +22,6 @@ public static class Extensions
             serviceDescriptors.AddKeyedTransient(viewKey, (sp, key) =>
                 (IDialogAware)sp.GetRequiredService<TViewModel>());
         }
-
         return serviceDescriptors;
     }
 }

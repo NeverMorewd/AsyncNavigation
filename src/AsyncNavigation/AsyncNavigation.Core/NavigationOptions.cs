@@ -1,14 +1,14 @@
 ﻿namespace AsyncNavigation.Core;
 
-
-public static class AsyncNavigationOptions
+public static class NavigationOptions
 {
     private static int _loadingIndicatorRegistered;
     private static int _errorIndicatorRegistered;
-    public static bool EnableViewCaching { get; set; } = true;
-    public static int MaxCachedViews { get; set; } = 10;
-    public static TimeSpan NavigationTimeout { get; set; } = TimeSpan.FromSeconds(30);
-    public static TimeSpan LoadingDisplayDelay { get; set; } = TimeSpan.FromMilliseconds(500);
+
+
+    public static int MaxCachedViews { get; set; } = 100;
+    public static TimeSpan NavigationTimeout { get; set; } = TimeSpan.FromSeconds(300);
+    public static TimeSpan LoadingIndicatorDelay { get; set; } = TimeSpan.FromMilliseconds(500);
     public static bool ParallelNavigationLifecycle { get; set; } = false;
     public static bool EnableLoadingIndicator { get => _loadingIndicatorRegistered == 1; }
     public static bool EnableErrorIndicator { get => _errorIndicatorRegistered == 1; }

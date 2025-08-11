@@ -9,7 +9,7 @@ public class TabControlAdapter : IRegionAdapter
         return true;
     }
 
-    public IRegion CreateRegion(string name, object control, IServiceProvider serviceProvider)
+    public IRegion CreateRegion(string name, object control, IServiceProvider serviceProvider, bool? useCache = null)
     {
         throw new NotImplementedException();
     }

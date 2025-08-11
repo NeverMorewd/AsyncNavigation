@@ -42,6 +42,21 @@ public class RegionManager :
     }
     #endregion
 
+    #region EnableViewCache
+    public static readonly AttachedProperty<bool?> EnableViewCacheProperty =
+           AvaloniaProperty.RegisterAttached<RegionManager, AvaloniaObject, bool?>("EnableViewCache", null);
+
+    public static bool? GetEnableView(AvaloniaObject obj)
+    {
+        return obj.GetValue(EnableViewCacheProperty);
+    }
+
+    public static void SetEnableView(AvaloniaObject obj, bool? value)
+    {
+        obj.SetValue(EnableViewCacheProperty, value);
+    }
+    #endregion
+
     static RegionManager()
     {
 
@@ -118,7 +133,13 @@ public class RegionManager :
         if (string.IsNullOrEmpty(name)) return;
         if (_regions.TryGetValue(name, out _))
             throw new InvalidOperationException($"Duplicated RegionName found:{name}");
-        var region = _regionFactory.CreateRegion(name, value.Sender, _serviceProvider);
+
+        bool? useCache = null;
+        if (value.Sender.IsSet(EnableViewCacheProperty))
+        {
+            useCache = value.Sender.GetValue(EnableViewCacheProperty);
+        }
+        var region = _regionFactory.CreateRegion(name, value.Sender, _serviceProvider, useCache);
         _regions.TryAdd(name, region);
     }
 

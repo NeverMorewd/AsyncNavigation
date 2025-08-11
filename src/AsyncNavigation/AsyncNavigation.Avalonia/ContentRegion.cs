@@ -7,11 +7,10 @@ using System.ComponentModel;
 
 namespace AsyncNavigation.Avalonia;
 
-public class ContentRegion : IContentRegion<ContentControl>, IRegionProcessor
+public class ContentRegion : IContentRegion<ContentControl>
 {
     private readonly ContentControl _contentControl;
     private readonly IServiceProvider _serviceProvider;
-    //private readonly ViewTemplateSelector _viewTemplateSelector;
     private readonly IRegionNavigationService<ContentRegion> _regionNavigationService;
 
     #region IRegion Propertries
@@ -34,33 +33,29 @@ public class ContentRegion : IContentRegion<ContentControl>, IRegionProcessor
     public event AsyncEventHandler<ViewRemovedEventArgs<INavigationAware>>? ViewRemoved;
     public event AsyncEventHandler<NavigationFailedEventArgs>? NavigationFailed;
     #endregion
-    public ContentRegion(string name, ContentControl contentControl, IServiceProvider serviceProvider)
+    public ContentRegion(string name, ContentControl contentControl, IServiceProvider serviceProvider, bool? useCache)
     {
         Name = name;
         _serviceProvider = serviceProvider;
         _contentControl = contentControl;
+        if (useCache != null)
+        {
+            EnableViewCache = useCache.Value;
+        }
+        else
+        {
+            EnableViewCache = true;
+        }
         _regionNavigationService = _serviceProvider.GetRequiredService<IRegionNavigationService<ContentRegion>>();
-        //_viewTemplateSelector = new ViewTemplateSelector(_serviceProvider);
-        //_contentControl.DataTemplates.Add(_viewTemplateSelector);
-        _regionNavigationService.Setup(this);
+        _regionNavigationService.SeRegionProcessor(this);
     }
     public ContentControl ContentControl => _contentControl;
-    public bool ShouldCheckSameNameViewCache => true;
-    public bool AllowMultipleViews => false;
+    public bool EnableViewCache { get; }
+    public bool IsSinglePageRegion => true;
     #region IRegion Methods
     public async Task<NavigationResult> ActivateViewAsync(NavigationContext navigationContext)
     {
-        try
-        {
-            await _regionNavigationService.RequestNavigateAsync(navigationContext);
-            //Content = navigationContext;
-            //await _viewTemplateSelector.WaitAsync(navigationContext);
-            return NavigationResult.Successful();
-        }
-        catch (Exception ex)
-        {
-            return NavigationResult.Failed(ex.Message, ex);
-        }
+        return await _regionNavigationService.RequestNavigateAsync(navigationContext);
     }
 
     public Task<NavigationResult> DeactivateViewAsync(NavigationContext navigationContext)

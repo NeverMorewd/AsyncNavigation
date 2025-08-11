@@ -11,15 +11,15 @@ public abstract class RegionAdapterBase<T> : IRegionAdapter<T>
     {
         return true;
     }
-    public abstract IRegion CreateRegion(string name, T control, IServiceProvider serviceProvider);
+    public abstract IRegion CreateRegion(string name, T control, IServiceProvider serviceProvider, bool? useCache = null);
 
     bool IRegionAdapter.IsAdapted(object control) =>
         control is T t && IsAdapted(t);
 
-    IRegion IRegionAdapter.CreateRegion(string name, object control, IServiceProvider serviceProvider)
+    IRegion IRegionAdapter.CreateRegion(string name, object control, IServiceProvider serviceProvider, bool? useCache)
     {
         if (control is not T t)
             throw new ArgumentException($"Control type {control.GetType()} is not supported.");
-        return CreateRegion(name, t, serviceProvider);
+        return CreateRegion(name, t, serviceProvider, useCache);
     }
 }

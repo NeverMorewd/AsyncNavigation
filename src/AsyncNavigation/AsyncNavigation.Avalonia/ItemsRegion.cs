@@ -11,18 +11,26 @@ public class ItemsRegion : IItemsRegion<ItemsControl>
 {
     private readonly IRegionNavigationService<ItemsRegion> _regionNavigationService;
     private readonly ItemsControl _itemsControl;
-    public ItemsRegion(string name, ItemsControl itemsControl, IServiceProvider serviceProvider)
+    public ItemsRegion(string name, ItemsControl itemsControl, IServiceProvider serviceProvider, bool? useCache)
     {
         _itemsControl = itemsControl;
         _itemsControl.ItemTemplate = new FuncDataTemplate<NavigationContext>((context, np) =>
         {
             return context.Indicator.Value as Control;
         });
+        if (useCache != null)
+        {
+            EnableViewCache = useCache.Value;
+        }
+        else
+        {
+            EnableViewCache = false;
+        }
         _regionNavigationService = serviceProvider.GetRequiredService<IRegionNavigationService<ItemsRegion>>();
-        _regionNavigationService.Setup(this);
+        _regionNavigationService.SeRegionProcessor(this);
     }
-    public bool ShouldCheckSameNameViewCache => false;
-    public bool AllowMultipleViews => true;
+    public bool EnableViewCache { get; }
+    public bool IsSinglePageRegion => false;
     public ObservableCollection<NavigationContext> Contexts => throw new NotImplementedException();
 
     public ItemsControl ItemsControl => throw new NotImplementedException();
@@ -48,17 +56,7 @@ public class ItemsRegion : IItemsRegion<ItemsControl>
 
     public async Task<NavigationResult> ActivateViewAsync(NavigationContext navigationContext)
     {
-        try
-        {
-            await _regionNavigationService.RequestNavigateAsync(navigationContext);
-            //Content = navigationContext;
-            //await _viewTemplateSelector.WaitAsync(navigationContext);
-            return NavigationResult.Successful();
-        }
-        catch (Exception ex)
-        {
-            return NavigationResult.Failed(ex.Message, ex);
-        }
+        return await _regionNavigationService.RequestNavigateAsync(navigationContext);
     }
 
     public bool AddView(IView view)
@@ -120,7 +118,7 @@ public class ItemsRegion : IItemsRegion<ItemsControl>
     {
         if (_itemsControl.Items.Contains(navigationContext))
         {
-            
+
         }
         else
         {

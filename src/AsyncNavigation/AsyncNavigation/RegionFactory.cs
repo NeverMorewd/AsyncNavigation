@@ -16,11 +16,14 @@ public class RegionFactory
         _adapters.Add(adapter);
     }
 
-    public IRegion CreateRegion(string name, object control, IServiceProvider serviceProvider)
+    public IRegion CreateRegion(string name, 
+        object control, 
+        IServiceProvider serviceProvider, 
+        bool? useCache = null)
     {
         var adapter = _adapters.FirstOrDefault(a => a.IsAdapted(control));
         return adapter == null? 
             throw new NotSupportedException($"Unsupported control: {control.GetType()}"): 
-            adapter.CreateRegion(name, control, serviceProvider);
+            adapter.CreateRegion(name, control, serviceProvider, useCache);
     }
 }
