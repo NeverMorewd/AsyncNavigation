@@ -1,5 +1,4 @@
 ﻿using System.Collections.Concurrent;
-using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace AsyncNavigation.Core;
 
@@ -20,7 +19,7 @@ public class NavigationContext
     /// </summary>
     public required string ViewName { get; init; }
 
-    public required CancellationToken CancellationToken { get; init; } = default;
+    public CancellationToken CancellationToken { get; internal set; } = default;
 
     /// <summary>
     /// Gets the navigation parameters passed to the target view.
@@ -28,10 +27,9 @@ public class NavigationContext
     public NavigationParameters Parameters { get; init; } = [];
 
 
-    public SetOnce<object?> Source { get; } = new();
-    public SetOnce<object?> Target { get; } = new();
-    public SetOnce<object?> Indicator { get; } = new();
-
+    public OnceSet<object?> Source { get; } = new();
+    public OnceSet<object?> Target { get; } = new();
+    public OnceSet<object?> Indicator { get; } = new();
 
     /// <summary>
     /// Gets the timestamp when navigation was initiated.

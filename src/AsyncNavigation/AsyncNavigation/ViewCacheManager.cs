@@ -55,7 +55,7 @@ internal class ViewCacheManager : IViewCacheManager
 
         _viewCache[cacheKey] = view;
 
-        while (_cacheKeys.Count > NavigationOptions.MaxCachedViews)
+        while (_cacheKeys.Count > NavigationOptions.Default.MaxCachedItems)
         {
             if (_cacheKeys.TryDequeue(out var oldestKey))
             {

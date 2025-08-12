@@ -12,8 +12,8 @@ public partial class CViewModel : ViewModelBase
     }
 
     [ReactiveCommand]
-    private async Task Navigate(string param)
+    private async Task AsyncNavigate(string param)
     {
-        var result = await _regionManager.RequestNavigate("ChildRegion", param);
+        var result = await _regionManager.RequestNavigate("ChildContentRegion", param);
     }
 }

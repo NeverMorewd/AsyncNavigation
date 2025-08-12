@@ -2,28 +2,56 @@
 using Microsoft.Extensions.DependencyInjection;
 using System.Collections.Concurrent;
 using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 
 namespace AsyncNavigation;
 
-public class ServiceProviderViewFactory : IViewFactory
+public class DefaultViewFactory<T> : IViewFactory<T> where T : class
 {
     private readonly IServiceProvider _serviceProvider;
     private readonly IReadOnlyList<ServiceDescriptor> _serviceDescriptors;
     private readonly ConcurrentDictionary<string, Func<IView>> _viewFactories = new();
 
-    public ServiceProviderViewFactory(IServiceProvider serviceProvider, IEnumerable<ServiceDescriptor> serviceDescriptors)
+    public DefaultViewFactory(IServiceProvider serviceProvider, IEnumerable<ServiceDescriptor> serviceDescriptors)
     {
         _serviceProvider = serviceProvider;
         _serviceDescriptors = [.. serviceDescriptors];
     }
 
-    public async Task<IView> CreateViewAsync(string viewName, CancellationToken cancellationToken = default)
+    public IView CreateView(string viewName)
     {
         var factory = _viewFactories.GetOrAdd(viewName, CreateViewFactory);
-        cancellationToken.ThrowIfCancellationRequested();
         var view = factory();
         Debug.WriteLine($"Created view {viewName} of type {view.GetType().Name}");
-        return await Task.FromResult(view);
+        return view;
+    }
+
+    public T CreateViewObject(string viewName)
+    {
+        var view = CreateView(viewName);
+
+        if (TryUnWrapView(view, out var viewObject))
+            return viewObject;
+
+        throw new InvalidOperationException(
+            $"View '{viewName}' is not of expected type {typeof(T).Name}.");
+    }
+
+    public void AddView(string key, IView view)
+    {
+        if(_viewFactories.TryGetValue(key, out _))
+            throw new ArgumentException($"View with key '{key}' already exists.");
+        _viewFactories.TryAdd(key, () => view);
+    }
+    public void AddView(string key, Func<string, IView> viewBuilder)
+    {
+        if (_viewFactories.TryGetValue(key, out _))
+            throw new ArgumentException($"View with key '{key}' already exists.");
+        _viewFactories.TryAdd(key, () => viewBuilder.Invoke(key));
+    }
+    public bool TryUnWrapView(IView view, [MaybeNullWhen(false)] out T viewObject)
+    {
+        return (viewObject = view as T) is not null;
     }
 
     public bool CanCreateView(string viewName)
@@ -46,9 +74,9 @@ public class ServiceProviderViewFactory : IViewFactory
             }
             catch (Exception ex)
             {
+                Debug.WriteLine(ex);
                 throw new InvalidOperationException($"Failed to create view for '{viewName}'", ex);
             }
         };
     }
-
 }

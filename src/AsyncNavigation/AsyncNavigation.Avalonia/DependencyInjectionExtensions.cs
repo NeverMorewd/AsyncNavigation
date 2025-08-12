@@ -17,7 +17,7 @@ public static class DependencyInjectionExtensions
     public static IServiceCollection RegisterLoadingIndicator<T>(this IServiceCollection serviceDescriptors)
         where T : Control
     {
-        NavigationOptions.EnsureSingleLoadingIndicator();
+        NavigationOptions.Default.EnsureSingleLoadingIndicator();
         return serviceDescriptors
             .AddKeyedTransient<T>(NavigationConstants.INDICATOR_LOADING_KEY)
             .AddKeyedSingleton<IDataTemplate>(NavigationConstants.INDICATOR_LOADING_KEY, (sp, key) =>
@@ -32,7 +32,7 @@ public static class DependencyInjectionExtensions
     }
     public static IServiceCollection RegisterLoadingIndicator(this IServiceCollection serviceDescriptors, Func<IServiceProvider, NavigationContext, Control> indicatorBuilder)
     {
-        NavigationOptions.EnsureSingleLoadingIndicator();
+        NavigationOptions.Default.EnsureSingleLoadingIndicator();
         return serviceDescriptors
             .AddKeyedSingleton<IDataTemplate>(NavigationConstants.INDICATOR_LOADING_KEY, (sp, key) =>
             {
@@ -46,7 +46,7 @@ public static class DependencyInjectionExtensions
     public static IServiceCollection RegisterErrorIndicator<T>(this IServiceCollection serviceDescriptors)
         where T : Control
     {
-        NavigationOptions.EnsureSingleErrorIndicator();
+        NavigationOptions.Default.EnsureSingleErrorIndicator();
         return serviceDescriptors
             .AddKeyedTransient<T>(NavigationConstants.INDICATOR_ERROR_KEY)
             .AddKeyedSingleton<IDataTemplate>(NavigationConstants.INDICATOR_ERROR_KEY, (sp, key) =>
@@ -61,7 +61,7 @@ public static class DependencyInjectionExtensions
     }
     public static IServiceCollection RegisterErrorIndicator(this IServiceCollection serviceDescriptors, Func<IServiceProvider, NavigationContext, Control> indicatorBuilder)
     {
-        NavigationOptions.EnsureSingleErrorIndicator();
+        NavigationOptions.Default.EnsureSingleErrorIndicator();
         return serviceDescriptors
             .AddKeyedSingleton<IDataTemplate>(NavigationConstants.INDICATOR_ERROR_KEY, (sp, key) =>
             {
@@ -73,14 +73,26 @@ public static class DependencyInjectionExtensions
                 }, true);
             });
     }
-    public static IServiceCollection AddAsyncNavigationSupport(this IServiceCollection serviceDescriptors)
+    public static IServiceCollection AddAsyncNavigationSupport(this IServiceCollection serviceDescriptors, NavigationOptions? navigationOptions = null)
     {
+        if(navigationOptions is not null)
+        {
+            NavigationOptions.Default.MergeFrom(navigationOptions);
+        }
+        if (NavigationOptions.Default.NavigationTaskScope == NavigationTaskScope.Global)
+        {
+            serviceDescriptors.AddSingleton<INavigationTaskManager, NavigationTaskManager>();
+        }
+        else
+        {
+            serviceDescriptors.AddTransient<INavigationTaskManager, NavigationTaskManager>();
+        }
         return serviceDescriptors
             .RegisterRegionAdapter<ContentControlAdapter>()
             .RegisterRegionAdapter<ItemsControlAdapter>()
             .AddTransient(typeof(IRegionNavigationService<>), typeof(RegionNavigationService<>))
             .AddSingleton<RegionFactory>()
-            .AddSingleton<IViewFactory>(sp => new ServiceProviderViewFactory(sp, serviceDescriptors))
+            .AddSingleton<IViewFactory<Control>>(sp => new DefaultViewFactory<Control>(sp, serviceDescriptors))
             .AddTransient<IViewCacheManager, ViewCacheManager>()
             .AddTransient<IRegionIndicatorManager<ContentControl>, RegionIndicatorManager>()
             .AddSingleton<IRegionManager, RegionManager>();

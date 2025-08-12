@@ -9,9 +9,6 @@
     d:DesignHeight="450"
     d:DesignWidth="800"
     mc:Ignorable="d">
-    <Design.DataContext>
-        <vm:MainViewModel />
-    </Design.DataContext>
     <SplitView
         DisplayMode="CompactInline"
         IsPaneOpen="{Binding IsSplitViewPaneOpen}"
@@ -23,25 +20,33 @@
                     Classes="Switch"
                     DockPanel.Dock="Top"
                     IsChecked="{Binding IsSplitViewPaneOpen}" />
-                <StackPanel Classes="ViewNavigation" IsVisible="{Binding IsSplitViewPaneOpen}">
+                <StackPanel Classes="Navigation" IsVisible="{Binding IsSplitViewPaneOpen}">
                     <Button
-                        Classes="ViewNavigation"
+                        Classes="Navigation"
                         Content="ToA"
                         Tag="AView" />
                     <Button
-                        Classes="ViewNavigation"
+                        Classes="Navigation"
                         Content="ToB"
                         Tag="BView" />
+					<Button
+					   Classes="NavigationWithoutWait"
+					   Content="ToA:NOWait"
+					   Tag="AView" />
+					<Button
+                        Classes="NavigationWithoutWait"
+                        Content="ToB:NOWait"
+                        Tag="BView" />
                     <Button
-                        Classes="ViewNavigation"
+                        Classes="Navigation"
                         Content="ToC"
                         Tag="CView" />
                     <Button
-                        Classes="ViewNavigation"
+                        Classes="Navigation"
                         Content="ToAWithNew"
                         Tag="AView:ToAWithNew" />
                     <Button
-                        Classes="ViewNavigation"
+                        Classes="Navigation"
                         Content="ToBWithError"
                         Tag="BView:ToBWithError" />
                 </StackPanel>

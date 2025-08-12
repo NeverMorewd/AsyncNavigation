@@ -1,6 +1,6 @@
 ﻿namespace AsyncNavigation.Core;
 
-public class SetOnce<T>
+public class OnceSet<T>
 {
     private T? _value;
     private int _isSet;

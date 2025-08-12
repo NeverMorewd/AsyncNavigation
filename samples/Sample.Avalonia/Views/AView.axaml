@@ -31,15 +31,15 @@
         </Border>
         <StackPanel Orientation="Vertical">
             <Button
-                Classes="ViewNavigation"
+                Classes="Navigation"
                 Content="ToA"
                 Tag="AView" />
             <Button
-                Classes="ViewNavigation"
+                Classes="Navigation"
                 Content="ToB"
                 Tag="BView" />
             <Button
-                Classes="ViewNavigation"
+                Classes="Navigation"
                 Content="ToC"
                 Tag="CView" />
         </StackPanel>

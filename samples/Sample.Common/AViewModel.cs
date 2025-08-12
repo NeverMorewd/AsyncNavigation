@@ -17,7 +17,7 @@ public partial class AViewModel : ViewModelBase
     }
 
     [ReactiveCommand]
-    private async Task Navigate(string param)
+    private async Task AsyncNavigate(string param)
     {
         var result = await _regionManager.RequestNavigate("ItemsRegion", param);
     }

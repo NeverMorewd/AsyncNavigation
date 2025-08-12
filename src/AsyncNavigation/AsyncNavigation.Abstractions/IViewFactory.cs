@@ -1,7 +1,11 @@
-﻿namespace AsyncNavigation.Abstractions;
+﻿using System.Diagnostics.CodeAnalysis;
 
-public interface IViewFactory
+namespace AsyncNavigation.Abstractions;
+
+public interface IViewFactory<T> where T : class
 {
-    Task<IView> CreateViewAsync(string viewName, CancellationToken cancellationToken = default);
+    bool TryUnWrapView(IView view, [MaybeNullWhen(false)] out T viewObject);
+    T CreateViewObject(string viewName);
+    IView CreateView(string viewName);
     bool CanCreateView(string viewName);
 }
