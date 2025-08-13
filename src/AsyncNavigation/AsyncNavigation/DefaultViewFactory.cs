@@ -2,11 +2,10 @@
 using Microsoft.Extensions.DependencyInjection;
 using System.Collections.Concurrent;
 using System.Diagnostics;
-using System.Diagnostics.CodeAnalysis;
 
 namespace AsyncNavigation;
 
-public class DefaultViewFactory<T> : IViewFactory<T> where T : class
+public class DefaultViewFactory : IViewFactory
 {
     private readonly IServiceProvider _serviceProvider;
     private readonly IReadOnlyList<ServiceDescriptor> _serviceDescriptors;
@@ -26,17 +25,6 @@ public class DefaultViewFactory<T> : IViewFactory<T> where T : class
         return view;
     }
 
-    public T CreateViewObject(string viewName)
-    {
-        var view = CreateView(viewName);
-
-        if (TryUnWrapView(view, out var viewObject))
-            return viewObject;
-
-        throw new InvalidOperationException(
-            $"View '{viewName}' is not of expected type {typeof(T).Name}.");
-    }
-
     public void AddView(string key, IView view)
     {
         if(_viewFactories.TryGetValue(key, out _))
@@ -48,10 +36,6 @@ public class DefaultViewFactory<T> : IViewFactory<T> where T : class
         if (_viewFactories.TryGetValue(key, out _))
             throw new ArgumentException($"View with key '{key}' already exists.");
         _viewFactories.TryAdd(key, () => viewBuilder.Invoke(key));
-    }
-    public bool TryUnWrapView(IView view, [MaybeNullWhen(false)] out T viewObject)
-    {
-        return (viewObject = view as T) is not null;
     }
 
     public bool CanCreateView(string viewName)

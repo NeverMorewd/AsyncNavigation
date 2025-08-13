@@ -1,18 +1,17 @@
 ﻿using AsyncNavigation.Abstractions;
 using AsyncNavigation.Core;
-using Avalonia.Controls;
 using Microsoft.Extensions.DependencyInjection;
 using System.Diagnostics;
 
-namespace AsyncNavigation.Avalonia;
+namespace AsyncNavigation;
 
 public class RegionNavigationService<T> : IRegionNavigationService<T> where T : IRegionProcessor
 {
     private readonly AsyncConcurrentItem<IView> Current = new();
     private readonly IServiceProvider _serviceProvider;
     private readonly IViewCacheManager  _viewCacheManager;
-    private readonly IViewFactory<Control> _viewFactory;
-    private readonly IRegionIndicatorManager<ContentControl> _regionIndicatorManager;
+    private readonly IViewFactory _viewFactory;
+    private readonly IRegionIndicatorManager _regionIndicatorManager;
     private readonly INavigationTaskManager _navigationTaskManager;
 
     private IRegionProcessor? _regionProcessor;
@@ -22,8 +21,8 @@ public class RegionNavigationService<T> : IRegionNavigationService<T> where T : 
         _serviceProvider = serviceProvider;
         _navigationTaskManager = _serviceProvider.GetRequiredService<INavigationTaskManager>();
         _viewCacheManager = _serviceProvider.GetRequiredService<IViewCacheManager>();
-        _viewFactory = _serviceProvider.GetRequiredService<IViewFactory<Control>>();
-        _regionIndicatorManager = _serviceProvider.GetRequiredService<IRegionIndicatorManager<ContentControl>>();
+        _viewFactory = _serviceProvider.GetRequiredService<IViewFactory>();
+        _regionIndicatorManager = _serviceProvider.GetRequiredService<IRegionIndicatorManager>();
     }
     public void SeRegionProcessor(T regionProcessor)
     {
@@ -38,7 +37,7 @@ public class RegionNavigationService<T> : IRegionNavigationService<T> where T : 
             await _navigationTaskManager.StartNavigationAsync(navigationContext, CreateNavigateTask);
             return NavigationResult.Success(stopwatch.Elapsed);
         }
-        catch (OperationCanceledException ocex)
+        catch (OperationCanceledException ocex) when (navigationContext.CancellationToken.IsCancellationRequested)
         {
             await _regionIndicatorManager.ShowErrorAsync(navigationContext, ocex);
             return NavigationResult.Cancelled(stopwatch.Elapsed);
@@ -56,16 +55,9 @@ public class RegionNavigationService<T> : IRegionNavigationService<T> where T : 
 
     private async Task CreateNavigateTask(NavigationContext navigationContext)
     {
-        if (_regionProcessor!.IsSinglePageRegion)
-        {
-            _regionIndicatorManager.SetupSingletonIndicator(navigationContext);
-        }
-        else
-        {
-            _regionIndicatorManager.SetupIndicator(navigationContext);
-        }
-        _regionProcessor!.ProcessActivate(navigationContext);
-        await _regionIndicatorManager.DelayShowLoadingAsync(navigationContext, StartProcessNavigation(navigationContext));
+        var indicator = _regionIndicatorManager.Setup(navigationContext, _regionProcessor!.IsSinglePageRegion);
+        _regionProcessor!.RenderIndicator(navigationContext, indicator);
+        await _regionIndicatorManager.StartAsync(navigationContext, StartProcessNavigation(navigationContext), NavigationOptions.Default.LoadingIndicatorDelay);
     }
 
     private async Task ResovleViewAsync(NavigationContext navigationContext)
@@ -88,7 +80,7 @@ public class RegionNavigationService<T> : IRegionNavigationService<T> where T : 
 
         navigationContext.CancellationToken.ThrowIfCancellationRequested();
         
-        var view = _viewFactory.CreateViewObject(navigationContext.ViewName);
+        var view = _viewFactory.CreateView(navigationContext.ViewName);
 
         if (view.DataContext is INavigationAware aware)
         {
@@ -128,6 +120,6 @@ public class RegionNavigationService<T> : IRegionNavigationService<T> where T : 
         await HandleBeforeNavigationAsync(navigationContext);
         await ResovleViewAsync(navigationContext);
         await HandleAfterNavigationAsync(navigationContext);
-        await _regionIndicatorManager.ShowContentAsync(navigationContext, navigationContext.Target.Value!);
+        //await _regionIndicatorManager.ShowContentAsync(navigationContext, navigationContext.Target.Value!);
     }
 }

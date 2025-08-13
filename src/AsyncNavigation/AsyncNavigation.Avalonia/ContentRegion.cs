@@ -126,11 +126,14 @@ public class ContentRegion : IContentRegion<ContentControl>
         throw new NotImplementedException();
     }
 
+    public void RenderIndicator(NavigationContext navigationContext, IRegionIndicator regionIndicator)
+    {
+        _contentControl.Content = regionIndicator.Control;
+    }
     public void ProcessActivate(NavigationContext navigationContext)
     {
-        _contentControl.Content = navigationContext.Indicator.Value;
+        //_contentControl.Content = navigationContext.Control;
     }
-
     public void ProcessDeactivate(NavigationContext navigationContext)
     {
         _contentControl.Content = null;

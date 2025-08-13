@@ -16,7 +16,11 @@ public class ItemsRegion : IItemsRegion<ItemsControl>
         _itemsControl = itemsControl;
         _itemsControl.ItemTemplate = new FuncDataTemplate<NavigationContext>((context, np) =>
         {
-            return context.Indicator.Value as Control;
+            if(context.Indicator.Value is IRegionIndicator regionIndicator)
+            {
+                return regionIndicator.Control as Control;
+            }
+            return null;
         });
         if (useCache != null)
         {
@@ -115,6 +119,18 @@ public class ItemsRegion : IItemsRegion<ItemsControl>
     }
 
     public void ProcessActivate(NavigationContext navigationContext)
+    {
+        if (_itemsControl.Items.Contains(navigationContext))
+        {
+
+        }
+        else
+        {
+            _itemsControl.Items.Add(navigationContext);
+        }
+        _itemsControl.ScrollIntoView(navigationContext);
+    }
+    public void RenderIndicator(NavigationContext navigationContext, IRegionIndicator regionIndicator)
     {
         if (_itemsControl.Items.Contains(navigationContext))
         {

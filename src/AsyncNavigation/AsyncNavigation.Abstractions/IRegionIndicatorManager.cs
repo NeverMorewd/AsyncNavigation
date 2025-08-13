@@ -2,12 +2,10 @@
 
 namespace AsyncNavigation.Abstractions;
 
-public interface IRegionIndicatorManager<T> where T : new()
+public interface IRegionIndicatorManager
 {
-    T SetupIndicator(NavigationContext context);
-    T SetupSingletonIndicator(NavigationContext navigationContext);
-    Task ShowLoadingAsync(NavigationContext context);
-    Task DelayShowLoadingAsync(NavigationContext context, Task processTask);
-    Task ShowErrorAsync(NavigationContext context, Exception exception);
+    IRegionIndicator Setup(NavigationContext context, bool useSingleton);
     Task ShowContentAsync(NavigationContext context, object content);
+    Task ShowErrorAsync(NavigationContext context, Exception exception);
+    Task StartAsync(NavigationContext context, Task processTask, TimeSpan? delayTime = null);
 }

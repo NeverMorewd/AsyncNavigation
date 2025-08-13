@@ -92,9 +92,10 @@ public static class DependencyInjectionExtensions
             .RegisterRegionAdapter<ItemsControlAdapter>()
             .AddTransient(typeof(IRegionNavigationService<>), typeof(RegionNavigationService<>))
             .AddSingleton<RegionFactory>()
-            .AddSingleton<IViewFactory<Control>>(sp => new DefaultViewFactory<Control>(sp, serviceDescriptors))
+            .AddSingleton<IViewFactory>(sp => new DefaultViewFactory(sp, serviceDescriptors))
             .AddTransient<IViewCacheManager, ViewCacheManager>()
-            .AddTransient<IRegionIndicatorManager<ContentControl>, RegionIndicatorManager>()
+            .AddTransient<IRegionIndicator, RegionIndicator>()
+            .AddTransient<IRegionIndicatorManager>(sp => new RegionIndicatorManager(() => sp.GetRequiredService<IRegionIndicator>()))
             .AddSingleton<IRegionManager, RegionManager>();
     }
 }

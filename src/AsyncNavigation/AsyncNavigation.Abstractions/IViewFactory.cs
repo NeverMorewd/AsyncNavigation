@@ -2,10 +2,10 @@
 
 namespace AsyncNavigation.Abstractions;
 
-public interface IViewFactory<T> where T : class
+public interface IViewFactory
 {
-    bool TryUnWrapView(IView view, [MaybeNullWhen(false)] out T viewObject);
-    T CreateViewObject(string viewName);
     IView CreateView(string viewName);
     bool CanCreateView(string viewName);
+    void AddView(string key, IView view);
+    void AddView(string key, Func<string, IView> viewBuilder);
 }

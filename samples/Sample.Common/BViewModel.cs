@@ -8,6 +8,5 @@ public class BViewModel : ViewModelBase
     {
         await base.OnNavigatedToAsync(context, cancellationToken);
         await Task.Delay(5000, cancellationToken);
-        //throw new InvalidOperationException("This is a test exception from BViewModel");
     }
 }
