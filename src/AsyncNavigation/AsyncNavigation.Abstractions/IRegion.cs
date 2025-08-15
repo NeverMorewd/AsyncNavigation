@@ -3,7 +3,7 @@ using AsyncNavigation.Core;
 
 namespace AsyncNavigation;
 
-public interface IRegion : IAsyncDisposable, IRegionProcessor
+public interface IRegion : IAsyncDisposable, IRegionPresenter
 {
     //IServiceProvider? ServiceProvider { get; set; }
     string Name { get; }

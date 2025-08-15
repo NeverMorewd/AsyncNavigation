@@ -35,20 +35,20 @@ public class ContentRegion : IContentRegion<ContentControl>
     #endregion
     public ContentRegion(string name, ContentControl contentControl, IServiceProvider serviceProvider, bool? useCache)
     {
+        ArgumentNullException.ThrowIfNull(name);
+        ArgumentNullException.ThrowIfNull(contentControl);
+        ArgumentNullException.ThrowIfNull(serviceProvider);
+
         Name = name;
         _serviceProvider = serviceProvider;
         _contentControl = contentControl;
-        if (useCache != null)
-        {
-            EnableViewCache = useCache.Value;
-        }
-        else
-        {
-            EnableViewCache = true;
-        }
-        _regionNavigationService = _serviceProvider.GetRequiredService<IRegionNavigationService<ContentRegion>>();
-        _regionNavigationService.SeRegionProcessor(this);
+
+        EnableViewCache = useCache ?? true;
+
+        var factory = serviceProvider.GetRequiredService<IRegionNavigationServiceFactory>();
+        _regionNavigationService = factory.Create(this);
     }
+
     public ContentControl ContentControl => _contentControl;
     public bool EnableViewCache { get; }
     public bool IsSinglePageRegion => true;
@@ -128,7 +128,7 @@ public class ContentRegion : IContentRegion<ContentControl>
 
     public void RenderIndicator(NavigationContext navigationContext, IRegionIndicator regionIndicator)
     {
-        _contentControl.Content = regionIndicator.Control;
+        _contentControl.Content = regionIndicator.IndicatorControl;
     }
     public void ProcessActivate(NavigationContext navigationContext)
     {

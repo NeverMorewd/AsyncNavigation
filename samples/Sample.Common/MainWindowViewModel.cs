@@ -17,12 +17,14 @@ public partial class MainWindowViewModel : ViewModelBase
     [ReactiveCommand]
     private async Task AsyncNavigate(string param)
     {
-        var ret = await _regionManager.RequestNavigate("MainRegion", param);
+        var (viewName, parameters) = CommonHelper.ParseNavigationParam(param);
+        await _regionManager.RequestNavigate("MainRegion", viewName, parameters);
     }
 
     [ReactiveCommand]
     private void AsyncNavigateWithoutWait(string param)
     {
-        _ = _regionManager.RequestNavigate("MainRegion", param);
+        var (viewName, parameters) = CommonHelper.ParseNavigationParam(param);
+        _ = _regionManager.RequestNavigate("MainRegion", viewName, parameters);
     }
 }

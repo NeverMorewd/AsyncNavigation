@@ -2,6 +2,6 @@
 
 public enum NavigationTaskScope
 {
-    Global,
+    App,
     Region
 }

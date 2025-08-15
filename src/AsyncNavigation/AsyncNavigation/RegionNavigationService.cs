@@ -5,7 +5,7 @@ using System.Diagnostics;
 
 namespace AsyncNavigation;
 
-public class RegionNavigationService<T> : IRegionNavigationService<T> where T : IRegionProcessor
+internal sealed class RegionNavigationService<T> : IRegionNavigationService<T> where T : IRegionPresenter
 {
     private readonly AsyncConcurrentItem<IView> Current = new();
     private readonly IServiceProvider _serviceProvider;
@@ -13,20 +13,16 @@ public class RegionNavigationService<T> : IRegionNavigationService<T> where T : 
     private readonly IViewFactory _viewFactory;
     private readonly IRegionIndicatorManager _regionIndicatorManager;
     private readonly INavigationTaskManager _navigationTaskManager;
+    private readonly IRegionPresenter? _regionPresenter;
 
-    private IRegionProcessor? _regionProcessor;
-
-    public RegionNavigationService(IServiceProvider serviceProvider)
+    public RegionNavigationService(T regionPresenter, IServiceProvider serviceProvider)
     {
+        _regionPresenter = regionPresenter;
         _serviceProvider = serviceProvider;
         _navigationTaskManager = _serviceProvider.GetRequiredService<INavigationTaskManager>();
         _viewCacheManager = _serviceProvider.GetRequiredService<IViewCacheManager>();
         _viewFactory = _serviceProvider.GetRequiredService<IViewFactory>();
         _regionIndicatorManager = _serviceProvider.GetRequiredService<IRegionIndicatorManager>();
-    }
-    public void SeRegionProcessor(T regionProcessor)
-    {
-        _regionProcessor = regionProcessor;
     }
     
     public async Task<NavigationResult> RequestNavigateAsync(NavigationContext navigationContext)
@@ -55,16 +51,18 @@ public class RegionNavigationService<T> : IRegionNavigationService<T> where T : 
 
     private async Task CreateNavigateTask(NavigationContext navigationContext)
     {
-        var indicator = _regionIndicatorManager.Setup(navigationContext, _regionProcessor!.IsSinglePageRegion);
-        _regionProcessor!.RenderIndicator(navigationContext, indicator);
-        await _regionIndicatorManager.StartAsync(navigationContext, StartProcessNavigation(navigationContext), NavigationOptions.Default.LoadingIndicatorDelay);
+        var indicator = _regionIndicatorManager.Setup(navigationContext, _regionPresenter!.IsSinglePageRegion);
+        _regionPresenter!.RenderIndicator(navigationContext, indicator);
+        await _regionIndicatorManager.StartAsync(navigationContext, 
+            StartProcessNavigation(navigationContext), 
+            NavigationOptions.Default.LoadingIndicatorDelay);
     }
 
     private async Task ResovleViewAsync(NavigationContext navigationContext)
     {
         navigationContext.CancellationToken.ThrowIfCancellationRequested();
         
-        if (_regionProcessor!.EnableViewCache)
+        if (_regionPresenter!.EnableViewCache)
         {
             if (_viewCacheManager.TryCachedView(navigationContext.ViewName, out var cacheView))
             {
@@ -120,6 +118,5 @@ public class RegionNavigationService<T> : IRegionNavigationService<T> where T : 
         await HandleBeforeNavigationAsync(navigationContext);
         await ResovleViewAsync(navigationContext);
         await HandleAfterNavigationAsync(navigationContext);
-        //await _regionIndicatorManager.ShowContentAsync(navigationContext, navigationContext.Target.Value!);
     }
 }

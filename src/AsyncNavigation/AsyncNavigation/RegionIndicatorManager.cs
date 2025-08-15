@@ -35,7 +35,7 @@ public class RegionIndicatorManager : IRegionIndicatorManager
     public Task ShowErrorAsync(NavigationContext context, Exception exception)
     {
         if (!NavigationOptions.Default.EnableErrorIndicator)
-            return Task.CompletedTask;
+            throw exception;
 
         GetIndicator(context).ShowError(context, exception);
         return Task.CompletedTask;

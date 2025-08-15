@@ -24,7 +24,7 @@ public class NavigationContext
     /// <summary>
     /// Gets the navigation parameters passed to the target view.
     /// </summary>
-    public NavigationParameters Parameters { get; init; } = [];
+    public INavigationParameters? Parameters { get; init; } = null;
 
 
     public OnceSet<object?> Source { get; } = new();

@@ -21,6 +21,13 @@ public abstract partial class ViewModelBase : ReactiveObject, INavigationAware
 
     public virtual Task<bool> IsNavigationTargetAsync(NavigationContext context, CancellationToken cancellationToken)
     {
+        if (context.Parameters is not null)
+        {
+            if (context.Parameters.TryGetValue<bool>("requestNew", out var requestNew) && requestNew)
+            {
+                return Task.FromResult(false);
+            }
+        }
         return Task.FromResult(true);
     }
 

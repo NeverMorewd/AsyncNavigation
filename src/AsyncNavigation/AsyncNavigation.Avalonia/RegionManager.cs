@@ -6,7 +6,7 @@ using System.Collections.Concurrent;
 
 namespace AsyncNavigation.Avalonia;
 
-public class RegionManager : 
+public sealed class RegionManager : 
     IRegionManager, 
     IObserver<AvaloniaPropertyChangedEventArgs<string>>,
     IObserver<AvaloniaPropertyChangedEventArgs<IServiceProvider>>,
@@ -64,8 +64,8 @@ public class RegionManager :
     private readonly IServiceProvider _serviceProvider;
     private readonly List<IDisposable> _subscriptions;
     private readonly ConcurrentDictionary<string, IRegion> _regions;
-    private readonly RegionFactory _regionFactory;
-    public RegionManager(RegionFactory regionFactory, IServiceProvider serviceProvider)
+    private readonly IRegionFactory _regionFactory;
+    public RegionManager(IRegionFactory regionFactory, IServiceProvider serviceProvider)
     {
         _subscriptions = [];
         _regions = [];
@@ -110,6 +110,7 @@ public class RegionManager :
             {
                 RegionName = regionName,
                 ViewName = viewName,
+                Parameters = navigationParameters,
                 CancellationToken = cancellationToken
             };
             return await region.ActivateViewAsync(context);

@@ -17,6 +17,14 @@
             DockPanel.Dock="Top">
             <StackPanel>
                 <TextBlock Text="{Binding Name}" />
+                <TextBlock>
+					InstanceNumber:
+                    <Run
+                        FontSize="15"
+                        FontWeight="Bold"
+                        Foreground="Tomato"
+                        Text="{Binding InstanceNumber}" />
+                </TextBlock>
                 <Button
                     HorizontalContentAlignment="Center"
                     VerticalContentAlignment="Center"
@@ -29,28 +37,5 @@
                     IsVisible="{Binding IsDialog}" />
             </StackPanel>
         </Border>
-        <StackPanel Orientation="Vertical">
-            <Button
-                Classes="Navigation"
-                Content="ToA"
-                Tag="AView" />
-            <Button
-                Classes="Navigation"
-                Content="ToB"
-                Tag="BView" />
-            <Button
-                Classes="Navigation"
-                Content="ToC"
-                Tag="CView" />
-        </StackPanel>
-        <ScrollViewer>
-            <ItemsControl an:RegionManager.RegionName="ItemsRegion">
-                <ItemsControl.ItemsPanel>
-                    <ItemsPanelTemplate>
-                        <StackPanel />
-                    </ItemsPanelTemplate>
-                </ItemsControl.ItemsPanel>
-            </ItemsControl>
-        </ScrollViewer>
     </DockPanel>
 </UserControl>

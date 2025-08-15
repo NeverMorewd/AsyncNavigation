@@ -1,12 +1,11 @@
 ﻿using AsyncNavigation.Abstractions;
 using ReactiveUI.SourceGenerators;
-
 namespace Sample.Common;
 
-public partial class CViewModel : ViewModelBase
+public partial class DViewModel:ViewModelBase
 {
     private readonly IRegionManager _regionManager;
-    public CViewModel(IRegionManager regionManager)
+    public  DViewModel(IRegionManager regionManager)
     {
         _regionManager = regionManager;
     }
@@ -14,7 +13,7 @@ public partial class CViewModel : ViewModelBase
     [ReactiveCommand]
     private async Task AsyncNavigate(string param)
     {
-        var (viewName, parameters) = CommonHelper.ParseNavigationParam(param);
-        await _regionManager.RequestNavigate("ChildContentRegion", viewName, parameters);
+        var (viewName, parameters) =  CommonHelper.ParseNavigationParam(param);
+        await _regionManager.RequestNavigate("TabRegion", viewName, parameters);
     }
 }

@@ -2,14 +2,10 @@
 
 public abstract class RegionAdapterBase<T> : IRegionAdapter<T>
 {
-    /// <summary>
-    /// TODO:
-    /// </summary>
-    /// <param name="control"></param>
-    /// <returns></returns>
     public virtual bool IsAdapted(T control)
     {
-        return true;
+        if (control == null) return false;
+        return control.GetType() == typeof(T);
     }
     public abstract IRegion CreateRegion(string name, T control, IServiceProvider serviceProvider, bool? useCache = null);
 

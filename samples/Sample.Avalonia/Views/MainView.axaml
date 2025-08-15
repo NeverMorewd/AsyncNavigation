@@ -27,28 +27,32 @@
                         Tag="AView" />
                     <Button
                         Classes="Navigation"
-                        Content="ToB"
+                        Content="ToB:ItemsRegion"
                         Tag="BView" />
-					<Button
-					   Classes="NavigationWithoutWait"
-					   Content="ToA:NOWait"
-					   Tag="AView" />
-					<Button
+                    <Button
+                        Classes="Navigation"
+                        Content="ToC:ChildContentRegion"
+                        Tag="CView" />
+                    <Button
+                        Classes="Navigation"
+                        Content="ToD:TabRegion"
+                        Tag="DView" />
+                    <Button
+                        Classes="NavigationWithoutWait"
+                        Content="ToA:NOWait"
+                        Tag="AView" />
+                    <Button
                         Classes="NavigationWithoutWait"
                         Content="ToB:NOWait"
                         Tag="BView" />
                     <Button
                         Classes="Navigation"
-                        Content="ToC"
-                        Tag="CView" />
+                        Content="ToA:New"
+                        Tag="AView:New" />
                     <Button
                         Classes="Navigation"
-                        Content="ToAWithNew"
-                        Tag="AView:ToAWithNew" />
-                    <Button
-                        Classes="Navigation"
-                        Content="ToBWithError"
-                        Tag="BView:ToBWithError" />
+                        Content="ToB:Error"
+                        Tag="BView:Error" />
                 </StackPanel>
             </DockPanel>
         </SplitView.Pane>

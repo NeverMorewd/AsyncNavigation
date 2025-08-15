@@ -6,7 +6,7 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace AsyncNavigation.Avalonia;
 
-public class RegionIndicator : IRegionIndicatorHost<ContentControl>
+internal sealed class RegionIndicator : IRegionIndicatorHost<ContentControl>
 {
     private readonly IDataTemplate? _loadingTemplate;
     private readonly IDataTemplate? _errorTemplate;
@@ -16,25 +16,29 @@ public class RegionIndicator : IRegionIndicatorHost<ContentControl>
         Control = new ContentControl();
 
         if (NavigationOptions.Default.EnableLoadingIndicator)
-            _loadingTemplate = services.GetKeyedService<IDataTemplate>(NavigationConstants.INDICATOR_LOADING_KEY);
+            _loadingTemplate = services.GetRequiredKeyedService<IDataTemplate>(NavigationConstants.INDICATOR_LOADING_KEY);
 
         if (NavigationOptions.Default.EnableErrorIndicator)
-            _errorTemplate = services.GetKeyedService<IDataTemplate>(NavigationConstants.INDICATOR_ERROR_KEY);
+            _errorTemplate = services.GetRequiredKeyedService<IDataTemplate>(NavigationConstants.INDICATOR_ERROR_KEY);
     }
 
     public ContentControl Control { get; }
 
-    object IRegionIndicator.Control => Control;
+    object IRegionIndicator.IndicatorControl => Control;
 
     public void ShowLoading(NavigationContext context)
     {
-        if (!NavigationOptions.Default.EnableLoadingIndicator) return;
+        if (_loadingTemplate == null)
+            throw new NavigationException($"Failed to resolve loading template (key: {NavigationConstants.INDICATOR_LOADING_KEY}) from IServiceProvider. " +
+             "Please ensure it is registered before calling ShowLoading().");
         Control.Content = _loadingTemplate?.Build(context.WithStatus(NavigationStatus.InProgress));
     }
 
     public void ShowError(NavigationContext context, Exception exception)
     {
-        if (!NavigationOptions.Default.EnableErrorIndicator) return;
+        if (_errorTemplate == null)
+            throw new NavigationException($"Failed to resolve error template (key: {NavigationConstants.INDICATOR_ERROR_KEY}) from IServiceProvider. " +
+             "Please ensure it is registered before calling ShowError().");
         Control.Content = _errorTemplate?.Build(context.WithStatus(NavigationStatus.Failed, exception));
     }
 

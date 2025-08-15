@@ -1,39 +1,24 @@
 ﻿using AsyncNavigation.Abstractions;
 using AsyncNavigation.Core;
 using Avalonia.Controls;
-using Avalonia.Controls.Templates;
 using Microsoft.Extensions.DependencyInjection;
-using System.Collections.ObjectModel;
 
 namespace AsyncNavigation.Avalonia;
 
-public class ItemsRegion : IItemsRegion<ItemsControl>
+public class TabRegion : IRegion
 {
-    private readonly IRegionNavigationService<ItemsRegion> _regionNavigationService;
-    private readonly ItemsControl _itemsControl;
-    public ItemsRegion(string name, ItemsControl itemsControl, IServiceProvider serviceProvider, bool? useCache)
+    private readonly TabControl _tabControl;
+    private readonly IRegionNavigationService<TabRegion> _regionNavigationService;
+    public TabRegion(string name, 
+        TabControl control, 
+        IServiceProvider serviceProvider, 
+        bool? useCache = null)
     {
-        _itemsControl = itemsControl;
-        _itemsControl.ItemTemplate = new FuncDataTemplate<NavigationContext>((context, np) =>
-        {
-            if(context.Indicator.Value is IRegionIndicator regionIndicator)
-            {
-                return regionIndicator.IndicatorControl as Control;
-            }
-            return null;
-        });
+        _tabControl = control;
         EnableViewCache = useCache ?? false;
         var factory = serviceProvider.GetRequiredService<IRegionNavigationServiceFactory>();
         _regionNavigationService = factory.Create(this);
     }
-    public bool EnableViewCache { get; }
-    public bool IsSinglePageRegion => false;
-    public ObservableCollection<NavigationContext> Contexts => throw new NotImplementedException();
-
-    public ItemsControl ItemsControl => throw new NotImplementedException();
-
-    public IServiceProvider? ServiceProvider { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
-
     public string Name => throw new NotImplementedException();
 
     public INavigationAware? ActiveView => throw new NotImplementedException();
@@ -44,16 +29,19 @@ public class ItemsRegion : IItemsRegion<ItemsControl>
 
     public bool IsInitialized => throw new NotImplementedException();
 
+    public bool EnableViewCache { get; }
+
+    public bool IsSinglePageRegion => false;
+
     public event AsyncEventHandler<ViewActivatedEventArgs<INavigationAware>>? ViewActivated;
     public event AsyncEventHandler<ViewDeactivatedEventArgs<INavigationAware>>? ViewDeactivated;
     public event AsyncEventHandler<ViewAddedEventArgs<INavigationAware>>? ViewAdded;
     public event AsyncEventHandler<ViewRemovedEventArgs<INavigationAware>>? ViewRemoved;
     public event AsyncEventHandler<NavigationFailedEventArgs>? NavigationFailed;
 
-
-    public async Task<NavigationResult> ActivateViewAsync(NavigationContext navigationContext)
+    public Task<NavigationResult> ActivateViewAsync(NavigationContext navigationContext)
     {
-        return await _regionNavigationService.RequestNavigateAsync(navigationContext);
+        return _regionNavigationService.RequestNavigateAsync(navigationContext);
     }
 
     public bool AddView(IView view)
@@ -113,27 +101,6 @@ public class ItemsRegion : IItemsRegion<ItemsControl>
 
     public void ProcessActivate(NavigationContext navigationContext)
     {
-        if (_itemsControl.Items.Contains(navigationContext))
-        {
-
-        }
-        else
-        {
-            _itemsControl.Items.Add(navigationContext);
-        }
-        _itemsControl.ScrollIntoView(navigationContext);
-    }
-    public void RenderIndicator(NavigationContext navigationContext, IRegionIndicator regionIndicator)
-    {
-        if (_itemsControl.Items.Contains(navigationContext))
-        {
-
-        }
-        else
-        {
-            _itemsControl.Items.Add(navigationContext);
-        }
-        _itemsControl.ScrollIntoView(navigationContext);
     }
 
     public void ProcessDeactivate(NavigationContext navigationContext)
@@ -144,5 +111,21 @@ public class ItemsRegion : IItemsRegion<ItemsControl>
     public bool RemoveView(IView view)
     {
         throw new NotImplementedException();
+    }
+
+    public void RenderIndicator(NavigationContext navigationContext, IRegionIndicator regionIndicator)
+    {
+        if (!_tabControl.Items.OfType<TabItem>().Any(ti => ti.Tag == navigationContext))
+        {
+            var tabItem = new TabItem
+            {
+                Header = navigationContext.ViewName,
+                Content = (navigationContext.Indicator.Value as IRegionIndicator)?.IndicatorControl,
+                Tag = navigationContext
+            };
+            _tabControl.Items.Add(tabItem);
+        }
+
+        _tabControl.SelectedItem = _tabControl.Items.OfType<TabItem>().First(ti => ti.Tag == navigationContext);
     }
 }

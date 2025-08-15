@@ -43,11 +43,12 @@ public partial class App : Application, IObserver<Exception>
         #endregion
 
         var services = new ServiceCollection();
-        services.AddAsyncNavigationSupport()
+        services.AddNavigationSupport()
                 .AddSingleton<MainWindowViewModel>()
                 .RegisterNavigation<AView, AViewModel>(nameof(AView))
                 .RegisterNavigation<BView, BViewModel>(nameof(BView))
                 .RegisterNavigation<CView, CViewModel>(nameof(CView))
+                .RegisterNavigation<DView, DViewModel>(nameof(DView))
                 .RegisterLoadingIndicator(BuildLoadingIndicator)
                 .RegisterErrorIndicator(BuildErrorIndicator);
 

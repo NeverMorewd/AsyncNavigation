@@ -2,7 +2,7 @@
 
 namespace AsyncNavigation;
 
-public class RegionFactory
+public class RegionFactory : IRegionFactory
 {
     private readonly List<IRegionAdapter> _adapters = [];
 
