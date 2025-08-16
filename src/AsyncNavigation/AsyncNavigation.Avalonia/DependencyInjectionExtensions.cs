@@ -53,6 +53,7 @@ public static class DependencyInjectionExtensions
         {
             NavigationOptions.Default.MergeFrom(navigationOptions);
         }
+        serviceDescriptors.AddSingleton(NavigationOptions.Default);
         if (NavigationOptions.Default.NavigationTaskScope == NavigationTaskScope.App)
         {
             serviceDescriptors.AddSingleton<INavigationTaskManager, NavigationTaskManager>();

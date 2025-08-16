@@ -3,7 +3,6 @@
              x:Class="Sample.Avalonia.App"
              RequestedThemeVariant="Default">
              <!-- "Default" ThemeVariant follows system theme variant. "Dark" or "Light" are other available options. -->
-  
     <Application.Styles>
         <FluentTheme />
 		<Style Selector="StackPanel.Navigation">
@@ -21,6 +20,25 @@
 			<Setter Property="BorderThickness" Value="0" />
 			<Setter Property="Height" Value="2" />
 			<Setter Property="Margin" Value="5,0,5,0" />
+		</Style>
+		<Style Selector="Button.CloseDialog">
+			<Setter Property="Height" Value="30" />
+			<Setter Property="Width" Value="200" />
+			<Setter Property="IsVisible" Value="{Binding IsDialog}" />
+			<Setter Property="Command" Value="{Binding CloseDialogCommand}" />
+			<Setter Property="Content" Value="CloseDialog"/>
+			<Setter Property="CommandParameter" Value="{Binding $self.Tag}" />
+			<Setter Property="VerticalContentAlignment" Value="Center" />
+			<Setter Property="HorizontalContentAlignment" Value="Center" />
+		</Style>
+		<Style Selector="Button.UnloadView">
+			<Setter Property="Height" Value="30" />
+			<Setter Property="Width" Value="200" />
+			<Setter Property="Command" Value="{Binding UnloadViewCommand}" />
+			<Setter Property="Content" Value="UnloadView"/>
+			<Setter Property="CommandParameter" Value="{Binding $self.Tag}" />
+			<Setter Property="VerticalContentAlignment" Value="Center" />
+			<Setter Property="HorizontalContentAlignment" Value="Center" />
 		</Style>
 		<Style Selector="Button.Navigation">
 			<Setter Property="Height" Value="30" />

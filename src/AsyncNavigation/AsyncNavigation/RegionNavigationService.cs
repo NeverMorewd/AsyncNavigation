@@ -88,7 +88,7 @@ internal sealed class RegionNavigationService<T> : IRegionNavigationService<T> w
         navigationContext.CancellationToken.ThrowIfCancellationRequested();
         
         navigationContext.Target.Value = view;
-        await _viewCacheManager.SetCachedViewAsync(navigationContext.ViewName, (view as IView)!);
+        await _viewCacheManager.SetCachedViewAsync(navigationContext.ViewName, view!);
     }
 
     private async Task HandleBeforeNavigationAsync(NavigationContext navigationContext)

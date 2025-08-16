@@ -9,24 +9,16 @@
     d:DesignWidth="800"
     mc:Ignorable="d">
     <DockPanel LastChildFill="True">
-		<Border
-			DockPanel.Dock="Top"
+        <Border
             HorizontalAlignment="Stretch"
             Background="IndianRed"
             BorderBrush="LemonChiffon"
-            BorderThickness="1">
+            BorderThickness="1"
+            DockPanel.Dock="Top">
             <StackPanel>
                 <TextBlock Text="{Binding Name}" />
-                <Button
-                    HorizontalContentAlignment="Center"
-                    VerticalContentAlignment="Center"
-                    Command="{Binding UnloadViewCommand}"
-                    Content="UnloadView"
-                    IsVisible="{Binding !IsDialog}" />
-                <Button
-                    Command="{Binding CloseCommand}"
-                    Content="CloseDialog"
-                    IsVisible="{Binding IsDialog}" />
+                <Button Classes="UnloadView" />
+                <Button Classes="CloseDialog" />
             </StackPanel>
         </Border>
         <StackPanel Orientation="Vertical">

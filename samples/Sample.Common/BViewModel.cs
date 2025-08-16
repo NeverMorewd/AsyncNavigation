@@ -24,6 +24,14 @@ public partial class BViewModel : ViewModelBase
         await base.OnNavigatedToAsync(context, cancellationToken);
 
         //simulate delay
-        await Task.Delay(5000, cancellationToken);
+        await Task.Delay(2000, cancellationToken);
+    }
+
+    public override async Task OnNavigatedFromAsync(NavigationContext context, CancellationToken cancellationToken)
+    {
+        await base.OnNavigatedFromAsync(context, cancellationToken);
+
+        //simulate delay
+        await Task.Delay(2000, cancellationToken);
     }
 }

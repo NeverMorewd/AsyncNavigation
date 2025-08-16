@@ -11,4 +11,6 @@ public interface IRegionManager
         string viewName, 
         INavigationParameters? navigationParameters = null,
         CancellationToken cancellationToken = default);
+
+    
 }

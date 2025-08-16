@@ -25,16 +25,8 @@
                         Foreground="Tomato"
                         Text="{Binding InstanceNumber}" />
                 </TextBlock>
-                <Button
-                    HorizontalContentAlignment="Center"
-                    VerticalContentAlignment="Center"
-                    Command="{Binding UnloadViewCommand}"
-                    Content="UnloadView"
-                    IsVisible="{Binding !IsDialog}" />
-                <Button
-                    Command="{Binding CloseCommand}"
-                    Content="CloseDialog"
-                    IsVisible="{Binding IsDialog}" />
+                <Button Classes="UnloadView"/>
+                <Button Classes="CloseDialog"/>
             </StackPanel>
         </Border>
     </DockPanel>

@@ -9,6 +9,13 @@ internal class ViewCacheManager : IViewCacheManager
 {
     private readonly ConcurrentDictionary<string, IView> _viewCache = new();
     private readonly ConcurrentQueue<string> _cacheKeys = new();
+    private readonly ViewCacheStrategy _strategy;
+    private readonly int _maxCacheSize;
+    public ViewCacheManager(NavigationOptions options)
+    {
+        _strategy = options.ViewCacheStrategy;
+        _maxCacheSize = options.MaxCachedItems;
+    }
 
     public void ClearCache()
     {
@@ -48,14 +55,20 @@ internal class ViewCacheManager : IViewCacheManager
 
     public Task SetCachedViewAsync(string cacheKey, IView view)
     {
-        if (!_viewCache.ContainsKey(cacheKey))
+        if (_viewCache.ContainsKey(cacheKey))
+        {
+            if (_strategy == ViewCacheStrategy.UpdateDuplicateKey)
+            {
+                _viewCache[cacheKey] = view;
+            }
+        }
+        else
         {
             _cacheKeys.Enqueue(cacheKey);
+            _viewCache[cacheKey] = view;
         }
 
-        _viewCache[cacheKey] = view;
-
-        while (_cacheKeys.Count > NavigationOptions.Default.MaxCachedItems)
+        while (_cacheKeys.Count > _maxCacheSize)
         {
             if (_cacheKeys.TryDequeue(out var oldestKey))
             {
