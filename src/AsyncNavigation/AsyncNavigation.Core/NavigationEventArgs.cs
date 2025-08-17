@@ -1,8 +1,8 @@
 ﻿namespace AsyncNavigation.Core
 {
-    public class NavigationEventArgs : EventArgs
+    public class NavigationEventArgs : AsyncEventArgs
     {
-        public NavigationEventArgs(NavigationContext navigationContext)
+        public NavigationEventArgs(NavigationContext navigationContext) :  base(navigationContext.CancellationToken)
         {
             
         }

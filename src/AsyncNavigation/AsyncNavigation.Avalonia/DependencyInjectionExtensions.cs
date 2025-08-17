@@ -66,6 +66,7 @@ public static class DependencyInjectionExtensions
             .RegisterRegionAdapter<ContentRegionAdapter>()
             .RegisterRegionAdapter<ItemsRegionAdapter>()
             .RegisterRegionAdapter<TabRegionAdapter>()
+            //.AddSingleton<RequestUnloadHandler>()
             .AddSingleton<IRegionNavigationServiceFactory, RegionNavigationServiceFactory>()
             .AddSingleton<IRegionFactory, RegionFactory>()
             .AddSingleton<IViewFactory>(sp => new DefaultViewFactory(sp, serviceDescriptors))

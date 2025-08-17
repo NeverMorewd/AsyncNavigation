@@ -17,7 +17,7 @@ internal class ViewCacheManager : IViewCacheManager
         _maxCacheSize = options.MaxCachedItems;
     }
 
-    public void ClearCache()
+    public void Clear()
     {
         foreach (var view in _viewCache.Values)
         {
@@ -28,16 +28,16 @@ internal class ViewCacheManager : IViewCacheManager
         while (_cacheKeys.TryDequeue(out _)) { }
     }
 
-    public Task<IView?> GetCachedViewAsync(string cacheKey)
+    public Task<IView?> GetView(string cacheKey)
     {
         _viewCache.TryGetValue(cacheKey, out var view);
         return Task.FromResult(view);
     }
-    public bool TryCachedView(string cacheKey, [MaybeNullWhen(false)] out IView view)
+    public bool TryAddView(string cacheKey, [MaybeNullWhen(false)] out IView view)
     {
         return _viewCache.TryGetValue(cacheKey, out view);
     }
-    public void RemoveFromCache(string cacheKey)
+    public void Remove(string cacheKey)
     {
         if (_viewCache.TryRemove(cacheKey, out var removedView))
         {
@@ -53,7 +53,7 @@ internal class ViewCacheManager : IViewCacheManager
         }
     }
 
-    public Task SetCachedViewAsync(string cacheKey, IView view)
+    public Task SetView(string cacheKey, IView view)
     {
         if (_viewCache.ContainsKey(cacheKey))
         {

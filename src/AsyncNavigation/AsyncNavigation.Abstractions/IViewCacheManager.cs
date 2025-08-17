@@ -4,9 +4,9 @@ namespace AsyncNavigation.Abstractions;
 
 public interface IViewCacheManager
 {
-    bool TryCachedView(string cacheKey, [MaybeNullWhen(false)] out IView view);
-    Task<IView?> GetCachedViewAsync(string cacheKey);
-    Task SetCachedViewAsync(string cacheKey, IView view);
-    void ClearCache();
-    void RemoveFromCache(string cacheKey);
+    bool TryAddView(string key, [MaybeNullWhen(false)] out IView view);
+    Task<IView?> GetView(string key);
+    Task SetView(string key, IView view);
+    void Clear();
+    void Remove(string key);
 }

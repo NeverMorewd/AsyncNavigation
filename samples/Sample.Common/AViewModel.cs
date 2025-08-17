@@ -29,7 +29,7 @@ public partial class AViewModel : ViewModelBase
     private Task UnloadView(string param)
     {
         //return _regionManager.("ItemsRegion", viewName, parameters);
-        return Task.CompletedTask;
+        return RequestUnload();
     }
 
     [ReactiveCommand]

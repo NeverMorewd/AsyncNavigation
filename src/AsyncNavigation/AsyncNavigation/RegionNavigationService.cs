@@ -14,6 +14,7 @@ internal sealed class RegionNavigationService<T> : IRegionNavigationService<T> w
     private readonly IRegionIndicatorManager _regionIndicatorManager;
     private readonly INavigationTaskManager _navigationTaskManager;
     private readonly IRegionPresenter? _regionPresenter;
+    private readonly RequestUnloadHandler _unloadHandler;
 
     public RegionNavigationService(T regionPresenter, IServiceProvider serviceProvider)
     {
@@ -23,6 +24,7 @@ internal sealed class RegionNavigationService<T> : IRegionNavigationService<T> w
         _viewCacheManager = _serviceProvider.GetRequiredService<IViewCacheManager>();
         _viewFactory = _serviceProvider.GetRequiredService<IViewFactory>();
         _regionIndicatorManager = _serviceProvider.GetRequiredService<IRegionIndicatorManager>();
+        _unloadHandler = new RequestUnloadHandler(_regionPresenter, _viewCacheManager);
     }
     
     public async Task<NavigationResult> RequestNavigateAsync(NavigationContext navigationContext)
@@ -64,7 +66,7 @@ internal sealed class RegionNavigationService<T> : IRegionNavigationService<T> w
         
         if (_regionPresenter!.EnableViewCache)
         {
-            if (_viewCacheManager.TryCachedView(navigationContext.ViewName, out var cacheView))
+            if (_viewCacheManager.TryAddView(navigationContext.ViewName, out var cacheView))
             {
                 var cacheAware = (cacheView!.DataContext as INavigationAware)!;
                 if (await cacheAware.IsNavigationTargetAsync(navigationContext, navigationContext.CancellationToken))
@@ -88,7 +90,7 @@ internal sealed class RegionNavigationService<T> : IRegionNavigationService<T> w
         navigationContext.CancellationToken.ThrowIfCancellationRequested();
         
         navigationContext.Target.Value = view;
-        await _viewCacheManager.SetCachedViewAsync(navigationContext.ViewName, view!);
+        await _viewCacheManager.SetView(navigationContext.ViewName, view!);
     }
 
     private async Task HandleBeforeNavigationAsync(NavigationContext navigationContext)
@@ -98,6 +100,7 @@ internal sealed class RegionNavigationService<T> : IRegionNavigationService<T> w
             var currentAware = (currentView!.DataContext as INavigationAware)!;
             navigationContext.CancellationToken.ThrowIfCancellationRequested();
             await currentAware.OnNavigatedFromAsync(navigationContext, navigationContext.CancellationToken);
+            _unloadHandler.Detach(currentAware);
         }
     }
 
@@ -108,6 +111,7 @@ internal sealed class RegionNavigationService<T> : IRegionNavigationService<T> w
             && view.DataContext is INavigationAware aware)
         {
             await aware.OnNavigatedToAsync(navigationContext, navigationContext.CancellationToken);
+            _unloadHandler.Attach(aware, navigationContext);
             Current.SetData(view);
         }
         navigationContext.CancellationToken.ThrowIfCancellationRequested();
