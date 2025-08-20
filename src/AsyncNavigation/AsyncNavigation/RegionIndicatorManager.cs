@@ -3,7 +3,7 @@ using AsyncNavigation.Core;
 
 namespace AsyncNavigation;
 
-public class RegionIndicatorManager : IRegionIndicatorManager
+internal sealed class RegionIndicatorManager : IRegionIndicatorManager
 {
     private readonly Func<IRegionIndicator> _indicatorFactory;
     private IRegionIndicator? _singleton;

@@ -66,11 +66,10 @@ public static class DependencyInjectionExtensions
             .RegisterRegionAdapter<ContentRegionAdapter>()
             .RegisterRegionAdapter<ItemsRegionAdapter>()
             .RegisterRegionAdapter<TabRegionAdapter>()
-            //.AddSingleton<RequestUnloadHandler>()
             .AddSingleton<IRegionNavigationServiceFactory, RegionNavigationServiceFactory>()
             .AddSingleton<IRegionFactory, RegionFactory>()
             .AddSingleton<IViewFactory>(sp => new DefaultViewFactory(sp, serviceDescriptors))
-            .AddTransient<IViewCacheManager, ViewCacheManager>()
+            .AddTransient<IViewManager, ViewManager>()
             .AddTransient<IRegionIndicator, RegionIndicator>()
             .AddTransient<IRegionIndicatorManager>(sp => new RegionIndicatorManager(() => sp.GetRequiredService<IRegionIndicator>()))
             .AddSingleton<IRegionManager, RegionManager>();

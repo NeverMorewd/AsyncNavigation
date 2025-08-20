@@ -5,11 +5,10 @@ namespace AsyncNavigation.Avalonia;
 
 public class ContentRegionAdapter : RegionAdapterBase<ContentControl>
 {
-    public override IRegion CreateRegion(string name, 
-        ContentControl control, 
+    public override IRegion CreateRegion(ContentControl control, 
         IServiceProvider serviceProvider, 
         bool? useCache = null)
     {
-        return new ContentRegion(name, control, serviceProvider, useCache);
+        return new ContentRegion(control, serviceProvider, useCache);
     }
 }

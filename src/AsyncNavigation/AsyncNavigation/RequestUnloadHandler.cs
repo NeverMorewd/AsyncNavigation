@@ -1,16 +1,15 @@
 ﻿using AsyncNavigation.Abstractions;
 using AsyncNavigation.Core;
-using System.Threading.Tasks;
 
 namespace AsyncNavigation;
 
 internal sealed class RequestUnloadHandler
 {
-    private readonly Dictionary<INavigationAware, AsyncEventHandler<EventArgs>> _handlers = [];
+    private readonly Dictionary<INavigationAware, AsyncEventHandler<AsyncEventArgs>> _handlers = [];
     private readonly IRegionPresenter _regionPresenter;
-    private readonly IViewCacheManager _viewCacheManager;
+    private readonly IViewManager _viewCacheManager;
 
-    public RequestUnloadHandler(IRegionPresenter regionPresenter, IViewCacheManager viewCacheManager)
+    public RequestUnloadHandler(IRegionPresenter regionPresenter, IViewManager viewCacheManager)
     {
         _regionPresenter = regionPresenter;
         _viewCacheManager = viewCacheManager;
@@ -21,7 +20,7 @@ internal sealed class RequestUnloadHandler
         if (_handlers.ContainsKey(aware))
             return;
 
-        Task handler(object s, EventArgs e) => OnRequestUnloadAsync(s, e, context);
+        Task handler(object s, AsyncEventArgs e) => OnRequestUnloadAsync(s, e, context);
 
         aware.RequestUnloadAsync += handler;
         _handlers[aware] = handler;
@@ -47,31 +46,22 @@ internal sealed class RequestUnloadHandler
     }
 
     
-    private Task OnRequestUnloadAsync(object sender, EventArgs e, NavigationContext context)
+    private async Task OnRequestUnloadAsync(object sender, AsyncEventArgs e, NavigationContext context)
     {
-        _regionPresenter.ProcessDeactivate(context);
-        if  (sender is INavigationAware navigationAware)
+        if (sender is INavigationAware aware)
         {
-            if (navigationAware is IDisposable disposable)
+            try
             {
-                try
-                {
-                    disposable.Dispose();
-                }
-                catch
-                {
-                    // ignored
-                }
+                Detach(aware);
+                await aware.OnUnloadAsync(e.CancellationToken);
             }
+            catch (OperationCanceledException) when (e.CancellationToken.IsCancellationRequested)
+            {
+                Attach(aware, context);
+                return;
+            }
+            _regionPresenter.ProcessDeactivate(context);
+            _viewCacheManager.Remove(context.ViewName, true);
         }
-        try
-        {
-            _viewCacheManager.Remove(context.ViewName);
-        }
-        catch
-        {
-            // ignored
-        }
-        return Task.CompletedTask;
     }
 }

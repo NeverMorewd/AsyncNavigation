@@ -14,7 +14,7 @@ public class ContentRegion : IContentRegion<ContentControl>
     private readonly IRegionNavigationService<ContentRegion> _regionNavigationService;
 
     #region IRegion Propertries
-    public string Name { get; }
+    public string Name { get; } = null!;
 
     public INavigationAware? ActiveView => throw new NotImplementedException();
 
@@ -33,13 +33,11 @@ public class ContentRegion : IContentRegion<ContentControl>
     public event AsyncEventHandler<ViewRemovedEventArgs<INavigationAware>>? ViewRemoved;
     public event AsyncEventHandler<NavigationFailedEventArgs>? NavigationFailed;
     #endregion
-    public ContentRegion(string name, ContentControl contentControl, IServiceProvider serviceProvider, bool? useCache)
+    public ContentRegion(ContentControl contentControl, IServiceProvider serviceProvider, bool? useCache)
     {
-        ArgumentNullException.ThrowIfNull(name);
         ArgumentNullException.ThrowIfNull(contentControl);
         ArgumentNullException.ThrowIfNull(serviceProvider);
 
-        Name = name;
         _serviceProvider = serviceProvider;
         _contentControl = contentControl;
 

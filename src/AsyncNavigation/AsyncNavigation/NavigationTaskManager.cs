@@ -4,7 +4,7 @@ using System.Collections.Concurrent;
 
 namespace AsyncNavigation;
 
-public class NavigationTaskManager : INavigationTaskManager
+internal sealed class NavigationTaskManager : INavigationTaskManager
 {
     private readonly ConcurrentDictionary<NavigationContext, (Task Task, CancellationTokenSource Cts)> _jobs = new();
 

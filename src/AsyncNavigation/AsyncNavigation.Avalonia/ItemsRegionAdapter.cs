@@ -9,8 +9,8 @@ public class ItemsRegionAdapter : RegionAdapterBase<ItemsControl>
     {
         return base.IsAdapted(control);
     }
-    public override IRegion CreateRegion(string name, ItemsControl control, IServiceProvider serviceProvider, bool? useCache = null)
+    public override IRegion CreateRegion(ItemsControl control, IServiceProvider serviceProvider, bool? useCache = null)
     {
-        return new ItemsRegion(name, control, serviceProvider, useCache);
+        return new ItemsRegion(control, serviceProvider, useCache);
     }
 }

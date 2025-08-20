@@ -2,10 +2,11 @@
 {
     public class NavigationEventArgs : AsyncEventArgs
     {
-        public NavigationEventArgs(NavigationContext navigationContext) :  base(navigationContext.CancellationToken)
+        public NavigationEventArgs(NavigationContext navigationContext) : base(navigationContext.CancellationToken)
         {
-            
+            NavigationContext = navigationContext;
         }
+        public NavigationContext NavigationContext { get; }
     }
     public class ViewActivatedEventArgs<T> : EventArgs
     {

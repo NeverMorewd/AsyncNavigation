@@ -14,7 +14,7 @@ public abstract partial class ViewModelBase : ReactiveObject, INavigationAware
         _name = GetType().Name;
     }
 
-    public event AsyncEventHandler<EventArgs>? RequestUnloadAsync;
+    public event AsyncEventHandler<AsyncEventArgs>? RequestUnloadAsync;
 
     public Task InitializeAsync(CancellationToken cancellationToken)
     {
@@ -43,12 +43,17 @@ public abstract partial class ViewModelBase : ReactiveObject, INavigationAware
         return Task.CompletedTask;
     }
 
+    public virtual Task OnUnloadAsync(CancellationToken cancellationToken)
+    {
+        return Task.CompletedTask;
+    }
+
     protected Task RequestUnload()
     {
-        if(RequestUnloadAsync == null)
+        if (RequestUnloadAsync == null)
         {
             return Task.CompletedTask;
         }
-        return RequestUnloadAsync!.Invoke(this, EventArgs.Empty);
+        return RequestUnloadAsync!.Invoke(this, AsyncEventArgs.Empty);
     }
 }

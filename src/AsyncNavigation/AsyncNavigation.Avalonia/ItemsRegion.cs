@@ -11,7 +11,7 @@ public class ItemsRegion : IItemsRegion<ItemsControl>
 {
     private readonly IRegionNavigationService<ItemsRegion> _regionNavigationService;
     private readonly ItemsControl _itemsControl;
-    public ItemsRegion(string name, ItemsControl itemsControl, IServiceProvider serviceProvider, bool? useCache)
+    public ItemsRegion(ItemsControl itemsControl, IServiceProvider serviceProvider, bool? useCache)
     {
         _itemsControl = itemsControl;
         _itemsControl.ItemTemplate = new FuncDataTemplate<NavigationContext>((context, np) =>
@@ -113,14 +113,6 @@ public class ItemsRegion : IItemsRegion<ItemsControl>
 
     public void ProcessActivate(NavigationContext navigationContext)
     {
-        if (_itemsControl.Items.Contains(navigationContext))
-        {
-
-        }
-        else
-        {
-            _itemsControl.Items.Add(navigationContext);
-        }
         _itemsControl.ScrollIntoView(navigationContext);
     }
     public void RenderIndicator(NavigationContext navigationContext, IRegionIndicator regionIndicator)
@@ -138,7 +130,7 @@ public class ItemsRegion : IItemsRegion<ItemsControl>
 
     public void ProcessDeactivate(NavigationContext navigationContext)
     {
-        throw new NotImplementedException();
+        _itemsControl.Items.Remove(navigationContext);
     }
 
     public bool RemoveView(IView view)

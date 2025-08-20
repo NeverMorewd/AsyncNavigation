@@ -3,5 +3,5 @@
 public interface IRegionAdapter<T> : IRegionAdapter
 {
     bool IsAdapted(T control);
-    IRegion CreateRegion(string name, T control, IServiceProvider serviceProvider, bool? useCache = null);
+    IRegion CreateRegion(T control, IServiceProvider serviceProvider, bool? useCache = null);
 }

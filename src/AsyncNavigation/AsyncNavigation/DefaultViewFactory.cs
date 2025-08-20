@@ -5,7 +5,7 @@ using System.Diagnostics;
 
 namespace AsyncNavigation;
 
-public class DefaultViewFactory : IViewFactory
+internal sealed class DefaultViewFactory : IViewFactory
 {
     private readonly IServiceProvider _serviceProvider;
     private readonly IReadOnlyList<ServiceDescriptor> _serviceDescriptors;

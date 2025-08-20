@@ -8,29 +8,32 @@
     d:DesignHeight="450"
     d:DesignWidth="800"
     mc:Ignorable="d">
-	<DockPanel LastChildFill="True">
-		<StackPanel DockPanel.Dock="Left" Orientation="Vertical">
-			<Button
+    <DockPanel LastChildFill="True">
+        <StackPanel DockPanel.Dock="Left" Orientation="Vertical">
+            <Button
                 Classes="Navigation"
                 Content="ToA"
                 Tag="AView" />
-			<Button
+            <Button
                 Classes="Navigation"
                 Content="ToB"
                 Tag="BView" />
-			<Button
+            <Button
                 Classes="Navigation"
                 Content="ToA:New"
                 Tag="AView:New" />
-		</StackPanel>
-		<ScrollViewer>
-			<TabControl an:RegionManager.RegionName="TabRegion" TabStripPlacement="Top">
-				<TabControl.ItemTemplate>
-					<DataTemplate>
-						<TextBlock Text="{Binding ViewName}" />
-					</DataTemplate>
-				</TabControl.ItemTemplate>
-			</TabControl>
-		</ScrollViewer>
-	</DockPanel>
+        </StackPanel>
+        <ScrollViewer>
+            <TabControl an:RegionManager.RegionName="TabRegion" TabStripPlacement="Top">
+                <TabControl.ItemTemplate>
+                    <DataTemplate>
+                        <StackPanel Orientation="Horizontal" Spacing="2">
+                            <TextBlock VerticalAlignment="Center" Text="{Binding ViewName}" />
+                            <Button Content="x" />
+                        </StackPanel>
+                    </DataTemplate>
+                </TabControl.ItemTemplate>
+            </TabControl>
+        </ScrollViewer>
+    </DockPanel>
 </UserControl>
