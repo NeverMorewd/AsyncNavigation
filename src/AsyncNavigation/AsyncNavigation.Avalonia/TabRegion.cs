@@ -5,8 +5,6 @@ using Avalonia.Controls.Primitives;
 using Avalonia.Controls.Templates;
 using Avalonia.Data;
 using Microsoft.Extensions.DependencyInjection;
-using System.Collections.ObjectModel;
-using System.ComponentModel;
 
 namespace AsyncNavigation.Avalonia;
 
@@ -14,7 +12,7 @@ public class TabRegion : IRegion
 {
     private readonly TabControl _tabControl;
     private readonly IRegionNavigationService<TabRegion> _regionNavigationService;
-    private readonly TabRegionState _state = new();
+    private readonly ItemsRegionContext _context = new();
     public TabRegion(TabControl control,
         IServiceProvider serviceProvider,
         bool? useCache = null)
@@ -26,11 +24,11 @@ public class TabRegion : IRegion
 
         _tabControl.Bind(
            ItemsControl.ItemsSourceProperty,
-           new Binding(nameof(TabRegionState.Tabs)) { Source = _state });
+           new Binding(nameof(ItemsRegionContext.Items)) { Source = _context });
 
         _tabControl.Bind(
             SelectingItemsControl.SelectedItemProperty,
-            new Binding(nameof(TabRegionState.Selected)) { Source = _state, Mode = BindingMode.TwoWay });
+            new Binding(nameof(ItemsRegionContext.Selected)) { Source = _context, Mode = BindingMode.TwoWay });
 
         _tabControl.ContentTemplate = new FuncDataTemplate<NavigationContext>((context, _) => 
         {
@@ -128,53 +126,32 @@ public class TabRegion : IRegion
 
     public void ProcessActivate(NavigationContext navigationContext)
     {
-        var hit = _state.Tabs.FirstOrDefault(t => ReferenceEquals(t, navigationContext));
+        var hit = _context.Items.FirstOrDefault(t => ReferenceEquals(t, navigationContext));
         if (hit != null)
         {
-            _state.Selected = hit;
+            _context.Selected = hit;
         }
     }
 
     public void ProcessDeactivate(NavigationContext navigationContext)
     {
-        var hit = _state.Tabs.FirstOrDefault(t => ReferenceEquals(t, navigationContext));
+        var hit = _context.Items.FirstOrDefault(t => ReferenceEquals(t, navigationContext));
         if (hit != null)
         {
-            bool wasSelected = ReferenceEquals(_state.Selected, hit);
-            _state.Tabs.Remove(hit);
+            bool wasSelected = ReferenceEquals(_context.Selected, hit);
+            _context.Items.Remove(hit);
             if (wasSelected)
-                _state.Selected = _state.Tabs.FirstOrDefault();
+                _context.Selected = _context.Items.FirstOrDefault();
         }
     }
 
     public void RenderIndicator(NavigationContext navigationContext, IRegionIndicator regionIndicator)
     {
-        if (!_state.Tabs.Contains(navigationContext))
-            _state.Tabs.Add(navigationContext);
+        if (!_context.Items.Contains(navigationContext))
+            _context.Items.Add(navigationContext);
 
         ProcessActivate(navigationContext);
     }
-}
-
-public sealed class TabRegionState : INotifyPropertyChanged
-{
-    public ObservableCollection<NavigationContext> Tabs { get; } = [];
-
-    private NavigationContext? _selected;
-    public NavigationContext? Selected
-    {
-        get => _selected;
-        set
-        {
-            if (!ReferenceEquals(_selected, value))
-            {
-                _selected = value;
-                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Selected)));
-            }
-        }
-    }
-
-    public event PropertyChangedEventHandler? PropertyChanged;
 }
 
 

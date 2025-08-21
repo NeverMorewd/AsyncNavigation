@@ -49,7 +49,13 @@ internal sealed class RegionNavigationService<T> : IRegionNavigationService<T> w
     private async Task CreateNavigateTask(NavigationContext navigationContext)
     {
         var indicator = _regionIndicatorManager.Setup(navigationContext, _regionPresenter!.IsSinglePageRegion);
-        _regionPresenter.RenderIndicator(navigationContext, indicator);
+
+        if (_regionPresenter.IsSinglePageRegion)
+        {
+            _regionPresenter.RenderIndicator(navigationContext, indicator);
+        }
+
+
         await _regionIndicatorManager.StartAsync(navigationContext,
             StartProcessNavigation(navigationContext),
             NavigationOptions.Default.LoadingIndicatorDelay);
@@ -69,6 +75,11 @@ internal sealed class RegionNavigationService<T> : IRegionNavigationService<T> w
                                 navigationContext);
         navigationContext.CancellationToken.ThrowIfCancellationRequested();
         navigationContext.Target.Value = view;
+
+        if (!_regionPresenter.IsSinglePageRegion)
+        {
+            _regionPresenter.RenderIndicator(navigationContext, (navigationContext.Indicator.Value as IRegionIndicator)!);
+        }
     }
 
     private async Task HandleBeforeNavigationAsync(NavigationContext navigationContext)

@@ -1,12 +1,11 @@
 ﻿using AsyncNavigation.Core;
 
-namespace AsyncNavigation.Abstractions
+namespace AsyncNavigation.Abstractions;
+
+public interface IRegionIndicator
 {
-    public interface IRegionIndicator
-    {
-        object IndicatorControl { get; }
-        void ShowLoading(NavigationContext context);
-        void ShowError(NavigationContext context, Exception exception);
-        void ShowContent(NavigationContext context, object? content);
-    }
+    object IndicatorControl { get; }
+    void ShowLoading(NavigationContext context);
+    void ShowError(NavigationContext context, Exception exception);
+    void ShowContent(NavigationContext context, object? content);
 }

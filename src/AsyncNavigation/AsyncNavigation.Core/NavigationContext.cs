@@ -24,7 +24,7 @@ public class NavigationContext
     /// <summary>
     /// Gets the navigation parameters passed to the target view.
     /// </summary>
-    public INavigationParameters? Parameters { get; init; } = null;
+    public INavigationParameters? Parameters { get; internal set; } = null;
 
 
     public OnceSet<object?> Source { get; } = new();
@@ -135,11 +135,13 @@ public class NavigationContext
     /// <returns>A new NavigationContext with the added parameter.</returns>
     public NavigationContext WithParameter(string key, object value)
     {
+        Parameters ??= new NavigationParameters();
         Parameters.Add(key, value);
         return this;
     }
     public NavigationContext WithParameters(IEnumerable<KeyValuePair<string, object>> parameters)
     {
+        Parameters ??= new NavigationParameters();
         Parameters.AddRange(parameters);
         return this;
     }
@@ -159,5 +161,22 @@ public class NavigationContext
         var backIndicator = IsBackNavigation ? " (Back)" : "";
         var errors = Errors?.Count > 0 ? $" (Errors: {Errors.Count}) {Environment.NewLine} {string.Join(Environment.NewLine,Errors.Select(e=>e.ToString()))}" : "";
         return $"Navigation[{NavigationId:N}]: {ViewName} in {RegionName} - {Status}{backIndicator} - {Duration} {errors}";
+    }
+
+    public override bool Equals(object? obj)
+    {
+        if (Target.IsSet && obj is NavigationContext context && context.Target.IsSet)
+        {
+            return ReferenceEquals(Target.Value, context.Target.Value);
+        }
+        return base.Equals(obj);
+    }
+    public override int GetHashCode()
+    {
+        if (Target.IsSet)
+        {
+            return Target.Value!.GetHashCode();
+        }
+        return base.GetHashCode();
     }
 }

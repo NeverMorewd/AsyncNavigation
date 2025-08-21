@@ -16,18 +16,20 @@
                 Tag="AView" />
             <Button
                 Classes="Navigation"
-                Content="ToB"
-                Tag="BView" />
-            <Button
-                Classes="Navigation"
                 Content="ToA:New"
                 Tag="AView:New" />
         </StackPanel>
         <ScrollViewer>
-            <TabControl an:RegionManager.RegionName="TabRegion" TabStripPlacement="Top">
+            <TabControl
+                an:RegionManager.PreferCache="True"
+                an:RegionManager.RegionName="TabRegion"
+                TabStripPlacement="Top">
                 <TabControl.ItemTemplate>
                     <DataTemplate>
-                        <StackPanel Orientation="Horizontal" Spacing="2">
+                        <StackPanel
+                            Margin="2"
+                            Orientation="Horizontal"
+                            Spacing="4">
                             <TextBlock VerticalAlignment="Center" Text="{Binding ViewName}" />
                             <Button Content="x" />
                         </StackPanel>
