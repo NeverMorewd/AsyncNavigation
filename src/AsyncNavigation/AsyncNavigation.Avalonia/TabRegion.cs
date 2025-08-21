@@ -122,11 +122,11 @@ public class TabRegion : IRegion
     {
         throw new NotImplementedException();
     }
-    
+
 
     public void ProcessActivate(NavigationContext navigationContext)
     {
-        var hit = _context.Items.FirstOrDefault(t => ReferenceEquals(t, navigationContext));
+        var hit = _context.Items.FirstOrDefault(t => t.Equals(navigationContext));
         if (hit != null)
         {
             _context.Selected = hit;
