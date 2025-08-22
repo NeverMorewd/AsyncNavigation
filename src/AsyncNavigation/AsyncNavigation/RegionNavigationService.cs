@@ -98,7 +98,7 @@ internal sealed class RegionNavigationService<T> : IRegionNavigationService<T> w
         {
             var currentAware = (currentView!.DataContext as INavigationAware)!;
             navigationContext.CancellationToken.ThrowIfCancellationRequested();
-            await currentAware.OnNavigatedFromAsync(navigationContext, navigationContext.CancellationToken);
+            await currentAware.OnNavigatedFromAsync(navigationContext);
             if (_regionPresenter.IsSinglePageRegion)
             {
                 _unloadHandler.Detach(currentAware);
@@ -113,7 +113,7 @@ internal sealed class RegionNavigationService<T> : IRegionNavigationService<T> w
             && view.DataContext is INavigationAware aware)
         {
             _unloadHandler.Attach(aware, navigationContext);
-            await aware.OnNavigatedToAsync(navigationContext, navigationContext.CancellationToken);
+            await aware.OnNavigatedToAsync(navigationContext);
             navigationContext.CancellationToken.ThrowIfCancellationRequested();
             Current.SetData(view);
         }

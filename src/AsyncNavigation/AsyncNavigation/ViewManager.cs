@@ -42,7 +42,7 @@ internal sealed class ViewManager : IViewManager
             navigationContext.CancellationToken.ThrowIfCancellationRequested();
             if (view.DataContext is INavigationAware navigationAware)
             {
-                if (await navigationAware.IsNavigationTargetAsync(navigationContext, navigationContext.CancellationToken))
+                if (await navigationAware.IsNavigationTargetAsync(navigationContext))
                 {
                     navigationContext.CancellationToken.ThrowIfCancellationRequested();
                     return view;

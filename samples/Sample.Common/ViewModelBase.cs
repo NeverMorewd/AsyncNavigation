@@ -24,7 +24,7 @@ public abstract partial class ViewModelBase : ReactiveObject, INavigationAware
         return Task.CompletedTask;
     }
 
-    public virtual async Task<bool> IsNavigationTargetAsync(NavigationContext context, CancellationToken cancellationToken)
+    public virtual async Task<bool> IsNavigationTargetAsync(NavigationContext context)
     {
         if (context.Parameters is not null)
         {
@@ -40,7 +40,7 @@ public abstract partial class ViewModelBase : ReactiveObject, INavigationAware
         return true;
     }
 
-    public virtual async Task OnNavigatedFromAsync(NavigationContext context, CancellationToken cancellationToken)
+    public virtual async Task OnNavigatedFromAsync(NavigationContext context)
     {
         if (TryGetDelay(context, out var delay))
         {
@@ -48,7 +48,7 @@ public abstract partial class ViewModelBase : ReactiveObject, INavigationAware
         }
     }
 
-    public virtual async Task OnNavigatedToAsync(NavigationContext context, CancellationToken cancellationToken)
+    public virtual async Task OnNavigatedToAsync(NavigationContext context)
     {
         if (TryGetDelay(context, out var delay))
         {

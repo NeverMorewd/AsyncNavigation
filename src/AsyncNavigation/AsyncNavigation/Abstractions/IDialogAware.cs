@@ -1,6 +1,4 @@
-﻿using AsyncNavigation.Core;
-
-namespace AsyncNavigation.Abstractions;
+﻿namespace AsyncNavigation.Abstractions;
 
 public interface IDialogAware
 {
