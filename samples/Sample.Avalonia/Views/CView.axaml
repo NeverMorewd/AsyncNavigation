@@ -17,6 +17,14 @@
             DockPanel.Dock="Top">
             <StackPanel>
                 <TextBlock Text="{Binding Name}" />
+				<TextBlock>
+					InstanceNumber:
+					<Run
+                        FontSize="15"
+                        FontWeight="Bold"
+                        Foreground="Tomato"
+                        Text="{Binding InstanceNumber}" />
+				</TextBlock>
 				<Button Classes="UnloadView"/>
 				<Button Classes="CloseDialog"/>
             </StackPanel>

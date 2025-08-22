@@ -4,24 +4,27 @@ namespace Microsoft.Extensions.DependencyInjection;
 
 public static class DependencyInjectionExtensions
 {
-    public static IServiceCollection RegisterNavigation<TView, TViewModel>(this IServiceCollection serviceDescriptors, string viewKey)
-        where TView : class, IView
-        where TViewModel : class, INavigationAware
+    public static IServiceCollection RegisterNavigation<TView, TViewModel>(
+    this IServiceCollection services, string viewKey)
+    where TView : class, IView
+    where TViewModel : class, INavigationAware
     {
-        ArgumentNullException.ThrowIfNull(serviceDescriptors);
+        ArgumentNullException.ThrowIfNull(services);
         ArgumentException.ThrowIfNullOrWhiteSpace(viewKey);
 
-        serviceDescriptors
-            .AddTransient<TViewModel>()
-            .AddTransient<TView>()
-            .AddKeyedTransient<IView>(viewKey, (sp, key) => sp.GetRequiredService<TView>())
-            .AddKeyedTransient<INavigationAware>(viewKey, (sp, key) => sp.GetRequiredService<TViewModel>());
+        services.AddTransient<TViewModel>();
+        services.AddTransient<TView>();
 
-        if (typeof(TViewModel).IsAssignableTo(typeof(IDialogAware)))
+        services.AddKeyedTransient<IView>(viewKey, (sp, _) => sp.GetRequiredService<TView>());
+        services.AddKeyedTransient<INavigationAware>(viewKey, (sp, _) => sp.GetRequiredService<TViewModel>());
+
+        if (typeof(IDialogAware).IsAssignableFrom(typeof(TViewModel)))
         {
-            serviceDescriptors.AddKeyedTransient(viewKey, (sp, key) =>
+            services.AddKeyedTransient(viewKey, (sp, _) =>
                 (IDialogAware)sp.GetRequiredService<TViewModel>());
         }
-        return serviceDescriptors;
+
+        return services;
     }
+
 }

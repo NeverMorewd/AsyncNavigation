@@ -61,9 +61,9 @@ public class NavigationOptions
     /// </summary>
     /// <remarks>
     /// Determines how new navigation requests are handled when another navigation is in progress.
-    /// Default value is <see cref="NavigationTaskStrategy.CancelCurrent"/>.
+    /// Default value is <see cref="NavigationJobStrategy.CancelCurrent"/>.
     /// </remarks>
-    public NavigationTaskStrategy NavigationTaskStrategy { get; set; } = NavigationTaskStrategy.CancelCurrent;
+    public NavigationJobStrategy NavigationJobStrategy { get; set; } = NavigationJobStrategy.CancelCurrent;
 
     /// <summary>
     /// Gets or sets the scope in which navigation tasks are managed.
@@ -117,8 +117,8 @@ public class NavigationOptions
         if (other.LoadingIndicatorDelay != Default.LoadingIndicatorDelay)
             LoadingIndicatorDelay = other.LoadingIndicatorDelay;
 
-        if (other.NavigationTaskStrategy != Default.NavigationTaskStrategy)
-            NavigationTaskStrategy = other.NavigationTaskStrategy;
+        if (other.NavigationJobStrategy != Default.NavigationJobStrategy)
+            NavigationJobStrategy = other.NavigationJobStrategy;
 
         if (other.NavigationTaskScope != Default.NavigationTaskScope)
             NavigationTaskScope = other.NavigationTaskScope;

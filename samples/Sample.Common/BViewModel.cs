@@ -4,7 +4,7 @@ using ReactiveUI.SourceGenerators;
 
 namespace Sample.Common;
 
-public partial class BViewModel : ViewModelBase
+public partial class BViewModel : InstanceCounterViewModel<BViewModel>
 {
     private readonly IRegionManager _regionManager;
     public BViewModel(IRegionManager regionManager)
@@ -15,11 +15,11 @@ public partial class BViewModel : ViewModelBase
     [ReactiveCommand]
     private async Task AsyncNavigate(string param)
     {
-        var (viewName, parameters) = CommonHelper.ParseNavigationParam(param);
+        var (viewName, parameters) = SampleHelper.ParseNavigationParam(param);
         await _regionManager.RequestNavigate("ItemsRegion", viewName, parameters);
     }
 
-    public override async Task OnNavigatedToAsync(NavigationContext context,  CancellationToken cancellationToken)
+    public override async Task OnNavigatedToAsync(NavigationContext context, CancellationToken cancellationToken)
     {
         await base.OnNavigatedToAsync(context, cancellationToken);
 

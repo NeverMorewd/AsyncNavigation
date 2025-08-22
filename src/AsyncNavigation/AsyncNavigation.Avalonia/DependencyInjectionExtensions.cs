@@ -28,7 +28,7 @@ public static class DependencyInjectionExtensions
     /// Merge the specified <paramref name="navigationOptions"/> into <see cref="NavigationOptions.Default"/>.
     /// </item>
     /// <item>
-    /// Register <see cref="INavigationTaskManager"/> as a singleton or transient service depending on
+    /// Register <see cref="INavigationJobScheduler"/> as a singleton or transient service depending on
     /// <see cref="NavigationOptions.NavigationTaskScope"/>.
     /// </item>
     /// <item>
@@ -56,11 +56,11 @@ public static class DependencyInjectionExtensions
         serviceDescriptors.AddSingleton(NavigationOptions.Default);
         if (NavigationOptions.Default.NavigationTaskScope == NavigationTaskScope.App)
         {
-            serviceDescriptors.AddSingleton<INavigationTaskManager, NavigationTaskManager>();
+            serviceDescriptors.AddSingleton<INavigationJobScheduler, NavigationJobScheduler>();
         }
         else
         {
-            serviceDescriptors.AddTransient<INavigationTaskManager, NavigationTaskManager>();
+            serviceDescriptors.AddTransient<INavigationJobScheduler, NavigationJobScheduler>();
         }
         return serviceDescriptors
             .RegisterRegionAdapter<ContentRegionAdapter>()

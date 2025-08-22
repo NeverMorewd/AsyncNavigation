@@ -3,7 +3,7 @@ using ReactiveUI.SourceGenerators;
 
 namespace Sample.Common;
 
-public partial class CViewModel : ViewModelBase
+public partial class CViewModel : InstanceCounterViewModel<CViewModel>
 {
     private readonly IRegionManager _regionManager;
     public CViewModel(IRegionManager regionManager)
@@ -14,7 +14,7 @@ public partial class CViewModel : ViewModelBase
     [ReactiveCommand]
     private async Task AsyncNavigate(string param)
     {
-        var (viewName, parameters) = CommonHelper.ParseNavigationParam(param);
+        var (viewName, parameters) = SampleHelper.ParseNavigationParam(param);
         await _regionManager.RequestNavigate("ChildContentRegion", viewName, parameters);
     }
 }

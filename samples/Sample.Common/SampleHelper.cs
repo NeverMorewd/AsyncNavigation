@@ -3,7 +3,7 @@ using AsyncNavigation.Core;
 
 namespace Sample.Common;
 
-public static class CommonHelper
+public static class SampleHelper
 {
     public static (string ViewName, INavigationParameters? Parameters) ParseNavigationParam(string param)
     {

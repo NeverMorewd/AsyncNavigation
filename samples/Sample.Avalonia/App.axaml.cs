@@ -49,6 +49,7 @@ public partial class App : Application, IObserver<Exception>
                 .RegisterNavigation<BView, BViewModel>(nameof(BView))
                 .RegisterNavigation<CView, CViewModel>(nameof(CView))
                 .RegisterNavigation<DView, DViewModel>(nameof(DView))
+                .RegisterNavigation<EView, EViewModel>(nameof(EView))
                 .RegisterLoadingIndicator(BuildLoadingIndicator)
                 .RegisterErrorIndicator(BuildErrorIndicator);
 

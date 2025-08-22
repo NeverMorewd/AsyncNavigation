@@ -1,6 +1,6 @@
 ﻿namespace AsyncNavigation.Core
 {
-    public enum NavigationTaskStrategy
+    public enum NavigationJobStrategy
     {
         Queue,
         CancelCurrent

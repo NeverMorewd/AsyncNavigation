@@ -16,8 +16,24 @@
                 Tag="AView" />
             <Button
                 Classes="Navigation"
+                Content="ToE"
+                Tag="EView" />
+			<Button
+			  Classes="NavigationWithDelay"
+			  Content="ToA:Delay"
+			  Tag="AView" />
+			<Button
+                Classes="NavigationWithDelay"
+                Content="ToE:Delay"
+                Tag="EView" />
+            <Button
+                Classes="Navigation"
                 Content="ToA:New"
                 Tag="AView:New" />
+            <Button
+                Classes="NavigationWithDelay"
+                Content="ToE:New;Delay"
+                Tag="EView:New" />
         </StackPanel>
         <ScrollViewer>
             <TabControl

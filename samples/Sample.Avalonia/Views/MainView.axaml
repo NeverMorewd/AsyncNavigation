@@ -25,9 +25,13 @@
                         Classes="Navigation"
                         Content="ToA"
                         Tag="AView" />
+					<Button
+					   Classes="NavigationWithDelay"
+					   Content="ToE:Delay"
+					   Tag="EView" />
                     <Button
                         Classes="Navigation"
-                        Content="ToB:ItemsRegion"
+                        Content="ToB:ItemsRegion;Delay"
                         Tag="BView" />
                     <Button
                         Classes="Navigation"

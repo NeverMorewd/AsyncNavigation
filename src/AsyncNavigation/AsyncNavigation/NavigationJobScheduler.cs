@@ -4,11 +4,11 @@ using System.Collections.Concurrent;
 
 namespace AsyncNavigation;
 
-internal sealed class NavigationTaskManager : INavigationTaskManager
+internal sealed class NavigationJobScheduler : INavigationJobScheduler
 {
     private readonly ConcurrentDictionary<NavigationContext, (Task Task, CancellationTokenSource Cts)> _jobs = new();
 
-    public async Task StartNavigationAsync(NavigationContext navigationContext, Func<NavigationContext, Task> navigationTaskAction)
+    public async Task RunJobAsync(NavigationContext navigationContext, Func<NavigationContext, Task> navigationTaskAction)
     {
         if (_jobs.ContainsKey(navigationContext))
             throw new InvalidOperationException($"Navigation task of {navigationContext} is already started.");
@@ -54,12 +54,12 @@ internal sealed class NavigationTaskManager : INavigationTaskManager
         if (_jobs.IsEmpty)
             return;
 
-        switch (NavigationOptions.Default.NavigationTaskStrategy)
+        switch (NavigationOptions.Default.NavigationJobStrategy)
         {
-            case NavigationTaskStrategy.CancelCurrent:
+            case NavigationJobStrategy.CancelCurrent:
                 await CancelAllAsync();
                 break;
-            case NavigationTaskStrategy.Queue:
+            case NavigationJobStrategy.Queue:
                 await WaitAllAsync();
                 break;
         }
