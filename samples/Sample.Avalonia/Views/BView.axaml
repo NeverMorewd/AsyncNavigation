@@ -36,12 +36,8 @@
                 Tag="AView" />
             <Button
                 Classes="Navigation"
-                Content="ToB"
-                Tag="BView" />
-            <Button
-                Classes="Navigation"
-                Content="ToC"
-                Tag="CView" />
+                Content="ToE"
+                Tag="EView" />
         </StackPanel>
         <ScrollViewer>
             <ItemsControl an:RegionManager.RegionName="ItemsRegion">

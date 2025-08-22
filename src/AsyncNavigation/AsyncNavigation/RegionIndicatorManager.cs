@@ -13,14 +13,13 @@ internal sealed class RegionIndicatorManager : IRegionIndicatorManager
         _indicatorFactory = indicatorFactory;
     }
 
-    public IRegionIndicator Setup(NavigationContext context, bool useSingleton)
+    public void Setup(NavigationContext context, bool useSingleton)
     {
         var indicator = useSingleton
             ? (_singleton ??= _indicatorFactory())
             : _indicatorFactory();
 
         context.Indicator.Value = indicator;
-        return indicator;
     }
 
     public Task ShowContentAsync(NavigationContext context, object content)
@@ -64,8 +63,8 @@ internal sealed class RegionIndicatorManager : IRegionIndicatorManager
 
     private static IRegionIndicator GetIndicator(NavigationContext context)
     {
-        if (context.Indicator.IsSet && context.Indicator.Value is IRegionIndicator indicator)
-            return indicator;
+        if (context.Indicator.IsSet)
+            return context.Indicator.Value!;
 
         throw new NavigationException(
             $"Region indicator for region '{context.RegionName}' is not set or is not an IRegionIndicator.");

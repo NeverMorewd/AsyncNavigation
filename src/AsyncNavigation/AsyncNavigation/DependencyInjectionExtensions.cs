@@ -1,4 +1,6 @@
-﻿using AsyncNavigation.Abstractions;
+﻿using AsyncNavigation;
+using AsyncNavigation.Abstractions;
+using AsyncNavigation.Core;
 
 namespace Microsoft.Extensions.DependencyInjection;
 
@@ -25,6 +27,29 @@ public static class DependencyInjectionExtensions
         }
 
         return services;
+    }
+
+    internal static IServiceCollection RegisterNavigationFramework(this IServiceCollection serviceDescriptors, NavigationOptions? navigationOptions = null)
+    {
+        if (navigationOptions is not null)
+        {
+            NavigationOptions.Default.MergeFrom(navigationOptions);
+        }
+        serviceDescriptors.AddSingleton(NavigationOptions.Default);
+        if (NavigationOptions.Default.NavigationJobScope == NavigationJobScope.App)
+        {
+            serviceDescriptors.AddSingleton<INavigationJobScheduler, NavigationJobScheduler>();
+        }
+        else
+        {
+            serviceDescriptors.AddTransient<INavigationJobScheduler, NavigationJobScheduler>();
+        }
+        return serviceDescriptors
+            .AddSingleton<IRegionNavigationServiceFactory, RegionNavigationServiceFactory>()
+            .AddSingleton<IRegionFactory, RegionFactory>()
+            .AddSingleton<IViewFactory>(sp => new DefaultViewFactory(sp, serviceDescriptors))
+            .AddTransient<IViewManager, ViewManager>()
+            .AddTransient<IRegionIndicatorManager>(sp => new RegionIndicatorManager(() => sp.GetRequiredService<IRegionIndicator>()));
     }
 
 }

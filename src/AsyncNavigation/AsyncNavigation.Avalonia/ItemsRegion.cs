@@ -1,27 +1,35 @@
 ﻿using AsyncNavigation.Abstractions;
 using AsyncNavigation.Core;
 using Avalonia.Controls;
+using Avalonia.Controls.Primitives;
 using Avalonia.Controls.Templates;
+using Avalonia.Data;
 using Microsoft.Extensions.DependencyInjection;
 using System.Collections.ObjectModel;
 
 namespace AsyncNavigation.Avalonia;
 
-public class ItemsRegion : IItemsRegion<ItemsControl>
+public class ItemsRegion : IRegion
 {
     private readonly IRegionNavigationService<ItemsRegion> _regionNavigationService;
     private readonly ItemsControl _itemsControl;
+    private readonly ItemsRegionContext _context = new();
     public ItemsRegion(ItemsControl itemsControl, IServiceProvider serviceProvider, bool? useCache)
     {
         _itemsControl = itemsControl;
         _itemsControl.ItemTemplate = new FuncDataTemplate<NavigationContext>((context, np) =>
         {
-            if(context.Indicator.Value is IRegionIndicator regionIndicator)
-            {
-                return regionIndicator.IndicatorControl as Control;
-            }
-            return null;
+            return context.Indicator.Value!.IndicatorControl as Control;
         });
+
+        _itemsControl.Bind(
+           ItemsControl.ItemsSourceProperty,
+           new Binding(nameof(ItemsRegionContext.Items)) { Source = _context });
+
+        _itemsControl.Bind(
+            SelectingItemsControl.SelectedItemProperty,
+            new Binding(nameof(ItemsRegionContext.Selected)) { Source = _context, Mode = BindingMode.TwoWay });
+        
         EnableViewCache = useCache ?? false;
         var factory = serviceProvider.GetRequiredService<IRegionNavigationServiceFactory>();
         _regionNavigationService = factory.Create(this);
@@ -115,25 +123,24 @@ public class ItemsRegion : IItemsRegion<ItemsControl>
     {
         _itemsControl.ScrollIntoView(navigationContext);
     }
-    public void RenderIndicator(NavigationContext navigationContext, IRegionIndicator regionIndicator)
+    public void RenderIndicator(NavigationContext navigationContext)
     {
-        if (_itemsControl.Items.Contains(navigationContext))
-        {
-
-        }
-        else
-        {
-            _itemsControl.Items.Add(navigationContext);
-        }
-        _itemsControl.ScrollIntoView(navigationContext);
+        if (!_context.Items.Contains(navigationContext))
+            _context.Items.Add(navigationContext);
+        ProcessActivate(navigationContext);
     }
 
     public void ProcessDeactivate(NavigationContext navigationContext)
-    {
-        _itemsControl.Items.Remove(navigationContext);
+    {       
+        _context.Items.Remove(navigationContext);
     }
 
     public bool RemoveView(IView view)
+    {
+        throw new NotImplementedException();
+    }
+
+    public void Dispose()
     {
         throw new NotImplementedException();
     }

@@ -1,6 +1,6 @@
 ﻿namespace AsyncNavigation.Core;
 
-public enum NavigationTaskScope
+public enum NavigationJobScope
 {
     App,
     Region

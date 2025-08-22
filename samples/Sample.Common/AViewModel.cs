@@ -10,8 +10,6 @@ public partial class AViewModel : InstanceCounterViewModel<AViewModel>
     {
         _regionManager = regionManager;
     }
-    [Reactive]
-    private bool _isDialog = false;
 
     [ReactiveCommand]
     private async Task AsyncNavigate(string param)

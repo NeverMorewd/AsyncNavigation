@@ -7,7 +7,7 @@ using System.ComponentModel;
 
 namespace AsyncNavigation.Avalonia;
 
-public class ContentRegion : IContentRegion<ContentControl>
+public class ContentRegion : IRegion
 {
     private readonly ContentControl _contentControl;
     private readonly IServiceProvider _serviceProvider;
@@ -124,16 +124,21 @@ public class ContentRegion : IContentRegion<ContentControl>
         throw new NotImplementedException();
     }
 
-    public void RenderIndicator(NavigationContext navigationContext, IRegionIndicator regionIndicator)
+    public void RenderIndicator(NavigationContext navigationContext)
     {
-        _contentControl.Content = regionIndicator.IndicatorControl;
+        _contentControl.Content = navigationContext.Indicator.Value!.IndicatorControl;
     }
     public void ProcessActivate(NavigationContext navigationContext)
     {
-        //_contentControl.Content = navigationContext.Control;
+        _contentControl.Content = navigationContext.Indicator.Value!.IndicatorControl;
     }
     public void ProcessDeactivate(NavigationContext navigationContext)
     {
         _contentControl.Content = null;
+    }
+
+    public void Dispose()
+    {
+        throw new NotImplementedException();
     }
 }

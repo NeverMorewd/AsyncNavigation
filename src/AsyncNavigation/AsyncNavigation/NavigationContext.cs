@@ -1,6 +1,8 @@
-﻿using System.Collections.Concurrent;
+﻿using AsyncNavigation.Abstractions;
+using AsyncNavigation.Core;
+using System.Collections.Concurrent;
 
-namespace AsyncNavigation.Core;
+namespace AsyncNavigation;
 
 
 /// <summary>
@@ -27,9 +29,9 @@ public class NavigationContext
     public INavigationParameters? Parameters { get; internal set; } = null;
 
 
-    public OnceSet<object?> Source { get; } = new();
-    public OnceSet<object?> Target { get; } = new();
-    public OnceSet<object?> Indicator { get; } = new();
+    public ImmutableProperty<IView?> Source { get; } = new();
+    public ImmutableProperty<IView?> Target { get; } = new();
+    public ImmutableProperty<IRegionIndicator?> Indicator { get; } = new();
 
     /// <summary>
     /// Gets the timestamp when navigation was initiated.

@@ -1,5 +1,5 @@
-﻿using AsyncNavigation.Abstractions;
-using AsyncNavigation.Core;
+﻿using AsyncNavigation;
+using AsyncNavigation.Abstractions;
 using ReactiveUI.SourceGenerators;
 
 namespace Sample.Common;

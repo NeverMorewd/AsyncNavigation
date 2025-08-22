@@ -1,4 +1,5 @@
-﻿using AsyncNavigation.Abstractions;
+﻿using AsyncNavigation;
+using AsyncNavigation.Abstractions;
 using AsyncNavigation.Core;
 using ReactiveUI;
 using ReactiveUI.SourceGenerators;
@@ -9,6 +10,8 @@ public abstract partial class ViewModelBase : ReactiveObject, INavigationAware
 {
     [Reactive]
     private string _name;
+    [Reactive]
+    private bool _isDialog = false;
     public ViewModelBase()
     {
         _name = GetType().Name;

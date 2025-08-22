@@ -6,8 +6,4 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
 
-  <ItemGroup>
-    <PackageReference Include="System.Reactive" Version="6.0.1" />
-  </ItemGroup>
-
 </Project>

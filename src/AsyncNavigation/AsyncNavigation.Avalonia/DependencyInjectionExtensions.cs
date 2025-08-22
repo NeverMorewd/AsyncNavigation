@@ -29,7 +29,7 @@ public static class DependencyInjectionExtensions
     /// </item>
     /// <item>
     /// Register <see cref="INavigationJobScheduler"/> as a singleton or transient service depending on
-    /// <see cref="NavigationOptions.NavigationTaskScope"/>.
+    /// <see cref="NavigationOptions.NavigationJobScope"/>.
     /// </item>
     /// <item>
     /// Register built-in region adapters (<see cref="ContentRegionAdapter"/> and <see cref="ItemsRegionAdapter"/>).
@@ -49,29 +49,12 @@ public static class DependencyInjectionExtensions
 
     public static IServiceCollection AddNavigationSupport(this IServiceCollection serviceDescriptors, NavigationOptions? navigationOptions = null)
     {
-        if (navigationOptions is not null)
-        {
-            NavigationOptions.Default.MergeFrom(navigationOptions);
-        }
-        serviceDescriptors.AddSingleton(NavigationOptions.Default);
-        if (NavigationOptions.Default.NavigationTaskScope == NavigationTaskScope.App)
-        {
-            serviceDescriptors.AddSingleton<INavigationJobScheduler, NavigationJobScheduler>();
-        }
-        else
-        {
-            serviceDescriptors.AddTransient<INavigationJobScheduler, NavigationJobScheduler>();
-        }
         return serviceDescriptors
+            .RegisterNavigationFramework(navigationOptions)
             .RegisterRegionAdapter<ContentRegionAdapter>()
             .RegisterRegionAdapter<ItemsRegionAdapter>()
-            .RegisterRegionAdapter<TabRegionAdapter>()
-            .AddSingleton<IRegionNavigationServiceFactory, RegionNavigationServiceFactory>()
-            .AddSingleton<IRegionFactory, RegionFactory>()
-            .AddSingleton<IViewFactory>(sp => new DefaultViewFactory(sp, serviceDescriptors))
-            .AddTransient<IViewManager, ViewManager>()
-            .AddTransient<IRegionIndicator, RegionIndicator>()
-            .AddTransient<IRegionIndicatorManager>(sp => new RegionIndicatorManager(() => sp.GetRequiredService<IRegionIndicator>()))
+            .RegisterRegionAdapter<TabRegionAdapter>()         
+            .AddTransient<IRegionIndicator, RegionIndicator>()          
             .AddSingleton<IRegionManager, RegionManager>();
     }
 

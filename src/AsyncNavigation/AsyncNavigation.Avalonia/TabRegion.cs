@@ -32,9 +32,7 @@ public class TabRegion : IRegion
 
         _tabControl.ContentTemplate = new FuncDataTemplate<NavigationContext>((context, _) => 
         {
-            if (context != null && context.Indicator.Value is IRegionIndicator regionIndicator)
-                return regionIndicator.IndicatorControl as Control;
-            return null;
+            return context.Indicator.Value!.IndicatorControl as Control;
         });
     }
 
@@ -145,12 +143,17 @@ public class TabRegion : IRegion
         }
     }
 
-    public void RenderIndicator(NavigationContext navigationContext, IRegionIndicator regionIndicator)
+    public void RenderIndicator(NavigationContext navigationContext)
     {
         if (!_context.Items.Contains(navigationContext))
             _context.Items.Add(navigationContext);
 
         ProcessActivate(navigationContext);
+    }
+
+    public void Dispose()
+    {
+        throw new NotImplementedException();
     }
 }
 

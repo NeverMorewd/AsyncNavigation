@@ -49,11 +49,11 @@ internal sealed class RegionNavigationService<T> : IRegionNavigationService<T> w
     private async Task CreateNavigateTask(NavigationContext navigationContext)
     {
         var isSinglePageRegion = _regionPresenter!.IsSinglePageRegion;
-        var indicator = _regionIndicatorManager.Setup(navigationContext, isSinglePageRegion);
+        _regionIndicatorManager.Setup(navigationContext, isSinglePageRegion);
 
         var navigationTask = isSinglePageRegion
-            ? RunSinglePageNavigationAsync(navigationContext, indicator)
-            : RunMultiPageNavigationAsync(navigationContext, indicator);
+            ? RunSinglePageNavigationAsync(navigationContext)
+            : RunMultiPageNavigationAsync(navigationContext);
 
         await _regionIndicatorManager.StartAsync(
             navigationContext,
@@ -61,40 +61,28 @@ internal sealed class RegionNavigationService<T> : IRegionNavigationService<T> w
             NavigationOptions.Default.LoadingIndicatorDelay);
     }
 
-    private Task RunSinglePageNavigationAsync(NavigationContext navigationContext, IRegionIndicator regionIndicator)
+    private Task RunSinglePageNavigationAsync(NavigationContext navigationContext)
     {
-        var steps = new List<Func<Task>>
-        {
-            () =>
-            {
-                _regionPresenter.RenderIndicator(navigationContext, regionIndicator);
-                return Task.CompletedTask;
-            },
-            () => HandleBeforeNavigationAsync(navigationContext),
-            () => ResovleViewAsync(navigationContext),
-            () => HandleAfterNavigationAsync(navigationContext)
-        };
-
-        return RegionNavigationService<T>.ExecuteStepsAsync(steps);
+        Func<NavigationContext, Task>[] steps = 
+            [RenderIndicatorAsync,
+             HandleBeforeNavigationAsync, 
+             ResovleViewAsync, 
+             HandleAfterNavigationAsync];
+        return RegionNavigationService<T>.ExecuteStepsAsync(steps, navigationContext);
     }
 
-    private Task RunMultiPageNavigationAsync(NavigationContext navigationContext, IRegionIndicator regionIndicator)
+    private Task RunMultiPageNavigationAsync(NavigationContext navigationContext)
     {
-        var steps = new List<Func<Task>>
-        {
-            () => HandleBeforeNavigationAsync(navigationContext),
-            () => ResovleViewAsync(navigationContext),
-            () =>
-            {
-                _regionPresenter.RenderIndicator(navigationContext, regionIndicator);
-                return Task.CompletedTask;
-            },
-            () => HandleAfterNavigationAsync(navigationContext)
-        };
+        Func<NavigationContext, Task>[] steps = [HandleBeforeNavigationAsync, ResovleViewAsync, RenderIndicatorAsync, HandleAfterNavigationAsync];
 
-        return RegionNavigationService<T>.ExecuteStepsAsync(steps);
+        return RegionNavigationService<T>.ExecuteStepsAsync(steps, navigationContext);
     }
 
+    private Task RenderIndicatorAsync(NavigationContext navigationContext)
+    {
+        _regionPresenter.RenderIndicator(navigationContext);
+        return Task.CompletedTask;
+    }
     private async Task ResovleViewAsync(NavigationContext navigationContext)
     {
         var view = await _viewCacheManager.ResolveViewAsync(navigationContext.ViewName,
@@ -126,17 +114,17 @@ internal sealed class RegionNavigationService<T> : IRegionNavigationService<T> w
         {
             _unloadHandler.Attach(aware, navigationContext);
             await aware.OnNavigatedToAsync(navigationContext, navigationContext.CancellationToken);
+            navigationContext.CancellationToken.ThrowIfCancellationRequested();
             Current.SetData(view);
         }
-        navigationContext.CancellationToken.ThrowIfCancellationRequested();
     }
 
 
-    private static async Task ExecuteStepsAsync(IEnumerable<Func<Task>> steps)
+    private static async Task ExecuteStepsAsync(IEnumerable<Func<NavigationContext, Task>> steps, NavigationContext navigationContext)
     {
         foreach (var step in steps)
         {
-            await step();
+            await step(navigationContext);
         }
     }
 }
