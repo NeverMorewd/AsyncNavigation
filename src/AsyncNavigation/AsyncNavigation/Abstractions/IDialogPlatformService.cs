@@ -1,6 +1,6 @@
 ﻿namespace AsyncNavigation.Abstractions;
 
-public interface IDialogPlatformService
+internal interface IDialogPlatformService
 {
     Task ShowAsync(IDialogWindowBase dialogWindow, bool isModal, object? owner = null);
     Task<IDialogResult> HandleCloseAsync(IDialogWindowBase dialogWindow, IDialogAware dialogAware);
