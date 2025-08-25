@@ -57,6 +57,22 @@
                         Classes="Navigation"
                         Content="ToB:Error"
                         Tag="BView:Error" />
+					<Button
+					   Classes="DialogShow"
+					   Content="ToA:Dialog.Show"
+					   Tag="AView" />
+					<Button
+					   Classes="DialogShow"
+					   Content="ToE:Dialog.Show"
+					   Tag="EView" />
+					<Button
+					   Classes="DialogShowDialog"
+					   Content="ToA:Dialog.ShowDialog"
+					   Tag="AView" />
+					<Button
+					   Classes="DialogShowDialogAsync"
+					   Content="ToE:Dialog.ShowDialog"
+					   Tag="EView" />
                 </StackPanel>
             </DockPanel>
         </SplitView.Pane>

@@ -1,16 +1,20 @@
-﻿using AsyncNavigation.Abstractions;
+﻿using AsyncNavigation;
+using AsyncNavigation.Abstractions;
 using AsyncNavigation.Core;
 using ReactiveUI;
 using ReactiveUI.SourceGenerators;
+using System.Diagnostics;
 
 namespace Sample.Common;
 
 public partial class MainWindowViewModel : ViewModelBase
 {
     private readonly IRegionManager _regionManager;
-    public MainWindowViewModel(IRegionManager regionManager)
+    private readonly IDialogService _dialogService;
+    public MainWindowViewModel(IRegionManager regionManager, IDialogService dialogService)
     {
         _regionManager = regionManager;
+        _dialogService = dialogService;
     }
     [Reactive]
     private bool _isSplitViewPaneOpen = false;
@@ -37,4 +41,26 @@ public partial class MainWindowViewModel : ViewModelBase
         parameters!.Add("delay", TimeSpan.FromSeconds(1));
         await _regionManager.RequestNavigate("MainRegion", viewName, parameters);
     }
+
+    [ReactiveCommand]
+    private void Show(string param)
+    {
+        _dialogService.Show(param, callback: result => 
+        {
+            Debug.WriteLine(result.Result);
+        });
+    }
+
+    [ReactiveCommand]
+    private async Task AsyncShowDialog(string param)
+    {
+       var result = await _dialogService.ShowDialogAsync(param);
+    }
+
+    [ReactiveCommand]
+    private void ShowDialog(string param)
+    {
+        var result = _dialogService.ShowDialog(param);
+    }
+
 }

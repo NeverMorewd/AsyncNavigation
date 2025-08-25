@@ -7,9 +7,9 @@ namespace Microsoft.Extensions.DependencyInjection;
 public static class DependencyInjectionExtensions
 {
     public static IServiceCollection RegisterNavigation<TView, TViewModel>(
-    this IServiceCollection services, string viewKey)
-    where TView : class, IView
-    where TViewModel : class, INavigationAware
+        this IServiceCollection services, string viewKey)
+        where TView : class, IView
+        where TViewModel : class, INavigationAware
     {
         ArgumentNullException.ThrowIfNull(services);
         ArgumentException.ThrowIfNullOrWhiteSpace(viewKey);
@@ -45,6 +45,7 @@ public static class DependencyInjectionExtensions
             serviceDescriptors.AddTransient<INavigationJobScheduler, NavigationJobScheduler>();
         }
         return serviceDescriptors
+            .AddSingleton<IDialogService, DialogService>()
             .AddSingleton<IRegionNavigationServiceFactory, RegionNavigationServiceFactory>()
             .AddSingleton<IRegionFactory, RegionFactory>()
             .AddSingleton<IViewFactory>(sp => new DefaultViewFactory(sp, serviceDescriptors))

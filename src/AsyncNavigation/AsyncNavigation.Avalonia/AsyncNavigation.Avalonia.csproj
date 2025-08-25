@@ -7,7 +7,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Remove="TaskExtensions.cs" />
     <Compile Remove="ViewTemplateSelector.cs" />
   </ItemGroup>
 

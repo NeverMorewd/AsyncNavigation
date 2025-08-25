@@ -8,7 +8,7 @@ namespace AsyncNavigation;
 /// <summary>
 /// Encapsulates information for a single navigation request.
 /// </summary>
-public class NavigationContext
+public partial class NavigationContext
 {
     private readonly ConcurrentBag<Exception> _errors = [];
     /// <summary>
@@ -29,9 +29,9 @@ public class NavigationContext
     public INavigationParameters? Parameters { get; internal set; } = null;
 
 
-    public ImmutableProperty<IView?> Source { get; } = new();
-    public ImmutableProperty<IView?> Target { get; } = new();
-    public ImmutableProperty<IRegionIndicator?> Indicator { get; } = new();
+    public ImmutableProperty<IView> Source { get; } = new();
+    public ImmutableProperty<IView> Target { get; } = new();
+    public ImmutableProperty<IRegionIndicator> Indicator { get; } = new();
 
     /// <summary>
     /// Gets the timestamp when navigation was initiated.
@@ -46,7 +46,19 @@ public class NavigationContext
     /// <summary>
     /// Gets the current status of the navigation operation.
     /// </summary>
-    public NavigationStatus Status { get; set; } = NavigationStatus.Pending;
+    private NavigationStatus _status;
+    public NavigationStatus Status 
+    {
+        get => _status;
+        set
+        {
+            if (_status != value)
+            {
+                _status = value;
+                OnPropertyChanged();
+            }
+        }
+    }
 
     /// <summary>
     /// Gets the error that occurred during navigation, if any.

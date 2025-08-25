@@ -1,4 +1,8 @@
-using Avalonia.Controls;
+﻿using Avalonia.Controls;
+using System;
+using System.Diagnostics;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace Sample.Avalonia.Views
 {

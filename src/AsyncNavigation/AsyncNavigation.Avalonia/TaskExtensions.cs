@@ -1,6 +1,6 @@
 ﻿namespace Avalonia.Threading;
 
-public static class ThreadingExtensions
+public static class TaskExtensions
 {
     public static T WaitOnDispatcherFrame<T>(this Task<T> task)
     {

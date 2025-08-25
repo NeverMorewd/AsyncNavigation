@@ -1,0 +1,159 @@
+﻿using AsyncNavigation.Abstractions;
+using AsyncNavigation.Core;
+using Avalonia;
+using Avalonia.Controls;
+using Avalonia.Controls.ApplicationLifetimes;
+using Avalonia.Threading;
+using System.Diagnostics;
+
+namespace AsyncNavigation.Avalonia;
+
+internal class DialogPlatformService : IDialogPlatformService<Window>
+{
+    public Task<IDialogResult> HandleCloseAsync(Window dialogWindow, IDialogAware dialogAware)
+    {
+        ArgumentNullException.ThrowIfNull(dialogWindow);
+        ArgumentNullException.ThrowIfNull(dialogAware);
+
+        var completionSource = new TaskCompletionSource<IDialogResult>();
+        bool isRequestCloseHandled = false;
+
+        async Task RequestCloseHandler(object? sender, DialogCloseEventArgs args)
+        {
+            if (isRequestCloseHandled) return;
+            isRequestCloseHandled = true;
+
+            dialogAware.RequestCloseAsync -= RequestCloseHandler;
+
+            try
+            {
+                await dialogAware.OnDialogClosingAsync(args.DialogResult);
+                args.CancellationToken.ThrowIfCancellationRequested();
+
+                completionSource.TrySetResult(args.DialogResult);
+                dialogWindow.Close();
+
+                try
+                {
+                    await dialogAware.OnDialogClosedAsync(args.DialogResult);
+                }
+                catch (OperationCanceledException) when (args.CancellationToken.IsCancellationRequested)
+                {
+                    Debug.WriteLine("DialogPlatformService: OnDialogClosedAsync was cancelled, but dialog is already closed.");
+                }
+                catch (Exception ex)
+                {
+                    Debug.WriteLine($"DialogPlatformService: Error in OnDialogClosedAsync: {ex}");
+                }
+            }
+            catch (OperationCanceledException) when (args.CancellationToken.IsCancellationRequested)
+            {
+                var setCanceledFlag = completionSource.TrySetCanceled();
+                Debug.WriteLineIf(!setCanceledFlag, "DialogPlatformService: Failed to set canceled for DialogResult.");
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"DialogPlatformService: Error in OnDialogClosingAsync: {ex}");
+
+                if (!completionSource.Task.IsCompleted)
+                {
+                    var faultedResult = new DialogResult(DialogButtonResult.None);
+                    completionSource.TrySetResult(faultedResult);
+                }
+            }
+        }
+
+        void ClosedHandler(object? sender, EventArgs e)
+        {
+            dialogWindow.Closed -= ClosedHandler;
+
+            if (!isRequestCloseHandled && !completionSource.Task.IsCompleted)
+            {
+                completionSource.TrySetResult(new DialogResult(DialogButtonResult.None));
+            }
+            if (!isRequestCloseHandled)
+            {
+                dialogAware.RequestCloseAsync -= RequestCloseHandler;
+            }
+        }
+
+        dialogAware.RequestCloseAsync += RequestCloseHandler;
+        dialogWindow.Closed += ClosedHandler;
+
+        return completionSource.Task;
+    }
+
+    Task<IDialogResult> IDialogPlatformService.HandleCloseAsync(IDialogWindowBase dialogWindow, IDialogAware dialogAware)
+    {
+        if (!IsPlatformWindow(dialogWindow))
+        {
+            throw new InvalidOperationException($"Dialog window must be of type {typeof(Window).Name}, but got {dialogWindow?.GetType().Name ?? "null"}");
+        }
+        return HandleCloseAsync((Window)dialogWindow, dialogAware);
+    }
+
+    public async Task ShowAsync(Window dialogWindow, bool isModal, Window? owner = null)
+    {
+        ArgumentNullException.ThrowIfNull(dialogWindow);
+
+        if (isModal)
+        {
+            if(owner == null)
+            {
+                if (Application.Current!.ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktopLifetime)
+                {
+                    owner = desktopLifetime.Windows.LastOrDefault(w => w.IsActive);
+                    owner ??= desktopLifetime.MainWindow;
+                }
+                else if (Application.Current!.ApplicationLifetime is ISingleViewApplicationLifetime appLifetime)
+                {
+                    //todo
+                }
+            }
+            if (owner != null)
+            {
+                await dialogWindow.ShowDialog(owner);
+            }
+            else
+            {
+                throw new InvalidOperationException("Modal dialog requires an owner window.");
+            }
+        }
+        else
+        {
+            dialogWindow.Show();
+        }
+    }
+
+    Task IDialogPlatformService.ShowAsync(IDialogWindowBase dialogWindow, bool isModal, object? owner)
+    {
+        if (!IsPlatformWindow(dialogWindow))
+        {
+            throw new InvalidOperationException($"Dialog window must be of type {typeof(Window).Name}, but got {dialogWindow?.GetType().Name ?? "null"}");
+        }
+
+        Window? ownerWindow = null;
+        if (owner != null)
+        {
+            ownerWindow = owner as Window ??
+                throw new InvalidOperationException($"Owner must be of type {typeof(Window).Name}, but got {owner.GetType().Name}");
+        }
+
+        return ShowAsync((Window)dialogWindow, isModal, ownerWindow);
+    }
+
+    public bool IsPlatformWindow(IDialogWindowBase? window)
+    {
+        return window is Window;
+    }
+
+    public IDialogResult WaitOnUIThread(Task<IDialogResult> dialogResultTask)
+    {
+        return dialogResultTask.WaitOnDispatcherFrame();
+    }
+
+    public void WaitOnUIThread(Task showDialogTask)
+    {
+        showDialogTask.WaitOnDispatcherFrame();
+    }
+}

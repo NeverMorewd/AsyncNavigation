@@ -34,6 +34,7 @@
 		<Style Selector="Button.UnloadView">
 			<Setter Property="Height" Value="30" />
 			<Setter Property="Width" Value="200" />
+			<Setter Property="IsVisible" Value="{Binding !IsDialog}" />
 			<Setter Property="Command" Value="{Binding UnloadViewCommand}" />
 			<Setter Property="Content" Value="UnloadView"/>
 			<Setter Property="CommandParameter" Value="{Binding $self.Tag}" />
@@ -75,10 +76,10 @@
 			<Setter Property="CommandParameter" Value="{Binding $self.Tag}" />
 			<Setter Property="VerticalContentAlignment" Value="Center" />
 		</Style>
-		<Style Selector="Button.DialogShowDialogSync">
+		<Style Selector="Button.DialogShowDialogAsync">
 			<Setter Property="Height" Value="30" />
 			<Setter Property="Width" Value="300" />
-			<Setter Property="Command" Value="{Binding ShowDialogSyncCommand}" />
+			<Setter Property="Command" Value="{Binding AsyncShowDialogCommand}" />
 			<Setter Property="CommandParameter" Value="{Binding $self.Tag}" />
 			<Setter Property="VerticalContentAlignment" Value="Center" />
 		</Style>
