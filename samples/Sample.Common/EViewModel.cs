@@ -1,6 +1,7 @@
 ﻿using AsyncNavigation.Abstractions;
 using AsyncNavigation.Core;
 using ReactiveUI.SourceGenerators;
+
 namespace Sample.Common;
 
 public partial class EViewModel : InstanceCounterViewModel<EViewModel>, IDialogAware
@@ -18,21 +19,25 @@ public partial class EViewModel : InstanceCounterViewModel<EViewModel>, IDialogA
     [ReactiveCommand]
     private Task CloseDialog(string param)
     {
-       return  RequestCloseAsync!.Invoke(this,new DialogCloseEventArgs(new DialogResult(DialogButtonResult.OK), CancellationToken.None));
+        return RequestCloseAsync!.Invoke(this, 
+            new DialogCloseEventArgs(new DialogResult(DialogButtonResult.OK), CancellationToken.None));
     }
 
-    public Task OnDialogOpenedAsync(IDialogParameters? parameters)
+    public async Task OnDialogOpenedAsync(IDialogParameters? parameters, CancellationToken cancellationToken)
     {
         IsDialog = true;
-        return Task.CompletedTask;
+        if (cancellationToken != CancellationToken.None)
+        {
+            await Task.Delay(TimeSpan.FromSeconds(5), cancellationToken);
+        }
     }
 
-    public Task OnDialogClosingAsync(IDialogResult? dialogResult)
+    public Task OnDialogClosingAsync(IDialogResult? dialogResult, CancellationToken cancellationToken)
     {
         return Task.CompletedTask;
     }
 
-    public Task OnDialogClosedAsync(IDialogResult? dialogResult)
+    public Task OnDialogClosedAsync(IDialogResult? dialogResult, CancellationToken cancellationToken)
     {
         return Task.CompletedTask;
     }

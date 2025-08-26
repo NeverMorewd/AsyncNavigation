@@ -4,6 +4,26 @@ namespace AsyncNavigation.Core;
 
 public class DialogResult : IDialogResult
 {
+    public DialogResult()
+    {
+
+    }
+
+    public DialogResult(DialogButtonResult result)
+    {
+        Result = result;
+        Status = DialogResultStatus.Closed;
+    }
+
+    public DialogResult(DialogButtonResult result, IDialogParameters parameters)
+    {
+        Result = result;
+        Parameters = parameters;
+        Status = DialogResultStatus.Closed;
+    }
+
+    public static DialogResult Cancelled => new(DialogButtonResult.None) { Status = DialogResultStatus.Cancelled };
+
     public IDialogParameters? Parameters
     {
         get;
@@ -16,18 +36,9 @@ public class DialogResult : IDialogResult
         private set;
     } = DialogButtonResult.None;
 
-    public DialogResult()
+    public DialogResultStatus Status
     {
-    }
-
-    public DialogResult(DialogButtonResult result)
-    {
-        Result = result;
-    }
-
-    public DialogResult(DialogButtonResult result, IDialogParameters parameters)
-    {
-        Result = result;
-        Parameters = parameters;
-    }
+        get;
+        private set;
+    } 
 }

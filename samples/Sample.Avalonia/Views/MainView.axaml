@@ -12,7 +12,7 @@
     <SplitView
         DisplayMode="CompactInline"
         IsPaneOpen="{Binding IsSplitViewPaneOpen}"
-        OpenPaneLength="210"
+        OpenPaneLength="310"
         PanePlacement="Right">
         <SplitView.Pane>
             <DockPanel>
@@ -73,6 +73,10 @@
 					   Classes="DialogShowDialogAsync"
 					   Content="ToE:Dialog.ShowDialog"
 					   Tag="EView" />
+					<Button
+					   Classes="DialogShowDialogAsyncWithCancelling"
+					   Content="ToA:Dialog.ShowDialogWithCancelling"
+					   Tag="AView" />
                 </StackPanel>
             </DockPanel>
         </SplitView.Pane>

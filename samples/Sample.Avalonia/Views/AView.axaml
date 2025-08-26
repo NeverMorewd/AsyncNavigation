@@ -27,6 +27,7 @@
                 </TextBlock>
                 <Button Classes="UnloadView"/>
                 <Button Classes="CloseDialog"/>
+				<Button Classes="CloseDialogWithCancelling"/>
             </StackPanel>
         </Border>
     </DockPanel>

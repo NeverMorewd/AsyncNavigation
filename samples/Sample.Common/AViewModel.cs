@@ -35,18 +35,31 @@ public partial class AViewModel : InstanceCounterViewModel<AViewModel>, IDialogA
     {
         return RequestCloseAsync!.Invoke(this, new DialogCloseEventArgs(new DialogResult(DialogButtonResult.OK), CancellationToken.None));
     }
-    public Task OnDialogOpenedAsync(IDialogParameters? parameters)
+    [ReactiveCommand]
+    private Task CloseDialogWithCancelling(string param)
+    {
+        var cts = new CancellationTokenSource();
+        cts.CancelAfter(TimeSpan.FromSeconds(2));
+        return RequestCloseAsync!.Invoke(this, new DialogCloseEventArgs(new DialogResult(DialogButtonResult.OK), cts.Token));
+    }
+    public async Task OnDialogOpenedAsync(IDialogParameters? parameters, CancellationToken cancellationToken)
     {
         IsDialog = true;
-        return Task.CompletedTask;
+        if (cancellationToken != CancellationToken.None)
+        {
+            await Task.Delay(TimeSpan.FromSeconds(5), cancellationToken);
+        }
     }
 
-    public Task OnDialogClosingAsync(IDialogResult? dialogResult)
+    public async Task OnDialogClosingAsync(IDialogResult? dialogResult, CancellationToken cancellationToken)
     {
-        return Task.CompletedTask;
+        if (cancellationToken != CancellationToken.None)
+        {
+            await Task.Delay(TimeSpan.FromSeconds(5), cancellationToken);
+        }
     }
 
-    public Task OnDialogClosedAsync(IDialogResult? dialogResult)
+    public Task OnDialogClosedAsync(IDialogResult? dialogResult, CancellationToken cancellationToken)
     {
         return Task.CompletedTask;
     }

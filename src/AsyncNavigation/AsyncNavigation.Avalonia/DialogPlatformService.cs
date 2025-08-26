@@ -16,18 +16,12 @@ internal class DialogPlatformService : IDialogPlatformService<Window>
         ArgumentNullException.ThrowIfNull(dialogAware);
 
         var completionSource = new TaskCompletionSource<IDialogResult>();
-        bool isRequestCloseHandled = false;
 
         async Task RequestCloseHandler(object? sender, DialogCloseEventArgs args)
         {
-            if (isRequestCloseHandled) return;
-            isRequestCloseHandled = true;
-
-            dialogAware.RequestCloseAsync -= RequestCloseHandler;
-
             try
             {
-                await dialogAware.OnDialogClosingAsync(args.DialogResult);
+                await dialogAware.OnDialogClosingAsync(args.DialogResult, args.CancellationToken);
                 args.CancellationToken.ThrowIfCancellationRequested();
 
                 completionSource.TrySetResult(args.DialogResult);
@@ -35,7 +29,7 @@ internal class DialogPlatformService : IDialogPlatformService<Window>
 
                 try
                 {
-                    await dialogAware.OnDialogClosedAsync(args.DialogResult);
+                    await dialogAware.OnDialogClosedAsync(args.DialogResult, args.CancellationToken);
                 }
                 catch (OperationCanceledException) when (args.CancellationToken.IsCancellationRequested)
                 {
@@ -66,14 +60,11 @@ internal class DialogPlatformService : IDialogPlatformService<Window>
         void ClosedHandler(object? sender, EventArgs e)
         {
             dialogWindow.Closed -= ClosedHandler;
+            dialogAware.RequestCloseAsync -= RequestCloseHandler;
 
-            if (!isRequestCloseHandled && !completionSource.Task.IsCompleted)
+            if (!completionSource.Task.IsCompleted)
             {
                 completionSource.TrySetResult(new DialogResult(DialogButtonResult.None));
-            }
-            if (!isRequestCloseHandled)
-            {
-                dialogAware.RequestCloseAsync -= RequestCloseHandler;
             }
         }
 

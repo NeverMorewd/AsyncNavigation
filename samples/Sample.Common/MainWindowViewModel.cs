@@ -56,7 +56,19 @@ public partial class MainWindowViewModel : ViewModelBase
     {
        var result = await _dialogService.ShowDialogAsync(param);
     }
+    [ReactiveCommand]
+    private async Task AsyncShowDialogWithCancelling(string param)
+    {
+        var cts = new CancellationTokenSource();
+        cts.CancelAfter(TimeSpan.FromSeconds(2));
 
+        var result = await _dialogService.ShowDialogAsync(param, cancellationToken: cts.Token);
+
+        if(result.Status == DialogResultStatus.Cancelled)
+        {
+            Debug.WriteLine("Dialog was cancelled");
+        }
+    }
     [ReactiveCommand]
     private void ShowDialog(string param)
     {

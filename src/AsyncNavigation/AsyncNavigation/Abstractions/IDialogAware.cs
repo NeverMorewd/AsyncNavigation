@@ -6,7 +6,7 @@ public interface IDialogAware
 {
     string Title { get; }
     event AsyncEventHandler<DialogCloseEventArgs>? RequestCloseAsync;
-    Task OnDialogOpenedAsync(IDialogParameters? parameters);
-    Task OnDialogClosingAsync(IDialogResult? dialogResult);
-    Task OnDialogClosedAsync(IDialogResult? dialogResult);
+    Task OnDialogOpenedAsync(IDialogParameters? parameters, CancellationToken cancellationToken);
+    Task OnDialogClosingAsync(IDialogResult? dialogResult, CancellationToken cancellationToken);
+    Task OnDialogClosedAsync(IDialogResult? dialogResult, CancellationToken cancellationToken);
 }
