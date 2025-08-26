@@ -74,7 +74,6 @@ internal sealed class RegionNavigationService<T> : IRegionNavigationService<T> w
     private Task RunMultiPageNavigationAsync(NavigationContext navigationContext)
     {
         Func<NavigationContext, Task>[] steps = [HandleBeforeNavigationAsync, ResovleViewAsync, RenderIndicatorAsync, HandleAfterNavigationAsync];
-
         return RegionNavigationService<T>.ExecuteStepsAsync(steps, navigationContext);
     }
 
@@ -85,6 +84,10 @@ internal sealed class RegionNavigationService<T> : IRegionNavigationService<T> w
     }
     private async Task ResovleViewAsync(NavigationContext navigationContext)
     {
+        if (navigationContext.Target.IsSet)
+        {
+            return;
+        }
         var view = await _viewCacheManager.ResolveViewAsync(navigationContext.ViewName,
                                 _regionPresenter.EnableViewCache,
                                 navigationContext);

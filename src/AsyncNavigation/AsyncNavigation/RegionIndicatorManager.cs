@@ -15,6 +15,10 @@ internal sealed class RegionIndicatorManager : IRegionIndicatorManager
 
     public void Setup(NavigationContext context, bool useSingleton)
     {
+        if (context.Indicator.IsSet)
+        {
+            return;
+        }
         var indicator = useSingleton
             ? (_singleton ??= _indicatorFactory())
             : _indicatorFactory();

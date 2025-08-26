@@ -18,6 +18,5 @@ public class ListBoxRegion : ItemsRegion
     public override void ProcessActivate(NavigationContext navigationContext)
     {
         base.ProcessActivate(navigationContext);
-        _listBox.SelectedItem = navigationContext;
     }
 }

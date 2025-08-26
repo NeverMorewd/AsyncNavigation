@@ -75,4 +75,16 @@ public partial class MainWindowViewModel : ViewModelBase
         var result = _dialogService.ShowDialog(param);
     }
 
+    [ReactiveCommand]
+    private async Task GoForward()
+    {
+        await _regionManager.GoForward("MainRegion");
+    }
+
+    [ReactiveCommand]
+    private async Task GoBack()
+    {
+        await _regionManager.GoBack("MainRegion");
+    }
+
 }

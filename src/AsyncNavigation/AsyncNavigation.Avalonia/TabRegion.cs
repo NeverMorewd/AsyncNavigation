@@ -1,19 +1,16 @@
-﻿using AsyncNavigation.Abstractions;
-using AsyncNavigation.Core;
+﻿using AsyncNavigation.Core;
 using Avalonia.Controls;
 using Avalonia.Controls.Primitives;
 using Avalonia.Controls.Templates;
 using Avalonia.Data;
-using Microsoft.Extensions.DependencyInjection;
 
 namespace AsyncNavigation.Avalonia;
 
-public class TabRegion : IRegion, IRegionPresenter
+public class TabRegion : RegionBase<TabRegion>
 {
     private readonly TabControl _tabControl;
-    private readonly IRegionNavigationService<TabRegion> _regionNavigationService;
     private readonly ItemsRegionContext _context = new();
-    public TabRegion(TabControl control, IServiceProvider serviceProvider, bool? useCache = null)
+    public TabRegion(TabControl control, IServiceProvider serviceProvider, bool? useCache = null) : base(serviceProvider)
     {
         ArgumentNullException.ThrowIfNull(control);
         ArgumentNullException.ThrowIfNull(serviceProvider);
@@ -31,47 +28,18 @@ public class TabRegion : IRegion, IRegionPresenter
         });
 
         EnableViewCache = useCache ?? false;
-        var factory = serviceProvider.GetRequiredService<IRegionNavigationServiceFactory>();
-        _regionNavigationService = factory.Create(this);
     }
-    IRegionPresenter IRegion.RegionPresenter => this;
-    public INavigationHistory NavigationHistory => throw new NotImplementedException();
-    public bool EnableViewCache { get; }
-    public bool IsSinglePageRegion => false;
+    public override bool EnableViewCache { get; }
+    public override bool IsSinglePageRegion => false;
 
-
-    public Task<NavigationResult> ActivateViewAsync(NavigationContext navigationContext)
-    {
-        return _regionNavigationService.RequestNavigateAsync(navigationContext);
-    }
-
-    public void Dispose()
+    public override void Dispose()
     {
         GC.SuppressFinalize(this);
         _context.Clear();
     }
-    public Task<bool> CanGoBackAsync()
-    {
-        throw new NotImplementedException();
-    }
-
-    public Task<bool> CanGoForwardAsync()
-    {
-        throw new NotImplementedException();
-    }
-
-    public Task<NavigationResult> GoBackAsync(CancellationToken cancellationToken = default)
-    {
-        throw new NotImplementedException();
-    }
-
-    public Task<NavigationResult> GoForwardAsync(CancellationToken cancellationToken = default)
-    {
-        throw new NotImplementedException();
-    }
 
 
-    public void ProcessActivate(NavigationContext navigationContext)
+    public override void ProcessActivate(NavigationContext navigationContext)
     {
         var hit = _context.Items.FirstOrDefault(t => t.Equals(navigationContext));
         if (hit != null)
@@ -80,7 +48,7 @@ public class TabRegion : IRegion, IRegionPresenter
         }
     }
 
-    public void ProcessDeactivate(NavigationContext navigationContext)
+    public override void ProcessDeactivate(NavigationContext navigationContext)
     {
         var hit = _context.Items.FirstOrDefault(t => ReferenceEquals(t, navigationContext));
         if (hit != null)
@@ -92,7 +60,7 @@ public class TabRegion : IRegion, IRegionPresenter
         }
     }
 
-    public void RenderIndicator(NavigationContext navigationContext)
+    public override void RenderIndicator(NavigationContext navigationContext)
     {
         if (!_context.Items.Contains(navigationContext))
             _context.Items.Add(navigationContext);

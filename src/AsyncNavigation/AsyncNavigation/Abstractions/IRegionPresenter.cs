@@ -1,6 +1,6 @@
 ﻿namespace AsyncNavigation.Abstractions;
 
-internal interface IRegionPresenter
+public interface IRegionPresenter
 {
     bool EnableViewCache { get; }
     bool IsSinglePageRegion { get; }

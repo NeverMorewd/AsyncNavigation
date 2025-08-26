@@ -41,8 +41,12 @@ public partial class NavigationContext
     /// <summary>
     /// Gets a value indicating whether this is a back navigation operation.
     /// </summary>
-    public bool IsBackNavigation { get; set; }
+    public bool IsBackNavigation { get; internal set; }
 
+    /// <summary>
+    /// Gets a value indicating whether this is a forward navigation operation.
+    /// </summary>
+    public bool IsForwordNavigation { get; internal set; }
     /// <summary>
     /// Gets the current status of the navigation operation.
     /// </summary>
@@ -134,11 +138,6 @@ public partial class NavigationContext
         Status = newStatus;
         Duration = DateTime.UtcNow - NavigationTime;
         return WithErrors(errors);
-    }
-    public NavigationContext WithIsBackNavigation(bool isBack)
-    {
-        IsBackNavigation = isBack;
-        return this;
     }
     /// <summary>
     /// Creates a new NavigationContext with Parameters.

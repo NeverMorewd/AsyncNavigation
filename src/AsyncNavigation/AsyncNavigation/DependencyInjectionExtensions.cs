@@ -50,6 +50,7 @@ public static class DependencyInjectionExtensions
             .AddSingleton<IRegionFactory, RegionFactory>()
             .AddSingleton<IViewFactory>(sp => new DefaultViewFactory(sp, serviceDescriptors))
             .AddTransient<IViewManager, ViewManager>()
+            .AddTransient<IRegionNavigationHistory, RegionNavigationHistory>()
             .AddTransient<IRegionIndicatorManager>(sp => new RegionIndicatorManager(() => sp.GetRequiredService<IRegionIndicator>()));
     }
 

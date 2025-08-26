@@ -24,13 +24,17 @@
 					HorizontalContentAlignment="Center"
                     IsChecked="{Binding IsSplitViewPaneOpen}" />
                 <StackPanel Classes="Navigation" IsVisible="{Binding IsSplitViewPaneOpen}">
+					<StackPanel Spacing="4" Orientation="Horizontal">
+						<Button Content="&lt;&lt;" Command="{Binding GoBackCommand}"/>
+						<Button Content="&gt;&gt;" Command="{Binding GoForwardCommand}"/>
+					</StackPanel>
                     <Button
                         Classes="Navigation"
                         Content="ToA"
                         Tag="AView" />
 					<Button
-					   Classes="NavigationWithDelay"
-					   Content="ToE:Delay"
+					   Classes="Navigation"
+					   Content="ToE"
 					   Tag="EView" />
                     <Button
                         Classes="Navigation"

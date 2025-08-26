@@ -2,6 +2,7 @@
 using AsyncNavigation.Core;
 using Avalonia;
 using System.Collections.Concurrent;
+using System.Xml.Linq;
 
 namespace AsyncNavigation.Avalonia;
 
@@ -131,5 +132,30 @@ public sealed class RegionManager :
     {
         _subscriptions?.DisposeAll();
         _regions.Values?.DisposeAll();
+    }
+
+    public async Task<NavigationResult> GoForward(string regionName, CancellationToken cancellationToken = default)
+    {
+        if (_regions.TryGetValue(regionName, out IRegion? region))
+        {
+            return await region.GoForwardAsync(cancellationToken);
+        }
+        throw new InvalidOperationException($"Region '{regionName}' not found.");
+    }
+
+    public async Task<NavigationResult> GoBack(string regionName, CancellationToken cancellationToken = default)
+    {
+        if (_regions.TryGetValue(regionName, out IRegion? region))
+        {
+            return await region.GoBackAsync(cancellationToken);
+        }
+        throw new InvalidOperationException($"Region '{regionName}' not found.");
+    }
+
+    public void AddRegion(string regionName, IRegion region)
+    {
+        if (_regions.TryGetValue(regionName, out _))
+            throw new InvalidOperationException($"Duplicated RegionName found:{regionName}");
+        _regions.TryAdd(regionName, region);
     }
 }

@@ -1,6 +1,6 @@
 ﻿namespace AsyncNavigation.Abstractions;
 
-public interface INavigationHistory
+internal interface IRegionNavigationHistory
 {
     bool CanGoBack { get; }
     bool CanGoForward { get; }
