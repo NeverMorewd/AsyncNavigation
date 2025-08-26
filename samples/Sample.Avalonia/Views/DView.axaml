@@ -47,7 +47,7 @@
                             Orientation="Horizontal"
                             Spacing="4">
                             <TextBlock VerticalAlignment="Center" Text="{Binding ViewName}" />
-                            <Button Content="x" />
+                            <Button Margin="10" Content="x" />
                         </StackPanel>
                     </DataTemplate>
                 </TabControl.ItemTemplate>

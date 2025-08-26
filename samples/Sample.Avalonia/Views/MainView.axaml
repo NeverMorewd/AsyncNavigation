@@ -17,8 +17,11 @@
         <SplitView.Pane>
             <DockPanel>
                 <ToggleButton
+					ZIndex="99"
                     Classes="Switch"
                     DockPanel.Dock="Top"
+					Width="45"
+					HorizontalContentAlignment="Center"
                     IsChecked="{Binding IsSplitViewPaneOpen}" />
                 <StackPanel Classes="Navigation" IsVisible="{Binding IsSplitViewPaneOpen}">
                     <Button

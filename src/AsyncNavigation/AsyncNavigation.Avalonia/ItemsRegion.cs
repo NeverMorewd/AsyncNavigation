@@ -19,7 +19,7 @@ public class ItemsRegion : IRegion
         _itemsControl = itemsControl;
         _itemsControl.ItemTemplate = new FuncDataTemplate<NavigationContext>((context, np) =>
         {
-            return context.Indicator.Value!.IndicatorControl as Control;
+            return context?.Indicator.Value?.IndicatorControl as Control;
         });
 
         _itemsControl.Bind(

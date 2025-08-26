@@ -32,7 +32,7 @@ public class TabRegion : IRegion
 
         _tabControl.ContentTemplate = new FuncDataTemplate<NavigationContext>((context, _) => 
         {
-            return context.Indicator.Value!.IndicatorControl as Control;
+            return context?.Indicator.Value?.IndicatorControl as Control;
         });
     }
 
