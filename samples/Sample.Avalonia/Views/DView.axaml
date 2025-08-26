@@ -10,6 +10,10 @@
     mc:Ignorable="d">
     <DockPanel LastChildFill="True">
         <StackPanel DockPanel.Dock="Left" Orientation="Vertical">
+			<StackPanel Spacing="4" Orientation="Horizontal">
+				<Button Classes="GoBack"/>
+				<Button Classes="GoForward"/>
+			</StackPanel>
             <Button
                 Classes="Navigation"
                 Content="ToA"

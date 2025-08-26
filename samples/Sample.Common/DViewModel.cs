@@ -26,4 +26,16 @@ public partial class DViewModel : InstanceCounterViewModel<DViewModel>
         parameters!.Add("delay", TimeSpan.FromSeconds(1));
         await _regionManager.RequestNavigate("TabRegion", viewName, parameters);
     }
+
+    [ReactiveCommand]
+    private async Task GoForward()
+    {
+        await _regionManager.GoForward("TabRegion");
+    }
+
+    [ReactiveCommand]
+    private async Task GoBack()
+    {
+        await _regionManager.GoBack("TabRegion");
+    }
 }

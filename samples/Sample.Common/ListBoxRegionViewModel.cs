@@ -16,4 +16,16 @@ public partial class ListBoxRegionViewModel : ViewModelBase
         var (viewName, parameters) = SampleHelper.ParseNavigationParam(param);
         await _regionManager.RequestNavigate("CustomListBoxRegion", viewName, parameters);
     }
+
+    [ReactiveCommand]
+    private async Task GoForward()
+    {
+        await _regionManager.GoForward("CustomListBoxRegion");
+    }
+
+    [ReactiveCommand]
+    private async Task GoBack()
+    {
+        await _regionManager.GoBack("CustomListBoxRegion");
+    }
 }

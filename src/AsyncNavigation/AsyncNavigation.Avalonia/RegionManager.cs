@@ -2,7 +2,7 @@
 using AsyncNavigation.Core;
 using Avalonia;
 using System.Collections.Concurrent;
-using System.Xml.Linq;
+using System.Threading;
 
 namespace AsyncNavigation.Avalonia;
 
@@ -96,18 +96,51 @@ public sealed class RegionManager :
         }
         throw new InvalidOperationException($"Region '{regionName}' not found.");
     }
-
-    public void OnCompleted()
+    public void AddRegion(string regionName, IRegion region)
     {
-        
+        if (_regions.TryGetValue(regionName, out _))
+            throw new InvalidOperationException($"Duplicated RegionName found:{regionName}");
+        _regions.TryAdd(regionName, region);
+    }
+    public Task<NavigationResult> GoForward(string regionName, CancellationToken cancellationToken = default)
+    {
+        return GetRegion(regionName).GoForwardAsync(cancellationToken);
     }
 
-    public void OnError(Exception error)
+    public Task<NavigationResult> GoBack(string regionName, CancellationToken cancellationToken = default)
+    {
+        return GetRegion(regionName).GoBackAsync(cancellationToken);
+    }
+    public Task<bool> CanGoForwardAsync(string regionName)
+    {
+        return GetRegion(regionName).CanGoForwardAsync();
+    }
+
+    public Task<bool> CanGoBackAsync(string regionName)
+    {
+        return GetRegion(regionName).CanGoBackAsync();
+    }
+
+    private IRegion GetRegion(string regionName)
+    {
+        if (_regions.TryGetValue(regionName, out IRegion? region))
+        {
+            return region;
+        }
+        throw new InvalidOperationException($"Region '{regionName}' not found.");
+    }
+
+    void IObserver<AvaloniaPropertyChangedEventArgs<string>>.OnCompleted()
+    {
+
+    }
+
+    void IObserver<AvaloniaPropertyChangedEventArgs<string>>.OnError(Exception error)
     {
         throw error;
     }
 
-    public void OnNext(AvaloniaPropertyChangedEventArgs<string> value)
+    void IObserver<AvaloniaPropertyChangedEventArgs<string>>.OnNext(AvaloniaPropertyChangedEventArgs<string> value)
     {
         var name = value.NewValue.GetValueOrDefault();
         if (string.IsNullOrEmpty(name)) return;
@@ -125,37 +158,12 @@ public sealed class RegionManager :
             serviceProvider = value.Sender.GetValue(ServiceProviderProperty);
         }
         var region = _regionFactory.CreateRegion(name, value.Sender, serviceProvider, useCache);
-        _regions.TryAdd(name, region);
+        AddRegion(name, region);
     }
 
     public void Dispose()
     {
         _subscriptions?.DisposeAll();
         _regions.Values?.DisposeAll();
-    }
-
-    public async Task<NavigationResult> GoForward(string regionName, CancellationToken cancellationToken = default)
-    {
-        if (_regions.TryGetValue(regionName, out IRegion? region))
-        {
-            return await region.GoForwardAsync(cancellationToken);
-        }
-        throw new InvalidOperationException($"Region '{regionName}' not found.");
-    }
-
-    public async Task<NavigationResult> GoBack(string regionName, CancellationToken cancellationToken = default)
-    {
-        if (_regions.TryGetValue(regionName, out IRegion? region))
-        {
-            return await region.GoBackAsync(cancellationToken);
-        }
-        throw new InvalidOperationException($"Region '{regionName}' not found.");
-    }
-
-    public void AddRegion(string regionName, IRegion region)
-    {
-        if (_regions.TryGetValue(regionName, out _))
-            throw new InvalidOperationException($"Duplicated RegionName found:{regionName}");
-        _regions.TryAdd(regionName, region);
     }
 }

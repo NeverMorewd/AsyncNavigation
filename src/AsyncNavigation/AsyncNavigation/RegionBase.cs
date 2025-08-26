@@ -17,8 +17,8 @@ public abstract class RegionBase<TRegion> : IRegion, IRegionPresenter
         _navigationHistory = serviceProvider.GetRequiredService<IRegionNavigationHistory>();
     }
     IRegionPresenter IRegion.RegionPresenter => this;
-    public abstract bool EnableViewCache { get; }
-    public abstract bool IsSinglePageRegion { get; }
+    public bool EnableViewCache { get; protected set; }
+    public bool IsSinglePageRegion { get; protected set; }
     #region IRegion Methods
     async Task<NavigationResult> IRegion.ActivateViewAsync(NavigationContext navigationContext)
     {
@@ -64,7 +64,11 @@ public abstract class RegionBase<TRegion> : IRegion, IRegionPresenter
         return NavigationResult.Failure(new NavigationException("Can not go forward!"), TimeSpan.Zero);
     }
 
-    public abstract void Dispose();
+    public virtual void Dispose()
+    {
+        GC.SuppressFinalize(this);
+        _navigationHistory.Clear();
+    }
     #endregion
 
     public abstract void RenderIndicator(NavigationContext navigationContext);

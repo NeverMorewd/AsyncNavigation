@@ -25,8 +25,8 @@
                     IsChecked="{Binding IsSplitViewPaneOpen}" />
                 <StackPanel Classes="Navigation" IsVisible="{Binding IsSplitViewPaneOpen}">
 					<StackPanel Spacing="4" Orientation="Horizontal">
-						<Button Content="&lt;&lt;" Command="{Binding GoBackCommand}"/>
-						<Button Content="&gt;&gt;" Command="{Binding GoForwardCommand}"/>
+						<Button Classes="GoBack"/>
+						<Button Classes="GoForward"/>
 					</StackPanel>
                     <Button
                         Classes="Navigation"

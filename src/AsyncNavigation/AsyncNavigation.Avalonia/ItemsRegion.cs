@@ -16,25 +16,27 @@ public class ItemsRegion : RegionBase<ItemsRegion>
         ArgumentNullException.ThrowIfNull(serviceProvider);
 
         _itemsControl = itemsControl;
+
         _itemsControl.ItemTemplate = new FuncDataTemplate<NavigationContext>((context, np) =>
         {
             return context?.Indicator.Value?.IndicatorControl as Control;
         });
+
         _itemsControl.Bind(
            ItemsControl.ItemsSourceProperty,
            new Binding(nameof(ItemsRegionContext.Items)) { Source = _context });
+
         _itemsControl.Bind(
             SelectingItemsControl.SelectedItemProperty,
             new Binding(nameof(ItemsRegionContext.Selected)) { Source = _context, Mode = BindingMode.TwoWay });
 
         EnableViewCache = useCache ?? false;
+        IsSinglePageRegion = false;
     }
-    public override bool EnableViewCache { get; }
-    public override bool IsSinglePageRegion => false;
 
     public override void Dispose()
     {
-        GC.SuppressFinalize(this);
+        base.Dispose();
         _itemsControl.DataContext = null;
         _context.Clear();
     }

@@ -15,6 +15,7 @@ public class TabRegion : RegionBase<TabRegion>
         ArgumentNullException.ThrowIfNull(control);
         ArgumentNullException.ThrowIfNull(serviceProvider);
         _tabControl = control;
+
         _tabControl.Bind(
            ItemsControl.ItemsSourceProperty,
            new Binding(nameof(ItemsRegionContext.Items)) { Source = _context });
@@ -22,22 +23,20 @@ public class TabRegion : RegionBase<TabRegion>
         _tabControl.Bind(
             SelectingItemsControl.SelectedItemProperty,
             new Binding(nameof(ItemsRegionContext.Selected)) { Source = _context, Mode = BindingMode.TwoWay });
+
         _tabControl.ContentTemplate = new FuncDataTemplate<NavigationContext>((context, _) =>
         {
             return context?.Indicator.Value?.IndicatorControl as Control;
         });
 
         EnableViewCache = useCache ?? false;
+        IsSinglePageRegion = false;
     }
-    public override bool EnableViewCache { get; }
-    public override bool IsSinglePageRegion => false;
-
     public override void Dispose()
     {
-        GC.SuppressFinalize(this);
+        base.Dispose();
         _context.Clear();
     }
-
 
     public override void ProcessActivate(NavigationContext navigationContext)
     {

@@ -100,5 +100,19 @@
 			<Setter Property="VerticalContentAlignment" Value="Center" />
 			<Setter Property="HorizontalContentAlignment" Value="Center" />
 		</Style>
+		<Style Selector="Button.GoForward">
+			<Setter Property="Height" Value="30" />
+			<Setter Property="Width" Value="50" />
+			<Setter Property="Content" Value="&gt;&gt;"/>
+			<Setter Property="Command" Value="{Binding GoForwardCommand}" />
+			<Setter Property="VerticalContentAlignment" Value="Center" />
+		</Style>
+		<Style Selector="Button.GoBack">
+			<Setter Property="Height" Value="30" />
+			<Setter Property="Width" Value="50" />
+			<Setter Property="Content" Value="&lt;&lt;"/>
+			<Setter Property="Command" Value="{Binding GoBackCommand}" />
+			<Setter Property="VerticalContentAlignment" Value="Center" />
+		</Style>
     </Application.Styles>
 </Application>

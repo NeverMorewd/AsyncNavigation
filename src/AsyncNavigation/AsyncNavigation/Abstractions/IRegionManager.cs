@@ -12,7 +12,8 @@ public interface IRegionManager
         INavigationParameters? navigationParameters = null,
         CancellationToken cancellationToken = default);
 
+    Task<bool> CanGoForwardAsync(string regionName);
+    Task<bool> CanGoBackAsync(string regionName);
     Task<NavigationResult> GoForward(string regionName, CancellationToken cancellationToken = default);
-
     Task<NavigationResult> GoBack(string regionName, CancellationToken cancellationToken = default);
 }
