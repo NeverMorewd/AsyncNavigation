@@ -1,6 +1,4 @@
-﻿using System.Diagnostics.CodeAnalysis;
-
-namespace AsyncNavigation.Abstractions;
+﻿namespace AsyncNavigation.Abstractions;
 
 public interface IViewManager : IDisposable
 {

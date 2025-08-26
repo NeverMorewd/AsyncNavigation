@@ -1,6 +1,6 @@
 ﻿using System.Threading.Channels;
 
-namespace AsyncNavigation.Core;
+namespace AsyncNavigation;
 
 public class AsyncConcurrentItem<T> : IDisposable
 {

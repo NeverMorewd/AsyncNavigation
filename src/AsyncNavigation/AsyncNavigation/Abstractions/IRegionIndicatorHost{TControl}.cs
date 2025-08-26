@@ -2,5 +2,5 @@
 
 public interface IRegionIndicatorHost<out TControl> : IRegionIndicator
 {
-    new TControl Control { get; }
+    new TControl IndicatorControl { get; }
 }

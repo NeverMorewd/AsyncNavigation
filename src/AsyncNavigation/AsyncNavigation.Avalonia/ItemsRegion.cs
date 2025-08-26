@@ -5,27 +5,27 @@ using Avalonia.Controls.Primitives;
 using Avalonia.Controls.Templates;
 using Avalonia.Data;
 using Microsoft.Extensions.DependencyInjection;
-using System.Collections.ObjectModel;
 
 namespace AsyncNavigation.Avalonia;
 
-public class ItemsRegion : IRegion
+public class ItemsRegion : IRegion, IRegionPresenter
 {
     private readonly IRegionNavigationService<ItemsRegion> _regionNavigationService;
     private readonly ItemsControl _itemsControl;
     private readonly ItemsRegionContext _context = new();
     public ItemsRegion(ItemsControl itemsControl, IServiceProvider serviceProvider, bool? useCache)
     {
+        ArgumentNullException.ThrowIfNull(itemsControl);
+        ArgumentNullException.ThrowIfNull(serviceProvider);
+
         _itemsControl = itemsControl;
         _itemsControl.ItemTemplate = new FuncDataTemplate<NavigationContext>((context, np) =>
         {
             return context?.Indicator.Value?.IndicatorControl as Control;
         });
-
         _itemsControl.Bind(
            ItemsControl.ItemsSourceProperty,
            new Binding(nameof(ItemsRegionContext.Items)) { Source = _context });
-
         _itemsControl.Bind(
             SelectingItemsControl.SelectedItemProperty,
             new Binding(nameof(ItemsRegionContext.Selected)) { Source = _context, Mode = BindingMode.TwoWay });
@@ -36,28 +36,8 @@ public class ItemsRegion : IRegion
     }
     public bool EnableViewCache { get; }
     public bool IsSinglePageRegion => false;
-    public ObservableCollection<NavigationContext> Contexts => throw new NotImplementedException();
-
-    public ItemsControl ItemsControl => throw new NotImplementedException();
-
-    public IServiceProvider? ServiceProvider { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
-
-    public string Name => throw new NotImplementedException();
-
-    public INavigationAware? ActiveView => throw new NotImplementedException();
-
-    public IReadOnlyCollection<IView> Views => throw new NotImplementedException();
-
+    IRegionPresenter IRegion.RegionPresenter => this;
     public INavigationHistory NavigationHistory => throw new NotImplementedException();
-
-    public bool IsInitialized => throw new NotImplementedException();
-
-    public event AsyncEventHandler<ViewActivatedEventArgs<INavigationAware>>? ViewActivated;
-    public event AsyncEventHandler<ViewDeactivatedEventArgs<INavigationAware>>? ViewDeactivated;
-    public event AsyncEventHandler<ViewAddedEventArgs<INavigationAware>>? ViewAdded;
-    public event AsyncEventHandler<ViewRemovedEventArgs<INavigationAware>>? ViewRemoved;
-    public event AsyncEventHandler<NavigationFailedEventArgs>? NavigationFailed;
-
 
     public async Task<NavigationResult> ActivateViewAsync(NavigationContext navigationContext)
     {
@@ -65,11 +45,6 @@ public class ItemsRegion : IRegion
     }
 
     public bool AddView(IView view)
-    {
-        throw new NotImplementedException();
-    }
-
-    public Task<bool> CanDeactivateAsync(CancellationToken cancellationToken = default)
     {
         throw new NotImplementedException();
     }
@@ -89,21 +64,6 @@ public class ItemsRegion : IRegion
         throw new NotImplementedException();
     }
 
-    public bool ContainsView(IView view)
-    {
-        throw new NotImplementedException();
-    }
-
-    public Task<NavigationResult> DeactivateViewAsync(NavigationContext navigationContext)
-    {
-        throw new NotImplementedException();
-    }
-
-    public ValueTask DisposeAsync()
-    {
-        throw new NotImplementedException();
-    }
-
     public Task<NavigationResult> GoBackAsync(CancellationToken cancellationToken = default)
     {
         throw new NotImplementedException();
@@ -113,12 +73,11 @@ public class ItemsRegion : IRegion
     {
         throw new NotImplementedException();
     }
-
-    public Task InitializeAsync(CancellationToken cancellationToken = default)
+    public void Dispose()
     {
-        throw new NotImplementedException();
+        GC.SuppressFinalize(this);
+        _context.Clear();
     }
-
     public void ProcessActivate(NavigationContext navigationContext)
     {
         _itemsControl.ScrollIntoView(navigationContext);
@@ -133,15 +92,5 @@ public class ItemsRegion : IRegion
     public void ProcessDeactivate(NavigationContext navigationContext)
     {       
         _context.Items.Remove(navigationContext);
-    }
-
-    public bool RemoveView(IView view)
-    {
-        throw new NotImplementedException();
-    }
-
-    public void Dispose()
-    {
-        throw new NotImplementedException();
     }
 }

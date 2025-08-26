@@ -1,6 +1,4 @@
-﻿using System.ComponentModel;
-
-namespace AsyncNavigation.Abstractions;
+﻿namespace AsyncNavigation.Abstractions;
 
 public interface IDialogWindowBase
 {

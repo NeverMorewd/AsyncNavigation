@@ -1,7 +1,6 @@
 ﻿using AsyncNavigation.Abstractions;
 using AsyncNavigation.Core;
 using Avalonia;
-using Microsoft.Extensions.DependencyInjection;
 using System.Collections.Concurrent;
 
 namespace AsyncNavigation.Avalonia;
@@ -9,7 +8,6 @@ namespace AsyncNavigation.Avalonia;
 public sealed class RegionManager : 
     IRegionManager, 
     IObserver<AvaloniaPropertyChangedEventArgs<string>>,
-    IObserver<AvaloniaPropertyChangedEventArgs<IServiceProvider>>,
     IDisposable
 {
     #region RegionName
@@ -76,29 +74,9 @@ public sealed class RegionManager :
             .Changed
             .Subscribe(this)
             .AddTo(_subscriptions);
-        ServiceProviderProperty
-            .Changed
-            .Subscribe(this)
-            .AddTo(_subscriptions);
     }
     public IReadOnlyDictionary<string, IRegion> Regions => _regions;
-    public IRegionManager AddToRegion(string regionName, string viewName)
-    {
-        if (_regions.TryGetValue(regionName, out IRegion? region))
-        {
-            var view = _serviceProvider.GetRequiredKeyedService<IView>(viewName);
-            region.AddView(view);
-        }
-        return this;
-    }
-    public IRegionManager AddToRegion(string regionName, IView view)
-    {
-        if (_regions.TryGetValue(regionName, out IRegion? region))
-        {
-            region.AddView(view);
-        }
-        return this;
-    }
+
     public async Task<NavigationResult> RequestNavigate(string regionName, 
         string viewName, 
         INavigationParameters? navigationParameters = null,
@@ -120,12 +98,12 @@ public sealed class RegionManager :
 
     public void OnCompleted()
     {
-        throw new NotImplementedException();
+        
     }
 
     public void OnError(Exception error)
     {
-        throw new NotImplementedException();
+        throw error;
     }
 
     public void OnNext(AvaloniaPropertyChangedEventArgs<string> value)
@@ -136,30 +114,22 @@ public sealed class RegionManager :
             throw new InvalidOperationException($"Duplicated RegionName found:{name}");
 
         bool? useCache = null;
+        IServiceProvider serviceProvider = _serviceProvider;
         if (value.Sender.IsSet(PreferCacheProperty))
         {
             useCache = value.Sender.GetValue(PreferCacheProperty);
         }
-        var region = _regionFactory.CreateRegion(name, value.Sender, _serviceProvider, useCache);
+        if (value.Sender.IsSet(ServiceProviderProperty))
+        {
+            serviceProvider = value.Sender.GetValue(ServiceProviderProperty);
+        }
+        var region = _regionFactory.CreateRegion(name, value.Sender, serviceProvider, useCache);
         _regions.TryAdd(name, region);
-    }
-
-    public void OnNext(AvaloniaPropertyChangedEventArgs<IServiceProvider> value)
-    {
-        // todo support multiple serviceproviders
-        throw new NotImplementedException("Todo: support multiple serviceproviders");
     }
 
     public void Dispose()
     {
         _subscriptions?.DisposeAll();
-    }
-
-    public void RemoveFromRegion(string regionName, string viewName)
-    {
-        if (_regions.TryGetValue(regionName, out IRegion? region))
-        {
-            //region.RemoveView(viewName);
-        }
+        _regions.Values?.DisposeAll();
     }
 }

@@ -1,6 +1,6 @@
 ﻿using AsyncNavigation.Abstractions;
 
-namespace AsyncNavigation.Core;
+namespace AsyncNavigation;
 
 public static class CoreExtensions
 {

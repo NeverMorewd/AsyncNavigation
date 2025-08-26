@@ -22,4 +22,10 @@ public sealed class ItemsRegionContext : INotifyPropertyChanged
     }
 
     public event PropertyChangedEventHandler? PropertyChanged;
+
+    public void Clear()
+    {
+        Items.Clear();
+        Selected = null;
+    }
 }

@@ -13,7 +13,7 @@ internal sealed class RegionIndicator : IRegionIndicatorHost<ContentControl>
 
     public RegionIndicator(IServiceProvider services)
     {
-        Control = new ContentControl();
+        IndicatorControl = new ContentControl();
 
         if (NavigationOptions.Default.EnableLoadingIndicator)
             _loadingTemplate = services.GetRequiredKeyedService<IDataTemplate>(NavigationConstants.INDICATOR_LOADING_KEY);
@@ -22,16 +22,16 @@ internal sealed class RegionIndicator : IRegionIndicatorHost<ContentControl>
             _errorTemplate = services.GetRequiredKeyedService<IDataTemplate>(NavigationConstants.INDICATOR_ERROR_KEY);
     }
 
-    public ContentControl Control { get; }
+    public ContentControl IndicatorControl { get; }
 
-    object IRegionIndicator.IndicatorControl => Control;
+    object IRegionIndicator.IndicatorControl => IndicatorControl;
 
     public void ShowLoading(NavigationContext context)
     {
         if (_loadingTemplate == null)
             throw new NavigationException($"Failed to resolve loading template (key: {NavigationConstants.INDICATOR_LOADING_KEY}) from IServiceProvider. " +
              "Please ensure it is registered before calling ShowLoading().");
-        Control.Content = _loadingTemplate?.Build(context.WithStatus(NavigationStatus.InProgress));
+        IndicatorControl.Content = _loadingTemplate?.Build(context.WithStatus(NavigationStatus.InProgress));
     }
 
     public void ShowError(NavigationContext context, Exception exception)
@@ -39,11 +39,11 @@ internal sealed class RegionIndicator : IRegionIndicatorHost<ContentControl>
         if (_errorTemplate == null)
             throw new NavigationException($"Failed to resolve error template (key: {NavigationConstants.INDICATOR_ERROR_KEY}) from IServiceProvider. " +
              "Please ensure it is registered before calling ShowError().");
-        Control.Content = _errorTemplate?.Build(context.WithStatus(NavigationStatus.Failed, exception));
+        IndicatorControl.Content = _errorTemplate?.Build(context.WithStatus(NavigationStatus.Failed, exception));
     }
 
     public void ShowContent(NavigationContext context, object? content)
     {
-        Control.Content = content;
+        IndicatorControl.Content = content;
     }
 }

@@ -1,6 +1,6 @@
 ﻿using System.Diagnostics;
 
-namespace AsyncNavigation.Core;
+namespace AsyncNavigation;
 
 public static class GcMonitor
 {
