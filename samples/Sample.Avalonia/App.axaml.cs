@@ -8,6 +8,7 @@ using Avalonia.Media;
 using Avalonia.Threading;
 using Microsoft.Extensions.DependencyInjection;
 using ReactiveUI;
+using Sample.Avalonia.Regions;
 using Sample.Avalonia.Views;
 using Sample.Common;
 using System;
@@ -50,8 +51,10 @@ public partial class App : Application, IObserver<Exception>
                 .RegisterNavigation<CView, CViewModel>(nameof(CView))
                 .RegisterNavigation<DView, DViewModel>(nameof(DView))
                 .RegisterNavigation<EView, EViewModel>(nameof(EView))
+                .RegisterNavigation<ListBoxRegionView, ListBoxRegionViewModel>(nameof(ListBoxRegionView))
                 .RegisterLoadingIndicator(BuildLoadingIndicator)
-                .RegisterErrorIndicator(BuildErrorIndicator);
+                .RegisterErrorIndicator(BuildErrorIndicator)
+                .RegisterRegionAdapter<ListBoxRegionAdapter>();
 
         #region setup lifetime
         var sp = services.BuildServiceProvider();

@@ -80,6 +80,10 @@
 					   Classes="DialogShowDialogAsyncWithCancelling"
 					   Content="ToA:Dialog.ShowDialogWithCancelling"
 					   Tag="AView" />
+					<Button
+                        Classes="Navigation"
+                        Content="ToListBoxRegionView"
+                        Tag="ListBoxRegionView" />
                 </StackPanel>
             </DockPanel>
         </SplitView.Pane>

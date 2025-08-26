@@ -78,18 +78,18 @@ public class ItemsRegion : IRegion, IRegionPresenter
         GC.SuppressFinalize(this);
         _context.Clear();
     }
-    public void ProcessActivate(NavigationContext navigationContext)
+    public virtual void ProcessActivate(NavigationContext navigationContext)
     {
         _itemsControl.ScrollIntoView(navigationContext);
     }
-    public void RenderIndicator(NavigationContext navigationContext)
+    public virtual void RenderIndicator(NavigationContext navigationContext)
     {
         if (!_context.Items.Contains(navigationContext))
             _context.Items.Add(navigationContext);
         ProcessActivate(navigationContext);
     }
 
-    public void ProcessDeactivate(NavigationContext navigationContext)
+    public virtual void ProcessDeactivate(NavigationContext navigationContext)
     {       
         _context.Items.Remove(navigationContext);
     }

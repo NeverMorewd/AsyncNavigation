@@ -1,4 +1,6 @@
-﻿namespace AsyncNavigation.Abstractions;
+﻿using AsyncNavigation.Abstractions;
+
+namespace AsyncNavigation;
 
 public abstract class RegionAdapterBase<T> : IRegionAdapter<T>
 {
