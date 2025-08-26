@@ -17,7 +17,7 @@ internal sealed class ViewManager : IViewManager
     public ViewManager(NavigationOptions options, IViewFactory viewFactory)
     {
         _strategy = options.ViewCacheStrategy;
-        _maxCacheSize = options.MaxCachedItems;
+        _maxCacheSize = options.MaxCachedViews;
         _viewFactory = viewFactory;
     }
 

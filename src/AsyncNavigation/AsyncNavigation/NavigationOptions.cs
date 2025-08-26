@@ -1,4 +1,6 @@
-﻿namespace AsyncNavigation.Core;
+﻿using AsyncNavigation.Core;
+
+namespace AsyncNavigation;
 
 
 /// <summary>
@@ -21,15 +23,7 @@ public class NavigationOptions
     /// The cache helps improve performance by reusing previously created views.
     /// Default value is <c>10</c>.
     /// </remarks>
-    public int MaxCachedItems { get; set; } = 10;
-
-    /// <summary>
-    /// Gets or sets the maximum allowed time for a navigation operation before it times out.
-    /// </summary>
-    /// <remarks>
-    /// Default value is <c>10 seconds</c>.
-    /// </remarks>
-    public TimeSpan NavigationTimeout { get; set; } = TimeSpan.FromMilliseconds(10000);
+    public int MaxCachedViews { get; set; } = 10;
 
     /// <summary>
     /// Gets or sets the delay before showing a loading indicator during navigation.
@@ -108,11 +102,8 @@ public class NavigationOptions
     {
         if (other == null) return;
 
-        if (other.MaxCachedItems != Default.MaxCachedItems)
-            MaxCachedItems = other.MaxCachedItems;
-
-        if (other.NavigationTimeout != Default.NavigationTimeout)
-            NavigationTimeout = other.NavigationTimeout;
+        if (other.MaxCachedViews != Default.MaxCachedViews)
+            MaxCachedViews = other.MaxCachedViews;
 
         if (other.LoadingIndicatorDelay != Default.LoadingIndicatorDelay)
             LoadingIndicatorDelay = other.LoadingIndicatorDelay;
