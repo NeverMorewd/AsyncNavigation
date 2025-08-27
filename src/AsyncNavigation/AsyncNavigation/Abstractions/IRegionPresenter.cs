@@ -1,4 +1,6 @@
-﻿namespace AsyncNavigation.Abstractions;
+﻿using AsyncNavigation.Core;
+
+namespace AsyncNavigation.Abstractions;
 
 public interface IRegionPresenter
 {

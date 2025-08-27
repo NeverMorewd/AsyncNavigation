@@ -17,7 +17,12 @@ public static class DependencyInjectionExtensions
         services.AddTransient<TViewModel>();
         services.AddTransient<TView>();
 
-        services.AddKeyedTransient<IView>(viewKey, (sp, _) => sp.GetRequiredService<TView>());
+        services.AddKeyedTransient<IView>(viewKey, (sp, _) => 
+        {
+            var view = sp.GetRequiredService<TView>();
+            view.DataContext ??= sp.GetRequiredService<TViewModel>();
+            return view;
+        });
         services.AddKeyedTransient<INavigationAware>(viewKey, (sp, _) => sp.GetRequiredService<TViewModel>());
 
         if (typeof(IDialogAware).IsAssignableFrom(typeof(TViewModel)))

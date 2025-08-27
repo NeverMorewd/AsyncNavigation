@@ -22,6 +22,7 @@ internal sealed class RegionNavigationService<T> : IRegionNavigationService<T> w
         _regionIndicatorManager = serviceProvider.GetRequiredService<IRegionIndicatorManager>();
         _unloadHandler = new RequestUnloadHandler(_regionPresenter, _viewCacheManager);
     }
+
     public async Task<NavigationResult> RequestNavigateAsync(NavigationContext navigationContext)
     {
         var stopwatch = Stopwatch.StartNew();
@@ -44,6 +45,14 @@ internal sealed class RegionNavigationService<T> : IRegionNavigationService<T> w
         {
             stopwatch.Stop();
         }
+    }
+    public Task OnNavigateFromAsync(NavigationContext navigationContext)
+    {
+        return HandleBeforeNavigationAsync(navigationContext);
+    }
+    public void Dispose()
+    {
+        //todo
     }
 
     private async Task CreateNavigateTask(NavigationContext navigationContext)
@@ -121,8 +130,6 @@ internal sealed class RegionNavigationService<T> : IRegionNavigationService<T> w
             Current.SetData(view);
         }
     }
-
-
     private static async Task ExecuteStepsAsync(IEnumerable<Func<NavigationContext, Task>> steps, NavigationContext navigationContext)
     {
         foreach (var step in steps)

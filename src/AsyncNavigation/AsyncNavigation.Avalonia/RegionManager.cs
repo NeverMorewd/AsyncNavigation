@@ -2,7 +2,6 @@
 using AsyncNavigation.Core;
 using Avalonia;
 using System.Collections.Concurrent;
-using System.Threading;
 
 namespace AsyncNavigation.Avalonia;
 
@@ -64,6 +63,7 @@ public sealed class RegionManager :
     private readonly List<IDisposable> _subscriptions;
     private readonly ConcurrentDictionary<string, IRegion> _regions;
     private readonly IRegionFactory _regionFactory;
+    private IRegion? _currentRegion;
     public RegionManager(IRegionFactory regionFactory, IServiceProvider serviceProvider)
     {
         _subscriptions = [];
@@ -92,7 +92,16 @@ public sealed class RegionManager :
                 Parameters = navigationParameters,
                 CancellationToken = cancellationToken
             };
-            return await region.ActivateViewAsync(context);
+            if (_currentRegion is not null && _currentRegion != region)
+            {
+                await _currentRegion.NavigateFromAsync(context);
+            }
+            var result = await region.ActivateViewAsync(context);
+            if (result.IsSuccess)
+            {
+                _currentRegion = region;
+            }
+            return result;
         }
         throw new InvalidOperationException($"Region '{regionName}' not found.");
     }

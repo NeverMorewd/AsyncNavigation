@@ -4,11 +4,12 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace AsyncNavigation;
 
-public abstract class RegionBase<TRegion> : IRegion, IRegionPresenter 
+public abstract class RegionBase<TRegion> : IRegion, IRegionPresenter
     where TRegion : class, IRegionPresenter
 {
     private readonly IRegionNavigationService<TRegion> _regionNavigationService;
     private readonly IRegionNavigationHistory _navigationHistory;
+
     public RegionBase(IServiceProvider serviceProvider)
     {
         ArgumentNullException.ThrowIfNull(serviceProvider);
@@ -16,6 +17,7 @@ public abstract class RegionBase<TRegion> : IRegion, IRegionPresenter
         _regionNavigationService = factory.Create((this as TRegion)!);
         _navigationHistory = serviceProvider.GetRequiredService<IRegionNavigationHistory>();
     }
+
     IRegionPresenter IRegion.RegionPresenter => this;
     public bool EnableViewCache { get; protected set; }
     public bool IsSinglePageRegion { get; protected set; }
@@ -74,4 +76,9 @@ public abstract class RegionBase<TRegion> : IRegion, IRegionPresenter
     public abstract void RenderIndicator(NavigationContext navigationContext);
     public abstract void ProcessActivate(NavigationContext navigationContext);
     public abstract void ProcessDeactivate(NavigationContext navigationContext);
+
+    Task IRegion.NavigateFromAsync(NavigationContext navigationContext)
+    {
+        return _regionNavigationService.OnNavigateFromAsync(navigationContext);
+    }
 }

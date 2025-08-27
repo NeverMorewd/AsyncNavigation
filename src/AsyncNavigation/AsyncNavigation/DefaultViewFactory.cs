@@ -52,8 +52,10 @@ internal sealed class DefaultViewFactory : IViewFactory
             try
             {
                 var view = _serviceProvider.GetRequiredKeyedService<IView>(viewName);
-                if (_serviceProvider.GetKeyedService<INavigationAware>(viewName) is { } vm)
-                    view.DataContext = vm;
+                if (view.DataContext is not INavigationAware)
+                {
+                    view.DataContext = _serviceProvider.GetRequiredKeyedService<INavigationAware>(viewName);
+                }
                 return view;
             }
             catch (Exception ex)
