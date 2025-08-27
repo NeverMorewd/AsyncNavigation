@@ -11,6 +11,7 @@
     mc:Ignorable="d">
     <UserControl.Resources>
         <converters:NumberToDockConverter x:Key="NumberToDockConverter" />
+        <converters:BoolToBrushConverter x:Key="BoolToBrushConverter" />
     </UserControl.Resources>
     <DockPanel LastChildFill="True">
         <Button
@@ -18,12 +19,13 @@
             VerticalAlignment="Stretch"
             HorizontalContentAlignment="Center"
             VerticalContentAlignment="Center"
+            Background="{Binding IsActive, Converter={StaticResource BoolToBrushConverter}}"
             Classes="Navigation"
             Command="{Binding AsyncNavigateCommand}"
             CommandParameter="InfinityView"
-            Content="Next"
+            Content="{Binding ButtonText}"
             DockPanel.Dock="{Binding InstanceNumber, Converter={StaticResource NumberToDockConverter}}" />
-        <Border BorderBrush="Orange" BorderThickness="1">
+        <Border BorderBrush="Red" BorderThickness="1">
             <Grid>
                 <ContentControl an:RegionManager.RegionName="{Binding NextRegionName}" />
                 <TextBlock

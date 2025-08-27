@@ -9,6 +9,8 @@ public partial class InfinityViewModel: InstanceCounterViewModel<AViewModel>
     [Reactive]
     private string _nextRegionName = "";
     [Reactive]
+    private string _buttonText = "Next";
+    [Reactive]
     private bool _isActive = true;
     private readonly IRegionManager _regionManager;
 
@@ -23,6 +25,7 @@ public partial class InfinityViewModel: InstanceCounterViewModel<AViewModel>
     {
         await _regionManager.RequestNavigate(NextRegionName, param);
         IsActive = false;
+        ButtonText = "Refresh";
     }
 
     public override Task<bool> IsNavigationTargetAsync(NavigationContext context)
