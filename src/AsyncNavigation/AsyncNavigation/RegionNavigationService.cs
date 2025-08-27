@@ -10,14 +10,14 @@ internal sealed class RegionNavigationService<T> : IRegionNavigationService<T> w
     private readonly AsyncConcurrentItem<IView> Current = new();
     private readonly IViewManager _viewCacheManager;
     private readonly IRegionIndicatorManager _regionIndicatorManager;
-    private readonly INavigationJobScheduler _navigationTaskManager;
+    private readonly INavigationJobScheduler _navigationJobScheduler;
     private readonly IRegionPresenter _regionPresenter;
     private readonly RequestUnloadHandler _unloadHandler;
 
     public RegionNavigationService(T regionPresenter, IServiceProvider serviceProvider)
     {
         _regionPresenter = regionPresenter;
-        _navigationTaskManager = serviceProvider.GetRequiredService<INavigationJobScheduler>();
+        _navigationJobScheduler = serviceProvider.GetRequiredService<INavigationJobScheduler>();
         _viewCacheManager = serviceProvider.GetRequiredService<IViewManager>();
         _regionIndicatorManager = serviceProvider.GetRequiredService<IRegionIndicatorManager>();
         _unloadHandler = new RequestUnloadHandler(_regionPresenter, _viewCacheManager);
@@ -28,7 +28,7 @@ internal sealed class RegionNavigationService<T> : IRegionNavigationService<T> w
         var stopwatch = Stopwatch.StartNew();
         try
         {
-            await _navigationTaskManager.RunJobAsync(navigationContext, CreateNavigateTask);
+            await _navigationJobScheduler.RunJobAsync(navigationContext, CreateNavigateTask);
             return NavigationResult.Success(stopwatch.Elapsed);
         }
         catch (OperationCanceledException ocex) when (navigationContext.CancellationToken.IsCancellationRequested)
@@ -52,7 +52,15 @@ internal sealed class RegionNavigationService<T> : IRegionNavigationService<T> w
     }
     public void Dispose()
     {
-        //todo
+        try
+        {
+            _navigationJobScheduler.CancelAllAsync();
+            _navigationJobScheduler.WaitAllAsync();
+        }
+        catch
+        {
+            //ignore
+        }
     }
 
     private async Task CreateNavigateTask(NavigationContext navigationContext)

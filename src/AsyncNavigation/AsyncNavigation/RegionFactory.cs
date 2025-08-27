@@ -4,11 +4,11 @@ namespace AsyncNavigation;
 
 internal sealed class RegionFactory : IRegionFactory
 {
-    private readonly List<IRegionAdapter> _adapters = [];
+    private readonly HashSet<IRegionAdapter> _adapters;
 
     public RegionFactory(IEnumerable<IRegionAdapter> adapters)
     {
-        _adapters.AddRange(adapters);
+        _adapters = [.. adapters];
     }
 
     public void RegisterAdapter(IRegionAdapter adapter)

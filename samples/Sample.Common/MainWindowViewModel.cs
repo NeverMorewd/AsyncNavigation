@@ -1,5 +1,4 @@
-﻿using AsyncNavigation;
-using AsyncNavigation.Abstractions;
+﻿using AsyncNavigation.Abstractions;
 using AsyncNavigation.Core;
 using ReactiveUI;
 using ReactiveUI.SourceGenerators;
@@ -86,5 +85,4 @@ public partial class MainWindowViewModel : ViewModelBase
     {
         await _regionManager.GoBack("MainRegion");
     }
-
 }
