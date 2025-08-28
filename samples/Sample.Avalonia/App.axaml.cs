@@ -46,12 +46,12 @@ public partial class App : Application, IObserver<Exception>
         var services = new ServiceCollection();
         services.AddNavigationSupport()
                 .AddSingleton<MainWindowViewModel>()
-                .RegisterNavigation<AView, AViewModel>(nameof(AView))
-                .RegisterNavigation<BView, BViewModel>(nameof(BView))
-                .RegisterNavigation<CView, CViewModel>(nameof(CView))
-                .RegisterNavigation<DView, DViewModel>(nameof(DView))
-                .RegisterNavigation<EView, EViewModel>(nameof(EView))
-                .RegisterNavigation<ListBoxRegionView, ListBoxRegionViewModel>(nameof(ListBoxRegionView))
+                .RegisterView<AView, AViewModel>(nameof(AView))
+                .RegisterView<BView, BViewModel>(nameof(BView))
+                .RegisterView<CView, CViewModel>(nameof(CView))
+                .RegisterView<DView, DViewModel>(nameof(DView))
+                .RegisterView<EView, EViewModel>(nameof(EView))
+                .RegisterView<ListBoxRegionView, ListBoxRegionViewModel>(nameof(ListBoxRegionView))
                 .RegisterLoadingIndicator(BuildLoadingIndicator)
                 .RegisterErrorIndicator(BuildErrorIndicator)
                 .RegisterRegionAdapter<ListBoxRegionAdapter>();

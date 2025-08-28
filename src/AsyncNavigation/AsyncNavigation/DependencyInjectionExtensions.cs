@@ -6,34 +6,47 @@ namespace Microsoft.Extensions.DependencyInjection;
 
 public static class DependencyInjectionExtensions
 {
-    public static IServiceCollection RegisterNavigation<TView, TViewModel>(
-        this IServiceCollection services, string viewKey)
+    private static readonly Dictionary<Type, Func<IServiceProvider, Type, object>> AwareInterfaceMappings =
+        new()
+        {
+            { typeof(INavigationAware), (sp, vmType) => sp.GetRequiredService(vmType) },
+            { typeof(IDialogAware), (sp, vmType) => sp.GetRequiredService(vmType) }
+        };
+    public static IServiceCollection RegisterView<TView, TViewModel>(
+        this IServiceCollection services, object viewKey)
         where TView : class, IView
-        where TViewModel : class, INavigationAware
+        where TViewModel : class
     {
         ArgumentNullException.ThrowIfNull(services);
-        ArgumentException.ThrowIfNullOrWhiteSpace(viewKey);
+        ArgumentNullException.ThrowIfNull(viewKey);
 
         services.AddTransient<TViewModel>();
         services.AddTransient<TView>();
 
-        services.AddKeyedTransient<IView>(viewKey, (sp, _) => 
+        services.AddKeyedTransient<IView>(viewKey, (sp, _) =>
         {
             var view = sp.GetRequiredService<TView>();
             view.DataContext ??= sp.GetRequiredService<TViewModel>();
             return view;
         });
-        services.AddKeyedTransient<INavigationAware>(viewKey, (sp, _) => sp.GetRequiredService<TViewModel>());
 
-        if (typeof(IDialogAware).IsAssignableFrom(typeof(TViewModel)))
+        var vmType = typeof(TViewModel);
+        bool hasMapping = false;
+
+        foreach (var awareFace in AwareInterfaceMappings)
         {
-            services.AddKeyedTransient(viewKey, (sp, _) =>
-                (IDialogAware)sp.GetRequiredService<TViewModel>());
+            if (awareFace.Key.IsAssignableFrom(vmType))
+            {
+                hasMapping = true;
+                services.AddKeyedTransient(awareFace.Key, viewKey, (sp, _) => awareFace.Value(sp, vmType));
+            }
         }
-
+        if (!hasMapping)
+        {
+            throw new InvalidOperationException($"ViewModel type '{vmType.Name}' must implement at least one of the following interfaces: {string.Join(", ", AwareInterfaceMappings.Keys.Select(t => t.Name))}");
+        }
         return services;
     }
-
     internal static IServiceCollection RegisterNavigationFramework(this IServiceCollection serviceDescriptors, NavigationOptions? navigationOptions = null)
     {
         if (navigationOptions is not null)
@@ -58,5 +71,4 @@ public static class DependencyInjectionExtensions
             .AddTransient<IRegionNavigationHistory, RegionNavigationHistory>()
             .AddTransient<IRegionIndicatorManager>(sp => new RegionIndicatorManager(() => sp.GetRequiredService<IRegionIndicator>()));
     }
-
 }

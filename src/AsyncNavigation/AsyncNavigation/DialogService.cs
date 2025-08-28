@@ -1,7 +1,6 @@
 ﻿using AsyncNavigation.Abstractions;
 using AsyncNavigation.Core;
 using Microsoft.Extensions.DependencyInjection;
-using System.Xml.Linq;
 
 namespace AsyncNavigation;
 
@@ -88,6 +87,5 @@ public class DialogService : IDialogService
         dialogWindow.DataContext = aware;
         return (dialogWindow, aware);
     }
-
 }
 
