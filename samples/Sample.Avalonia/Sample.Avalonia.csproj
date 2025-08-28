@@ -29,10 +29,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Controls\" />
-  </ItemGroup>
-
-  <ItemGroup>
     <Compile Update="Views\EView.axaml.cs">
       <DependentUpon>EView.axaml</DependentUpon>
     </Compile>

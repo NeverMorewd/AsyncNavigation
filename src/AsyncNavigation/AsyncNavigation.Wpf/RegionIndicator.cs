@@ -1,0 +1,48 @@
+﻿using AsyncNavigation.Abstractions;
+using AsyncNavigation.Core;
+using Microsoft.Extensions.DependencyInjection;
+using System.Windows.Controls;
+
+namespace AsyncNavigation.Wpf;
+
+internal sealed class RegionIndicator : IRegionIndicatorHost<ContentControl>
+{
+    private readonly IndicatorDataTemplate? _loadingTemplate;
+    private readonly IndicatorDataTemplate? _errorTemplate;
+
+    public RegionIndicator(IServiceProvider services)
+    {
+        IndicatorControl = new ContentControl();
+
+        if (NavigationOptions.Default.EnableLoadingIndicator)
+            _loadingTemplate = services.GetRequiredKeyedService<IndicatorDataTemplate>(NavigationConstants.INDICATOR_LOADING_KEY);
+
+        if (NavigationOptions.Default.EnableErrorIndicator)
+            _errorTemplate = services.GetRequiredKeyedService<IndicatorDataTemplate>(NavigationConstants.INDICATOR_ERROR_KEY);
+    }
+
+    public ContentControl IndicatorControl { get; }
+
+    object IRegionIndicator.IndicatorControl => IndicatorControl;
+
+    public void ShowLoading(NavigationContext context)
+    {
+        if (_loadingTemplate == null)
+            throw new NavigationException($"Failed to resolve loading template (key: {NavigationConstants.INDICATOR_LOADING_KEY}) from IServiceProvider. " +
+             "Please ensure it is registered before calling ShowLoading().");
+        IndicatorControl.Content = _loadingTemplate?.Build(context.WithStatus(NavigationStatus.InProgress));
+    }
+
+    public void ShowError(NavigationContext context, Exception exception)
+    {
+        if (_errorTemplate == null)
+            throw new NavigationException($"Failed to resolve error template (key: {NavigationConstants.INDICATOR_ERROR_KEY}) from IServiceProvider. " +
+             "Please ensure it is registered before calling ShowError().");
+        IndicatorControl.Content = _errorTemplate?.Build(context.WithStatus(NavigationStatus.Failed, exception));
+    }
+
+    public void ShowContent(NavigationContext context, object? content)
+    {
+        IndicatorControl.Content = content;
+    }
+}

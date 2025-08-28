@@ -11,4 +11,11 @@
     <ProjectReference Include="..\AsyncNavigation\AsyncNavigation.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Compile Update="DefaultDialogContainer.axaml.cs">
+      <SubType>Code</SubType>
+      <DependentUpon>%(Filename)</DependentUpon>
+    </Compile>
+  </ItemGroup>
+
 </Project>
