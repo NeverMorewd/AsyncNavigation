@@ -15,6 +15,11 @@ public partial class CViewModel : InstanceCounterViewModel<CViewModel>
     private async Task AsyncNavigate(string param)
     {
         var (viewName, parameters) = SampleHelper.ParseNavigationParam(param);
-        await _regionManager.RequestNavigate("ChildContentRegion", viewName, parameters);
+        await _regionManager.RequestNavigateAsync("ChildContentRegion", viewName, parameters);
+    }
+    [ReactiveCommand]
+    private Task UnloadView(string param)
+    {
+        return RequestUnload();
     }
 }

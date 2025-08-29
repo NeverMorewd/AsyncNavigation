@@ -43,8 +43,15 @@ public partial class App : Application, IObserver<Exception>
         RxApp.DefaultExceptionHandler = this;
         #endregion
 
+        NavigationOptions navigationOptions = new()
+        {
+            /// default is CancelCurrent <see cref="AsyncNavigation.Core.NavigationJobStrategy.CancelCurrent"/>
+            //NavigationJobStrategy = AsyncNavigation.Core.NavigationJobStrategy.Queue
+        };
+
+
         var services = new ServiceCollection();
-        services.AddNavigationSupport()
+        services.AddNavigationSupport(navigationOptions)
                 .AddSingleton<MainWindowViewModel>()
                 .RegisterView<AView, AViewModel>(nameof(AView))
                 .RegisterView<BView, BViewModel>(nameof(BView))
@@ -95,7 +102,7 @@ public partial class App : Application, IObserver<Exception>
 
     private void HandleError(Exception error, bool needThrow = false)
     {
-        Debug.WriteLine($"HandleError:{error}");
+        Debug.WriteLine($"Global HandleError:{error}");
         if (needThrow)
             throw error;
     }

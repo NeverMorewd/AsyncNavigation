@@ -19,6 +19,6 @@ public static class SampleHelper
     public static Task<NavigationResult> RequestNavigationCommandExecute(this IRegionManager regionManager, string regionName, string param, CancellationToken cancellationToken = default)
     {
         var (viewName, parameters) = ParseNavigationParam(param);
-        return regionManager.RequestNavigate(viewName, regionName, parameters, cancellationToken);
+        return regionManager.RequestNavigateAsync(viewName, regionName, parameters, cancellationToken);
     }
 }

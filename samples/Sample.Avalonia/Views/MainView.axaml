@@ -50,11 +50,11 @@
                         Tag="DView" />
                     <Button
                         Classes="NavigationWithoutWait"
-                        Content="ToA:NOWait"
+                        Content="ToA:Concurrent"
                         Tag="AView" />
                     <Button
                         Classes="NavigationWithoutWait"
-                        Content="ToB:NOWait"
+                        Content="ToB:Concurrent"
                         Tag="BView" />
                     <Button
                         Classes="Navigation"

@@ -109,7 +109,7 @@ public sealed class RegionManager : DependencyObject,
         _tempRegionCache.Clear();
     }
     public IReadOnlyDictionary<string, IRegion> Regions => _regions;
-    public async Task<NavigationResult> RequestNavigate(string regionName, 
+    public async Task<NavigationResult> RequestNavigateAsync(string regionName, 
         string viewName, 
         INavigationParameters? navigationParameters = null,
         CancellationToken cancellationToken = default)

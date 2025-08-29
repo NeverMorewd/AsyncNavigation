@@ -23,7 +23,7 @@ public partial class InfinityViewModel: InstanceCounterViewModel<AViewModel>
     [ReactiveCommand]
     private async Task AsyncNavigate(string param)
     {
-        await _regionManager.RequestNavigate(NextRegionName, param);
+        await _regionManager.RequestNavigateAsync(NextRegionName, param);
         IsActive = false;
         ButtonText = "Refresh";
     }

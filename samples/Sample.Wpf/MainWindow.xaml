@@ -7,6 +7,7 @@
     xmlns:local="clr-namespace:Sample.Wpf"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     Title="MainWindow"
+    WindowState="Maximized"
     Width="800"
     Height="450"
     mc:Ignorable="d">
@@ -14,24 +15,24 @@
         <DockPanel LastChildFill="True">
             <StackPanel DockPanel.Dock="Right">
                 <StackPanel Orientation="Horizontal">
-                    <Button Content="GoBack" />
-                    <Button Content="GoForward" />
+                    <Button Style="{StaticResource GoBack}"/>
+                    <Button Style="{StaticResource GoForward}"/>
                 </StackPanel>
                 <Button Content="ToA" Tag="AView" Style="{StaticResource NavigationButton}"/>
-                <Button Content="ToE" Tag="EView" />
-                <Button Content="ToB:ItemsRegion;Delay" Tag="BView" />
-                <Button Content="ToC:ChildContentRegion" Tag="CView" />
-                <Button Content="ToD:TabRegion" Tag="DView" />
-                <Button Content="ToA:NOWait" Tag="AView" />
-                <Button Content="ToB:NOWait" Tag="BView" />
-                <Button Content="ToA:New" Tag="AView:New" />
-                <Button Content="ToB:Error" Tag="BView:Error" />
-                <Button Content="ToA:Dialog.Show" Tag="AView" />
-                <Button Content="ToE:Dialog.Show" Tag="EView" />
-                <Button Content="ToA:Dialog.ShowDialog" Tag="AView" />
-                <Button Content="ToE:Dialog.ShowDialog" Tag="EView" />
-                <Button Content="ToA:Dialog.ShowDialogWithCancelling" Tag="AView" />
-                <Button Content="ToListBoxRegionView" Tag="ListBoxRegionView" />
+                <Button Content="ToE" Tag="EView" Style="{StaticResource NavigationButton}"/>
+                <Button Content="ToB:ItemsRegion;Delay" Tag="BView" Style="{StaticResource NavigationWithDelay}"/>
+                <Button Content="ToC:ChildContentRegion" Tag="CView" Style="{StaticResource NavigationButton}"/>
+                <Button Content="ToD:TabRegion" Tag="DView" Style="{StaticResource NavigationButton}"/>
+                <Button Content="ToA:Concurrent" Tag="AView" Style="{StaticResource NavigationWithoutWait}"/>
+                <Button Content="ToB:Concurrent" Tag="BView" Style="{StaticResource NavigationWithoutWait}"/>
+                <Button Content="ToA:New" Tag="AView:New" Style="{StaticResource NavigationButton}"/>
+                <Button Content="ToB:Error" Tag="BView:Error" Style="{StaticResource NavigationButton}"/>
+                <Button Content="ToA:Dialog.Show" Tag="AView" Style="{StaticResource DialogShow}"/>
+                <Button Content="ToE:Dialog.Show" Tag="EView" Style="{StaticResource DialogShow}"/>
+                <Button Content="ToA:Dialog.ShowDialog" Tag="AView" Style="{StaticResource DialogShowDialog}"/>
+                <Button Content="ToE:Dialog.ShowDialog" Tag="EView" Style="{StaticResource DialogShowDialogAsync}"/>
+                <Button Content="ToA:Dialog.ShowDialogWithCancelling" Tag="AView" Style="{StaticResource DialogShowDialogAsyncWithCancelling}"/>
+                <Button Content="ToListBoxRegionView" Tag="ListBoxRegionView" Style="{StaticResource NavigationButton}"/>
             </StackPanel>
             <ContentControl an:RegionManager.RegionName="MainRegion" />
         </DockPanel>

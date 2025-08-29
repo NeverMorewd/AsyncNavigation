@@ -9,8 +9,4 @@ public partial class MainView : UserControl
     {
         InitializeComponent();
     }
-    protected override void OnAttachedToVisualTree(VisualTreeAttachmentEventArgs e)
-    {
-        base.OnAttachedToVisualTree(e);
-    }
 }

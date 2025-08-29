@@ -37,10 +37,10 @@ internal sealed class RegionIndicatorManager : IRegionIndicatorManager
 
     public Task ShowErrorAsync(NavigationContext context, Exception exception)
     {
-        if (!NavigationOptions.Default.EnableErrorIndicator)
-            throw exception;
-
-        GetIndicator(context).ShowError(context, exception);
+        if (NavigationOptions.Default.EnableErrorIndicator)
+        {
+            GetIndicator(context).ShowError(context, exception);
+        }
         return Task.CompletedTask;
     }
 

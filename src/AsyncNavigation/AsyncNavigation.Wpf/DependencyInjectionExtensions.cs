@@ -77,16 +77,16 @@ public static class DependencyInjectionExtensions
         return serviceDescriptors.AddSingleton<IRegionAdapter, T>();
     }
 
-    public static IServiceCollection RegisterLoadingIndicator<T>(this IServiceCollection services) where T : Control =>
+    public static IServiceCollection RegisterLoadingIndicator<T>(this IServiceCollection services) where T : FrameworkElement =>
         services.RegisterIndicator<T>(NavigationConstants.INDICATOR_LOADING_KEY, o => o.EnsureSingleLoadingIndicator());
 
-    public static IServiceCollection RegisterLoadingIndicator(this IServiceCollection services, Func<IServiceProvider, NavigationContext, Control> builder) =>
+    public static IServiceCollection RegisterLoadingIndicator(this IServiceCollection services, Func<IServiceProvider, NavigationContext, FrameworkElement> builder) =>
         services.RegisterIndicator(NavigationConstants.INDICATOR_LOADING_KEY, o => o.EnsureSingleLoadingIndicator(), builder);
 
-    public static IServiceCollection RegisterErrorIndicator<T>(this IServiceCollection services) where T : Control =>
+    public static IServiceCollection RegisterErrorIndicator<T>(this IServiceCollection services) where T : FrameworkElement =>
        services.RegisterIndicator<T>(NavigationConstants.INDICATOR_ERROR_KEY, o => o.EnsureSingleErrorIndicator());
 
-    public static IServiceCollection RegisterErrorIndicator(this IServiceCollection services, Func<IServiceProvider, NavigationContext, Control> builder) =>
+    public static IServiceCollection RegisterErrorIndicator(this IServiceCollection services, Func<IServiceProvider, NavigationContext, FrameworkElement> builder) =>
         services.RegisterIndicator(NavigationConstants.INDICATOR_ERROR_KEY, o => o.EnsureSingleErrorIndicator(), builder);
 
     private static IServiceCollection RegisterIndicator<T>(

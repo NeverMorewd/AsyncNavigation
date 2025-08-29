@@ -4,11 +4,11 @@ using System.Windows.Controls;
 namespace Sample.Wpf.Views;
 
 /// <summary>
-/// Interaction logic for AView.xaml
+/// Interaction logic for DView.xaml
 /// </summary>
-public partial class AView : UserControl, IView
+public partial class DView : UserControl, IView
 {
-    public AView()
+    public DView()
     {
         InitializeComponent();
     }

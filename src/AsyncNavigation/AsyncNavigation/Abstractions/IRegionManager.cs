@@ -7,7 +7,7 @@ public interface IRegionManager
     IReadOnlyDictionary<string, IRegion> Regions { get; }
     void AddRegion(string regionName, IRegion region);
 
-    Task<NavigationResult> RequestNavigate(string regionName, 
+    Task<NavigationResult> RequestNavigateAsync(string regionName, 
         string viewName, 
         INavigationParameters? navigationParameters = null,
         CancellationToken cancellationToken = default);
