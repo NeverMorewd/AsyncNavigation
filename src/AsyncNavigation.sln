@@ -19,27 +19,27 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "samples", "samples", "{02EA
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "avaloniaui", "avaloniaui", "{60954BB1-8CE8-437B-81B8-0C5F3645640D}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Sample.Avalonia", "..\..\samples\Sample.Avalonia\Sample.Avalonia.csproj", "{C00E661E-53A3-47FD-BFAF-9CF3F713C71A}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Sample.Avalonia", "..\samples\Sample.Avalonia\Sample.Avalonia.csproj", "{C00E661E-53A3-47FD-BFAF-9CF3F713C71A}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Sample.Avalonia.Android", "..\..\samples\Sample.Avalonia.Android\Sample.Avalonia.Android.csproj", "{8B5A117E-BD78-4C90-BB70-557B26D09135}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Sample.Avalonia.Android", "..\samples\Sample.Avalonia.Android\Sample.Avalonia.Android.csproj", "{8B5A117E-BD78-4C90-BB70-557B26D09135}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Sample.Avalonia.Desktop", "..\..\samples\Sample.Avalonia.Desktop\Sample.Avalonia.Desktop.csproj", "{9322400D-F93A-42F2-AD2B-F8500B8DBFC1}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Sample.Avalonia.Desktop", "..\samples\Sample.Avalonia.Desktop\Sample.Avalonia.Desktop.csproj", "{9322400D-F93A-42F2-AD2B-F8500B8DBFC1}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Sample.Avalonia.iOS", "..\..\samples\Sample.Avalonia.iOS\Sample.Avalonia.iOS.csproj", "{EB0FA065-017C-43CE-81A1-8CC72450D8CA}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Sample.Avalonia.iOS", "..\samples\Sample.Avalonia.iOS\Sample.Avalonia.iOS.csproj", "{EB0FA065-017C-43CE-81A1-8CC72450D8CA}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Sample.Avalonia.Browser", "..\..\samples\Sample.Avalonia.Browser\Sample.Avalonia.Browser.csproj", "{75FF6EEE-899C-4C53-9043-28BE6E69F84A}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Sample.Avalonia.Browser", "..\samples\Sample.Avalonia.Browser\Sample.Avalonia.Browser.csproj", "{75FF6EEE-899C-4C53-9043-28BE6E69F84A}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "wpf", "wpf", "{283A813F-2846-4EB4-BEE6-CF52380A1837}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "winui", "winui", "{EB40207B-749C-4496-9F62-84D159DED954}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Sample.Wpf", "..\..\samples\Sample.Wpf\Sample.Wpf.csproj", "{0F0607D6-8D0C-4AA7-862D-F45F6D0D36DE}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Sample.Wpf", "..\samples\Sample.Wpf\Sample.Wpf.csproj", "{0F0607D6-8D0C-4AA7-862D-F45F6D0D36DE}"
 EndProject
-Project("{C7167F0D-BC9F-4E6E-AFE1-012C56B48DB5}") = "Sample.WinUI (Package)", "..\..\samples\Sample.WinUI\Sample.WinUI (Package)\Sample.WinUI (Package).wapproj", "{5FB600F1-56A0-4A1C-BFFF-B22B868B8F10}"
+Project("{C7167F0D-BC9F-4E6E-AFE1-012C56B48DB5}") = "Sample.WinUI (Package)", "..\samples\Sample.WinUI\Sample.WinUI (Package)\Sample.WinUI (Package).wapproj", "{5FB600F1-56A0-4A1C-BFFF-B22B868B8F10}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Sample.WinUI", "..\..\samples\Sample.WinUI\Sample.WinUI\Sample.WinUI.csproj", "{C13F3D40-8068-4943-B4EC-10588BDCD4C8}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Sample.WinUI", "..\samples\Sample.WinUI\Sample.WinUI\Sample.WinUI.csproj", "{C13F3D40-8068-4943-B4EC-10588BDCD4C8}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Sample.Common", "..\..\samples\Sample.Common\Sample.Common.csproj", "{60BDFD8F-6FAD-4BFC-97D0-EAEA30186846}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Sample.Common", "..\samples\Sample.Common\Sample.Common.csproj", "{60BDFD8F-6FAD-4BFC-97D0-EAEA30186846}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AsyncNavigation", "AsyncNavigation\AsyncNavigation.csproj", "{535BD27C-12F1-47C9-A9B4-DC459E895938}"
 EndProject

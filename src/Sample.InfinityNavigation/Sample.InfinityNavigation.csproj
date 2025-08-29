@@ -27,7 +27,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\..\samples\Sample.Common\Sample.Common.csproj" />
+    <ProjectReference Include="..\..\samples\Sample.Common\Sample.Common.csproj" />
     <ProjectReference Include="..\AsyncNavigation.Avalonia\AsyncNavigation.Avalonia.csproj" />
   </ItemGroup>
 </Project>

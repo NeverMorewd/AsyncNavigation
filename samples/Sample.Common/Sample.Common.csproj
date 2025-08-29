@@ -15,7 +15,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\src\AsyncNavigation\AsyncNavigation\AsyncNavigation.csproj" />
+    <ProjectReference Include="..\..\src\AsyncNavigation\AsyncNavigation.csproj" />
   </ItemGroup>
 
 </Project>
