@@ -17,12 +17,6 @@ public partial class AViewModel : InstanceCounterViewModel<AViewModel>, IDialogA
         _regionManager = regionManager;
     }
 
-    [ReactiveCommand]
-    private async Task AsyncNavigate(string param)
-    {
-        var (viewName, parameters) = SampleHelper.ParseNavigationParam(param);
-        await _regionManager.RequestNavigateAsync("ItemsRegion", viewName, parameters);
-    }
 
     [ReactiveCommand]
     private Task UnloadView(string param)

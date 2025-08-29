@@ -33,12 +33,12 @@ internal sealed class RegionNavigationService<T> : IRegionNavigationService<T> w
         }
         catch (OperationCanceledException ocex) when (navigationContext.CancellationToken.IsCancellationRequested)
         {
-            await _regionIndicatorManager.ShowErrorAsync(navigationContext, ocex);
+            await _regionIndicatorManager.ShowErrorAsync(navigationContext, ocex, false);
             return NavigationResult.Cancelled(stopwatch.Elapsed);
         }
         catch (Exception ex)
         {
-            await _regionIndicatorManager.ShowErrorAsync(navigationContext, ex);
+            await _regionIndicatorManager.ShowErrorAsync(navigationContext, ex, true);
             return NavigationResult.Failure(ex, stopwatch.Elapsed);
         }
         finally
