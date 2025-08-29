@@ -47,6 +47,15 @@ public static class DependencyInjectionExtensions
         }
         return services;
     }
+
+    public static IServiceCollection RegisterIndicatorForRegion<T>(this IServiceCollection services, string regionName) where T : class, IRegionIndicator
+    {
+        return services.AddKeyedTransient<IRegionIndicator, T>(regionName);
+    }
+    public static IServiceCollection RegisterDefaultIndicator<T>(this IServiceCollection services) where T : class, IRegionIndicator
+    {
+        return services.AddTransient<IRegionIndicator, T>();
+    }
     internal static IServiceCollection RegisterNavigationFramework(this IServiceCollection serviceDescriptors, NavigationOptions? navigationOptions = null)
     {
         if (navigationOptions is not null)
