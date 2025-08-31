@@ -5,12 +5,12 @@ using System.Windows.Controls;
 
 namespace AsyncNavigation.Wpf;
 
-internal sealed class DefaultRegionIndicator : IRegionIndicator
+internal sealed class DefaultSelfIndicator : ISelfIndicator
 {
     private readonly IndicatorDataTemplate? _loadingTemplate;
     private readonly IndicatorDataTemplate? _errorTemplate;
     private readonly ContentControl _indicatorControl;
-    public DefaultRegionIndicator(IServiceProvider services)
+    public DefaultSelfIndicator(IServiceProvider services)
     {
         _indicatorControl = new ContentControl();
 
@@ -21,7 +21,7 @@ internal sealed class DefaultRegionIndicator : IRegionIndicator
             _errorTemplate = services.GetRequiredKeyedService<IndicatorDataTemplate>(NavigationConstants.INDICATOR_ERROR_KEY);
     }
 
-    object IRegionIndicator.IndicatorControl => _indicatorControl;
+    object ISelfIndicator.IndicatorControl => _indicatorControl;
 
     public void ShowLoading(NavigationContext context)
     {
@@ -31,16 +31,35 @@ internal sealed class DefaultRegionIndicator : IRegionIndicator
         _indicatorControl.Content = _loadingTemplate?.Build(context.WithStatus(NavigationStatus.InProgress));
     }
 
-    public void ShowError(NavigationContext context, Exception exception)
+    public void ShowError(NavigationContext context, Exception? exception)
     {
         if (_errorTemplate == null)
             throw new NavigationException($"Failed to resolve error template (key: {NavigationConstants.INDICATOR_ERROR_KEY}) from IServiceProvider. " +
              "Please ensure it is registered before calling ShowError().");
-        _indicatorControl.Content = _errorTemplate?.Build(context.WithStatus(NavigationStatus.Failed, exception));
+
+        if (exception != null)
+        {
+            context = context.WithStatus(NavigationStatus.Failed, exception);
+        }
+
+        _indicatorControl.Content = _errorTemplate?.Build(context);
     }
 
-    public void ShowContent(NavigationContext context, object? content)
+    public void ShowContent(NavigationContext context)
     {
-        _indicatorControl.Content = content;
+        _indicatorControl.Content = context.Target.Value;
+    }
+
+
+    Task IRegionIndicator.ShowErrorAsync(NavigationContext context, Exception? innerException)
+    {
+        ShowError(context, innerException);
+        return Task.CompletedTask;
+    }
+
+    Task IRegionIndicator.ShowLoadingAsync(NavigationContext context)
+    {
+        ShowLoading(context);
+        return Task.CompletedTask;
     }
 }

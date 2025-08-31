@@ -47,14 +47,19 @@ public static class DependencyInjectionExtensions
         }
         return services;
     }
-
-    public static IServiceCollection RegisterIndicatorForRegion<T>(this IServiceCollection services, string regionName) where T : class, IRegionIndicator
+    public static IServiceCollection RegisterRegionIndicatorProvider<T>(this IServiceCollection services) where T : class, IRegionIndicatorProvider
     {
-        return services.AddKeyedTransient<IRegionIndicator, T>(regionName);
+        ArgumentNullException.ThrowIfNull(services);
+        return services.AddSingleton<IRegionIndicatorProvider, T>();
     }
-    public static IServiceCollection RegisterDefaultIndicator<T>(this IServiceCollection services) where T : class, IRegionIndicator
+
+    public static IServiceCollection RegisterIndicatorForRegion<T>(this IServiceCollection services, string regionName) where T : class, ISelfIndicator
     {
-        return services.AddTransient<IRegionIndicator, T>();
+        return services.AddKeyedTransient<ISelfIndicator, T>(regionName);
+    }
+    public static IServiceCollection RegisterDefaultIndicator<T>(this IServiceCollection services) where T : class, ISelfIndicator
+    {
+        return services.AddTransient<ISelfIndicator, T>();
     }
     internal static IServiceCollection RegisterNavigationFramework(this IServiceCollection serviceDescriptors, NavigationOptions? navigationOptions = null)
     {
@@ -75,9 +80,11 @@ public static class DependencyInjectionExtensions
             .AddSingleton<IDialogService, DialogService>()
             .AddSingleton<IRegionNavigationServiceFactory, RegionNavigationServiceFactory>()
             .AddSingleton<IRegionFactory, RegionFactory>()
+            .AddSingleton<IIndicatorProvider, SharedIndicatorProvider>()
             .AddSingleton<IViewFactory>(sp => new DefaultViewFactory(sp, serviceDescriptors))
             .AddTransient<IViewManager, ViewManager>()
             .AddTransient<IRegionNavigationHistory, RegionNavigationHistory>()
-            .AddTransient<IRegionIndicatorManager>(sp => new RegionIndicatorManager(() => sp.GetRequiredService<IRegionIndicator>()));
+            .AddTransient<IRegionIndicatorProvider, RegionIndicatorProvider>()
+            .AddTransient<IRegionIndicatorManager, RegionIndicatorManager>();
     }
 }

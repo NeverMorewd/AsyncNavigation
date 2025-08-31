@@ -27,20 +27,20 @@ public partial class App : Application, IObserver<Exception>
     public override void OnFrameworkInitializationCompleted()
     {
         #region error handle
-        Dispatcher.UIThread.UnhandledException += (s, e) =>
-        {
-            HandleError(e.Exception, true);
-        };
-        AppDomain.CurrentDomain.UnhandledException += (s, e) =>
-        {
-            HandleError((e.ExceptionObject as Exception)!, e.IsTerminating);
-        };
-        TaskScheduler.UnobservedTaskException += (s, e) =>
-        {
-            e.SetObserved();
-            HandleError(e.Exception);
-        };
-        RxApp.DefaultExceptionHandler = this;
+        //Dispatcher.UIThread.UnhandledException += (s, e) =>
+        //{
+        //    HandleError(e.Exception, true);
+        //};
+        //AppDomain.CurrentDomain.UnhandledException += (s, e) =>
+        //{
+        //    HandleError((e.ExceptionObject as Exception)!, e.IsTerminating);
+        //};
+        //TaskScheduler.UnobservedTaskException += (s, e) =>
+        //{
+        //    e.SetObserved();
+        //    HandleError(e.Exception);
+        //};
+        //RxApp.DefaultExceptionHandler = this;
         #endregion
 
         NavigationOptions navigationOptions = new()
@@ -59,6 +59,7 @@ public partial class App : Application, IObserver<Exception>
                 .RegisterView<DView, DViewModel>(nameof(DView))
                 .RegisterView<EView, EViewModel>(nameof(EView))
                 .RegisterView<ListBoxRegionView, ListBoxRegionViewModel>(nameof(ListBoxRegionView))
+                .RegisterRegionIndicatorProvider<NotifyIndicatorProvider>()
                 .RegisterLoadingIndicator(BuildLoadingIndicator)
                 .RegisterErrorIndicator(BuildErrorIndicator)
                 .RegisterRegionAdapter<ListBoxRegionAdapter>();

@@ -12,7 +12,7 @@ public partial class NavigationContext
 {
     private readonly ConcurrentBag<Exception> _errors = [];
     /// <summary>
-    /// Gets the name of the region where navigation occurs.
+    /// Gets the name of the target region.
     /// </summary>
     public required string RegionName { get; init; }
 
@@ -31,7 +31,7 @@ public partial class NavigationContext
 
     public ImmutableProperty<IView> Source { get; } = new();
     public ImmutableProperty<IView> Target { get; } = new();
-    public ImmutableProperty<IRegionIndicator> Indicator { get; } = new();
+    public ImmutableProperty<ISelfIndicator> Indicator { get; } = new();
 
     /// <summary>
     /// Gets the timestamp when navigation was initiated.

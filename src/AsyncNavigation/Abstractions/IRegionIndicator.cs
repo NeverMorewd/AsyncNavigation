@@ -2,8 +2,6 @@
 
 public interface IRegionIndicator
 {
-    object IndicatorControl { get; }
-    void ShowLoading(NavigationContext context);
-    void ShowError(NavigationContext context, Exception exception);
-    void ShowContent(NavigationContext context, object? content);
+    Task ShowErrorAsync(NavigationContext context, Exception? innerException = null);
+    Task ShowLoadingAsync(NavigationContext context);
 }
