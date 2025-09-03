@@ -6,16 +6,16 @@ namespace AsyncNavigation;
 
 internal sealed class NavigationJobScheduler : INavigationJobScheduler
 {
-    private readonly ConcurrentDictionary<NavigationContext, (Task Task, CancellationTokenSource Cts)> _jobs = new();
+    private readonly ConcurrentDictionary<Guid, (Task Task, CancellationTokenSource Cts)> _jobs = new();
 
     public async Task RunJobAsync(NavigationContext navigationContext, Func<NavigationContext, Task> navigationTaskAction)
     {
-        if (_jobs.ContainsKey(navigationContext))
+        if (_jobs.ContainsKey(navigationContext.NavigationId))
             throw new InvalidOperationException($"Navigation task of {navigationContext} is already started.");
 
         await HandleExistingJob();
 
-        var job = _jobs.GetOrAdd(navigationContext, _ =>
+        var job = _jobs.GetOrAdd(navigationContext.NavigationId, _ =>
         {
             var ctsForManualCancel = new CancellationTokenSource();
             var linkedCts = CancellationTokenSource.CreateLinkedTokenSource(
@@ -29,18 +29,18 @@ internal sealed class NavigationJobScheduler : INavigationJobScheduler
 
         using var register = navigationContext.CancellationToken.Register(() =>
         {
-            navigationContext.WithStatus(NavigationStatus.Cancelled);
+            //navigationContext.WithStatus(NavigationStatus.Cancelled);
         });
 
         try
         {
             navigationContext.WithStatus(NavigationStatus.InProgress);
             await job.Task;
-            navigationContext.WithStatus(NavigationStatus.Succeeded);
+            //navigationContext.WithStatus(NavigationStatus.Succeeded);
         }
         finally
         {
-            if (_jobs.TryRemove(navigationContext, out var jobToAbandon))
+            if (_jobs.TryRemove(navigationContext.NavigationId, out var jobToAbandon))
                 jobToAbandon.Cts.Dispose();
         }
     }

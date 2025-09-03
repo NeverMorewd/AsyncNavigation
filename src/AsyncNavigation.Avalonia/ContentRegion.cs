@@ -22,12 +22,14 @@ public class ContentRegion : RegionBase<ContentRegion>
 
     public override void RenderIndicator(NavigationContext navigationContext)
     {
-        _contentControl.Content = navigationContext.Indicator.Value!.IndicatorControl;
+        //_contentControl.Content = navigationContext.Indicator.Value!.IndicatorControl;
+        //_contentControl.Content = navigationContext.Target.Value!;
     }
 
     public override void ProcessActivate(NavigationContext navigationContext)
     {
-        _contentControl.Content = navigationContext.Indicator.Value!.IndicatorControl;
+        //_contentControl.Content = navigationContext.Indicator.Value!.IndicatorControl;
+        _contentControl.Content = navigationContext.Target.Value!;
     }
 
     public override void ProcessDeactivate(NavigationContext navigationContext)

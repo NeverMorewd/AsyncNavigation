@@ -76,6 +76,8 @@ internal sealed class RegionNavigationService<T> : IRegionNavigationService<T> w
             navigationContext,
             navigationTask,
             NavigationOptions.Default.LoadingIndicatorDelay);
+
+        _regionPresenter.ProcessActivate(navigationContext);
     }
 
     private Task RunSinglePageNavigationAsync(NavigationContext navigationContext)
@@ -96,7 +98,7 @@ internal sealed class RegionNavigationService<T> : IRegionNavigationService<T> w
 
     private Task RenderIndicatorAsync(NavigationContext navigationContext)
     {
-        _regionPresenter.RenderIndicator(navigationContext);
+        //_regionPresenter.RenderIndicator(navigationContext);
         return Task.CompletedTask;
     }
     private async Task ResovleViewAsync(NavigationContext navigationContext)

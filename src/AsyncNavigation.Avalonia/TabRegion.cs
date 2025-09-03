@@ -26,7 +26,8 @@ public class TabRegion : RegionBase<TabRegion>
 
         _tabControl.ContentTemplate = new FuncDataTemplate<NavigationContext>((context, _) =>
         {
-            return context?.Indicator.Value?.IndicatorControl as Control;
+            //return context?.Indicator.Value?.IndicatorControl as Control;
+            return context?.Target.Value as Control;
         });
 
         EnableViewCache = useCache ?? false;
@@ -40,11 +41,10 @@ public class TabRegion : RegionBase<TabRegion>
 
     public override void ProcessActivate(NavigationContext navigationContext)
     {
-        var hit = _context.Items.FirstOrDefault(t => t.Equals(navigationContext));
-        if (hit != null)
-        {
-            _context.Selected = hit;
-        }
+        if (!_context.Items.Contains(navigationContext))
+            _context.Items.Add(navigationContext);
+
+        _context.Selected = navigationContext;
     }
 
     public override void ProcessDeactivate(NavigationContext navigationContext)
@@ -61,9 +61,6 @@ public class TabRegion : RegionBase<TabRegion>
 
     public override void RenderIndicator(NavigationContext navigationContext)
     {
-        if (!_context.Items.Contains(navigationContext))
-            _context.Items.Add(navigationContext);
-
         ProcessActivate(navigationContext);
     }
 }

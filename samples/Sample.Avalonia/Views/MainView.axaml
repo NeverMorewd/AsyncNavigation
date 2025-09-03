@@ -54,8 +54,8 @@
                         Tag="AView" />
                     <Button
                         Classes="NavigationWithoutWait"
-                        Content="ToB:Concurrent"
-                        Tag="BView" />
+                        Content="ToE:Concurrent"
+                        Tag="EView" />
                     <Button
                         Classes="Navigation"
                         Content="ToA:New"

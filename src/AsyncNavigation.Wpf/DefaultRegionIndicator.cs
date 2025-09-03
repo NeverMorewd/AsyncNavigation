@@ -5,7 +5,7 @@ using System.Windows.Controls;
 
 namespace AsyncNavigation.Wpf;
 
-internal sealed class DefaultSelfIndicator : ISelfIndicator
+internal sealed class DefaultSelfIndicator : IInlineIndicator
 {
     private readonly IndicatorDataTemplate? _loadingTemplate;
     private readonly IndicatorDataTemplate? _errorTemplate;
@@ -21,7 +21,7 @@ internal sealed class DefaultSelfIndicator : ISelfIndicator
             _errorTemplate = services.GetRequiredKeyedService<IndicatorDataTemplate>(NavigationConstants.INDICATOR_ERROR_KEY);
     }
 
-    object ISelfIndicator.IndicatorControl => _indicatorControl;
+    object IInlineIndicator.IndicatorControl => _indicatorControl;
 
     public void ShowLoading(NavigationContext context)
     {

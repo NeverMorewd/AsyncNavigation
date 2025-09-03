@@ -5,19 +5,15 @@ using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Layout;
 using Avalonia.Markup.Xaml;
 using Avalonia.Media;
-using Avalonia.Threading;
 using Microsoft.Extensions.DependencyInjection;
-using ReactiveUI;
 using Sample.Avalonia.Regions;
 using Sample.Avalonia.Views;
 using Sample.Common;
 using System;
-using System.Diagnostics;
-using System.Threading.Tasks;
 
 namespace Sample.Avalonia;
 
-public partial class App : Application, IObserver<Exception>
+public partial class App : Application
 {
     public override void Initialize()
     {
@@ -26,23 +22,6 @@ public partial class App : Application, IObserver<Exception>
 
     public override void OnFrameworkInitializationCompleted()
     {
-        #region error handle
-        //Dispatcher.UIThread.UnhandledException += (s, e) =>
-        //{
-        //    HandleError(e.Exception, true);
-        //};
-        //AppDomain.CurrentDomain.UnhandledException += (s, e) =>
-        //{
-        //    HandleError((e.ExceptionObject as Exception)!, e.IsTerminating);
-        //};
-        //TaskScheduler.UnobservedTaskException += (s, e) =>
-        //{
-        //    e.SetObserved();
-        //    HandleError(e.Exception);
-        //};
-        //RxApp.DefaultExceptionHandler = this;
-        #endregion
-
         NavigationOptions navigationOptions = new()
         {
             /// default is CancelCurrent <see cref="AsyncNavigation.Core.NavigationJobStrategy.CancelCurrent"/>
@@ -87,26 +66,6 @@ public partial class App : Application, IObserver<Exception>
         base.OnFrameworkInitializationCompleted();
     }
 
-    public void OnNext(Exception value)
-    {
-        HandleError(value);
-    }
-    public void OnCompleted()
-    {
-        //
-    }
-
-    public void OnError(Exception error)
-    {
-        HandleError(error);
-    }
-
-    private void HandleError(Exception error, bool needThrow = false)
-    {
-        Debug.WriteLine($"Global HandleError:{error}");
-        if (needThrow)
-            throw error;
-    }
 
     private Control BuildLoadingIndicator(IServiceProvider sp, NavigationContext navigationContext)
     {

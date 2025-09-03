@@ -1,6 +1,7 @@
 ﻿using AsyncNavigation.Abstractions;
 using AsyncNavigation.Core;
 using System.Collections.Concurrent;
+using System.Text;
 
 namespace AsyncNavigation;
 
@@ -31,7 +32,7 @@ public partial class NavigationContext
 
     public ImmutableProperty<IView> Source { get; } = new();
     public ImmutableProperty<IView> Target { get; } = new();
-    public ImmutableProperty<ISelfIndicator> Indicator { get; } = new();
+    //public ImmutableProperty<IInlineIndicator> Indicator { get; } = new();
 
     /// <summary>
     /// Gets the timestamp when navigation was initiated.
@@ -67,7 +68,7 @@ public partial class NavigationContext
     /// <summary>
     /// Gets the error that occurred during navigation, if any.
     /// </summary>
-    public IReadOnlyCollection<Exception>? Errors => _errors;
+    public AggregateException? Errors => new(_errors);
 
     /// <summary>
     /// Gets a unique identifier for this navigation context.
@@ -125,55 +126,77 @@ public partial class NavigationContext
         CancellationToken = default,
     };
 
-    /// <summary>
-    /// Creates a new NavigationContext with updated status.
-    /// </summary>
-    /// <param name="newStatus">The new navigation status.</param>
-    /// <param name="error">Optional error information.</param>
-    /// <param name="duration">Optional duration information.</param>
-    /// <returns>A new NavigationContext with the updated status.</returns>
-    public NavigationContext WithStatus(NavigationStatus newStatus,
-        params Exception[] errors)
+    public NavigationContext WithStatus(NavigationStatus newStatus, params Exception[] errors)
     {
+        if (IsCompleted)
+            throw new InvalidOperationException("Cannot change status after navigation is completed.");
+
         Status = newStatus;
         Duration = DateTime.UtcNow - NavigationTime;
         return WithErrors(errors);
     }
-    /// <summary>
-    /// Creates a new NavigationContext with Parameters.
-    /// </summary>
-    /// <param name="key">The parameter key.</param>
-    /// <param name="value">The parameter value.</param>
-    /// <returns>A new NavigationContext with the added parameter.</returns>
+
     public NavigationContext WithParameter(string key, object value)
     {
+        if (IsCompleted)
+            throw new InvalidOperationException("Cannot add parameters after navigation is completed.");
+
         Parameters ??= new NavigationParameters();
         Parameters.Add(key, value);
         return this;
     }
+
     public NavigationContext WithParameters(IEnumerable<KeyValuePair<string, object>> parameters)
     {
+        if (IsCompleted)
+            throw new InvalidOperationException("Cannot add parameters after navigation is completed.");
+
         Parameters ??= new NavigationParameters();
         Parameters.AddRange(parameters);
         return this;
     }
+
     public NavigationContext WithErrors(params Exception[] exceptions)
     {
+        if (IsCompleted)
+            throw new InvalidOperationException("Cannot add errors after navigation is completed.");
+
         foreach (var ex in exceptions)
         {
             _errors.Add(ex);
         }
         return this;
     }
+
     /// <summary>
     /// Returns a string representation of the navigation context.
     /// </summary>
     public override string ToString()
     {
-        var backIndicator = IsBackNavigation ? " (Back)" : "";
-        var errors = Errors?.Count > 0 ? $" (Errors: {Errors.Count}) {Environment.NewLine} {string.Join(Environment.NewLine,Errors.Select(e=>e.ToString()))}" : "";
-        return $"Navigation[{NavigationId:N}]: {ViewName} in {RegionName} - {Status}{backIndicator} - {Duration} {errors}";
+        var sb = new StringBuilder();
+
+        sb.AppendFormat("Navigation[{0:N}]: {1} in {2} - {3}", NavigationId, ViewName, RegionName, Status);
+
+        if (IsBackNavigation)
+        {
+            sb.Append(" (Back)");
+        }
+
+        sb.AppendFormat(" - {0}", Duration?.ToString() ?? "N/A");
+
+        if (Errors?.InnerExceptions is { Count: > 0 } exceptions)
+        {
+            sb.AppendFormat(" (Errors: {0})", exceptions.Count);
+            sb.AppendLine();
+            foreach (var ex in exceptions)
+            {
+                sb.AppendLine(ex.ToString());
+            }
+        }
+
+        return sb.ToString();
     }
+
 
     public override bool Equals(object? obj)
     {

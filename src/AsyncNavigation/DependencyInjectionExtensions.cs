@@ -53,13 +53,13 @@ public static class DependencyInjectionExtensions
         return services.AddSingleton<IRegionIndicatorProvider, T>();
     }
 
-    public static IServiceCollection RegisterIndicatorForRegion<T>(this IServiceCollection services, string regionName) where T : class, ISelfIndicator
+    public static IServiceCollection RegisterIndicatorForRegion<T>(this IServiceCollection services, string regionName) where T : class, IInlineIndicator
     {
-        return services.AddKeyedTransient<ISelfIndicator, T>(regionName);
+        return services.AddKeyedTransient<IInlineIndicator, T>(regionName);
     }
-    public static IServiceCollection RegisterDefaultIndicator<T>(this IServiceCollection services) where T : class, ISelfIndicator
+    public static IServiceCollection RegisterDefaultIndicator<T>(this IServiceCollection services) where T : class, IInlineIndicator
     {
-        return services.AddTransient<ISelfIndicator, T>();
+        return services.AddTransient<IInlineIndicator, T>();
     }
     internal static IServiceCollection RegisterNavigationFramework(this IServiceCollection serviceDescriptors, NavigationOptions? navigationOptions = null)
     {
@@ -80,7 +80,6 @@ public static class DependencyInjectionExtensions
             .AddSingleton<IDialogService, DialogService>()
             .AddSingleton<IRegionNavigationServiceFactory, RegionNavigationServiceFactory>()
             .AddSingleton<IRegionFactory, RegionFactory>()
-            .AddSingleton<IIndicatorProvider, SharedIndicatorProvider>()
             .AddSingleton<IViewFactory>(sp => new DefaultViewFactory(sp, serviceDescriptors))
             .AddTransient<IViewManager, ViewManager>()
             .AddTransient<IRegionNavigationHistory, RegionNavigationHistory>()

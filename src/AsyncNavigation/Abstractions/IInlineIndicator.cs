@@ -1,6 +1,6 @@
 ﻿namespace AsyncNavigation.Abstractions;
 
-public interface ISelfIndicator : IRegionIndicator
+public interface IInlineIndicator : IRegionIndicator
 {
     object IndicatorControl { get; }
     void ShowLoading(NavigationContext context);

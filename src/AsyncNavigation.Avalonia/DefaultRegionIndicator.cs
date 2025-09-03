@@ -6,7 +6,7 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace AsyncNavigation.Avalonia;
 
-internal sealed class DefaultRegionIndicator : ISelfIndicator, IRegionIndicator
+internal sealed class DefaultRegionIndicator : IInlineIndicator
 {
     private readonly IDataTemplate? _loadingTemplate;
     private readonly IDataTemplate? _errorTemplate;
@@ -23,7 +23,7 @@ internal sealed class DefaultRegionIndicator : ISelfIndicator, IRegionIndicator
             _errorTemplate = services.GetRequiredKeyedService<IDataTemplate>(NavigationConstants.INDICATOR_ERROR_KEY);
     }
 
-    object ISelfIndicator.IndicatorControl => _indicatorControl;
+    object IInlineIndicator.IndicatorControl => _indicatorControl;
 
     public void ShowLoading(NavigationContext context)
     {
