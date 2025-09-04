@@ -34,7 +34,8 @@ internal class MessageBoxIndicator : IRegionIndicator
             var window = new ErrorWindow
             {
                 Title = "Error",
-                Content = $"{context}{Environment.NewLine}Error: {innerException}"
+                Content = $"{context}{Environment.NewLine}Error: {innerException}",
+                Foreground = System.Windows.Media.Brushes.Red
             };
             window.Closed += (s, e) => System.Windows.Threading.Dispatcher.CurrentDispatcher.BeginInvokeShutdown(System.Windows.Threading.DispatcherPriority.Background);
             window.Show();
