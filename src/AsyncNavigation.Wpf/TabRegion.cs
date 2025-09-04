@@ -9,7 +9,6 @@ namespace AsyncNavigation.Wpf;
 public class TabRegion : RegionBase<TabRegion>
 {
     private readonly TabControl _tabControl;
-    private readonly ItemsRegionContext _context = new();
     public TabRegion(TabControl control, IServiceProvider serviceProvider, bool? useCache = null) : base(serviceProvider)
     {
         ArgumentNullException.ThrowIfNull(control);
@@ -17,13 +16,13 @@ public class TabRegion : RegionBase<TabRegion>
         _tabControl = control;
 
         _tabControl.SetBinding(ItemsControl.ItemsSourceProperty,
-            new Binding(nameof(ItemsRegionContext.Items))
+            new Binding(nameof(RegionContext.Items))
             {
                 Source = _context
             });
 
         _tabControl.SetBinding(Selector.SelectedItemProperty,
-            new Binding(nameof(ItemsRegionContext.Selected))
+            new Binding(nameof(RegionContext.Selected))
             {
                 Source = _context,
                 Mode = BindingMode.TwoWay
@@ -34,7 +33,7 @@ public class TabRegion : RegionBase<TabRegion>
             VisualTree = new FrameworkElementFactory(typeof(ContentPresenter))
         };
         dataTemplate.VisualTree.SetBinding(ContentPresenter.ContentProperty,
-            new Binding("Indicator.Value.IndicatorControl"));
+            new Binding("IndicatorHost.Value.Host"));
 
         _tabControl.ContentTemplate = dataTemplate;
 

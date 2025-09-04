@@ -3,7 +3,7 @@ using System.ComponentModel;
 
 namespace AsyncNavigation.Core;
 
-public sealed class ItemsRegionContext : INotifyPropertyChanged
+public sealed class RegionContext : INotifyPropertyChanged
 {
     public ObservableCollection<NavigationContext> Items { get; } = [];
 

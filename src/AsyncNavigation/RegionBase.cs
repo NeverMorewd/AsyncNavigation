@@ -9,7 +9,7 @@ public abstract class RegionBase<TRegion> : IRegion, IRegionPresenter
 {
     private readonly IRegionNavigationService<TRegion> _regionNavigationService;
     private readonly IRegionNavigationHistory _navigationHistory;
-
+    protected readonly RegionContext _context = new();
     public RegionBase(IServiceProvider serviceProvider)
     {
         ArgumentNullException.ThrowIfNull(serviceProvider);

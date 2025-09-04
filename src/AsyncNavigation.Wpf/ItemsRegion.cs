@@ -9,7 +9,6 @@ namespace AsyncNavigation.Wpf;
 public class ItemsRegion : RegionBase<ItemsRegion>
 {
     private readonly ItemsControl _itemsControl;
-    private readonly ItemsRegionContext _context = new();
     public ItemsRegion(ItemsControl itemsControl, IServiceProvider serviceProvider, bool? useCache) : base(serviceProvider)
     {
         ArgumentNullException.ThrowIfNull(itemsControl);
@@ -18,13 +17,13 @@ public class ItemsRegion : RegionBase<ItemsRegion>
         _itemsControl = itemsControl;
 
         _itemsControl.SetBinding(ItemsControl.ItemsSourceProperty, 
-            new Binding(nameof(ItemsRegionContext.Items))
+            new Binding(nameof(RegionContext.Items))
             {
                 Source = _context
             });
 
         _itemsControl.SetBinding(Selector.SelectedItemProperty, 
-            new Binding(nameof(ItemsRegionContext.Selected))
+            new Binding(nameof(RegionContext.Selected))
             {
                 Source = _context,
                 Mode = BindingMode.TwoWay
@@ -35,7 +34,7 @@ public class ItemsRegion : RegionBase<ItemsRegion>
             VisualTree = new FrameworkElementFactory(typeof(ContentPresenter))
         };
         dataTemplate.VisualTree.SetBinding(ContentPresenter.ContentProperty, 
-            new Binding("Indicator.Value.IndicatorControl"));
+            new Binding("IndicatorHost.Value.Host"));
 
         _itemsControl.ItemTemplate = dataTemplate;
 

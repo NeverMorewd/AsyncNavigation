@@ -33,12 +33,16 @@ internal sealed class RegionNavigationService<T> : IRegionNavigationService<T> w
         }
         catch (OperationCanceledException ocex) when (navigationContext.CancellationToken.IsCancellationRequested)
         {
-            await _regionIndicatorManager.ShowErrorAsync(navigationContext, ocex, false);
+            await _regionIndicatorManager.ShowErrorAsync(navigationContext, ocex);
             return NavigationResult.Cancelled(stopwatch.Elapsed);
         }
         catch (Exception ex)
         {
-            await _regionIndicatorManager.ShowErrorAsync(navigationContext, ex, true);
+            if (Debugger.IsAttached)
+            {
+                throw;
+            }
+            await _regionIndicatorManager.ShowErrorAsync(navigationContext, ex);
             return NavigationResult.Failure(ex, stopwatch.Elapsed);
         }
         finally
@@ -98,7 +102,7 @@ internal sealed class RegionNavigationService<T> : IRegionNavigationService<T> w
 
     private Task RenderIndicatorAsync(NavigationContext navigationContext)
     {
-        //_regionPresenter.RenderIndicator(navigationContext);
+        _regionPresenter.RenderIndicator(navigationContext);
         return Task.CompletedTask;
     }
     private async Task ResovleViewAsync(NavigationContext navigationContext)

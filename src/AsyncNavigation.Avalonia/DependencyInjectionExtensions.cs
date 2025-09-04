@@ -2,8 +2,7 @@
 using AsyncNavigation.Abstractions;
 using AsyncNavigation.Avalonia;
 using AsyncNavigation.Core;
-using Avalonia.Controls;
-using Avalonia.Controls.Templates;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 
 namespace Microsoft.Extensions.DependencyInjection;
 
@@ -54,7 +53,7 @@ public static class DependencyInjectionExtensions
             .RegisterRegionAdapter<ContentRegionAdapter>()
             .RegisterRegionAdapter<ItemsRegionAdapter>()
             .RegisterRegionAdapter<TabRegionAdapter>()         
-            .AddTransient<IInlineIndicator, DefaultRegionIndicator>()
+            .AddTransient<IInnerRegionIndicatorHost, InnerIndicatorHost>()
             .AddSingleton<IRegionManager, RegionManager>()
             .AddKeyedTransient<IDialogWindowBase, DefaultDialogContainer>(NavigationConstants.DEFAULT_DIALOG_WINDOW_KEY)
             .AddSingleton<IDialogPlatformService, DialogPlatformService>();
@@ -76,49 +75,38 @@ public static class DependencyInjectionExtensions
         return serviceDescriptors.AddSingleton<IRegionAdapter, T>();
     }
 
-    public static IServiceCollection RegisterLoadingIndicator<T>(this IServiceCollection services) where T : Control =>
-        services.RegisterIndicator<T>(NavigationConstants.INDICATOR_LOADING_KEY, o => o.EnsureSingleLoadingIndicator());
-
-    public static IServiceCollection RegisterLoadingIndicator(this IServiceCollection services, Func<IServiceProvider, NavigationContext, Control> builder) =>
-        services.RegisterIndicator(NavigationConstants.INDICATOR_LOADING_KEY, o => o.EnsureSingleLoadingIndicator(), builder);
-
-    public static IServiceCollection RegisterErrorIndicator<T>(this IServiceCollection services) where T : Control =>
-       services.RegisterIndicator<T>(NavigationConstants.INDICATOR_ERROR_KEY, o => o.EnsureSingleErrorIndicator());
-
-    public static IServiceCollection RegisterErrorIndicator(this IServiceCollection services, Func<IServiceProvider, NavigationContext, Control> builder) =>
-        services.RegisterIndicator(NavigationConstants.INDICATOR_ERROR_KEY, o => o.EnsureSingleErrorIndicator(), builder);
-
-    private static IServiceCollection RegisterIndicator<T>(
-        this IServiceCollection services,
-        string key,
-        Action<NavigationOptions> ensureAction) where T : Control
+    /// <summary>
+    /// Registers an implementation of <see cref="IInnerIndicatorProvider"/> in the DI container as a transient service.
+    /// </summary>
+    /// <typeparam name="T">
+    /// The concrete type that implements <see cref="IInnerIndicatorProvider"/>.
+    /// </typeparam>
+    /// <param name="serviceDescriptors">
+    /// The <see cref="IServiceCollection"/> to add the service descriptor to.
+    /// </param>
+    /// <returns>
+    /// The updated <see cref="IServiceCollection"/> for method chaining.
+    /// </returns>
+    /// <remarks>
+    /// This method uses <c>TryAddTransient</c>, which means:
+    /// <list type="bullet">
+    /// <item>
+    /// If no service of type <see cref="IInnerIndicatorProvider"/> is registered, it will add <typeparamref name="T"/>.
+    /// </item>
+    /// <item>
+    /// If a service of type <see cref="IInnerIndicatorProvider"/> is already registered, this call will be ignored.
+    /// </item>
+    /// </list>
+    /// <para>
+    /// ⚠ Important: This method should be called only once. Subsequent calls will not override the previous registration.
+    /// If you need to override an existing registration, consider using <c>Replace</c> from
+    /// <see cref="Microsoft.Extensions.DependencyInjection.Extensions.ServiceCollectionDescriptorExtensions"/>.
+    /// </para>
+    /// </remarks>
+    public static IServiceCollection RegisterInnerIndicatorProvider<T>(this IServiceCollection serviceDescriptors)
+        where T : class, IInnerIndicatorProvider
     {
-        ensureAction(NavigationOptions.Default);
-        return services
-            .AddKeyedTransient<T>(key)
-            .AddKeyedSingleton<IDataTemplate>(key, (sp, k) =>
-                new FuncDataTemplate<NavigationContext>((context, np) =>
-                {
-                    var indicator = sp.GetRequiredKeyedService<T>(k);
-                    indicator.DataContext = context;
-                    return indicator;
-                }, true));
-    }
-
-    private static IServiceCollection RegisterIndicator(
-        this IServiceCollection services,
-        string key,
-        Action<NavigationOptions> ensureAction,
-        Func<IServiceProvider, NavigationContext, Control> builder)
-    {
-        ensureAction(NavigationOptions.Default);
-        return services
-            .AddKeyedSingleton<IDataTemplate>(key, (sp, k) =>
-                new FuncDataTemplate<NavigationContext>((context, np) =>
-                {
-                    var indicator = builder(sp, context);
-                    indicator.DataContext = context;
-                    return indicator;
-                }, true));
+        serviceDescriptors.TryAddTransient<IInnerIndicatorProvider, T>();
+        return serviceDescriptors;
     }
 }

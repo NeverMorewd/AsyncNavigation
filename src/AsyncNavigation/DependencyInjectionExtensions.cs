@@ -52,15 +52,6 @@ public static class DependencyInjectionExtensions
         ArgumentNullException.ThrowIfNull(services);
         return services.AddSingleton<IRegionIndicatorProvider, T>();
     }
-
-    public static IServiceCollection RegisterIndicatorForRegion<T>(this IServiceCollection services, string regionName) where T : class, IInlineIndicator
-    {
-        return services.AddKeyedTransient<IInlineIndicator, T>(regionName);
-    }
-    public static IServiceCollection RegisterDefaultIndicator<T>(this IServiceCollection services) where T : class, IInlineIndicator
-    {
-        return services.AddTransient<IInlineIndicator, T>();
-    }
     internal static IServiceCollection RegisterNavigationFramework(this IServiceCollection serviceDescriptors, NavigationOptions? navigationOptions = null)
     {
         if (navigationOptions is not null)

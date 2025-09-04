@@ -9,7 +9,6 @@ namespace AsyncNavigation.Avalonia;
 public class TabRegion : RegionBase<TabRegion>
 {
     private readonly TabControl _tabControl;
-    private readonly ItemsRegionContext _context = new();
     public TabRegion(TabControl control, IServiceProvider serviceProvider, bool? useCache = null) : base(serviceProvider)
     {
         ArgumentNullException.ThrowIfNull(control);
@@ -18,16 +17,15 @@ public class TabRegion : RegionBase<TabRegion>
 
         _tabControl.Bind(
            ItemsControl.ItemsSourceProperty,
-           new Binding(nameof(ItemsRegionContext.Items)) { Source = _context });
+           new Binding(nameof(RegionContext.Items)) { Source = _context });
 
         _tabControl.Bind(
             SelectingItemsControl.SelectedItemProperty,
-            new Binding(nameof(ItemsRegionContext.Selected)) { Source = _context, Mode = BindingMode.TwoWay });
+            new Binding(nameof(RegionContext.Selected)) { Source = _context, Mode = BindingMode.TwoWay });
 
         _tabControl.ContentTemplate = new FuncDataTemplate<NavigationContext>((context, _) =>
         {
-            //return context?.Indicator.Value?.IndicatorControl as Control;
-            return context?.Target.Value as Control;
+            return context?.IndicatorHost.Value?.Host as Control;
         });
 
         EnableViewCache = useCache ?? false;

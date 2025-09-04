@@ -32,7 +32,8 @@ public partial class NavigationContext
 
     public ImmutableProperty<IView> Source { get; } = new();
     public ImmutableProperty<IView> Target { get; } = new();
-    //public ImmutableProperty<IInlineIndicator> Indicator { get; } = new();
+
+    public ImmutableProperty<IInnerRegionIndicatorHost> IndicatorHost { get; } = new();
 
     /// <summary>
     /// Gets the timestamp when navigation was initiated.
