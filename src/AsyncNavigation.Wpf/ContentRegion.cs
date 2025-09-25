@@ -47,13 +47,11 @@ public class ContentRegion : RegionBase<ContentRegion>
     public override void RenderIndicator(NavigationContext navigationContext)
     {
        _context.Selected = navigationContext;
-        //_contentControl.Content = navigationContext.IndicatorHost.Value.Host;
     }
 
     public override void ProcessActivate(NavigationContext navigationContext)
     {
         _context.Selected = navigationContext;
-        //_contentControl.Content = navigationContext.IndicatorHost.Value.Host;
     }
 
     public override void ProcessDeactivate(NavigationContext navigationContext)

@@ -49,12 +49,12 @@
                         Content="ToD:TabRegion"
                         Tag="DView" />
                     <Button
-                        Classes="NavigationWithoutWait"
-                        Content="ToA:Concurrent"
+                        Classes="NavigationAndForget"
+                        Content="ToA:Forget"
                         Tag="AView" />
                     <Button
-                        Classes="NavigationWithoutWait"
-                        Content="ToE:Concurrent"
+                        Classes="NavigationAndForget"
+                        Content="ToE:Forget"
                         Tag="EView" />
                     <Button
                         Classes="Navigation"

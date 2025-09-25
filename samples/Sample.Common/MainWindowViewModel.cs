@@ -26,7 +26,7 @@ public partial class MainWindowViewModel : ViewModelBase
     }
 
     [ReactiveCommand]
-    private void AsyncNavigateWithoutWait(string param)
+    private void AsyncNavigateAndForget(string param)
     {
         var (viewName, parameters) = SampleHelper.ParseNavigationParam(param);
         _ = _regionManager.RequestNavigateAsync("MainRegion", viewName, parameters);

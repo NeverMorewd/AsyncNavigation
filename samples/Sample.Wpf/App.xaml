@@ -21,10 +21,10 @@
             <Setter Property="CommandParameter" Value="{Binding RelativeSource={RelativeSource Mode=Self}, Path=Tag}" />
             <Setter Property="VerticalContentAlignment" Value="Center" />
         </Style>
-        <Style x:Key="NavigationWithoutWait" TargetType="{x:Type Button}">
+        <Style x:Key="NavigationAndForget" TargetType="{x:Type Button}">
             <Setter Property="Height" Value="30" />
             <Setter Property="Width" Value="300" />
-            <Setter Property="Command" Value="{Binding AsyncNavigateWithoutWaitCommand}" />
+            <Setter Property="Command" Value="{Binding AsyncNavigateAndForgetCommand}" />
             <Setter Property="CommandParameter" Value="{Binding RelativeSource={RelativeSource Mode=Self}, Path=Tag}" />
             <Setter Property="VerticalContentAlignment" Value="Center" />
         </Style>
