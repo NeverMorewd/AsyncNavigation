@@ -27,16 +27,11 @@ internal sealed class NavigationJobScheduler : INavigationJobScheduler
             return (task, ctsForManualCancel);
         });
 
-        using var register = navigationContext.CancellationToken.Register(() =>
-        {
-            //navigationContext.WithStatus(NavigationStatus.Cancelled);
-        });
-
         try
+
         {
             navigationContext.WithStatus(NavigationStatus.InProgress);
             await job.Task;
-            //navigationContext.WithStatus(NavigationStatus.Succeeded);
         }
         finally
         {

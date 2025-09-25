@@ -3,8 +3,7 @@ using Avalonia.Controls;
 
 namespace AsyncNavigation.Avalonia;
 
-public interface IInnerIndicatorProvider : IInnerIndicatorProviderBase
+public interface IInnerIndicatorProvider : IInnerIndicatorProviderBase<Control>
 {
-    Control GetErrorIndicator(NavigationContext navigationContext);
-    Control GetLoadingIndicator(NavigationContext navigationContext);
+
 }

@@ -3,8 +3,7 @@ using System.Windows;
 
 namespace AsyncNavigation.Wpf;
 
-public interface IInnerIndicatorProvider : IInnerIndicatorProviderBase
+public interface IInnerIndicatorProvider : IInnerIndicatorProviderBase<UIElement>
 {
-    UIElement GetErrorIndicator(NavigationContext navigationContext);
-    UIElement GetLoadingIndicator(NavigationContext navigationContext);
+
 }

@@ -7,9 +7,9 @@ namespace AsyncNavigation;
 public class DialogService : IDialogService
 {
     private readonly IServiceProvider _serviceProvider;
-    private readonly IDialogPlatformService _platformService;
+    private readonly IPlatformService _platformService;
 
-    public DialogService(IServiceProvider serviceProvider, IDialogPlatformService platformService)
+    public DialogService(IServiceProvider serviceProvider, IPlatformService platformService)
     {
         _serviceProvider = serviceProvider;
         _platformService = platformService;
@@ -18,7 +18,6 @@ public class DialogService : IDialogService
     public async Task<IDialogResult> ShowDialogAsync(string name,
         string? windowName = null,
         IDialogParameters? parameters = null,
-        object? owner = null, 
         CancellationToken cancellationToken = default)
     {
         var (dialogWindow, aware) = PrePareDialog(name, windowName);
@@ -33,41 +32,41 @@ public class DialogService : IDialogService
         {
             return DialogResult.Cancelled;
         }
-        var closeTask = _platformService.HandleCloseAsync(dialogWindow, aware);
-        await _platformService.ShowAsync(dialogWindow, true, owner);
+        var closeTask = _platformService.HandleDialogCloseAsync(dialogWindow, aware);
+        await _platformService.ShowAsync(dialogWindow, true);
         return await closeTask;
     }
     public IDialogResult ShowDialog(string name, 
         string? windowName = null, 
         IDialogParameters? parameters = null, 
-        object? owner = null, 
         CancellationToken cancellationToken = default)
     {
-        var showTask = ShowDialogAsync(name, windowName, parameters, owner, cancellationToken);
-        return _platformService.WaitOnUIThread(showTask);
+        var showTask = ShowDialogAsync(name, windowName, parameters, cancellationToken);
+        return _platformService.WaitOnDispatcher(showTask);
     }
     public void Show(string name, 
         string? windowName = null, 
-        IDialogParameters? parameters = null, 
-        object? owner = null, 
+        IDialogParameters? parameters = null,  
         CancellationToken cancellationToken = default,
         Action<IDialogResult>? callback = null)
     {
         var (dialogWindow, aware) = PrePareDialog(name, windowName);
 
         aware.OnDialogOpenedAsync(parameters, cancellationToken);
-        var closeTask = _platformService.HandleCloseAsync(dialogWindow, aware);
+        var closeTask = _platformService.HandleDialogCloseAsync(dialogWindow, aware);
         closeTask.ContinueWith(t =>
         {
-            callback?.Invoke(_platformService.WaitOnUIThread(t));
+            if (t.IsCompleted)
+            {
+                callback?.Invoke(t.Result);
+            }
         });
-        var showTask = _platformService.ShowAsync(dialogWindow, false, owner);
-        _platformService.WaitOnUIThread(showTask);
+        _platformService.Show(dialogWindow, false);
     }
-    private IDialogWindowBase ResolveDialogWindow(string? windowName) =>
+    private IWindowBase ResolveDialogWindow(string? windowName) =>
         string.IsNullOrEmpty(windowName)
-            ? _serviceProvider.GetRequiredKeyedService<IDialogWindowBase>(NavigationConstants.DEFAULT_DIALOG_WINDOW_KEY)
-            : _serviceProvider.GetRequiredKeyedService<IDialogWindowBase>(windowName);
+            ? _serviceProvider.GetRequiredKeyedService<IWindowBase>(NavigationConstants.DEFAULT_DIALOG_WINDOW_KEY)
+            : _serviceProvider.GetRequiredKeyedService<IWindowBase>(windowName);
 
     private (IView View, IDialogAware Aware) ResolveDialogViewModel(string name)
     {
@@ -77,7 +76,7 @@ public class DialogService : IDialogService
         return (view, aware);
     }
 
-    private (IDialogWindowBase DialogWindow, IDialogAware Aware) PrePareDialog(string name, string? windowName = null)
+    private (IWindowBase DialogWindow, IDialogAware Aware) PrePareDialog(string name, string? windowName = null)
     {
         var dialogWindow = ResolveDialogWindow(windowName);
         var (view, aware) = ResolveDialogViewModel(name);

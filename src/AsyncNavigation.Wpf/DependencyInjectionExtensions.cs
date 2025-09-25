@@ -58,8 +58,8 @@ public static class DependencyInjectionExtensions
             .AddTransient<IInnerRegionIndicatorHost, InnerIndicatorHost>()
             .AddSingleton<RegionManager>()
             .AddSingleton<IRegionManager>(sp=>sp.GetRequiredService<RegionManager>())
-            .AddKeyedTransient<IDialogWindowBase, DefaultDialogContainer>(NavigationConstants.DEFAULT_DIALOG_WINDOW_KEY)
-            .AddSingleton<IDialogPlatformService, DialogPlatformService>();
+            .AddKeyedTransient<IWindowBase, DefaultDialogContainer>(NavigationConstants.DEFAULT_DIALOG_WINDOW_KEY)
+            .AddSingleton<IPlatformService, PlatformService>();
     }
 
     /// <summary>

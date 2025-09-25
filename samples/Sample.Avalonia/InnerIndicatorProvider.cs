@@ -10,7 +10,7 @@ namespace Sample.Avalonia;
 
 internal class InnerIndicatorProvider : IInnerIndicatorProvider
 {
-    private IServiceProvider _serviceProvider;
+    private readonly IServiceProvider _serviceProvider;
     public InnerIndicatorProvider(IServiceProvider serviceProvider)
     {
         _serviceProvider = serviceProvider;
@@ -25,12 +25,12 @@ internal class InnerIndicatorProvider : IInnerIndicatorProvider
         return BuildLoadingIndicator(_serviceProvider, navigationContext);
     }
 
-    public bool HasErrorIndicator(NavigationContext context)
+    public bool HasErrorIndicator(NavigationContext navigationContext)
     {
         return true;
     }
 
-    public bool HasLoadingIndicator(NavigationContext context)
+    public bool HasLoadingIndicator(NavigationContext navigationContext)
     {
         return true;
     }

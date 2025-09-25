@@ -8,6 +8,10 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="DialogPlatformService.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\AsyncNavigation\AsyncNavigation.csproj" />
   </ItemGroup>
 

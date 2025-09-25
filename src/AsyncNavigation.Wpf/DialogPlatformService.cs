@@ -6,7 +6,7 @@ using System.Windows.Threading;
 
 namespace AsyncNavigation.Wpf;
 
-internal class DialogPlatformService : IDialogPlatformService<Window>
+internal class DialogPlatformService : IPlatformService<Window>
 {
     public Task<IDialogResult> HandleCloseAsync(Window dialogWindow, IDialogAware dialogAware)
     {
@@ -72,7 +72,7 @@ internal class DialogPlatformService : IDialogPlatformService<Window>
         return completionSource.Task;
     }
 
-    Task<IDialogResult> IDialogPlatformService.HandleCloseAsync(IDialogWindowBase dialogWindow, IDialogAware dialogAware)
+    Task<IDialogResult> IPlatformService.HandleDialogCloseAsync(IWindowBase dialogWindow, IDialogAware dialogAware)
     {
         if (!IsPlatformWindow(dialogWindow))
         {
@@ -101,7 +101,7 @@ internal class DialogPlatformService : IDialogPlatformService<Window>
         return Task.CompletedTask;
     }
 
-    Task IDialogPlatformService.ShowAsync(IDialogWindowBase dialogWindow, bool isModal, object? owner)
+    Task IPlatformService.ShowAsync(IWindowBase dialogWindow, bool isModal, object? owner)
     {
         if (!IsPlatformWindow(dialogWindow))
         {
@@ -118,7 +118,7 @@ internal class DialogPlatformService : IDialogPlatformService<Window>
         return ShowAsync((Window)dialogWindow, isModal, ownerWindow);
     }
 
-    public bool IsPlatformWindow(IDialogWindowBase? window)
+    public bool IsPlatformWindow(IWindowBase? window)
     {
         return window is Window;
     }

@@ -8,7 +8,7 @@ using System.Diagnostics;
 
 namespace AsyncNavigation.Avalonia;
 
-internal class DialogPlatformService : IDialogPlatformService<Window>
+internal class DialogPlatformService : IPlatformService<Window>
 {
     public Task<IDialogResult> HandleCloseAsync(Window dialogWindow, IDialogAware dialogAware)
     {
@@ -74,7 +74,7 @@ internal class DialogPlatformService : IDialogPlatformService<Window>
         return completionSource.Task;
     }
 
-    Task<IDialogResult> IDialogPlatformService.HandleCloseAsync(IDialogWindowBase dialogWindow, IDialogAware dialogAware)
+    Task<IDialogResult> IPlatformService.HandleDialogCloseAsync(IWindowBase dialogWindow, IDialogAware dialogAware)
     {
         if (!IsPlatformWindow(dialogWindow))
         {
@@ -96,18 +96,14 @@ internal class DialogPlatformService : IDialogPlatformService<Window>
                     owner = desktopLifetime.Windows.LastOrDefault(w => w.IsActive);
                     owner ??= desktopLifetime.MainWindow;
                 }
-                else if (Application.Current!.ApplicationLifetime is ISingleViewApplicationLifetime appLifetime)
+                else
                 {
-                    //todo
+                    throw new NotSupportedException($"Lifetime: '{Application.Current!.ApplicationLifetime?.GetType()}' is not supported");
                 }
             }
             if (owner != null)
             {
                 await dialogWindow.ShowDialog(owner);
-            }
-            else
-            {
-                throw new InvalidOperationException("Modal dialog requires an owner window.");
             }
         }
         else
@@ -116,7 +112,7 @@ internal class DialogPlatformService : IDialogPlatformService<Window>
         }
     }
 
-    Task IDialogPlatformService.ShowAsync(IDialogWindowBase dialogWindow, bool isModal, object? owner)
+    Task IPlatformService.ShowAsync(IWindowBase dialogWindow, bool isModal, object? owner)
     {
         if (!IsPlatformWindow(dialogWindow))
         {
@@ -133,7 +129,7 @@ internal class DialogPlatformService : IDialogPlatformService<Window>
         return ShowAsync((Window)dialogWindow, isModal, ownerWindow);
     }
 
-    public bool IsPlatformWindow(IDialogWindowBase? window)
+    public bool IsPlatformWindow(IWindowBase? window)
     {
         return window is Window;
     }

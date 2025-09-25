@@ -1,15 +1,13 @@
 ﻿using AsyncNavigation;
+using AsyncNavigation.Core;
 using Avalonia;
-using Avalonia.Controls;
 using Avalonia.Controls.ApplicationLifetimes;
-using Avalonia.Layout;
 using Avalonia.Markup.Xaml;
-using Avalonia.Media;
 using Microsoft.Extensions.DependencyInjection;
 using Sample.Avalonia.Regions;
 using Sample.Avalonia.Views;
 using Sample.Common;
-using System;
+using System.Runtime.InteropServices;
 
 namespace Sample.Avalonia;
 
@@ -24,10 +22,13 @@ public partial class App : Application
     {
         NavigationOptions navigationOptions = new()
         {
-            /// default is CancelCurrent <see cref="AsyncNavigation.Core.NavigationJobStrategy.CancelCurrent"/>
-            //NavigationJobStrategy = AsyncNavigation.Core.NavigationJobStrategy.Queue
+            /// default is CancelCurrent <see cref="NavigationJobStrategy.CancelCurrent"/>
+            NavigationJobStrategy = NavigationJobStrategy.CancelCurrent
         };
-
+        if (IsRunningInBrowser())
+        {
+            navigationOptions.NavigationJobStrategy = NavigationJobStrategy.Queue;
+        }
 
         var services = new ServiceCollection();
         services.AddNavigationSupport(navigationOptions)
@@ -63,5 +64,9 @@ public partial class App : Application
         #endregion
 
         base.OnFrameworkInitializationCompleted();
+    }
+    private static bool IsRunningInBrowser()
+    {
+        return RuntimeInformation.IsOSPlatform(OSPlatform.Create("BROWSER"));
     }
 }
