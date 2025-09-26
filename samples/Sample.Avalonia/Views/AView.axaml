@@ -1,0 +1,34 @@
+﻿<UserControl
+    x:Class="Sample.Avalonia.Views.AView"
+    xmlns="https://github.com/avaloniaui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:an="https://github.com/NeverMorewd/AsyncNavigation"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    d:DesignHeight="450"
+    d:DesignWidth="800"
+    mc:Ignorable="d">
+    <DockPanel LastChildFill="True">
+        <Border
+            HorizontalAlignment="Stretch"
+            Background="CadetBlue"
+            BorderBrush="LemonChiffon"
+            BorderThickness="1"
+            DockPanel.Dock="Top">
+            <StackPanel>
+                <TextBlock Text="{Binding Name}" />
+                <TextBlock>
+					InstanceNumber:
+                    <Run
+                        FontSize="15"
+                        FontWeight="Bold"
+                        Foreground="Tomato"
+                        Text="{Binding InstanceNumber}" />
+                </TextBlock>
+                <Button Classes="UnloadView"/>
+                <Button Classes="CloseDialog"/>
+				<Button Classes="CloseDialogWithCancelling"/>
+            </StackPanel>
+        </Border>
+    </DockPanel>
+</UserControl>

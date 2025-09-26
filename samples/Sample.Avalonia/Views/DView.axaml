@@ -1,0 +1,61 @@
+﻿<UserControl
+    x:Class="Sample.Avalonia.Views.DView"
+    xmlns="https://github.com/avaloniaui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:an="https://github.com/NeverMorewd/AsyncNavigation"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    d:DesignHeight="450"
+    d:DesignWidth="800"
+    mc:Ignorable="d">
+    <DockPanel LastChildFill="True">
+        <StackPanel DockPanel.Dock="Left" Orientation="Vertical">
+			<StackPanel Spacing="4" Orientation="Horizontal">
+				<Button Classes="GoBack"/>
+				<Button Classes="GoForward"/>
+			</StackPanel>
+            <Button
+                Classes="Navigation"
+                Content="ToA"
+                Tag="AView" />
+            <Button
+                Classes="Navigation"
+                Content="ToE"
+                Tag="EView" />
+			<Button
+			  Classes="NavigationWithDelay"
+			  Content="ToA:Delay"
+			  Tag="AView" />
+			<Button
+                Classes="NavigationWithDelay"
+                Content="ToE:Delay"
+                Tag="EView" />
+            <Button
+                Classes="Navigation"
+                Content="ToA:New"
+                Tag="AView:New" />
+            <Button
+                Classes="NavigationWithDelay"
+                Content="ToE:New;Delay"
+                Tag="EView:New" />
+        </StackPanel>
+        <ScrollViewer>
+            <TabControl
+                an:RegionManager.PreferCache="True"
+                an:RegionManager.RegionName="TabRegion"
+                TabStripPlacement="Top">
+                <TabControl.ItemTemplate>
+                    <DataTemplate>
+                        <StackPanel
+                            Margin="2"
+                            Orientation="Horizontal"
+                            Spacing="4">
+                            <TextBlock VerticalAlignment="Center" Text="{Binding ViewName}" />
+                            <Button Margin="10" Content="x" />
+                        </StackPanel>
+                    </DataTemplate>
+                </TabControl.ItemTemplate>
+            </TabControl>
+        </ScrollViewer>
+    </DockPanel>
+</UserControl>

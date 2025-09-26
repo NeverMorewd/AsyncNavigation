@@ -1,10 +1,118 @@
-<Application xmlns="https://github.com/avaloniaui"
+﻿<Application xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              x:Class="Sample.Avalonia.App"
              RequestedThemeVariant="Default">
              <!-- "Default" ThemeVariant follows system theme variant. "Dark" or "Light" are other available options. -->
-  
     <Application.Styles>
         <FluentTheme />
+		<Style Selector="StackPanel.Navigation">
+			<Setter Property="Spacing" Value="5" />
+			<Setter Property="Orientation" Value="Vertical" />
+		</Style>
+		<Style Selector="ToggleButton.Switch[IsChecked=True]">
+			<Setter Property="Content" Value="&gt;" />
+		</Style>
+		<Style Selector="ToggleButton.Switch[IsChecked=False]">
+			<Setter Property="Content" Value="&lt;" />
+		</Style>
+		<Style Selector="Border.HSeparator">
+			<Setter Property="Background" Value="Gray" />
+			<Setter Property="BorderThickness" Value="0" />
+			<Setter Property="Height" Value="2" />
+			<Setter Property="Margin" Value="5,0,5,0" />
+		</Style>
+		<Style Selector="Button.CloseDialog">
+			<Setter Property="Height" Value="30" />
+			<Setter Property="Width" Value="300" />
+			<Setter Property="IsVisible" Value="{Binding IsDialog}" />
+			<Setter Property="Command" Value="{Binding CloseDialogCommand}" />
+			<Setter Property="Content" Value="CloseDialog"/>
+			<Setter Property="CommandParameter" Value="{Binding $self.Tag}" />
+			<Setter Property="VerticalContentAlignment" Value="Center" />
+			<Setter Property="HorizontalContentAlignment" Value="Center" />
+		</Style>
+		<Style Selector="Button.UnloadView">
+			<Setter Property="Height" Value="30" />
+			<Setter Property="Width" Value="300" />
+			<Setter Property="IsVisible" Value="{Binding !IsDialog}" />
+			<Setter Property="Command" Value="{Binding UnloadViewCommand}" />
+			<Setter Property="Content" Value="UnloadView"/>
+			<Setter Property="CommandParameter" Value="{Binding $self.Tag}" />
+			<Setter Property="VerticalContentAlignment" Value="Center" />
+			<Setter Property="HorizontalContentAlignment" Value="Center" />
+		</Style>
+		<Style Selector="Button.Navigation">
+			<Setter Property="Height" Value="30" />
+			<Setter Property="Width" Value="300" />
+			<Setter Property="Command" Value="{Binding AsyncNavigateCommand}" />
+			<Setter Property="CommandParameter" Value="{Binding $self.Tag}" />
+			<Setter Property="VerticalContentAlignment" Value="Center" />
+		</Style>
+		<Style Selector="Button.NavigationWithDelay">
+			<Setter Property="Height" Value="30" />
+			<Setter Property="Width" Value="300" />
+			<Setter Property="Command" Value="{Binding AsyncDelayNavigateCommand}" />
+			<Setter Property="CommandParameter" Value="{Binding $self.Tag}" />
+			<Setter Property="VerticalContentAlignment" Value="Center" />
+		</Style>
+		<Style Selector="Button.NavigationAndForget">
+			<Setter Property="Height" Value="30" />
+			<Setter Property="Width" Value="300" />
+			<Setter Property="Command" Value="{Binding AsyncNavigateAndForgetCommand}" />
+			<Setter Property="CommandParameter" Value="{Binding $self.Tag}" />
+			<Setter Property="VerticalContentAlignment" Value="Center" />
+		</Style>
+		<Style Selector="Button.DialogShow">
+			<Setter Property="Height" Value="30" />
+			<Setter Property="Width" Value="300" />
+			<Setter Property="Command" Value="{Binding ShowCommand}" />
+			<Setter Property="CommandParameter" Value="{Binding $self.Tag}" />
+			<Setter Property="VerticalContentAlignment" Value="Center" />
+		</Style>
+		<Style Selector="Button.DialogShowDialog">
+			<Setter Property="Height" Value="30" />
+			<Setter Property="Width" Value="300" />
+			<Setter Property="Command" Value="{Binding ShowDialogCommand}" />
+			<Setter Property="CommandParameter" Value="{Binding $self.Tag}" />
+			<Setter Property="VerticalContentAlignment" Value="Center" />
+		</Style>
+		<Style Selector="Button.DialogShowDialogAsync">
+			<Setter Property="Height" Value="30" />
+			<Setter Property="Width" Value="300" />
+			<Setter Property="Command" Value="{Binding AsyncShowDialogCommand}" />
+			<Setter Property="CommandParameter" Value="{Binding $self.Tag}" />
+			<Setter Property="VerticalContentAlignment" Value="Center" />
+		</Style>
+		<Style Selector="Button.DialogShowDialogAsyncWithCancelling">
+			<Setter Property="Height" Value="30" />
+			<Setter Property="Width" Value="300" />
+			<Setter Property="Command" Value="{Binding AsyncShowDialogWithCancellingCommand}" />
+			<Setter Property="CommandParameter" Value="{Binding $self.Tag}" />
+			<Setter Property="VerticalContentAlignment" Value="Center" />
+		</Style>
+		<Style Selector="Button.CloseDialogWithCancelling">
+			<Setter Property="Height" Value="30" />
+			<Setter Property="Width" Value="300" />
+			<Setter Property="IsVisible" Value="{Binding IsDialog}" />
+			<Setter Property="Command" Value="{Binding CloseDialogWithCancellingCommand}" />
+			<Setter Property="Content" Value="CloseDialogWithCancelling"/>
+			<Setter Property="CommandParameter" Value="{Binding $self.Tag}" />
+			<Setter Property="VerticalContentAlignment" Value="Center" />
+			<Setter Property="HorizontalContentAlignment" Value="Center" />
+		</Style>
+		<Style Selector="Button.GoForward">
+			<Setter Property="Height" Value="30" />
+			<Setter Property="Width" Value="50" />
+			<Setter Property="Content" Value="&gt;&gt;"/>
+			<Setter Property="Command" Value="{Binding GoForwardCommand}" />
+			<Setter Property="VerticalContentAlignment" Value="Center" />
+		</Style>
+		<Style Selector="Button.GoBack">
+			<Setter Property="Height" Value="30" />
+			<Setter Property="Width" Value="50" />
+			<Setter Property="Content" Value="&lt;&lt;"/>
+			<Setter Property="Command" Value="{Binding GoBackCommand}" />
+			<Setter Property="VerticalContentAlignment" Value="Center" />
+		</Style>
     </Application.Styles>
 </Application>

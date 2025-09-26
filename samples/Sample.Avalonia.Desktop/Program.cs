@@ -20,5 +20,6 @@ namespace Sample.Avalonia.Desktop
                 .WithInterFont()
                 .UseReactiveUI()
                 .LogToTrace();
+                //.With(new Win32PlatformOptions { RenderingMode = [Win32RenderingMode.Software] });
     }
 }

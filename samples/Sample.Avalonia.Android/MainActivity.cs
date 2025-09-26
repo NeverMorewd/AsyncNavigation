@@ -16,9 +16,11 @@ namespace Sample.Avalonia.Android
     {
         protected override AppBuilder CustomizeAppBuilder(AppBuilder builder)
         {
-            return base.CustomizeAppBuilder(builder)
+            var abuilder = base.CustomizeAppBuilder(builder)
                 .WithInterFont()
                 .UseReactiveUI();
+            var app = abuilder.Instance as App;
+            return abuilder;
         }
     }
 }
