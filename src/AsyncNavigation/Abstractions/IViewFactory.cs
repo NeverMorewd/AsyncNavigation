@@ -1,6 +1,6 @@
 ﻿namespace AsyncNavigation.Abstractions;
 
-public interface IViewFactory
+internal interface IViewFactory
 {
     IView CreateView(string viewName);
     bool CanCreateView(string viewName);

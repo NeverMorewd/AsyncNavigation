@@ -47,8 +47,8 @@ public class DialogService : IDialogService
     public void Show(string name, 
         string? windowName = null, 
         IDialogParameters? parameters = null,  
-        CancellationToken cancellationToken = default,
-        Action<IDialogResult>? callback = null)
+        Action<IDialogResult>? callback = null,
+        CancellationToken cancellationToken = default)
     {
         var (dialogWindow, aware) = PrePareDialog(name, windowName);
 
@@ -63,10 +63,10 @@ public class DialogService : IDialogService
         });
         _platformService.Show(dialogWindow, false);
     }
-    private IWindowBase ResolveDialogWindow(string? windowName) =>
+    private IDialogWindow ResolveDialogWindow(string? windowName) =>
         string.IsNullOrEmpty(windowName)
-            ? _serviceProvider.GetRequiredKeyedService<IWindowBase>(NavigationConstants.DEFAULT_DIALOG_WINDOW_KEY)
-            : _serviceProvider.GetRequiredKeyedService<IWindowBase>(windowName);
+            ? _serviceProvider.GetRequiredKeyedService<IDialogWindow>(NavigationConstants.DEFAULT_DIALOG_WINDOW_KEY)
+            : _serviceProvider.GetRequiredKeyedService<IDialogWindow>(windowName);
 
     private (IView View, IDialogAware Aware) ResolveDialogViewModel(string name)
     {
@@ -76,7 +76,7 @@ public class DialogService : IDialogService
         return (view, aware);
     }
 
-    private (IWindowBase DialogWindow, IDialogAware Aware) PrePareDialog(string name, string? windowName = null)
+    private (IDialogWindow DialogWindow, IDialogAware Aware) PrePareDialog(string name, string? windowName = null)
     {
         var dialogWindow = ResolveDialogWindow(windowName);
         var (view, aware) = ResolveDialogViewModel(name);

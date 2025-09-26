@@ -6,7 +6,7 @@ namespace AsyncNavigation.Wpf;
 /// <summary>
 /// Interaction logic for DefaultDialogContainer.xaml
 /// </summary>
-public partial class DefaultDialogContainer : Window, IWindowBase
+public partial class DefaultDialogContainer : Window, IDialogWindow
 {
     public DefaultDialogContainer()
     {

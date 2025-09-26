@@ -5,8 +5,8 @@ public interface IDialogService
     void Show(string name,
         string? windowName = null,
         IDialogParameters? parameters = null,
-        CancellationToken cancellationToken = default,
-        Action<IDialogResult>? callback = null);
+        Action<IDialogResult>? callback = null,
+        CancellationToken cancellationToken = default);
 
     Task<IDialogResult> ShowDialogAsync(string name,
         string? windowName = null,

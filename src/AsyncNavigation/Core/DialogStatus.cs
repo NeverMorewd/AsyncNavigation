@@ -1,6 +1,6 @@
 ﻿namespace AsyncNavigation.Core;
 
-public enum DialogResultStatus
+public enum DialogStatus
 {
     None,
     Cancelled,

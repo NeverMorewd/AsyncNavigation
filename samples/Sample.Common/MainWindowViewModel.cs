@@ -63,7 +63,7 @@ public partial class MainWindowViewModel : ViewModelBase
 
         var result = await _dialogService.ShowDialogAsync(param, cancellationToken: cts.Token);
 
-        if(result.Status == DialogResultStatus.Cancelled)
+        if(result.Status == DialogStatus.Cancelled)
         {
             Debug.WriteLine("Dialog was cancelled");
         }

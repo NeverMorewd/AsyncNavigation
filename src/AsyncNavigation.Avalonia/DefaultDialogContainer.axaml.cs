@@ -3,7 +3,7 @@ using Avalonia.Controls;
 
 namespace AsyncNavigation.Avalonia;
 
-public partial class DefaultDialogContainer : Window, IWindowBase
+public partial class DefaultDialogContainer : Window, IDialogWindow
 {
     public DefaultDialogContainer()
     {

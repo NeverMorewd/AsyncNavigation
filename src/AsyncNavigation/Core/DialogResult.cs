@@ -12,17 +12,17 @@ public class DialogResult : IDialogResult
     public DialogResult(DialogButtonResult result)
     {
         Result = result;
-        Status = DialogResultStatus.Closed;
+        Status = DialogStatus.Closed;
     }
 
     public DialogResult(DialogButtonResult result, IDialogParameters parameters)
     {
         Result = result;
         Parameters = parameters;
-        Status = DialogResultStatus.Closed;
+        Status = DialogStatus.Closed;
     }
 
-    public static DialogResult Cancelled => new(DialogButtonResult.None) { Status = DialogResultStatus.Cancelled };
+    public static DialogResult Cancelled => new(DialogButtonResult.None) { Status = DialogStatus.Cancelled };
 
     public IDialogParameters? Parameters
     {
@@ -36,7 +36,7 @@ public class DialogResult : IDialogResult
         private set;
     } = DialogButtonResult.None;
 
-    public DialogResultStatus Status
+    public DialogStatus Status
     {
         get;
         private set;
