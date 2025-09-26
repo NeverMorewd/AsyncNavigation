@@ -3,8 +3,6 @@ using AsyncNavigation.Abstractions;
 using AsyncNavigation.Core;
 using AsyncNavigation.Wpf;
 using Microsoft.Extensions.DependencyInjection.Extensions;
-using System.Windows;
-using System.Windows.Controls;
 
 namespace Microsoft.Extensions.DependencyInjection;
 
