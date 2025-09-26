@@ -39,6 +39,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AsyncNavigation.Performance
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AsyncNavigation.E2E.Tests", "tests\AsyncNavigation.E2E.Tests\AsyncNavigation.E2E.Tests.csproj", "{BE4F3321-EF03-4BCA-966D-FCC36CA1181D}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Sampe.Wpf.InfinityNaviation", "..\samples\Sampe.Wpf.InfinityNaviation\Sampe.Wpf.InfinityNaviation\Sampe.Wpf.InfinityNaviation.csproj", "{24B0419F-803F-4305-B46E-1E92AE9AE64E}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -291,6 +293,22 @@ Global
 		{BE4F3321-EF03-4BCA-966D-FCC36CA1181D}.Release|x64.Build.0 = Release|Any CPU
 		{BE4F3321-EF03-4BCA-966D-FCC36CA1181D}.Release|x86.ActiveCfg = Release|Any CPU
 		{BE4F3321-EF03-4BCA-966D-FCC36CA1181D}.Release|x86.Build.0 = Release|Any CPU
+		{24B0419F-803F-4305-B46E-1E92AE9AE64E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{24B0419F-803F-4305-B46E-1E92AE9AE64E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{24B0419F-803F-4305-B46E-1E92AE9AE64E}.Debug|ARM64.ActiveCfg = Debug|Any CPU
+		{24B0419F-803F-4305-B46E-1E92AE9AE64E}.Debug|ARM64.Build.0 = Debug|Any CPU
+		{24B0419F-803F-4305-B46E-1E92AE9AE64E}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{24B0419F-803F-4305-B46E-1E92AE9AE64E}.Debug|x64.Build.0 = Debug|Any CPU
+		{24B0419F-803F-4305-B46E-1E92AE9AE64E}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{24B0419F-803F-4305-B46E-1E92AE9AE64E}.Debug|x86.Build.0 = Debug|Any CPU
+		{24B0419F-803F-4305-B46E-1E92AE9AE64E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{24B0419F-803F-4305-B46E-1E92AE9AE64E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{24B0419F-803F-4305-B46E-1E92AE9AE64E}.Release|ARM64.ActiveCfg = Release|Any CPU
+		{24B0419F-803F-4305-B46E-1E92AE9AE64E}.Release|ARM64.Build.0 = Release|Any CPU
+		{24B0419F-803F-4305-B46E-1E92AE9AE64E}.Release|x64.ActiveCfg = Release|Any CPU
+		{24B0419F-803F-4305-B46E-1E92AE9AE64E}.Release|x64.Build.0 = Release|Any CPU
+		{24B0419F-803F-4305-B46E-1E92AE9AE64E}.Release|x86.ActiveCfg = Release|Any CPU
+		{24B0419F-803F-4305-B46E-1E92AE9AE64E}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -309,6 +327,7 @@ Global
 		{9F6D78FE-2F08-5E2E-3654-63AFBF0916F0} = {9858EF92-EF94-4C78-8411-887E6B75F616}
 		{819BA289-9BCF-0BA2-A1D4-E0A6F4C00386} = {9858EF92-EF94-4C78-8411-887E6B75F616}
 		{BE4F3321-EF03-4BCA-966D-FCC36CA1181D} = {9858EF92-EF94-4C78-8411-887E6B75F616}
+		{24B0419F-803F-4305-B46E-1E92AE9AE64E} = {283A813F-2846-4EB4-BEE6-CF52380A1837}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {4C63EADD-8AF0-4E87-8E63-3265E344B9B4}

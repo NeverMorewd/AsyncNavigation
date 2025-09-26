@@ -20,6 +20,8 @@ namespace Sample.Wpf
         {
             Current.ShutdownMode = ShutdownMode.OnMainWindowClose;
             PlatformRegistrationManager.SetRegistrationNamespaces(RegistrationNamespace.Wpf);
+
+
             var services = new ServiceCollection();
             services.AddNavigationSupport()
                 .AddSingleton<MainWindowViewModel>()

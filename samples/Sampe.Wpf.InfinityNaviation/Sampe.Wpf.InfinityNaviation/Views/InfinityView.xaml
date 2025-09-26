@@ -1,0 +1,42 @@
+﻿<UserControl
+    x:Class="Sampe.Wpf.InfinityNaviation.Views.InfinityView"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:an="https://github.com/NeverMorewd/AsyncNavigation"
+    xmlns:converters="clr-namespace:Sample.Wpf.InfinityNavigation.Converters"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:local="clr-namespace:Sampe.Wpf.InfinityNaviation.Views"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    d:DesignHeight="450"
+    d:DesignWidth="800"
+    mc:Ignorable="d">
+    <UserControl.Resources>
+        <converters:NumberToDockConverter x:Key="NumberToDockConverter" />
+        <converters:BoolToBrushConverter x:Key="BoolToBrushConverter" />
+        <converters:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter" />
+    </UserControl.Resources>
+    <DockPanel LastChildFill="True">
+        <Button
+            HorizontalAlignment="Stretch"
+            VerticalAlignment="Stretch"
+            HorizontalContentAlignment="Center"
+            VerticalContentAlignment="Center"
+            Background="{Binding IsActive, Converter={StaticResource BoolToBrushConverter}}"
+            Command="{Binding AsyncNavigateCommand}"
+            CommandParameter="InfinityView"
+            Content="{Binding ButtonText}"
+            DockPanel.Dock="{Binding InstanceNumber, Converter={StaticResource NumberToDockConverter}}" />
+        <Border BorderBrush="Red" BorderThickness="1">
+            <Grid>
+                <ContentControl an:RegionManager.RegionName="{Binding NextRegionName}" />
+                <TextBlock
+                    HorizontalAlignment="Center"
+                    VerticalAlignment="Center"
+                    FontSize="35"
+                    FontWeight="SemiBold"
+                    Text="{Binding InstanceNumber}"
+                    Visibility="{Binding IsActive, Mode=TwoWay, Converter={StaticResource BoolToVisibilityConverter}}" />
+            </Grid>
+        </Border>
+    </DockPanel>
+</UserControl>
