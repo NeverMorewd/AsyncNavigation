@@ -19,7 +19,15 @@ internal sealed class RegionNavigationService<T> : IRegionNavigationService<T> w
         _navigationJobScheduler = serviceProvider.GetRequiredService<INavigationJobScheduler>();
         _viewCacheManager = serviceProvider.GetRequiredService<IViewManager>();
         _regionIndicatorManager = serviceProvider.GetRequiredService<IRegionIndicatorManager>();
-        _unloadHandler = new RequestUnloadHandler(_regionPresenter, _viewCacheManager);
+        _unloadHandler = new RequestUnloadHandler(_regionPresenter, 
+            _viewCacheManager, 
+            aware => 
+            {
+                if (CurrentView != null && CurrentView.DataContext == aware)
+                {
+                    CurrentView = null;
+                }
+            });
     }
     internal IView? CurrentView
     {
@@ -124,10 +132,12 @@ internal sealed class RegionNavigationService<T> : IRegionNavigationService<T> w
             var currentAware = (CurrentView.DataContext as INavigationAware)!;
             navigationContext.CancellationToken.ThrowIfCancellationRequested();
             await currentAware.OnNavigatedFromAsync(navigationContext);
-            if (_regionPresenter.IsSinglePageRegion)
-            {
-                _unloadHandler.Detach(currentAware);
-            }
+
+            // todo: why detach?
+            //if (_regionPresenter.IsSinglePageRegion)
+            //{
+            //    _unloadHandler.Detach(currentAware);
+            //}
         }
     }
 
