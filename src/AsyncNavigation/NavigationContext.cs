@@ -88,10 +88,11 @@ public partial class NavigationContext
 
     public NavigationContext WithStatus(NavigationStatus newStatus, params Exception[] errors)
     {
-        if (IsCompleted)
+        if (IsCompleted && !IsForwordNavigation && !IsBackNavigation)
             throw new InvalidOperationException("Cannot change status after navigation is completed.");
 
         Status = newStatus;
+
         if (errors == null || errors.Length == 0)
         {
             return this;
@@ -101,7 +102,7 @@ public partial class NavigationContext
 
     public NavigationContext WithParameter(string key, object value)
     {
-        if (IsCompleted)
+        if (IsCompleted && !IsForwordNavigation && !IsBackNavigation)
             throw new InvalidOperationException("Cannot add parameters after navigation is completed.");
 
         Parameters ??= new NavigationParameters();
@@ -111,7 +112,8 @@ public partial class NavigationContext
 
     public NavigationContext WithParameters(IEnumerable<KeyValuePair<string, object>> parameters)
     {
-        if (IsCompleted)
+
+        if (IsCompleted && !IsForwordNavigation && !IsBackNavigation)
             throw new InvalidOperationException("Cannot add parameters after navigation is completed.");
 
         Parameters ??= new NavigationParameters();
