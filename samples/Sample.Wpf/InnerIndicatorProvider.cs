@@ -8,7 +8,7 @@ namespace Sample.Wpf;
 
 internal class InnerIndicatorProvider : IInnerIndicatorProvider
 {
-    private IServiceProvider _serviceProvider;
+    private readonly IServiceProvider _serviceProvider;
     public InnerIndicatorProvider(IServiceProvider serviceProvider)
     {
         _serviceProvider = serviceProvider;

@@ -38,6 +38,13 @@ internal class NotifyIndicator : IRegionIndicator
     {
 
     }
+
+    public Task OnLoadedAsync(NavigationContext context)
+    {
+        _notificationLoadingManager?.CloseAll();
+        return Task.CompletedTask;
+    }
+
     public Task ShowErrorAsync(NavigationContext context, Exception? innerException = null)
     {
         InitNotificationManager();

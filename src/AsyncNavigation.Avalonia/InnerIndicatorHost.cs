@@ -15,13 +15,18 @@ internal sealed class InnerIndicatorHost : IInnerRegionIndicatorHost
 
     public object Host => _host;
 
-    public Task ShowContentAsync(NavigationContext context)
+    Task IRegionIndicator.OnLoadedAsync(NavigationContext context)
+    {
+        return Task.CompletedTask;
+    }
+
+    Task IInnerRegionIndicatorHost.ShowContentAsync(NavigationContext context)
     {
         _host.Content = context.Target.Value;
         return Task.CompletedTask;
     }
 
-    public Task ShowErrorAsync(NavigationContext context, Exception? innerException)
+    Task IRegionIndicator.ShowErrorAsync(NavigationContext context, Exception? innerException)
     {
         if (_inlineIndicatorProvider.HasErrorIndicator(context))
         {
@@ -30,7 +35,7 @@ internal sealed class InnerIndicatorHost : IInnerRegionIndicatorHost
         return Task.CompletedTask;
     }
 
-    public Task ShowLoadingAsync(NavigationContext context)
+    Task IRegionIndicator.ShowLoadingAsync(NavigationContext context)
     {
         if (_inlineIndicatorProvider.HasLoadingIndicator(context))
         {

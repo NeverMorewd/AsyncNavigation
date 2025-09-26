@@ -2,6 +2,7 @@
 using AsyncNavigation.Core;
 using Microsoft.Extensions.DependencyInjection;
 using System;
+using System.Collections.Concurrent;
 
 namespace AsyncNavigation;
 
@@ -9,10 +10,12 @@ internal sealed class RegionIndicatorManager : IRegionIndicatorManager
 {
     private readonly IServiceProvider _serviceProvider;
     private readonly IInnerRegionIndicatorHost _innerRegionIndicatorHost;
+    private readonly ConcurrentDictionary<NavigationContext, (IInnerRegionIndicatorHost Inner, IEnumerable<IRegionIndicator> Others)> _cachedIndicators;
 
     public RegionIndicatorManager(IServiceProvider serviceProvider)
     {
         _serviceProvider = serviceProvider;
+        _cachedIndicators = new ConcurrentDictionary<NavigationContext, (IInnerRegionIndicatorHost Inner, IEnumerable<IRegionIndicator> Others)>();
         _innerRegionIndicatorHost = _serviceProvider.GetRequiredService<IInnerRegionIndicatorHost>();
     }
 
@@ -34,47 +37,50 @@ internal sealed class RegionIndicatorManager : IRegionIndicatorManager
 
     public Task ShowErrorAsync(NavigationContext context, Exception exception)
     {
-        return ShowErrorCore(context, exception);
+        var (Inner, Others) = _cachedIndicators.GetOrAdd(context, ResolveRegionIndicators(context));
+        return ShowErrorCore(Inner, Others, context, exception);
     }
 
     public async Task StartAsync(NavigationContext context, Task processTask, TimeSpan? delayTime = null)
     {
+        var (Inner, Others) = _cachedIndicators.GetOrAdd(context, ResolveRegionIndicators(context));
         if (delayTime.HasValue)
         {
             var delayTask = Task.Delay(delayTime.Value, context.CancellationToken);
             if (await Task.WhenAny(processTask, delayTask) == delayTask && !processTask.IsCompleted)
             {
-                await ShowLoadingCore(context);
+                await ShowLoadingCore(Inner, Others, context);
             }
         }
         else
         {
-            await ShowLoadingCore(context);
+            await ShowLoadingCore(Inner, Others, context);
         }
         await processTask;
-        await ShowContentCore(context);
+        await OnLoadedCore(Inner, Others, context);
+        await ShowContentCore(Inner, context);
     }
-    private async Task ShowErrorCore(NavigationContext context, Exception exception)
+    private static async Task ShowErrorCore(IRegionIndicator inner, IEnumerable<IRegionIndicator> others, NavigationContext context, Exception exception)
     {
-        await ResolveInnerIndicator(context).ShowErrorAsync(context, exception);
+        await Task.WhenAll(others.Append(inner).Select(indicator => indicator.ShowErrorAsync(context, exception)));
+    }
+    private (IInnerRegionIndicatorHost Inner, IEnumerable<IRegionIndicator> Others) ResolveRegionIndicators(NavigationContext context)
+    {
+        var inner = ResolveInnerIndicator(context);
         var regionIndicators = ResolveIndicators(context);
-        foreach (var indicator in regionIndicators)
-        {
-            await indicator.ShowErrorAsync(context, exception);
-        }
+        return (inner, regionIndicators);
     }
-    private async Task ShowLoadingCore(NavigationContext context)
+    private static async Task ShowLoadingCore(IRegionIndicator inner, IEnumerable<IRegionIndicator> others , NavigationContext context)
     {
-        await ResolveInnerIndicator(context).ShowLoadingAsync(context);
-        var regionIndicators = ResolveIndicators(context);
-        foreach (var indicator in regionIndicators)
-        {
-            await indicator.ShowLoadingAsync(context);
-        }
+        await Task.WhenAll(others.Append(inner).Select(indicator => indicator.ShowLoadingAsync(context)));
     }
-    private static async Task ShowContentCore(NavigationContext context)
+    private static async Task OnLoadedCore(IRegionIndicator inner, IEnumerable<IRegionIndicator> others, NavigationContext context)
     {
-        await ResolveInnerIndicator(context).ShowContentAsync(context);
+        await Task.WhenAll(others.Append(inner).Select(indicator => indicator.OnLoadedAsync(context)));
+    }
+    private static async Task ShowContentCore(IInnerRegionIndicatorHost inner, NavigationContext context)
+    {
+        await inner.ShowContentAsync(context);
     }
     private IEnumerable<IRegionIndicator> ResolveIndicators(NavigationContext context)
     {

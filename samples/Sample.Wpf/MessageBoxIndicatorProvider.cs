@@ -1,5 +1,6 @@
 ﻿using AsyncNavigation;
 using AsyncNavigation.Abstractions;
+using AsyncNavigation.Core;
 using System.Windows;
 
 namespace Sample.Avalonia;
@@ -27,6 +28,30 @@ internal class MessageBoxIndicatorProvider : IRegionIndicatorProvider
 
 internal class MessageBoxIndicator : IRegionIndicator
 {
+    private LoadingWindow? _loadingWindow;
+
+    public Task OnLoadedAsync(NavigationContext context)
+    {
+        if (_loadingWindow != null)
+        {
+            var dispatcher = _loadingWindow.Dispatcher;
+            if (!dispatcher.HasShutdownStarted && !dispatcher.HasShutdownFinished)
+            {
+                dispatcher.Invoke(() =>
+                {
+                    if (_loadingWindow.IsVisible)
+                    {
+                        _loadingWindow.Close();
+                    }
+                });
+            }
+
+            _loadingWindow = null;
+        }
+
+        return Task.CompletedTask;
+    }
+
     public Task ShowErrorAsync(NavigationContext context, Exception? innerException = null)
     {
         return ShowInNewThread(() =>
@@ -37,22 +62,24 @@ internal class MessageBoxIndicator : IRegionIndicator
                 Content = $"{context}{Environment.NewLine}Error: {innerException}",
                 Foreground = System.Windows.Media.Brushes.Red
             };
-            window.Closed += (s, e) => System.Windows.Threading.Dispatcher.CurrentDispatcher.BeginInvokeShutdown(System.Windows.Threading.DispatcherPriority.Background);
+            window.Closed += (s, e) =>
+                System.Windows.Threading.Dispatcher.CurrentDispatcher.BeginInvokeShutdown(System.Windows.Threading.DispatcherPriority.Background);
             window.Show();
         });
     }
 
     public Task ShowLoadingAsync(NavigationContext context)
     {
-        return ShowInNewThreadWithoutWait(() =>
+        return ShowInNewThreadForget(() =>
         {
-            var window = new LoadingWindow
+            _loadingWindow = new LoadingWindow
             {
                 Title = "Loading",
                 Content = context.ToString()
             };
-            window.Closed += (s, e) => System.Windows.Threading.Dispatcher.CurrentDispatcher.BeginInvokeShutdown(System.Windows.Threading.DispatcherPriority.Background);
-            window.Show();
+            _loadingWindow.Closed += (s, e) =>
+                System.Windows.Threading.Dispatcher.CurrentDispatcher.BeginInvokeShutdown(System.Windows.Threading.DispatcherPriority.Background);
+            _loadingWindow.Show();
         });
     }
 
@@ -81,7 +108,7 @@ internal class MessageBoxIndicator : IRegionIndicator
         return tcs.Task;
     }
 
-    private Task ShowInNewThreadWithoutWait(Action showAction)
+    private Task ShowInNewThreadForget(Action showAction)
     {
         var thread = new Thread(() =>
         {
