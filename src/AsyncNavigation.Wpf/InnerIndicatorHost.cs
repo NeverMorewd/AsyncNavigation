@@ -15,6 +15,11 @@ internal sealed class InnerIndicatorHost : IInnerRegionIndicatorHost
 
     public object Host => _host;
 
+    Task IRegionIndicator.OnCancelledAsync(NavigationContext context)
+    {
+        return Task.CompletedTask;
+    }
+
     Task IRegionIndicator.OnLoadedAsync(NavigationContext context)
     {
         return Task.CompletedTask;

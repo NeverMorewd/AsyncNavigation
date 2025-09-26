@@ -56,7 +56,15 @@ internal sealed class RegionIndicatorManager : IRegionIndicatorManager
         {
             await ShowLoadingCore(Inner, Others, context);
         }
-        await processTask;
+        try
+        {
+            await processTask;
+        }
+        catch (OperationCanceledException) when (context.CancellationToken.IsCancellationRequested)
+        {
+            await OnCancelledCore(Inner, Others, context);
+            throw;
+        }
         await OnLoadedCore(Inner, Others, context);
         await ShowContentCore(Inner, context);
     }
@@ -77,6 +85,10 @@ internal sealed class RegionIndicatorManager : IRegionIndicatorManager
     private static async Task OnLoadedCore(IRegionIndicator inner, IEnumerable<IRegionIndicator> others, NavigationContext context)
     {
         await Task.WhenAll(others.Append(inner).Select(indicator => indicator.OnLoadedAsync(context)));
+    }
+    private static async Task OnCancelledCore(IRegionIndicator inner, IEnumerable<IRegionIndicator> others, NavigationContext context)
+    {
+        await Task.WhenAll(others.Append(inner).Select(indicator => indicator.OnCancelledAsync(context)));
     }
     private static async Task ShowContentCore(IInnerRegionIndicatorHost inner, NavigationContext context)
     {

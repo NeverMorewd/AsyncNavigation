@@ -24,7 +24,7 @@
                 <Button Content="ToC:ChildContentRegion" Tag="CView" Style="{StaticResource NavigationButton}"/>
                 <Button Content="ToD:TabRegion" Tag="DView" Style="{StaticResource NavigationButton}"/>
                 <Button Content="ToA:Forget" Tag="AView" Style="{StaticResource NavigationAndForget}"/>
-                <Button Content="ToB:Forget" Tag="BView" Style="{StaticResource NavigationAndForget}"/>
+                <Button Content="ToE:Forget" Tag="EView" Style="{StaticResource NavigationAndForget}"/>
                 <Button Content="ToA:New" Tag="AView:New" Style="{StaticResource NavigationButton}"/>
                 <Button Content="ToB:Error" Tag="BView:Error" Style="{StaticResource NavigationButton}"/>
                 <Button Content="ToA:Dialog.Show" Tag="AView" Style="{StaticResource DialogShow}"/>

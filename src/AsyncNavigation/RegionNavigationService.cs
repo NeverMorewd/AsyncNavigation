@@ -31,9 +31,9 @@ internal sealed class RegionNavigationService<T> : IRegionNavigationService<T> w
             await _navigationJobScheduler.RunJobAsync(navigationContext, CreateNavigateTask);
             return NavigationResult.Success(stopwatch.Elapsed);
         }
-        catch (OperationCanceledException ocex) when (navigationContext.CancellationToken.IsCancellationRequested)
+        catch (OperationCanceledException) when (navigationContext.CancellationToken.IsCancellationRequested)
         {
-            await _regionIndicatorManager.ShowErrorAsync(navigationContext, ocex);
+            //await _regionIndicatorManager.ShowErrorAsync(navigationContext, ocex);
             return NavigationResult.Cancelled(stopwatch.Elapsed);
         }
         catch (Exception ex)

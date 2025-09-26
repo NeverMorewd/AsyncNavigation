@@ -38,7 +38,11 @@ internal class NotifyIndicator : IRegionIndicator
     {
 
     }
-
+    Task IRegionIndicator.OnCancelledAsync(NavigationContext context)
+    {
+        _notificationLoadingManager?.CloseAll();
+        return Task.CompletedTask;
+    }
     public Task OnLoadedAsync(NavigationContext context)
     {
         _notificationLoadingManager?.CloseAll();

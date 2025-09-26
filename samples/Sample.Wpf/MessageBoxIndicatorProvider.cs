@@ -30,6 +30,28 @@ internal class MessageBoxIndicator : IRegionIndicator
 {
     private LoadingWindow? _loadingWindow;
 
+    public Task OnCancelledAsync(NavigationContext context)
+    {
+        if (_loadingWindow != null)
+        {
+            var dispatcher = _loadingWindow.Dispatcher;
+            if (!dispatcher.HasShutdownStarted && !dispatcher.HasShutdownFinished)
+            {
+                dispatcher.Invoke(() =>
+                {
+                    if (_loadingWindow.IsVisible)
+                    {
+                        _loadingWindow.Close();
+                    }
+                });
+            }
+
+            _loadingWindow = null;
+        }
+
+        return Task.CompletedTask;
+    }
+
     public Task OnLoadedAsync(NavigationContext context)
     {
         if (_loadingWindow != null)
