@@ -128,7 +128,7 @@ public sealed class RegionManager : DependencyObject,
                 await _currentRegion.NavigateFromAsync(context);
             }
             var result = await region.ActivateViewAsync(context);
-            if (result.IsSuccess)
+            if (result.IsSuccessful)
             {
                 _currentRegion = region;
             }

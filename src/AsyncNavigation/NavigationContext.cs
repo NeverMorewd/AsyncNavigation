@@ -32,13 +32,7 @@ public partial class NavigationContext
 
     public ImmutableProperty<IView> Source { get; } = new();
     public ImmutableProperty<IView> Target { get; } = new();
-
     public ImmutableProperty<IInnerRegionIndicatorHost> IndicatorHost { get; } = new();
-
-    /// <summary>
-    /// Gets the timestamp when navigation was initiated.
-    /// </summary>
-    public DateTime NavigationTime { get; init; } = DateTime.UtcNow;
 
     /// <summary>
     /// Gets a value indicating whether this is a back navigation operation.
@@ -74,33 +68,13 @@ public partial class NavigationContext
     /// <summary>
     /// Gets a unique identifier for this navigation context.
     /// </summary>
-    public Guid NavigationId { get; init; } = Guid.NewGuid();
+    public Guid NavigationId { get; } = Guid.NewGuid();
 
     /// <summary>
     /// Gets the duration of the navigation operation.
     /// Only meaningful when Status is Succeeded, Failed, or Cancelled.
     /// </summary>
-    public TimeSpan? Duration { get; set; }
-
-    /// <summary>
-    /// Gets additional metadata associated with this navigation.
-    /// </summary>
-    //public IDictionary<string, object?> Metadata { get; init; } = new Dictionary<string, object?>();
-
-    /// <summary>
-    /// Gets a value indicating whether the navigation completed successfully.
-    /// </summary>
-    public bool IsSuccessful => Status == NavigationStatus.Succeeded;
-
-    /// <summary>
-    /// Gets a value indicating whether the navigation failed.
-    /// </summary>
-    public bool IsFailed => Status == NavigationStatus.Failed;
-
-    /// <summary>
-    /// Gets a value indicating whether the navigation was cancelled.
-    /// </summary>
-    public bool IsCancelled => Status == NavigationStatus.Cancelled;
+    public TimeSpan? Duration { get; internal set; }
 
     /// <summary>
     /// Gets a value indicating whether the navigation is still in progress.
@@ -112,28 +86,16 @@ public partial class NavigationContext
     /// </summary>
     public bool IsCompleted => Status is NavigationStatus.Succeeded or NavigationStatus.Failed or NavigationStatus.Cancelled;
 
-    /// <summary>
-    /// Represents an empty navigation context.
-    /// </summary>
-    public static readonly NavigationContext Empty = new()
-    {
-        RegionName = string.Empty,
-        ViewName = string.Empty,
-        NavigationTime = DateTime.MinValue,
-        IsBackNavigation = false,
-        Status = NavigationStatus.Failed,
-        NavigationId = Guid.Empty,
-        Duration = null,
-        CancellationToken = default,
-    };
-
     public NavigationContext WithStatus(NavigationStatus newStatus, params Exception[] errors)
     {
         if (IsCompleted)
             throw new InvalidOperationException("Cannot change status after navigation is completed.");
 
         Status = newStatus;
-        Duration = DateTime.UtcNow - NavigationTime;
+        if (errors == null || errors.Length == 0)
+        {
+            return this;
+        }
         return WithErrors(errors);
     }
 
@@ -157,11 +119,8 @@ public partial class NavigationContext
         return this;
     }
 
-    public NavigationContext WithErrors(params Exception[] exceptions)
+    private NavigationContext WithErrors(params Exception[] exceptions)
     {
-        if (IsCompleted)
-            throw new InvalidOperationException("Cannot add errors after navigation is completed.");
-
         foreach (var ex in exceptions)
         {
             _errors.Add(ex);

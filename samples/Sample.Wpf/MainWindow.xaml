@@ -26,7 +26,7 @@
                 <Button Content="ToA:Forget" Tag="AView" Style="{StaticResource NavigationAndForget}"/>
                 <Button Content="ToE:Forget" Tag="EView" Style="{StaticResource NavigationAndForget}"/>
                 <Button Content="ToA:New" Tag="AView:New" Style="{StaticResource NavigationButton}"/>
-                <Button Content="ToB:Error" Tag="BView:Error" Style="{StaticResource NavigationButton}"/>
+                <Button Content="ToE:Error" Tag="EView:Error" Style="{StaticResource NavigationButton}"/>
                 <Button Content="ToA:Dialog.Show" Tag="AView" Style="{StaticResource DialogShow}"/>
                 <Button Content="ToE:Dialog.Show" Tag="EView" Style="{StaticResource DialogShow}"/>
                 <Button Content="ToA:Dialog.ShowDialog" Tag="AView" Style="{StaticResource DialogShowDialog}"/>

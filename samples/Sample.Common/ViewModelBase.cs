@@ -50,6 +50,10 @@ public abstract partial class ViewModelBase : ReactiveObject, INavigationAware
 
     public virtual async Task OnNavigatedToAsync(NavigationContext context)
     {
+        if (GetRaiseError(context))
+        {
+            throw new Exception($"I am an Exception from {GetType()}");
+        }
         if (TryGetDelay(context, out var delay))
         {
             await Task.Delay(delay!.Value, context.CancellationToken);
@@ -81,6 +85,18 @@ public abstract partial class ViewModelBase : ReactiveObject, INavigationAware
             }
         }
         delayTime = null;
+        return false;
+    }
+
+    private static bool GetRaiseError(NavigationContext navigationContext)
+    {
+        if (navigationContext.Parameters is not null)
+        {
+            if (navigationContext.Parameters.TryGetValue<bool>("raiseError", out var raiseError))
+            {
+                return raiseError;
+            }
+        }
         return false;
     }
 }

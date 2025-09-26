@@ -25,7 +25,7 @@ public abstract class RegionBase<TRegion> : IRegion, IRegionPresenter
     async Task<NavigationResult> IRegion.ActivateViewAsync(NavigationContext navigationContext)
     {
         var result = await _regionNavigationService.RequestNavigateAsync(navigationContext);
-        if (result.IsSuccess)
+        if (result.IsSuccessful)
         {
             _navigationHistory.Add(navigationContext);
         }

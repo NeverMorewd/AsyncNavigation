@@ -100,7 +100,7 @@ public static class DependencyInjectionExtensions
     /// <para>
     /// ⚠ Important: This method should be called only once. Subsequent calls will not override the previous registration.
     /// If you need to override an existing registration, consider using <c>Replace</c> from
-    /// <see cref="Microsoft.Extensions.DependencyInjection.Extensions.ServiceCollectionDescriptorExtensions"/>.
+    /// <see cref="ServiceCollectionDescriptorExtensions"/>.
     /// </para>
     /// </remarks>
     public static IServiceCollection RegisterInnerIndicatorProvider<T>(this IServiceCollection serviceDescriptors)

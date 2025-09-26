@@ -10,8 +10,15 @@ public static class SampleHelper
         var parts = param.Split(':', StringSplitOptions.RemoveEmptyEntries);
         if (parts.Length == 2)
         {
-            var parameters = string.Equals(parts[1], "New", StringComparison.OrdinalIgnoreCase) ? new NavigationParameters { { "requestNew", true } } : null;
-            return (parts[0], parameters);
+            if (string.Equals(parts[1], "New", StringComparison.OrdinalIgnoreCase))
+            {
+                return (parts[0], new NavigationParameters { { "requestNew", true } });
+            }
+            if (string.Equals(parts[1], "Error", StringComparison.OrdinalIgnoreCase))
+            {
+                return (parts[0], new NavigationParameters { { "raiseError", true } });
+            }
+            return (parts[0], null);
         }
         return (param, null);
     }

@@ -62,8 +62,8 @@
                         Tag="AView:New" />
                     <Button
                         Classes="Navigation"
-                        Content="ToB:Error"
-                        Tag="BView:Error" />
+                        Content="ToE:Error"
+                        Tag="EView:Error" />
 					<Button
 					   Classes="DialogShow"
 					   Content="ToA:Dialog.Show"

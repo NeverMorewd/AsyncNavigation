@@ -29,21 +29,17 @@ internal sealed class RegionNavigationService<T> : IRegionNavigationService<T> w
         try
         {
             await _navigationJobScheduler.RunJobAsync(navigationContext, CreateNavigateTask);
-            return NavigationResult.Success(stopwatch.Elapsed);
+            return NavigationResult.Success(stopwatch.Elapsed, navigationContext);
         }
         catch (OperationCanceledException) when (navigationContext.CancellationToken.IsCancellationRequested)
         {
-            //await _regionIndicatorManager.ShowErrorAsync(navigationContext, ocex);
-            return NavigationResult.Cancelled(stopwatch.Elapsed);
+            return NavigationResult.Cancelled(stopwatch.Elapsed, navigationContext);
         }
         catch (Exception ex)
         {
-            if (Debugger.IsAttached)
-            {
-                throw;
-            }
+            var result = NavigationResult.Failure(ex, stopwatch.Elapsed, navigationContext);
             await _regionIndicatorManager.ShowErrorAsync(navigationContext, ex);
-            return NavigationResult.Failure(ex, stopwatch.Elapsed);
+            return result;
         }
         finally
         {
