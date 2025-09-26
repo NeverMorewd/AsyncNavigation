@@ -9,11 +9,13 @@ namespace AsyncNavigation.Wpf;
 public class ItemsRegion : RegionBase<ItemsRegion>
 {
     private readonly ItemsControl _itemsControl;
-    public ItemsRegion(ItemsControl itemsControl, IServiceProvider serviceProvider, bool? useCache) : base(serviceProvider)
+    public ItemsRegion(string name,
+        ItemsControl itemsControl, 
+        IServiceProvider serviceProvider, 
+        bool? useCache) : base(name, serviceProvider)
     {
         ArgumentNullException.ThrowIfNull(itemsControl);
         ArgumentNullException.ThrowIfNull(serviceProvider);
-
         _itemsControl = itemsControl;
 
         _itemsControl.SetBinding(ItemsControl.ItemsSourceProperty, 

@@ -6,8 +6,8 @@ namespace Sample.Wpf.Regions;
 
 internal class ListBoxRegionAdapter : RegionAdapterBase<ListBox>
 {
-    public override IRegion CreateRegion(ListBox control, IServiceProvider serviceProvider, bool? useCache = null)
+    public override IRegion CreateRegion(string name, ListBox control, IServiceProvider serviceProvider, bool? useCache)
     {
-        return new ListBoxRegion(control, serviceProvider, useCache);
+        return new ListBoxRegion(name, control, serviceProvider, useCache);
     }
 }

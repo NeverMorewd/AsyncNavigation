@@ -8,7 +8,10 @@ namespace AsyncNavigation.Avalonia;
 public class ContentRegion : RegionBase<ContentRegion>
 {
     private readonly ContentControl _contentControl;
-    public ContentRegion(ContentControl contentControl, IServiceProvider serviceProvider, bool? useCache) : base(serviceProvider)
+    public ContentRegion(string name, 
+        ContentControl contentControl, 
+        IServiceProvider serviceProvider, 
+        bool? useCache) : base(name, serviceProvider)
     {
         ArgumentNullException.ThrowIfNull(contentControl);
         ArgumentNullException.ThrowIfNull(serviceProvider);
