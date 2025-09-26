@@ -1,6 +1,7 @@
 ﻿using AsyncNavigation.Abstractions;
 using AsyncNavigation.Core;
 using Avalonia;
+using Avalonia.Controls;
 using System.Collections.Concurrent;
 
 namespace AsyncNavigation.Avalonia;
@@ -168,6 +169,17 @@ public sealed class RegionManager :
         }
         var region = _regionFactory.CreateRegion(name, value.Sender, serviceProvider, useCache);
         AddRegion(name, region);
+
+        if (value.Sender is Control control)
+        {
+            control.Unloaded += (_, __) =>
+            {
+                if (_regions.TryRemove(name, out var region))
+                {
+                    region.Dispose();
+                }
+            };
+        }
     }
 
     public void Dispose()
