@@ -30,9 +30,9 @@ public partial class NavigationContext
     public INavigationParameters? Parameters { get; internal set; } = null;
 
 
-    public ImmutableProperty<IView> Source { get; } = new();
-    public ImmutableProperty<IView> Target { get; } = new();
-    public ImmutableProperty<IInnerRegionIndicatorHost> IndicatorHost { get; } = new();
+    public SingleAssignment<IView> Source { get; } = new();
+    public SingleAssignment<IView> Target { get; } = new();
+    public SingleAssignment<IInnerRegionIndicatorHost> IndicatorHost { get; } = new();
 
     /// <summary>
     /// Gets a value indicating whether this is a back navigation operation.

@@ -1,6 +1,6 @@
 ﻿namespace AsyncNavigation.Core;
 
-public sealed class ImmutableProperty<T> where T : class
+public sealed class SingleAssignment<T> where T : class
 {
     private T? _value;
     private int _isSet;
