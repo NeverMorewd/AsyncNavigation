@@ -172,11 +172,16 @@ public sealed class RegionManager :
 
         if (value.Sender is Control control)
         {
-            control.Unloaded += (_, __) =>
+            control.Unloaded += (sender, __) =>
             {
-                if (_regions.TryRemove(name, out var region))
+                if (sender is AvaloniaObject ao)
                 {
-                    region.Dispose();
+                    var currentName = GetRegionName(ao);
+                    if (!string.IsNullOrEmpty(currentName) 
+                         && _regions.TryRemove(currentName, out var region))
+                    {
+                        region.Dispose();
+                    }
                 }
             };
         }

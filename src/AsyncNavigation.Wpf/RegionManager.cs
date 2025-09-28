@@ -187,23 +187,32 @@ public sealed class RegionManager : DependencyObject,
 
         if (target is FrameworkElement fe)
         {
-            fe.Unloaded += (_, __) =>
+            fe.Unloaded += (sender, __) =>
             {
-                if (_regions.TryRemove(name, out var region))
-                {
-                    region.Dispose();
-                }
+                TryRemoveRegion(sender);
+
             };
         }
         else if (target is FrameworkContentElement fce)
         {
-            fce.Unloaded += (_, __) =>
+            fce.Unloaded += (sender, __) =>
             {
-                if(_regions.TryRemove(name, out var region))
-                {
-                    region.Dispose();
-                }
+                TryRemoveRegion(sender);
             };
         }
+    }
+
+    private bool TryRemoveRegion(object target)
+    {
+        if (target is DependencyObject dobj)
+        {
+            var regionName = GetRegionName(dobj);
+            if (!string.IsNullOrEmpty(regionName) && _regions.TryRemove(regionName, out var region))
+            {
+                region.Dispose();
+                return true;
+            }
+        }
+        return false;
     }
 }
