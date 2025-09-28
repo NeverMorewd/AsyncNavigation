@@ -32,7 +32,7 @@ public class DialogService : IDialogService
         {
             return DialogResult.Cancelled;
         }
-        var closeTask = _platformService.HandleDialogCloseAsync(dialogWindow, aware);
+        var closeTask = HandleCloseInternalAsync(dialogWindow, aware);
         await _platformService.ShowAsync(dialogWindow, true);
         return await closeTask;
     }
@@ -55,7 +55,7 @@ public class DialogService : IDialogService
         var openTask = aware.OnDialogOpenedAsync(parameters, cancellationToken);
         _platformService.WaitOnDispatcher(openTask);
 
-        var closeTask = _platformService.HandleDialogCloseAsync(dialogWindow, aware);
+        var closeTask = HandleCloseInternalAsync(dialogWindow, aware);
         _ = closeTask.ContinueWith(t =>
         {
             if (t.Status == TaskStatus.RanToCompletion)
@@ -66,6 +66,41 @@ public class DialogService : IDialogService
 
         _platformService.Show(dialogWindow, false);
     }
+
+    protected Task<IDialogResult> HandleCloseInternalAsync(IWindowBase baseWindow, IDialogAware dialogAware)
+    {
+        var tcs = new TaskCompletionSource<IDialogResult>();
+        IDialogResult? pendingResult = null;
+
+        async Task RequestCloseHandler(object? sender, DialogCloseEventArgs args)
+        {
+            try
+            {
+                await dialogAware.OnDialogClosingAsync(args.DialogResult, args.CancellationToken);
+                args.CancellationToken.ThrowIfCancellationRequested();
+
+                pendingResult = args.DialogResult;
+                baseWindow.Close();
+            }
+            catch (OperationCanceledException)
+            {
+                pendingResult = DialogResult.Cancelled;
+            }
+        }
+
+        void ClosedHandler(object? sender, EventArgs e)
+        {
+            baseWindow.Closed -= ClosedHandler;
+            dialogAware.RequestCloseAsync -= RequestCloseHandler;
+            tcs.TrySetResult(pendingResult ?? new DialogResult(DialogButtonResult.None));
+        }
+
+        dialogAware.RequestCloseAsync += RequestCloseHandler;
+        baseWindow.Closed += ClosedHandler;
+
+        return tcs.Task;
+    }
+
 
     private IDialogWindow ResolveDialogWindow(string? windowName) =>
         string.IsNullOrEmpty(windowName)
