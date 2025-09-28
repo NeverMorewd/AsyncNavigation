@@ -20,7 +20,7 @@ public class DialogService : IDialogService
         IDialogParameters? parameters = null,
         CancellationToken cancellationToken = default)
     {
-        var (dialogWindow, aware) = PrePareDialog(name, windowName);
+        var (dialogWindow, aware) = PrepareDialog(name, windowName);
 
         try
         {
@@ -50,19 +50,23 @@ public class DialogService : IDialogService
         Action<IDialogResult>? callback = null,
         CancellationToken cancellationToken = default)
     {
-        var (dialogWindow, aware) = PrePareDialog(name, windowName);
+        var (dialogWindow, aware) = PrepareDialog(name, windowName);
 
-        aware.OnDialogOpenedAsync(parameters, cancellationToken);
+        var openTask = aware.OnDialogOpenedAsync(parameters, cancellationToken);
+        _platformService.WaitOnDispatcher(openTask);
+
         var closeTask = _platformService.HandleDialogCloseAsync(dialogWindow, aware);
-        closeTask.ContinueWith(t =>
+        _ = closeTask.ContinueWith(t =>
         {
-            if (t.IsCompleted)
+            if (t.Status == TaskStatus.RanToCompletion)
             {
                 callback?.Invoke(t.Result);
             }
-        });
+        }, cancellationToken);
+
         _platformService.Show(dialogWindow, false);
     }
+
     private IDialogWindow ResolveDialogWindow(string? windowName) =>
         string.IsNullOrEmpty(windowName)
             ? _serviceProvider.GetRequiredKeyedService<IDialogWindow>(NavigationConstants.DEFAULT_DIALOG_WINDOW_KEY)
@@ -76,15 +80,17 @@ public class DialogService : IDialogService
         return (view, aware);
     }
 
-    private (IDialogWindow DialogWindow, IDialogAware Aware) PrePareDialog(string name, string? windowName = null)
+    private (IDialogWindow Window, IDialogAware ViewModel) PrepareDialog(string name, string? windowName = null)
     {
-        var dialogWindow = ResolveDialogWindow(windowName);
-        var (view, aware) = ResolveDialogViewModel(name);
+        var window = ResolveDialogWindow(windowName);
+        var (view, viewModel) = ResolveDialogViewModel(name);
 
-        dialogWindow.Title = aware.Title;
-        dialogWindow.Content = view;
-        dialogWindow.DataContext = aware;
-        return (dialogWindow, aware);
+        window.Title = viewModel.Title;
+        window.Content = view;
+        window.DataContext = viewModel;
+
+        return (window, viewModel);
     }
+
 }
 

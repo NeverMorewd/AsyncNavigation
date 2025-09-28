@@ -35,12 +35,11 @@ internal abstract class PlatformServiceBase<TWindow> : IPlatformService<TWindow>
         }
         Show(window, isModal);
     }
+
     protected Task<IDialogResult> HandleCloseInternalAsync(IWindowBase baseWindow, IDialogAware dialogAware)
     {
-        ArgumentNullException.ThrowIfNull(baseWindow);
-        ArgumentNullException.ThrowIfNull(dialogAware);
-
-        var completionSource = new TaskCompletionSource<IDialogResult>();
+        var tcs = new TaskCompletionSource<IDialogResult>();
+        IDialogResult? pendingResult = null;
 
         async Task RequestCloseHandler(object? sender, DialogCloseEventArgs args)
         {
@@ -49,35 +48,12 @@ internal abstract class PlatformServiceBase<TWindow> : IPlatformService<TWindow>
                 await dialogAware.OnDialogClosingAsync(args.DialogResult, args.CancellationToken);
                 args.CancellationToken.ThrowIfCancellationRequested();
 
-                completionSource.TrySetResult(args.DialogResult);
-                baseWindow.Close();
-                try
-                {
-                    await dialogAware.OnDialogClosedAsync(args.DialogResult, args.CancellationToken);
-                }
-                catch (OperationCanceledException) when (args.CancellationToken.IsCancellationRequested)
-                {
-                    Debug.WriteLine("OnDialogClosedAsync was cancelled, but dialog is already closed.");
-                }
-                catch (Exception ex)
-                {
-                    Debug.WriteLine($"Error in OnDialogClosedAsync: {ex}");
-                }
+                pendingResult = args.DialogResult;
+                baseWindow.Close(); 
             }
-            catch (OperationCanceledException) when (args.CancellationToken.IsCancellationRequested)
+            catch (OperationCanceledException)
             {
-                var setCanceledFlag = completionSource.TrySetCanceled();
-                Debug.WriteLineIf(!setCanceledFlag, "Failed to set canceled for DialogResult.");
-            }
-            catch (Exception ex)
-            {
-                Debug.WriteLine($"Error in OnDialogClosingAsync: {ex}");
-
-                if (!completionSource.Task.IsCompleted)
-                {
-                    var faultedResult = new DialogResult(DialogButtonResult.None);
-                    completionSource.TrySetResult(faultedResult);
-                }
+                pendingResult = DialogResult.Cancelled;
             }
         }
 
@@ -85,18 +61,15 @@ internal abstract class PlatformServiceBase<TWindow> : IPlatformService<TWindow>
         {
             baseWindow.Closed -= ClosedHandler;
             dialogAware.RequestCloseAsync -= RequestCloseHandler;
-
-            if (!completionSource.Task.IsCompleted)
-            {
-                completionSource.TrySetResult(new DialogResult(DialogButtonResult.None));
-            }
+            tcs.TrySetResult(pendingResult ?? new DialogResult(DialogButtonResult.None));
         }
 
         dialogAware.RequestCloseAsync += RequestCloseHandler;
         baseWindow.Closed += ClosedHandler;
 
-        return completionSource.Task;
+        return tcs.Task;
     }
+
     private static bool TryGetPlatformWindow(IWindowBase baseWindow, [MaybeNullWhen(false)] out TWindow window)
     {
         return (window = baseWindow as TWindow) is not null;
