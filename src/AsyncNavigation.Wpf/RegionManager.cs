@@ -190,7 +190,6 @@ public sealed class RegionManager : DependencyObject,
             fe.Unloaded += (sender, __) =>
             {
                 TryRemoveRegion(sender);
-
             };
         }
         else if (target is FrameworkContentElement fce)
