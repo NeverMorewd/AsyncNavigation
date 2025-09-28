@@ -110,7 +110,28 @@ public sealed class RegionManager :
     {
         if (_regions.TryGetValue(regionName, out _))
             throw new InvalidOperationException($"Duplicated RegionName found:{regionName}");
-        _regions.TryAdd(regionName, region);
+        if (_regions.TryAdd(regionName, region))
+        {
+            if (region is Control control)
+            {
+                control.Unloaded += (sender, __) =>
+                {
+                    if (sender is AvaloniaObject ao)
+                    {
+                        var currentName = GetRegionName(ao);
+                        if (!string.IsNullOrEmpty(currentName)
+                             && _regions.TryRemove(currentName, out var region))
+                        {
+                            region.Dispose();
+                        }
+                    }
+                };
+            }
+        }
+        else
+        {
+            throw new InvalidOperationException($"Duplicated RegionName found:{regionName}");
+        }
     }
     public Task<NavigationResult> GoForward(string regionName, CancellationToken cancellationToken = default)
     {
@@ -169,22 +190,6 @@ public sealed class RegionManager :
         }
         var region = _regionFactory.CreateRegion(name, value.Sender, serviceProvider, useCache);
         AddRegion(name, region);
-
-        if (value.Sender is Control control)
-        {
-            control.Unloaded += (sender, __) =>
-            {
-                if (sender is AvaloniaObject ao)
-                {
-                    var currentName = GetRegionName(ao);
-                    if (!string.IsNullOrEmpty(currentName) 
-                         && _regions.TryRemove(currentName, out var region))
-                    {
-                        region.Dispose();
-                    }
-                }
-            };
-        }
     }
 
     public void Dispose()
