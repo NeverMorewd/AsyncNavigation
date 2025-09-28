@@ -1,0 +1,10 @@
+<Project>
+    <PropertyGroup>
+        <Version>0.0.1-beta</Version>
+        <Authors>Easley</Authors>
+        <RepositoryUrl>https://github.com/NeverMorewd/AsyncNavigation</RepositoryUrl>
+        <PackageLicenseExpression>MIT</PackageLicenseExpression>
+        <PublishRepositoryUrl>true</PublishRepositoryUrl>
+        <PackageProjectUrl>https://github.com/NeverMorewd/AsyncNavigation</PackageProjectUrl>
+    </PropertyGroup>
+</Project>
