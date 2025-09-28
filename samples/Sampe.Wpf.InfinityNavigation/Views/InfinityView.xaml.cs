@@ -1,7 +1,7 @@
 ﻿using AsyncNavigation.Abstractions;
 using System.Windows.Controls;
 
-namespace Sampe.Wpf.InfinityNaviation.Views;
+namespace Sampe.Wpf.InfinityNavigation.Views;
 
 /// <summary>
 /// Interaction logic for InfinityView.xaml

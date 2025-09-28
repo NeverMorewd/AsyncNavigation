@@ -184,5 +184,26 @@ public sealed class RegionManager : DependencyObject,
 
         var region = _regionFactory.CreateRegion(name, target, serviceProvider, preferCache);
         AddRegion(name, region);
+
+        if (target is FrameworkElement fe)
+        {
+            fe.Unloaded += (_, __) =>
+            {
+                if (_regions.TryRemove(name, out var region))
+                {
+                    region.Dispose();
+                }
+            };
+        }
+        else if (target is FrameworkContentElement fce)
+        {
+            fce.Unloaded += (_, __) =>
+            {
+                if(_regions.TryRemove(name, out var region))
+                {
+                    region.Dispose();
+                }
+            };
+        }
     }
 }

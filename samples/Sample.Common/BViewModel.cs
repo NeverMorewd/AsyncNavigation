@@ -18,7 +18,11 @@ public partial class BViewModel : InstanceCounterViewModel<BViewModel>
         var (viewName, parameters) = SampleHelper.ParseNavigationParam(param);
         await _regionManager.RequestNavigateAsync("ItemsRegion", viewName, parameters);
     }
-
+    [ReactiveCommand]
+    private Task UnloadView(string param)
+    {
+        return RequestUnload();
+    }
     public override async Task OnNavigatedToAsync(NavigationContext context)
     {
         await base.OnNavigatedToAsync(context);

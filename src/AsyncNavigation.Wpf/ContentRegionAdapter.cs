@@ -5,10 +5,11 @@ namespace AsyncNavigation.Wpf;
 
 public class ContentRegionAdapter : RegionAdapterBase<ContentControl>
 {
-    public override IRegion CreateRegion(ContentControl control, 
+    public override IRegion CreateRegion(string name, 
+        ContentControl control, 
         IServiceProvider serviceProvider, 
-        bool? useCache = null)
+        bool? useCache)
     {
-        return new ContentRegion(control, serviceProvider, useCache);
+        return new ContentRegion(name, control, serviceProvider, useCache);
     }
 }

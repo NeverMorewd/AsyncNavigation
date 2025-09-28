@@ -9,8 +9,8 @@ public class TabRegionAdapter : RegionAdapterBase<TabControl>
     {
         return base.IsAdapted(control);
     }
-    public override IRegion CreateRegion(TabControl control, IServiceProvider serviceProvider, bool? useCache = null)
+    public override IRegion CreateRegion(string name, TabControl control, IServiceProvider serviceProvider, bool? useCache = null)
     {
-       return new TabRegion(control, serviceProvider, useCache);
+       return new TabRegion(name, control, serviceProvider, useCache);
     }
 }

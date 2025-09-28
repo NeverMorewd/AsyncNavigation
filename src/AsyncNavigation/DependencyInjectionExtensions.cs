@@ -13,12 +13,12 @@ public static class DependencyInjectionExtensions
             { typeof(IDialogAware), (sp, vmType) => sp.GetRequiredService(vmType) }
         };
     public static IServiceCollection RegisterView<TView, TViewModel>(
-        this IServiceCollection services, object viewKey)
+        this IServiceCollection services, object? viewKey = null)
         where TView : class, IView
         where TViewModel : class
     {
         ArgumentNullException.ThrowIfNull(services);
-        ArgumentNullException.ThrowIfNull(viewKey);
+        viewKey ??= typeof(TView);
 
         services.AddTransient<TViewModel>();
         services.AddTransient<TView>();

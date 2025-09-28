@@ -8,11 +8,15 @@ internal sealed class RequestUnloadHandler
     private readonly Dictionary<INavigationAware, AsyncEventHandler<AsyncEventArgs>> _handlers = [];
     private readonly IRegionPresenter _regionPresenter;
     private readonly IViewManager _viewCacheManager;
+    private readonly Action<INavigationAware> _unloadCallBack;
 
-    public RequestUnloadHandler(IRegionPresenter regionPresenter, IViewManager viewCacheManager)
+    public RequestUnloadHandler(IRegionPresenter regionPresenter, 
+        IViewManager viewCacheManager,
+        Action<INavigationAware> unloadCallBack)
     {
         _regionPresenter = regionPresenter;
         _viewCacheManager = viewCacheManager;
+        _unloadCallBack = unloadCallBack;
     }
 
     public void Attach(INavigationAware aware, NavigationContext context)
@@ -52,6 +56,7 @@ internal sealed class RequestUnloadHandler
         {
             try
             {
+                _unloadCallBack.Invoke(aware);
                 Detach(aware);
                 await aware.OnUnloadAsync(e.CancellationToken);
             }

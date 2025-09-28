@@ -9,7 +9,10 @@ namespace AsyncNavigation.Avalonia;
 public class TabRegion : RegionBase<TabRegion>
 {
     private readonly TabControl _tabControl;
-    public TabRegion(TabControl control, IServiceProvider serviceProvider, bool? useCache = null) : base(serviceProvider)
+    public TabRegion(string name, 
+        TabControl control, 
+        IServiceProvider serviceProvider, 
+        bool? useCache) : base(name, serviceProvider)
     {
         ArgumentNullException.ThrowIfNull(control);
         ArgumentNullException.ThrowIfNull(serviceProvider);

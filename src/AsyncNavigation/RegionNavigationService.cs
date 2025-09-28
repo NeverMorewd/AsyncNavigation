@@ -7,22 +7,33 @@ namespace AsyncNavigation;
 
 internal sealed class RegionNavigationService<T> : IRegionNavigationService<T> where T : IRegionPresenter
 {
-    private readonly AsyncConcurrentItem<IView> Current = new();
     private readonly IViewManager _viewCacheManager;
     private readonly IRegionIndicatorManager _regionIndicatorManager;
     private readonly INavigationJobScheduler _navigationJobScheduler;
     private readonly IRegionPresenter _regionPresenter;
     private readonly RequestUnloadHandler _unloadHandler;
-
+    private volatile IView? _current;
     public RegionNavigationService(T regionPresenter, IServiceProvider serviceProvider)
     {
         _regionPresenter = regionPresenter;
         _navigationJobScheduler = serviceProvider.GetRequiredService<INavigationJobScheduler>();
         _viewCacheManager = serviceProvider.GetRequiredService<IViewManager>();
         _regionIndicatorManager = serviceProvider.GetRequiredService<IRegionIndicatorManager>();
-        _unloadHandler = new RequestUnloadHandler(_regionPresenter, _viewCacheManager);
+        _unloadHandler = new RequestUnloadHandler(_regionPresenter, 
+            _viewCacheManager, 
+            aware => 
+            {
+                if (CurrentView != null && CurrentView.DataContext == aware)
+                {
+                    CurrentView = null;
+                }
+            });
     }
-
+    internal IView? CurrentView
+    {
+        get => _current;
+        set => _current = value;
+    }
     public async Task<NavigationResult> RequestNavigateAsync(NavigationContext navigationContext)
     {
         var stopwatch = Stopwatch.StartNew();
@@ -116,15 +127,17 @@ internal sealed class RegionNavigationService<T> : IRegionNavigationService<T> w
 
     private async Task HandleBeforeNavigationAsync(NavigationContext navigationContext)
     {
-        if (Current.TryTakeData(out IView? currentView))
+        if (CurrentView is not null)
         {
-            var currentAware = (currentView!.DataContext as INavigationAware)!;
+            var currentAware = (CurrentView.DataContext as INavigationAware)!;
             navigationContext.CancellationToken.ThrowIfCancellationRequested();
             await currentAware.OnNavigatedFromAsync(navigationContext);
-            if (_regionPresenter.IsSinglePageRegion)
-            {
-                _unloadHandler.Detach(currentAware);
-            }
+
+            // todo: why detach?
+            //if (_regionPresenter.IsSinglePageRegion)
+            //{
+            //    _unloadHandler.Detach(currentAware);
+            //}
         }
     }
 
@@ -137,7 +150,7 @@ internal sealed class RegionNavigationService<T> : IRegionNavigationService<T> w
             _unloadHandler.Attach(aware, navigationContext);
             await aware.OnNavigatedToAsync(navigationContext);
             navigationContext.CancellationToken.ThrowIfCancellationRequested();
-            Current.SetData(view);
+            CurrentView = view;
         }
     }
     private static async Task ExecuteStepsAsync(IEnumerable<Func<NavigationContext, Task>> steps, NavigationContext navigationContext)

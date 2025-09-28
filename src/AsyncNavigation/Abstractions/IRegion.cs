@@ -4,6 +4,7 @@ namespace AsyncNavigation.Abstractions;
 
 public interface IRegion : IDisposable
 {
+    string Name { get; }
     internal IRegionPresenter RegionPresenter { get; }
     Task NavigateFromAsync(NavigationContext navigationContext);
     Task<NavigationResult> ActivateViewAsync(NavigationContext navigationContext);

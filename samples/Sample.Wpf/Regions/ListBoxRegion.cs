@@ -7,9 +7,10 @@ namespace Sample.Wpf.Regions;
 public class ListBoxRegion : ItemsRegion
 {
     private readonly ListBox _listBox;
-    public ListBoxRegion(ListBox listBox, 
+    public ListBoxRegion(string name,
+        ListBox listBox, 
         IServiceProvider serviceProvider, 
-        bool? useCache) : base(listBox, serviceProvider, useCache)
+        bool? useCache) : base(name, listBox, serviceProvider, useCache)
     {
         _listBox = listBox;
     }

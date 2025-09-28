@@ -24,6 +24,6 @@ internal sealed class RegionFactory : IRegionFactory
         var adapter = _adapters.FirstOrDefault(a => a.IsAdapted(control));
         return adapter == null? 
             throw new NotSupportedException($"Unsupported control: {control.GetType()}"): 
-            adapter.CreateRegion(control, serviceProvider, useCache);
+            adapter.CreateRegion(name, control, serviceProvider, useCache);
     }
 }

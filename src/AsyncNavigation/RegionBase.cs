@@ -1,6 +1,7 @@
 ﻿using AsyncNavigation.Abstractions;
 using AsyncNavigation.Core;
 using Microsoft.Extensions.DependencyInjection;
+using System.Xml.Linq;
 
 namespace AsyncNavigation;
 
@@ -10,9 +11,10 @@ public abstract class RegionBase<TRegion> : IRegion, IRegionPresenter
     private readonly IRegionNavigationService<TRegion> _regionNavigationService;
     private readonly IRegionNavigationHistory _navigationHistory;
     protected readonly RegionContext _context = new();
-    public RegionBase(IServiceProvider serviceProvider)
+    public RegionBase(string name, IServiceProvider serviceProvider)
     {
         ArgumentNullException.ThrowIfNull(serviceProvider);
+        Name = name;
         var factory = serviceProvider.GetRequiredService<IRegionNavigationServiceFactory>();
         _regionNavigationService = factory.Create((this as TRegion)!);
         _navigationHistory = serviceProvider.GetRequiredService<IRegionNavigationHistory>();
@@ -21,6 +23,12 @@ public abstract class RegionBase<TRegion> : IRegion, IRegionPresenter
     IRegionPresenter IRegion.RegionPresenter => this;
     public bool EnableViewCache { get; protected set; }
     public bool IsSinglePageRegion { get; protected set; }
+
+    public string Name
+    {
+        get;
+        protected set;
+    }
     #region IRegion Methods
     async Task<NavigationResult> IRegion.ActivateViewAsync(NavigationContext navigationContext)
     {

@@ -30,7 +30,7 @@
                 <Button Content="ToA:Dialog.Show" Tag="AView" Style="{StaticResource DialogShow}"/>
                 <Button Content="ToE:Dialog.Show" Tag="EView" Style="{StaticResource DialogShow}"/>
                 <Button Content="ToA:Dialog.ShowDialog" Tag="AView" Style="{StaticResource DialogShowDialog}"/>
-                <Button Content="ToE:Dialog.ShowDialog" Tag="EView" Style="{StaticResource DialogShowDialogAsync}"/>
+                <Button Content="ToE:Dialog.AsyncShowDialog" Tag="EView" Style="{StaticResource DialogShowDialogAsync}"/>
                 <Button Content="ToA:Dialog.ShowDialogWithCancelling" Tag="AView" Style="{StaticResource DialogShowDialogAsyncWithCancelling}"/>
                 <Button Content="ToListBoxRegionView" Tag="ListBoxRegionView" Style="{StaticResource NavigationButton}"/>
             </StackPanel>

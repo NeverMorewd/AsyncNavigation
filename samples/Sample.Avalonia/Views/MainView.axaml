@@ -78,7 +78,7 @@
 					   Tag="AView" />
 					<Button
 					   Classes="DialogShowDialogAsync"
-					   Content="ToE:Dialog.ShowDialog"
+					   Content="ToE:Dialog.AsyncShowDialog"
 					   Tag="EView" />
 					<Button
 					   Classes="DialogShowDialogAsyncWithCancelling"
