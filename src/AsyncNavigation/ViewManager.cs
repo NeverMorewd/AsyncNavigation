@@ -7,7 +7,7 @@ namespace AsyncNavigation;
 
 internal sealed class ViewManager : IViewManager
 {
-    private readonly ConcurrentDictionary<string, IView> _viewCache = new();
+    private readonly ConcurrentDictionary<string, WeakReference<IView>> _viewCache = new();
     private readonly ConcurrentQueue<string> _cacheKeys = new();
     private readonly ViewCacheStrategy _strategy;
     private readonly int _maxCacheSize;
@@ -29,18 +29,21 @@ internal sealed class ViewManager : IViewManager
 
         Interlocked.Exchange(ref _cacheCount, 0);
 
-        foreach (var view in values)
+        foreach (var viewRef in values)
         {
-            DisposeView(view);
+            if (viewRef.TryGetTarget(out var view))
+            {
+                DisposeView(view);
+            }
         }
     }
 
     public async Task<IView> ResolveViewAsync(string key, bool useCache, NavigationContext navigationContext)
     {
-        if (useCache && _viewCache.TryGetValue(key, out var view))
+        if (useCache && _viewCache.TryGetValue(key, out var viewRef))
         {
             navigationContext.CancellationToken.ThrowIfCancellationRequested();
-            if (view.DataContext is INavigationAware navigationAware)
+            if (viewRef.TryGetTarget(out var view) && view.DataContext is INavigationAware navigationAware)
             {
                 if (await navigationAware.IsNavigationTargetAsync(navigationContext))
                 {
@@ -49,24 +52,24 @@ internal sealed class ViewManager : IViewManager
                 }
             }
         }
-        view = _viewFactory.CreateView(key);
+        var newView = _viewFactory.CreateView(key);
         navigationContext.CancellationToken.ThrowIfCancellationRequested();
-        if (view.DataContext is INavigationAware aware)
+        if (newView.DataContext is INavigationAware aware)
         {
             await aware.InitializeAsync(navigationContext.CancellationToken);
             navigationContext.CancellationToken.ThrowIfCancellationRequested();
         }
-        AddView(key, view);
-        return view;
+        AddView(key, newView);
+        return newView;
     }
 
     public void Remove(string cacheKey, bool dispose = false)
     {
-        if (_viewCache.TryRemove(cacheKey, out var removedView))
+        if (_viewCache.TryRemove(cacheKey, out var viewRef))
         {
-            if (dispose)
+            if (dispose && viewRef.TryGetTarget(out var view))
             {
-                DisposeView(removedView);
+                DisposeView(view);
             }
             Interlocked.Decrement(ref _cacheCount);
         }
@@ -80,12 +83,12 @@ internal sealed class ViewManager : IViewManager
             {
                 _cacheKeys.Enqueue(cacheKey);
                 Interlocked.Increment(ref _cacheCount);
-                return view;
-            }, (_, __) => view);
+                return new WeakReference<IView>(view);
+            }, (_, __) => new WeakReference<IView>(view));
         }
         else
         {
-            if (_viewCache.TryAdd(cacheKey, view))
+            if (_viewCache.TryAdd(cacheKey, new WeakReference<IView>(view)))
             {
                 _cacheKeys.Enqueue(cacheKey);
                 Interlocked.Increment(ref _cacheCount);
@@ -96,10 +99,13 @@ internal sealed class ViewManager : IViewManager
         {
             if (_cacheKeys.TryDequeue(out var oldestKey))
             {
-                if (_viewCache.TryRemove(oldestKey, out var removedView))
+                if (_viewCache.TryRemove(oldestKey, out var viewRef))
                 {
                     Interlocked.Decrement(ref _cacheCount);
-                    DisposeView(removedView);
+                    if (viewRef.TryGetTarget(out var viewToDispose))
+                    {
+                        DisposeView(viewToDispose);
+                    }
                 }
             }
         }

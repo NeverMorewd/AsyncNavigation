@@ -6,6 +6,10 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
 
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <DefineConstants>$(DefineConstants);DISABLE_NAV_HISTORY</DefineConstants>
+  </PropertyGroup>
+
   <ItemGroup>
     <Compile Remove="AsyncViewFactory.cs" />
     <Compile Remove="RegionManagerAccessor.cs" />

@@ -11,7 +11,7 @@ internal sealed class RegionNavigationService<T> : IRegionNavigationService<T> w
     private readonly IRegionIndicatorManager _regionIndicatorManager;
     private readonly INavigationJobScheduler _navigationJobScheduler;
     private readonly IRegionPresenter _regionPresenter;
-    private readonly RequestUnloadHandler _unloadHandler;
+    private readonly WeakRequestUnloadHandler _unloadHandler;
     private volatile IView? _current;
     public RegionNavigationService(T regionPresenter, IServiceProvider serviceProvider)
     {
@@ -19,7 +19,7 @@ internal sealed class RegionNavigationService<T> : IRegionNavigationService<T> w
         _navigationJobScheduler = serviceProvider.GetRequiredService<INavigationJobScheduler>();
         _viewCacheManager = serviceProvider.GetRequiredService<IViewManager>();
         _regionIndicatorManager = serviceProvider.GetRequiredService<IRegionIndicatorManager>();
-        _unloadHandler = new RequestUnloadHandler(_regionPresenter, 
+        _unloadHandler = new WeakRequestUnloadHandler(_regionPresenter, 
             _viewCacheManager, 
             aware => 
             {
@@ -55,6 +55,9 @@ internal sealed class RegionNavigationService<T> : IRegionNavigationService<T> w
         finally
         {
             stopwatch.Stop();
+#if DISABLE_NAV_HISTORY
+            GC.Collect();
+#endif
         }
     }
     public Task OnNavigateFromAsync(NavigationContext navigationContext)
