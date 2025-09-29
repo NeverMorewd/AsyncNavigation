@@ -6,31 +6,33 @@ using Avalonia.Data;
 
 namespace AsyncNavigation.Avalonia;
 
-public class TabRegion : RegionBase<TabRegion>
+public class TabRegion : RegionBase<TabRegion, TabControl>
 {
-    private readonly TabControl _tabControl;
-    public TabRegion(string name, 
-        TabControl control, 
-        IServiceProvider serviceProvider, 
-        bool? useCache) : base(name, serviceProvider)
+    public TabRegion(string name,
+        TabControl tabControl,
+        IServiceProvider serviceProvider,
+        bool? useCache) : base(name, tabControl, serviceProvider)
     {
-        ArgumentNullException.ThrowIfNull(control);
+        ArgumentNullException.ThrowIfNull(tabControl);
         ArgumentNullException.ThrowIfNull(serviceProvider);
-        _tabControl = control;
 
-        _tabControl.Bind(
+        RegionControlAccessor.ExecuteOn(control => 
+        {
+            control.Bind(
            ItemsControl.ItemsSourceProperty,
            new Binding(nameof(RegionContext.Items)) { Source = _context });
 
-        _tabControl.Bind(
-            SelectingItemsControl.SelectedItemProperty,
-            new Binding(nameof(RegionContext.Selected)) { Source = _context, Mode = BindingMode.TwoWay });
+            control.Bind(
+                SelectingItemsControl.SelectedItemProperty,
+                new Binding(nameof(RegionContext.Selected)) { Source = _context, Mode = BindingMode.TwoWay });
 
-        _tabControl.ContentTemplate = new FuncDataTemplate<NavigationContext>((context, _) =>
-        {
-            return context?.IndicatorHost.Value?.Host as Control;
+            control.ContentTemplate = new FuncDataTemplate<NavigationContext>((context, _) =>
+            {
+                return context?.IndicatorHost.Value?.Host as Control;
+            });
         });
 
+       
         EnableViewCache = useCache ?? false;
         IsSinglePageRegion = false;
     }

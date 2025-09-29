@@ -5,28 +5,30 @@ using Avalonia.Data;
 
 namespace AsyncNavigation.Avalonia;
 
-public class ContentRegion : RegionBase<ContentRegion>
+public class ContentRegion : RegionBase<ContentRegion, ContentControl>
 {
-    private readonly ContentControl _contentControl;
     public ContentRegion(string name, 
         ContentControl contentControl, 
         IServiceProvider serviceProvider, 
-        bool? useCache) : base(name, serviceProvider)
+        bool? useCache) : base(name, contentControl, serviceProvider)
     {
         ArgumentNullException.ThrowIfNull(contentControl);
         ArgumentNullException.ThrowIfNull(serviceProvider);
-        _contentControl = contentControl;
 
-        _contentControl.ContentTemplate = new FuncDataTemplate<NavigationContext>((context, np) =>
+        RegionControlAccessor.ExecuteOn(control =>
         {
-            return context?.IndicatorHost.Value?.Host as Control;
+            control.ContentTemplate = new FuncDataTemplate<NavigationContext>((context, np) =>
+            {
+                return context?.IndicatorHost.Value?.Host as Control;
+            });
+
+            control.Bind(
+                ContentControl.ContentProperty,
+                new Binding(nameof(RegionContext.Selected)) { Source = _context, Mode = BindingMode.TwoWay });
+
         });
 
-
-        _contentControl.Bind(
-            ContentControl.ContentProperty,
-            new Binding(nameof(RegionContext.Selected)) { Source = _context, Mode = BindingMode.TwoWay });
-
+        
 
         EnableViewCache = useCache ?? true;
         IsSinglePageRegion = true;
@@ -35,8 +37,11 @@ public class ContentRegion : RegionBase<ContentRegion>
     public override void Dispose()
     {
         base.Dispose();
-        _contentControl.Content = null;
         _context.Selected = null;
+        RegionControlAccessor.ExecuteOn(control =>
+        {
+            control.Content = null;
+        });
     }
 
     public override void RenderIndicator(NavigationContext navigationContext)

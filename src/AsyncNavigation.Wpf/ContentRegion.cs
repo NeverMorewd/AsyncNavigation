@@ -5,35 +5,40 @@ using System.Windows.Data;
 
 namespace AsyncNavigation.Wpf;
 
-public class ContentRegion : RegionBase<ContentRegion>
+public class ContentRegion : RegionBase<ContentRegion, ContentControl>
 {
-    private readonly ContentControl _contentControl;
     public ContentRegion(string name, 
         ContentControl contentControl, 
         IServiceProvider serviceProvider, 
-        bool? useCache) : base(name, serviceProvider)
+        bool? useCache) : base(name, contentControl, serviceProvider)
     {
         ArgumentNullException.ThrowIfNull(contentControl);
         ArgumentNullException.ThrowIfNull(serviceProvider);
-        _contentControl = contentControl;
 
-        _contentControl.SetBinding(ContentControl.ContentProperty,
-        new Binding(nameof(RegionContext.Selected))
+        RegionControlAccessor.ExecuteOn(control => 
         {
-            Source = _context,
-            Mode = BindingMode.TwoWay
+            control.SetBinding(ContentControl.ContentProperty,
+                new Binding(nameof(RegionContext.Selected))
+                {
+                    Source = _context,
+                    Mode = BindingMode.TwoWay
+                });
         });
 
-        var dataTemplate = new DataTemplate();
-        var factory = new FrameworkElementFactory(typeof(ContentPresenter));
-        factory.SetBinding(ContentPresenter.ContentProperty,
-            new Binding("IndicatorHost.Value.Host") 
-            { 
-                FallbackValue = null 
-            });
-        dataTemplate.VisualTree = factory;
+        RegionControlAccessor.ExecuteOn(control =>
+        {
+            var dataTemplate = new DataTemplate();
+            var factory = new FrameworkElementFactory(typeof(ContentPresenter));
+            factory.SetBinding(ContentPresenter.ContentProperty,
+                new Binding("IndicatorHost.Value.Host")
+                {
+                    FallbackValue = null
+                });
+            dataTemplate.VisualTree = factory;
 
-        _contentControl.ContentTemplate = dataTemplate;
+            control.ContentTemplate = dataTemplate;
+        });
+
 
 
         EnableViewCache = useCache ?? true;
@@ -43,8 +48,11 @@ public class ContentRegion : RegionBase<ContentRegion>
     public override void Dispose()
     {
         base.Dispose();
-        _contentControl.Content = null;
         _context.Selected = null;
+        RegionControlAccessor.ExecuteOn(control =>
+        {
+            control.Content = null;
+        });
     }
 
     public override void RenderIndicator(NavigationContext navigationContext)

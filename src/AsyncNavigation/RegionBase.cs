@@ -1,28 +1,32 @@
 ﻿using AsyncNavigation.Abstractions;
 using AsyncNavigation.Core;
 using Microsoft.Extensions.DependencyInjection;
-using System.Xml.Linq;
 
 namespace AsyncNavigation;
 
-public abstract class RegionBase<TRegion> : IRegion, IRegionPresenter
+public abstract class RegionBase<TRegion, TControl> : IRegion, IRegionPresenter
     where TRegion : class, IRegionPresenter
+    where TControl : class
 {
     private readonly IRegionNavigationService<TRegion> _regionNavigationService;
     private readonly IRegionNavigationHistory _navigationHistory;
+    private readonly IRegionControlAccessor<TControl> _controlAccessor;
     protected readonly RegionContext _context = new();
-    public RegionBase(string name, IServiceProvider serviceProvider)
+    public RegionBase(string name, TControl control, IServiceProvider serviceProvider)
     {
+        ArgumentNullException.ThrowIfNull(control);
         ArgumentNullException.ThrowIfNull(serviceProvider);
         Name = name;
-        var factory = serviceProvider.GetRequiredService<IRegionNavigationServiceFactory>();
-        _regionNavigationService = factory.Create((this as TRegion)!);
+        _controlAccessor = new WeakRegionControlAccessor<TControl>(control);
+        _regionNavigationService = serviceProvider.GetRequiredService<IRegionNavigationServiceFactory>().Create((this as TRegion)!);
         _navigationHistory = serviceProvider.GetRequiredService<IRegionNavigationHistory>();
     }
 
     IRegionPresenter IRegion.RegionPresenter => this;
     public bool EnableViewCache { get; protected set; }
     public bool IsSinglePageRegion { get; protected set; }
+
+    public IRegionControlAccessor<TControl> RegionControlAccessor => _controlAccessor;
 
     public string Name
     {
@@ -73,7 +77,10 @@ public abstract class RegionBase<TRegion> : IRegion, IRegionPresenter
         }
         return NavigationResult.Failure(new NavigationException("Can not go forward!"), TimeSpan.Zero);
     }
-
+    Task IRegion.NavigateFromAsync(NavigationContext navigationContext)
+    {
+        return _regionNavigationService.OnNavigateFromAsync(navigationContext);
+    }
     public virtual void Dispose()
     {
         GC.SuppressFinalize(this);
@@ -84,9 +91,4 @@ public abstract class RegionBase<TRegion> : IRegion, IRegionPresenter
     public abstract void RenderIndicator(NavigationContext navigationContext);
     public abstract void ProcessActivate(NavigationContext navigationContext);
     public abstract void ProcessDeactivate(NavigationContext navigationContext);
-
-    Task IRegion.NavigateFromAsync(NavigationContext navigationContext)
-    {
-        return _regionNavigationService.OnNavigateFromAsync(navigationContext);
-    }
 }
