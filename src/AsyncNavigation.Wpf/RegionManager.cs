@@ -5,9 +5,7 @@ using System.Windows;
 
 namespace AsyncNavigation.Wpf;
 
-public sealed class RegionManager : DependencyObject,
-    IRegionManager,
-    IDisposable
+public sealed class RegionManager : IRegionManager, IDisposable
 {
     private static readonly ConcurrentDictionary<string, (WeakReference<DependencyObject> Target, IServiceProvider ServiceProvider, bool? PreferCache)> _tempRegionCache = [];
     private static RegionManager? _current;
@@ -103,7 +101,7 @@ public sealed class RegionManager : DependencyObject,
     {
         if (Volatile.Read(ref _current) != null)
             throw new InvalidOperationException("RegionManager is already created. Only one instance is allowed.");
-        
+
         _subscriptions = [];
         _regions = [];
         _serviceProvider = serviceProvider;
