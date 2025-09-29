@@ -66,7 +66,6 @@ internal sealed class RequestUnloadHandler
                 return;
             }
             _regionPresenter.ProcessDeactivate(context);
-            _viewCacheManager.Remove(context.ViewName, true);
         }
     }
 }

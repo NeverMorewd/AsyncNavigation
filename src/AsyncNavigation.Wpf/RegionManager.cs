@@ -5,12 +5,10 @@ using System.Windows;
 
 namespace AsyncNavigation.Wpf;
 
-public sealed class RegionManager : DependencyObject,
-    IRegionManager,
-    IDisposable
+public sealed class RegionManager : IRegionManager, IDisposable
 {
-    private static readonly Dictionary<string, (DependencyObject Target, IServiceProvider ServiceProvider, bool? PreferCache)> _tempRegionCache = [];
-    private static RegionManager? Current { get; set; }
+    private static readonly ConcurrentDictionary<string, (WeakReference<DependencyObject> Target, IServiceProvider ServiceProvider, bool? PreferCache)> _tempRegionCache = [];
+    private static RegionManager? _current;
     #region RegionName
     public static readonly DependencyProperty RegionNameProperty =
          DependencyProperty.RegisterAttached(
@@ -22,16 +20,28 @@ public sealed class RegionManager : DependencyObject,
     private static void OnRegionNameChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
     {
         var name = e.NewValue as string;
-        if (string.IsNullOrEmpty(name)) return;
+
+        if (string.IsNullOrEmpty(name))
+        {
+            var oldName = e.OldValue as string;
+            if (!string.IsNullOrEmpty(oldName))
+                _tempRegionCache.TryRemove(oldName, out _);
+            return;
+        }
         var serviceProvider = GetServiceProvider(d);
         var preferCache = GetPreferCache(d);
-        if (Current == null)
+        if (_current == null)
         {
-            _tempRegionCache.TryAdd(name, (d, serviceProvider, preferCache));
+            if (!_tempRegionCache.TryAdd(
+                name,
+                (new WeakReference<DependencyObject>(d), serviceProvider, preferCache)))
+            {
+                throw new InvalidOperationException($"Duplicated RegionName found: {name}");
+            }
         }
         else
         {
-            Current.AddRegionCore(name, d, serviceProvider, preferCache);
+            _current.CreateRegionCore(name, d, serviceProvider, preferCache);
         }
     }
 
@@ -82,10 +92,6 @@ public sealed class RegionManager : DependencyObject,
     }
     #endregion
 
-    static RegionManager()
-    {
-        
-    }
     private readonly IServiceProvider _serviceProvider;
     private readonly List<IDisposable> _subscriptions;
     private readonly ConcurrentDictionary<string, IRegion> _regions;
@@ -93,24 +99,30 @@ public sealed class RegionManager : DependencyObject,
     private IRegion? _currentRegion;
     public RegionManager(IRegionFactory regionFactory, IServiceProvider serviceProvider)
     {
+        if (Volatile.Read(ref _current) != null)
+            throw new InvalidOperationException("RegionManager is already created. Only one instance is allowed.");
+
         _subscriptions = [];
         _regions = [];
         _serviceProvider = serviceProvider;
         _regionFactory = regionFactory;
-        Current = this;
+        _current = this;
 
         foreach (var cache in _tempRegionCache)
         {
-            AddRegionCore(cache.Key, 
-                cache.Value.Target, 
-                cache.Value.ServiceProvider, 
-                cache.Value.PreferCache);
+            if (cache.Value.Target.TryGetTarget(out var target) && target != null)
+            {
+                CreateRegionCore(cache.Key,
+                    target,
+                    cache.Value.ServiceProvider,
+                    cache.Value.PreferCache);
+            }
         }
         _tempRegionCache.Clear();
     }
     public IReadOnlyDictionary<string, IRegion> Regions => _regions;
-    public async Task<NavigationResult> RequestNavigateAsync(string regionName, 
-        string viewName, 
+    public async Task<NavigationResult> RequestNavigateAsync(string regionName,
+        string viewName,
         INavigationParameters? navigationParameters = null,
         CancellationToken cancellationToken = default)
     {
@@ -140,7 +152,9 @@ public sealed class RegionManager : DependencyObject,
     {
         if (_regions.TryGetValue(regionName, out _))
             throw new InvalidOperationException($"Duplicated RegionName found:{regionName}");
-        _regions.TryAdd(regionName, region);
+        if (!_regions.TryAdd(regionName, region))
+            throw new InvalidOperationException($"Duplicated RegionName found:{regionName}");
+
     }
     public Task<NavigationResult> GoForward(string regionName, CancellationToken cancellationToken = default)
     {
@@ -169,13 +183,8 @@ public sealed class RegionManager : DependencyObject,
         }
         throw new InvalidOperationException($"Region '{regionName}' not found.");
     }
-    public void Dispose()
-    {
-        _subscriptions?.DisposeAll();
-        _regions.Values?.DisposeAll();
-    }
 
-    private void AddRegionCore(string name, DependencyObject target, IServiceProvider serviceProvider, bool? preferCache)
+    private void CreateRegionCore(string name, DependencyObject target, IServiceProvider serviceProvider, bool? preferCache)
     {
         if (_regions.TryGetValue(name, out _))
             throw new InvalidOperationException($"Duplicated RegionName found:{name}");
@@ -184,26 +193,24 @@ public sealed class RegionManager : DependencyObject,
 
         var region = _regionFactory.CreateRegion(name, target, serviceProvider, preferCache);
         AddRegion(name, region);
+    }
+    public void Dispose()
+    {
+        _subscriptions?.DisposeAll();
+        _regions.Values?.DisposeAll();
+    }
 
-        if (target is FrameworkElement fe)
+    private bool TryRemoveRegion(object target)
+    {
+        if (target is DependencyObject dobj)
         {
-            fe.Unloaded += (_, __) =>
+            var regionName = GetRegionName(dobj);
+            if (!string.IsNullOrEmpty(regionName) && _regions.TryRemove(regionName, out var region))
             {
-                if (_regions.TryRemove(name, out var region))
-                {
-                    region.Dispose();
-                }
-            };
+                region.Dispose();
+                return true;
+            }
         }
-        else if (target is FrameworkContentElement fce)
-        {
-            fce.Unloaded += (_, __) =>
-            {
-                if(_regions.TryRemove(name, out var region))
-                {
-                    region.Dispose();
-                }
-            };
-        }
+        return false;
     }
 }
