@@ -2,7 +2,6 @@
 using AsyncNavigation.Core;
 using System.Collections.Concurrent;
 using System.Windows;
-using System.Windows.Media;
 
 namespace AsyncNavigation.Wpf;
 
@@ -10,8 +9,8 @@ public sealed class RegionManager : DependencyObject,
     IRegionManager,
     IDisposable
 {
-    private static readonly Dictionary<string, (DependencyObject Target, IServiceProvider ServiceProvider, bool? PreferCache)> _tempRegionCache = [];
-    private static RegionManager? Current { get; set; }
+    private static readonly ConcurrentDictionary<string, (WeakReference<DependencyObject> Target, IServiceProvider ServiceProvider, bool? PreferCache)> _tempRegionCache = [];
+    private static RegionManager? _current;
     #region RegionName
     public static readonly DependencyProperty RegionNameProperty =
          DependencyProperty.RegisterAttached(
@@ -23,16 +22,28 @@ public sealed class RegionManager : DependencyObject,
     private static void OnRegionNameChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
     {
         var name = e.NewValue as string;
-        if (string.IsNullOrEmpty(name)) return;
+
+        if (string.IsNullOrEmpty(name))
+        {
+            var oldName = e.OldValue as string;
+            if (!string.IsNullOrEmpty(oldName))
+                _tempRegionCache.TryRemove(oldName, out _);
+            return;
+        }
         var serviceProvider = GetServiceProvider(d);
         var preferCache = GetPreferCache(d);
-        if (Current == null)
+        if (_current == null)
         {
-            _tempRegionCache.TryAdd(name, (d, serviceProvider, preferCache));
+            if (!_tempRegionCache.TryAdd(
+                name,
+                (new WeakReference<DependencyObject>(d), serviceProvider, preferCache)))
+            {
+                throw new InvalidOperationException($"Duplicated RegionName found: {name}");
+            }
         }
         else
         {
-            Current.CreateRegionCore(name, d, serviceProvider, preferCache);
+            _current.CreateRegionCore(name, d, serviceProvider, preferCache);
         }
     }
 
@@ -83,10 +94,6 @@ public sealed class RegionManager : DependencyObject,
     }
     #endregion
 
-    static RegionManager()
-    {
-
-    }
     private readonly IServiceProvider _serviceProvider;
     private readonly List<IDisposable> _subscriptions;
     private readonly ConcurrentDictionary<string, IRegion> _regions;
@@ -94,18 +101,24 @@ public sealed class RegionManager : DependencyObject,
     private IRegion? _currentRegion;
     public RegionManager(IRegionFactory regionFactory, IServiceProvider serviceProvider)
     {
+        if (Volatile.Read(ref _current) != null)
+            throw new InvalidOperationException("RegionManager is already created. Only one instance is allowed.");
+        
         _subscriptions = [];
         _regions = [];
         _serviceProvider = serviceProvider;
         _regionFactory = regionFactory;
-        Current = this;
+        _current = this;
 
         foreach (var cache in _tempRegionCache)
         {
-            CreateRegionCore(cache.Key,
-                cache.Value.Target,
-                cache.Value.ServiceProvider,
-                cache.Value.PreferCache);
+            if (cache.Value.Target.TryGetTarget(out var target) && target != null)
+            {
+                CreateRegionCore(cache.Key,
+                    target,
+                    cache.Value.ServiceProvider,
+                    cache.Value.PreferCache);
+            }
         }
         _tempRegionCache.Clear();
     }

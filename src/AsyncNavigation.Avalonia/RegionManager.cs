@@ -1,7 +1,6 @@
 ﻿using AsyncNavigation.Abstractions;
 using AsyncNavigation.Core;
 using Avalonia;
-using Avalonia.Controls;
 using System.Collections.Concurrent;
 
 namespace AsyncNavigation.Avalonia;
@@ -56,10 +55,6 @@ public sealed class RegionManager :
     }
     #endregion
 
-    static RegionManager()
-    {
-
-    }
     private readonly IServiceProvider _serviceProvider;
     private readonly List<IDisposable> _subscriptions;
     private readonly ConcurrentDictionary<string, IRegion> _regions;
@@ -154,21 +149,31 @@ public sealed class RegionManager :
     void IObserver<AvaloniaPropertyChangedEventArgs<string>>.OnNext(AvaloniaPropertyChangedEventArgs<string> value)
     {
         var name = value.NewValue.GetValueOrDefault();
-        if (string.IsNullOrEmpty(name)) return;
+        if (string.IsNullOrEmpty(name))
+        {
+            var old = value.OldValue.GetValueOrDefault();
+            if (!string.IsNullOrEmpty(old))
+            {
+                _regions.TryRemove(old, out _);
+            }
+            return;
+        }
         if (_regions.TryGetValue(name, out _))
             throw new InvalidOperationException($"Duplicated RegionName found:{name}");
 
         bool? useCache = null;
         IServiceProvider serviceProvider = _serviceProvider;
+        
         if (value.Sender.IsSet(PreferCacheProperty))
         {
             useCache = value.Sender.GetValue(PreferCacheProperty);
         }
         if (value.Sender.IsSet(ServiceProviderProperty))
         {
-            serviceProvider = value.Sender.GetValue(ServiceProviderProperty);
+            serviceProvider = value.Sender.GetValue(ServiceProviderProperty) ?? serviceProvider;
         }
         var region = _regionFactory.CreateRegion(name, value.Sender, serviceProvider, useCache);
+        
         AddRegion(name, region);
     }
 
