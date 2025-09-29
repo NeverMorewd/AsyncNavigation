@@ -2,6 +2,7 @@
 using AsyncNavigation.Core;
 using System.Collections.Concurrent;
 using System.Windows;
+using System.Windows.Media;
 
 namespace AsyncNavigation.Wpf;
 
@@ -140,28 +141,9 @@ public sealed class RegionManager : DependencyObject,
     {
         if (_regions.TryGetValue(regionName, out _))
             throw new InvalidOperationException($"Duplicated RegionName found:{regionName}");
-
-        if (_regions.TryAdd(regionName, region))
-        {
-            if (region is FrameworkElement fe)
-            {
-                fe.Unloaded += (sender, __) =>
-                {
-                    TryRemoveRegion(sender);
-                };
-            }
-            else if (region is FrameworkContentElement fce)
-            {
-                fce.Unloaded += (sender, __) =>
-                {
-                    TryRemoveRegion(sender);
-                };
-            }
-        }
-        else
-        {
+        if (!_regions.TryAdd(regionName, region))
             throw new InvalidOperationException($"Duplicated RegionName found:{regionName}");
-        }
+
     }
     public Task<NavigationResult> GoForward(string regionName, CancellationToken cancellationToken = default)
     {
@@ -201,6 +183,11 @@ public sealed class RegionManager : DependencyObject,
         var region = _regionFactory.CreateRegion(name, target, serviceProvider, preferCache);
         AddRegion(name, region);
     }
+    public void Dispose()
+    {
+        _subscriptions?.DisposeAll();
+        _regions.Values?.DisposeAll();
+    }
 
     private bool TryRemoveRegion(object target)
     {
@@ -214,10 +201,5 @@ public sealed class RegionManager : DependencyObject,
             }
         }
         return false;
-    }
-    public void Dispose()
-    {
-        _subscriptions?.DisposeAll();
-        _regions.Values?.DisposeAll();
     }
 }
