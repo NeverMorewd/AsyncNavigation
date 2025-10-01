@@ -55,6 +55,7 @@ internal sealed class RegionNavigationService<T> : IRegionNavigationService<T> w
         finally
         {
             stopwatch.Stop();
+
 #if DISABLE_NAV_HISTORY
             GC.Collect();
 #endif

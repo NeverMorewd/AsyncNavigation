@@ -22,7 +22,6 @@ internal sealed class WeakRequestUnloadHandler
     public void Attach(INavigationAware aware, NavigationContext context)
     {
         var weakAware = new WeakReference<INavigationAware>(aware);
-
         async Task OnRequestUnloadAsync(object sender, AsyncEventArgs args)
         {
             if (!weakAware.TryGetTarget(out var target))
@@ -48,8 +47,7 @@ internal sealed class WeakRequestUnloadHandler
     public void AttachOld(INavigationAware aware, NavigationContext context)
     {
         var weakAware = new WeakReference<INavigationAware>(aware);
-
-        AsyncEventHandler<AsyncEventArgs> handler = null;
+        AsyncEventHandler<AsyncEventArgs> handler = null!;
 
         handler = async (s, e) =>
         {

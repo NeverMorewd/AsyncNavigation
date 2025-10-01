@@ -1,10 +1,11 @@
 ﻿using AsyncNavigation.Abstractions;
 using AsyncNavigation.Avalonia;
+using AsyncNavigation.Tests.Uitls;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace AsyncNavigation.Tests;
 
-public class RegionManagerTests: IClassFixture<ServiceFixture>
+public class RegionManagerTests : IClassFixture<ServiceFixture>
 {
     private readonly RegionManager _regionManager;
     private readonly IServiceProvider _serviceProvider;
@@ -12,7 +13,9 @@ public class RegionManagerTests: IClassFixture<ServiceFixture>
     public RegionManagerTests(ServiceFixture serviceFixture)
     {
         _serviceProvider = serviceFixture.ServiceProvider;
-        _regionManager = new RegionManager(_serviceProvider.GetRequiredService<IRegionFactory>(), _serviceProvider);
+        _regionManager = new RegionManager(
+            _serviceProvider.GetRequiredService<IRegionFactory>(),
+            _serviceProvider);
     }
 
     [Fact]
@@ -31,7 +34,8 @@ public class RegionManagerTests: IClassFixture<ServiceFixture>
         var region = new FakeRegion();
         _regionManager.AddRegion("Main", region);
 
-        Assert.Throws<InvalidOperationException>(() => _regionManager.AddRegion("Main", new FakeRegion()));
+        Assert.Throws<InvalidOperationException>(() =>
+            _regionManager.AddRegion("Main", new FakeRegion()));
     }
 
     [Fact]
@@ -39,11 +43,8 @@ public class RegionManagerTests: IClassFixture<ServiceFixture>
     {
         var region = new FakeRegion();
         _regionManager.AddRegion("Main", region);
-
         var result = await _regionManager.RequestNavigateAsync("Main", "Home");
-
         Assert.True(result.IsSuccessful);
-        //Assert.Contains("Home", region.ActivatedViews);
     }
 
     [Fact]
@@ -51,5 +52,63 @@ public class RegionManagerTests: IClassFixture<ServiceFixture>
     {
         await Assert.ThrowsAsync<InvalidOperationException>(() =>
             _regionManager.RequestNavigateAsync("Unknown", "Home"));
+    }
+
+    [Fact]
+    public async Task TryGetRegion_ShouldReturnFalse_WhenRegionCollected()
+    {
+        var region = new FakeRegion();
+        _regionManager.AddRegion("Temp", region);
+
+        var weak = new WeakReference(region);
+        region = null;
+        var collected = await GcTestUtils.WaitForCollectedAsync(weak);
+        if (!collected)
+        {
+            Assert.Fail("Region was not collected in time.");
+        }
+
+        var success = _regionManager.TryGetRegion("Temp", out var recovered);
+        Assert.False(success);
+        Assert.Null(recovered);
+
+        
+        Assert.DoesNotContain("Temp", _regionManager.Regions.Keys);
+        Assert.False(weak.IsAlive);
+    }
+
+    [Fact]
+    public void TryRemoveRegion_ShouldRemoveSuccessfully()
+    {
+        var region = new FakeRegion();
+        _regionManager.AddRegion("Removable", region);
+
+        var removed = _regionManager.TryRemoveRegion("Removable", out var removedRegion);
+        Assert.True(removed);
+        Assert.Same(region, removedRegion);
+
+        
+        var exists = _regionManager.TryGetRegion("Removable", out _);
+        Assert.False(exists);
+    }
+
+    [Fact]
+    public async Task Regions_ShouldNotContainCollectedRegion()
+    {
+        var region = new FakeRegion();
+        _regionManager.AddRegion("GCRegion", region);
+
+        var weak = new WeakReference(region);
+
+        region = null;
+        var collected = await GcTestUtils.WaitForCollectedAsync(weak);
+        if (!collected)
+        {
+            Assert.Fail("Region was not collected in time.");
+        }
+
+        var regions = _regionManager.Regions;
+        Assert.DoesNotContain("GCRegion", regions.Keys);
+        Assert.False(weak.IsAlive);
     }
 }

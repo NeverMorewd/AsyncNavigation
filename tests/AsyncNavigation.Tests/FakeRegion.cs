@@ -13,7 +13,7 @@ public class FakeRegion : IRegion
 
     public Task<NavigationResult> ActivateViewAsync(NavigationContext navigationContext)
     {
-        throw new NotImplementedException();
+        return Task.FromResult(NavigationResult.Success(TimeSpan.Zero));
     }
 
     public Task<bool> CanGoBackAsync()
