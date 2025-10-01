@@ -58,6 +58,12 @@ public static class DependencyInjectionExtensions
         {
             NavigationOptions.Default.MergeFrom(navigationOptions);
         }
+
+
+#if DISABLE_NAV_HISTORY
+        NavigationOptions.Default.MaxHistoryItems = 0;
+#endif
+
         serviceDescriptors.AddSingleton(NavigationOptions.Default);
         if (NavigationOptions.Default.NavigationJobScope == NavigationJobScope.App)
         {

@@ -20,10 +20,18 @@ public class NavigationOptions
     /// Gets or sets the maximum number of cached views in the navigation system.
     /// </summary>
     /// <remarks>
-    /// The cache helps improve performance by reusing previously created views.
-    /// Default value is <c>10</c>.
+    /// This property is obsolete. Use <see cref="MaxHistoryItems"/> instead. 
+    /// MaxHistoryItems represents the maximum number of navigation history items globally,
+    /// while MaxCachedViews only controlled per-region view caching in the old design.
     /// </remarks>
+    [Obsolete("MaxCachedViews is deprecated. Use MaxHistoryItems instead.")]
     public int MaxCachedViews { get; set; } = 10;
+
+    /// <summary>
+    /// Gets or sets the maximum number of navigation history items globally.
+    /// </summary>
+    public int MaxHistoryItems { get; set; } = 10;
+
 
     /// <summary>
     /// Gets or sets the delay before showing a loading indicator during navigation.
@@ -104,6 +112,9 @@ public class NavigationOptions
 
         if (other.MaxCachedViews != Default.MaxCachedViews)
             MaxCachedViews = other.MaxCachedViews;
+
+        if (other.MaxHistoryItems != Default.MaxHistoryItems)
+            MaxHistoryItems = other.MaxHistoryItems;
 
         if (other.LoadingIndicatorDelay != Default.LoadingIndicatorDelay)
             LoadingIndicatorDelay = other.LoadingIndicatorDelay;

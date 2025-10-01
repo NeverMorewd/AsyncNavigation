@@ -6,40 +6,40 @@ using System.Windows.Data;
 
 namespace AsyncNavigation.Wpf;
 
-public class TabRegion : RegionBase<TabRegion>
+public class TabRegion : RegionBase<TabRegion, TabControl>
 {
-    private readonly TabControl _tabControl;
     public TabRegion(string name, 
-        TabControl control, 
+        TabControl tabControl, 
         IServiceProvider serviceProvider, 
-        bool? useCache = null) : base(name, serviceProvider)
+        bool? useCache = null) : base(name, tabControl, serviceProvider)
     {
-        ArgumentNullException.ThrowIfNull(control);
+        ArgumentNullException.ThrowIfNull(tabControl);
         ArgumentNullException.ThrowIfNull(serviceProvider);
-        _tabControl = control;
 
-        _tabControl.SetBinding(ItemsControl.ItemsSourceProperty,
-            new Binding(nameof(RegionContext.Items))
-            {
-                Source = _context
-            });
-
-        _tabControl.SetBinding(Selector.SelectedItemProperty,
-            new Binding(nameof(RegionContext.Selected))
-            {
-                Source = _context,
-                Mode = BindingMode.TwoWay
-            });
-
-        var dataTemplate = new DataTemplate
+        RegionControlAccessor.ExecuteOn(control => 
         {
-            VisualTree = new FrameworkElementFactory(typeof(ContentPresenter))
-        };
-        dataTemplate.VisualTree.SetBinding(ContentPresenter.ContentProperty,
-            new Binding("IndicatorHost.Value.Host"));
+            control.SetBinding(ItemsControl.ItemsSourceProperty,
+                new Binding(nameof(RegionContext.Items))
+                {
+                    Source = _context
+                });
 
-        _tabControl.ContentTemplate = dataTemplate;
+            control.SetBinding(Selector.SelectedItemProperty,
+                new Binding(nameof(RegionContext.Selected))
+                {
+                    Source = _context,
+                    Mode = BindingMode.TwoWay
+                });
 
+            var dataTemplate = new DataTemplate
+            {
+                VisualTree = new FrameworkElementFactory(typeof(ContentPresenter))
+            };
+            dataTemplate.VisualTree.SetBinding(ContentPresenter.ContentProperty,
+                new Binding("IndicatorHost.Value.Host"));
+
+            control.ContentTemplate = dataTemplate;
+        });
         EnableViewCache = useCache ?? false;
         IsSinglePageRegion = false;
     }

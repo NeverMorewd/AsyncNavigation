@@ -6,40 +6,42 @@ using System.Windows.Data;
 
 namespace AsyncNavigation.Wpf;
 
-public class ItemsRegion : RegionBase<ItemsRegion>
+public class ItemsRegion : RegionBase<ItemsRegion, ItemsControl>
 {
-    private readonly ItemsControl _itemsControl;
     public ItemsRegion(string name,
         ItemsControl itemsControl, 
         IServiceProvider serviceProvider, 
-        bool? useCache) : base(name, serviceProvider)
+        bool? useCache) : base(name, itemsControl, serviceProvider)
     {
         ArgumentNullException.ThrowIfNull(itemsControl);
         ArgumentNullException.ThrowIfNull(serviceProvider);
-        _itemsControl = itemsControl;
 
-        _itemsControl.SetBinding(ItemsControl.ItemsSourceProperty, 
-            new Binding(nameof(RegionContext.Items))
-            {
-                Source = _context
-            });
-
-        _itemsControl.SetBinding(Selector.SelectedItemProperty, 
-            new Binding(nameof(RegionContext.Selected))
-            {
-                Source = _context,
-                Mode = BindingMode.TwoWay
-            });
-
-        var dataTemplate = new DataTemplate
+        RegionControlAccessor.ExecuteOn(control =>
         {
-            VisualTree = new FrameworkElementFactory(typeof(ContentPresenter))
-        };
-        dataTemplate.VisualTree.SetBinding(ContentPresenter.ContentProperty, 
-            new Binding("IndicatorHost.Value.Host"));
+            control = itemsControl;
 
-        _itemsControl.ItemTemplate = dataTemplate;
+            control.SetBinding(ItemsControl.ItemsSourceProperty,
+                new Binding(nameof(RegionContext.Items))
+                {
+                    Source = _context
+                });
 
+            control.SetBinding(Selector.SelectedItemProperty,
+                new Binding(nameof(RegionContext.Selected))
+                {
+                    Source = _context,
+                    Mode = BindingMode.TwoWay
+                });
+
+            var dataTemplate = new DataTemplate
+            {
+                VisualTree = new FrameworkElementFactory(typeof(ContentPresenter))
+            };
+            dataTemplate.VisualTree.SetBinding(ContentPresenter.ContentProperty,
+                new Binding("IndicatorHost.Value.Host"));
+
+            control.ItemTemplate = dataTemplate;
+        });
 
         EnableViewCache = useCache ?? false;
         IsSinglePageRegion = false;
@@ -48,7 +50,6 @@ public class ItemsRegion : RegionBase<ItemsRegion>
     public override void Dispose()
     {
         base.Dispose();
-        _itemsControl.DataContext = null;
         _context.Clear();
     }
     public override void ProcessActivate(NavigationContext navigationContext)
