@@ -36,8 +36,8 @@
                 Tag="AView" />
             <Button
                 Classes="Navigation"
-                Content="ToB"
-                Tag="BView" />
+                Content="ToE"
+                Tag="EView" />
 			<Button
                 Classes="Navigation"
                 Content="ToC"

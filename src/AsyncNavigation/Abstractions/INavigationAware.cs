@@ -4,7 +4,7 @@ namespace AsyncNavigation.Abstractions;
 
 public interface INavigationAware
 {
-    Task InitializeAsync(CancellationToken cancellationToken);
+    Task InitializeAsync(NavigationContext context);
     Task OnNavigatedToAsync(NavigationContext context);
     Task OnNavigatedFromAsync(NavigationContext context);   
     Task<bool> IsNavigationTargetAsync(NavigationContext context);

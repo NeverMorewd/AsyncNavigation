@@ -60,7 +60,7 @@ public static class DependencyInjectionExtensions
         }
 
 
-#if DISABLE_NAV_HISTORY
+#if GC_TEST
         NavigationOptions.Default.MaxHistoryItems = 0;
 #endif
 
@@ -77,7 +77,7 @@ public static class DependencyInjectionExtensions
             .AddSingleton<IDialogService, DialogService>()
             .AddSingleton<IRegionNavigationServiceFactory, RegionNavigationServiceFactory>()
             .AddSingleton<IRegionFactory, RegionFactory>()
-            .AddSingleton<IViewFactory>(sp => new DefaultViewFactory(sp, serviceDescriptors))
+            .AddSingleton<IViewFactory, DefaultViewFactory>()
             .AddTransient<IViewManager, ViewManager>()
             .AddTransient<IRegionNavigationHistory, RegionNavigationHistory>()
             .AddTransient<IRegionIndicatorProvider, RegionIndicatorProvider>()

@@ -7,32 +7,81 @@
     xmlns:local="clr-namespace:Sample.Wpf"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     Title="MainWindow"
-    WindowState="Maximized"
     Width="800"
     Height="450"
+    WindowState="Maximized"
     mc:Ignorable="d">
     <Grid>
         <DockPanel LastChildFill="True">
             <StackPanel DockPanel.Dock="Right">
                 <StackPanel Orientation="Horizontal">
-                    <Button Style="{StaticResource GoBack}"/>
-                    <Button Style="{StaticResource GoForward}"/>
+                    <Button Style="{StaticResource GoBack}" />
+                    <Button Style="{StaticResource GoForward}" />
                 </StackPanel>
-                <Button Content="ToA" Tag="AView" Style="{StaticResource NavigationButton}"/>
-                <Button Content="ToE" Tag="EView" Style="{StaticResource NavigationButton}"/>
-                <Button Content="ToB:ItemsRegion;Delay" Tag="BView" Style="{StaticResource NavigationWithDelay}"/>
-                <Button Content="ToC:ChildContentRegion" Tag="CView" Style="{StaticResource NavigationButton}"/>
-                <Button Content="ToD:TabRegion" Tag="DView" Style="{StaticResource NavigationButton}"/>
-                <Button Content="ToA:Forget" Tag="AView" Style="{StaticResource NavigationAndForget}"/>
-                <Button Content="ToE:Forget" Tag="EView" Style="{StaticResource NavigationAndForget}"/>
-                <Button Content="ToA:New" Tag="AView:New" Style="{StaticResource NavigationButton}"/>
-                <Button Content="ToE:Error" Tag="EView:Error" Style="{StaticResource NavigationButton}"/>
-                <Button Content="ToA:Dialog.Show" Tag="AView" Style="{StaticResource DialogShow}"/>
-                <Button Content="ToE:Dialog.Show" Tag="EView" Style="{StaticResource DialogShow}"/>
-                <Button Content="ToA:Dialog.ShowDialog" Tag="AView" Style="{StaticResource DialogShowDialog}"/>
-                <Button Content="ToE:Dialog.AsyncShowDialog" Tag="EView" Style="{StaticResource DialogShowDialogAsync}"/>
-                <Button Content="ToA:Dialog.ShowDialogWithCancelling" Tag="AView" Style="{StaticResource DialogShowDialogAsyncWithCancelling}"/>
-                <Button Content="ToListBoxRegionView" Tag="ListBoxRegionView" Style="{StaticResource NavigationButton}"/>
+                <Button
+                    Content="ToA"
+                    Style="{StaticResource NavigationButton}"
+                    Tag="AView" />
+                <Button
+                    Content="ToE"
+                    Style="{StaticResource NavigationButton}"
+                    Tag="EView" />
+                <Button
+                    Content="ToB:ItemsRegion;Delay"
+                    Style="{StaticResource NavigationWithDelay}"
+                    Tag="BView" />
+                <Button
+                    Content="ToC:ChildContentRegion"
+                    Style="{StaticResource NavigationButton}"
+                    Tag="CView" />
+                <Button
+                    Content="ToD:TabRegion"
+                    Style="{StaticResource NavigationButton}"
+                    Tag="DView" />
+                <Button
+                    Content="ToA:Forget"
+                    Style="{StaticResource NavigationAndForget}"
+                    Tag="AView" />
+                <Button
+                    Content="ToE:Forget"
+                    Style="{StaticResource NavigationAndForget}"
+                    Tag="EView" />
+                <Button
+                    Content="ToA:New"
+                    Style="{StaticResource NavigationButton}"
+                    Tag="AView:New" />
+                <Button
+                    Content="ToE:Error"
+                    Style="{StaticResource NavigationButton}"
+                    Tag="EView:Error" />
+                <Button
+                    Content="ToA:Dialog.Show"
+                    Style="{StaticResource DialogShow}"
+                    Tag="AView" />
+                <Button
+                    Content="ToE:Dialog.Show"
+                    Style="{StaticResource DialogShow}"
+                    Tag="EView" />
+                <Button
+                    Content="ToA:Dialog.ShowDialog"
+                    Style="{StaticResource DialogShowDialog}"
+                    Tag="AView" />
+                <Button
+                    Content="ToE:Dialog.AsyncShowDialog"
+                    Style="{StaticResource DialogShowDialogAsync}"
+                    Tag="EView" />
+                <Button
+                    Content="ToA:Dialog.ShowDialogWithCancelling"
+                    Style="{StaticResource DialogShowDialogAsyncWithCancelling}"
+                    Tag="AView" />
+                <Button
+                    Content="ToListBoxRegionView"
+                    Style="{StaticResource NavigationButton}"
+                    Tag="ListBoxRegionView" />
+                <Button
+                    Command="{Binding CollectCommand}"
+                    Content="Collect"
+                    Tag="" />
             </StackPanel>
             <ContentControl an:RegionManager.RegionName="MainRegion" />
         </DockPanel>

@@ -35,9 +35,9 @@
                 Style="{StaticResource NavigationButton}"
                 Tag="AView" />
             <Button
-                Content="ToB"
+                Content="ToE"
                 Style="{StaticResource NavigationButton}"
-                Tag="BView" />
+                Tag="EView" />
             <Button
                 Content="ToC"
                 Style="{StaticResource NavigationButton}"

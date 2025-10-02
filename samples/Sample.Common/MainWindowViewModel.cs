@@ -85,4 +85,11 @@ public partial class MainWindowViewModel : ViewModelBase
     {
         await _regionManager.GoBack("MainRegion");
     }
+
+    [ReactiveCommand]
+    private void Collect()
+    {
+        GC.Collect();
+        GC.WaitForPendingFinalizers();
+    }
 }
