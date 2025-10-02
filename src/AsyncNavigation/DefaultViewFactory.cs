@@ -8,41 +8,49 @@ namespace AsyncNavigation;
 internal sealed class DefaultViewFactory : IViewFactory
 {
     private readonly IServiceProvider _serviceProvider;
-    private readonly IReadOnlyList<ServiceDescriptor> _serviceDescriptors;
     private readonly ConcurrentDictionary<string, Func<IView>> _viewFactories = new();
 
-    public DefaultViewFactory(IServiceProvider serviceProvider, IEnumerable<ServiceDescriptor> serviceDescriptors)
+    public DefaultViewFactory(IServiceProvider serviceProvider)
     {
-        _serviceProvider = serviceProvider;
-        _serviceDescriptors = [.. serviceDescriptors];
+        _serviceProvider = serviceProvider ?? throw new ArgumentNullException(nameof(serviceProvider));
     }
 
     public IView CreateView(string viewName)
     {
+        if (string.IsNullOrWhiteSpace(viewName))
+            throw new ArgumentException("View name cannot be null or whitespace.", nameof(viewName));
+
         var factory = _viewFactories.GetOrAdd(viewName, CreateViewFactory);
         var view = factory();
+
         Debug.WriteLine($"Created view {viewName} of type {view.GetType().Name}");
         return view;
     }
 
     public void AddView(string key, IView view)
     {
-        if(_viewFactories.TryGetValue(key, out _))
+        if (string.IsNullOrWhiteSpace(key))
+            throw new ArgumentException("View key cannot be null or whitespace.", nameof(key));
+
+        if (!_viewFactories.TryAdd(key, () => view))
             throw new ArgumentException($"View with key '{key}' already exists.");
-        _viewFactories.TryAdd(key, () => view);
     }
+
     public void AddView(string key, Func<string, IView> viewBuilder)
     {
-        if (_viewFactories.TryGetValue(key, out _))
+        if (string.IsNullOrWhiteSpace(key))
+            throw new ArgumentException("View key cannot be null or whitespace.", nameof(key));
+
+        if (!_viewFactories.TryAdd(key, () => viewBuilder(key)))
             throw new ArgumentException($"View with key '{key}' already exists.");
-        _viewFactories.TryAdd(key, () => viewBuilder.Invoke(key));
     }
 
     public bool CanCreateView(string viewName)
     {
-        return _serviceDescriptors.Any(sd =>
-            sd.ServiceType == typeof(IView) &&
-            sd.ServiceKey?.Equals(viewName) == true);
+        if (string.IsNullOrWhiteSpace(viewName))
+            return false;
+
+        return _serviceProvider.GetKeyedService<IView>(viewName) is not null;
     }
 
     private Func<IView> CreateViewFactory(string viewName)
@@ -52,15 +60,19 @@ internal sealed class DefaultViewFactory : IViewFactory
             try
             {
                 var view = _serviceProvider.GetRequiredKeyedService<IView>(viewName);
-                if (view.DataContext is not INavigationAware)
+
+                if (view.DataContext is null)
                 {
-                    view.DataContext = _serviceProvider.GetRequiredKeyedService<INavigationAware>(viewName);
+                    var navigationAware = _serviceProvider.GetKeyedService<INavigationAware>(viewName);
+                    if (navigationAware is not null)
+                        view.DataContext = navigationAware;
                 }
+
                 return view;
             }
             catch (Exception ex)
             {
-                Debug.WriteLine(ex);
+                Debug.WriteLine($"Failed to create view for '{viewName}': {ex}");
                 throw new InvalidOperationException($"Failed to create view for '{viewName}'", ex);
             }
         };

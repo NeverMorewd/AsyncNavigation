@@ -24,7 +24,7 @@ public class NavigationOptions
     /// MaxHistoryItems represents the maximum number of navigation history items globally,
     /// while MaxCachedViews only controlled per-region view caching in the old design.
     /// </remarks>
-    [Obsolete("MaxCachedViews is deprecated. Use MaxHistoryItems instead.")]
+    //[Obsolete("MaxCachedViews is deprecated. Use MaxHistoryItems instead.")]
     public int MaxCachedViews { get; set; } = 10;
 
     /// <summary>

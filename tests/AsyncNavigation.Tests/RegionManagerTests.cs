@@ -1,6 +1,7 @@
 ﻿using AsyncNavigation.Abstractions;
 using AsyncNavigation.Avalonia;
-using AsyncNavigation.Tests.Uitls;
+using AsyncNavigation.Tests.Mocks;
+using AsyncNavigation.Tests.Utils;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace AsyncNavigation.Tests;
@@ -62,7 +63,7 @@ public class RegionManagerTests : IClassFixture<ServiceFixture>
 
         var weak = new WeakReference(region);
         region = null;
-        var collected = await GcTestUtils.WaitForCollectedAsync(weak);
+        var collected = await GcUtils.WaitForCollectedAsync(weak);
         if (!collected)
         {
             Assert.Fail("Region was not collected in time.");
@@ -101,7 +102,7 @@ public class RegionManagerTests : IClassFixture<ServiceFixture>
         var weak = new WeakReference(region);
 
         region = null;
-        var collected = await GcTestUtils.WaitForCollectedAsync(weak);
+        var collected = await GcUtils.WaitForCollectedAsync(weak);
         if (!collected)
         {
             Assert.Fail("Region was not collected in time.");

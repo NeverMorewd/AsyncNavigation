@@ -3,7 +3,7 @@ using AsyncNavigation.Core;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace AsyncNavigation.Tests;
+namespace AsyncNavigation.Tests.Mocks;
 
 public class FakeRegion : IRegion
 {

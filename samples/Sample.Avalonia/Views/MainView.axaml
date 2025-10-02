@@ -88,6 +88,10 @@
                         Classes="Navigation"
                         Content="ToListBoxRegionView"
                         Tag="ListBoxRegionView" />
+					<Button
+                        Command="{Binding CollectCommand}"
+                        Content="Collect"
+                        Tag="" />
                 </StackPanel>
             </DockPanel>
         </SplitView.Pane>
