@@ -7,7 +7,7 @@
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
-    <DefineConstants>$(DefineConstants);DISABLE_NAV_HISTORY</DefineConstants>
+    <DefineConstants>$(DefineConstants);GC_TEST</DefineConstants>
   </PropertyGroup>
 
   <ItemGroup>

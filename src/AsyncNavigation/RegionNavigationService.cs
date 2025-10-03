@@ -11,7 +11,6 @@ internal sealed class RegionNavigationService<T> : IRegionNavigationService<T> w
     private readonly IRegionIndicatorManager _regionIndicatorManager;
     private readonly INavigationJobScheduler _navigationJobScheduler;
     private readonly IRegionPresenter _regionPresenter;
-    private readonly WeakRequestUnloadHandler _unloadHandler;
     private volatile IView? _current;
     public RegionNavigationService(T regionPresenter, IServiceProvider serviceProvider)
     {
@@ -19,15 +18,6 @@ internal sealed class RegionNavigationService<T> : IRegionNavigationService<T> w
         _navigationJobScheduler = serviceProvider.GetRequiredService<INavigationJobScheduler>();
         _viewCacheManager = serviceProvider.GetRequiredService<IViewManager>();
         _regionIndicatorManager = serviceProvider.GetRequiredService<IRegionIndicatorManager>();
-        _unloadHandler = new WeakRequestUnloadHandler(_regionPresenter,
-            _viewCacheManager,
-            aware =>
-            {
-                if (CurrentView != null && CurrentView.DataContext == aware)
-                {
-                    CurrentView = null;
-                }
-            });
     }
     internal IView? CurrentView
     {
@@ -152,7 +142,14 @@ internal sealed class RegionNavigationService<T> : IRegionNavigationService<T> w
         if (navigationContext.Target.Value is IView view
             && view.DataContext is INavigationAware aware)
         {
-            _unloadHandler.Attach(aware, navigationContext);
+            var contextSnapshot = navigationContext;
+            WeakUnloadObserver.Subscribe(aware, a =>
+            {
+                if (ReferenceEquals(CurrentView?.DataContext, a))
+                    CurrentView = null;
+
+                _regionPresenter.ProcessDeactivate(contextSnapshot);
+            });
             await aware.OnNavigatedToAsync(navigationContext);
             navigationContext.CancellationToken.ThrowIfCancellationRequested();
             CurrentView = view;
