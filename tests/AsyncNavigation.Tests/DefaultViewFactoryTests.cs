@@ -1,43 +1,24 @@
 ﻿using AsyncNavigation.Abstractions;
-using AsyncNavigation.Core;
+using AsyncNavigation.Tests.Infrastructure;
+using AsyncNavigation.Tests.Mocks;
 using Microsoft.Extensions.DependencyInjection;
+
 namespace AsyncNavigation.Tests;
-public class DefaultViewFactoryTests
+
+public class DefaultViewFactoryTests : IClassFixture<ServiceFixture>
 {
     private readonly IServiceProvider _serviceProvider;
 
-    private class TestView : IView
+    public DefaultViewFactoryTests(ServiceFixture serviceFixture)
     {
-        public object? DataContext { get; set; }
-    }
-
-    private class TestNavigationAware : INavigationAware
-    {
-        public event AsyncEventHandler<AsyncEventArgs>? RequestUnloadAsync;
-
-        public Task InitializeAsync(NavigationContext context) => Task.CompletedTask;
-        public Task<bool> IsNavigationTargetAsync(NavigationContext context) => Task.FromResult(true);
-        public Task OnNavigatedFromAsync(NavigationContext context) => Task.CompletedTask;
-        public Task OnNavigatedToAsync(NavigationContext context) => Task.CompletedTask;
-        public Task OnUnloadAsync(CancellationToken cancellationToken) => Task.CompletedTask;
-    }
-
-    public DefaultViewFactoryTests()
-    {
-        var services = new ServiceCollection();
-        services.AddSingleton<IViewFactory, DefaultViewFactory>();
-        services.RegisterView<TestView, TestNavigationAware>("TestView");
-
-        _serviceProvider = services.BuildServiceProvider();
+        _serviceProvider = serviceFixture.ServiceProvider;
     }
 
     [Fact]
     public void CreateView_ShouldReturnView_WithNavigationAwareDataContext()
     {
         var factory = _serviceProvider.GetRequiredService<IViewFactory>();
-
         var view = factory.CreateView("TestView") as TestView;
-
         Assert.NotNull(view);
         Assert.NotNull(view.DataContext);
         Assert.IsType<TestNavigationAware>(view.DataContext);
@@ -47,7 +28,6 @@ public class DefaultViewFactoryTests
     public void CanCreateView_ShouldReturnTrueForRegisteredView()
     {
         var factory = _serviceProvider.GetRequiredService<IViewFactory>();
-
         Assert.True(factory.CanCreateView("TestView"));
         Assert.False(factory.CanCreateView("NonExistentView"));
     }

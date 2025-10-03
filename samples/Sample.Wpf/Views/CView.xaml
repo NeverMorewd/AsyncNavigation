@@ -38,10 +38,6 @@
                 Content="ToE"
                 Style="{StaticResource NavigationButton}"
                 Tag="EView" />
-            <Button
-                Content="ToC"
-                Style="{StaticResource NavigationButton}"
-                Tag="CView" />
         </StackPanel>
         <ContentControl an:RegionManager.RegionName="ChildContentRegion" />
     </DockPanel>
