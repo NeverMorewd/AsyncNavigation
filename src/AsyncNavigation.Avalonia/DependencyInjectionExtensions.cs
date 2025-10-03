@@ -27,7 +27,7 @@ public static class DependencyInjectionExtensions
     /// Merge the specified <paramref name="navigationOptions"/> into <see cref="NavigationOptions.Default"/>.
     /// </item>
     /// <item>
-    /// Register <see cref="INavigationJobScheduler"/> as a singleton or transient service depending on
+    /// Register <see cref="IJobScheduler"/> as a singleton or transient service depending on
     /// <see cref="NavigationOptions.NavigationJobScope"/>.
     /// </item>
     /// <item>

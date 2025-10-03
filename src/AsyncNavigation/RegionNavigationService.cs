@@ -9,13 +9,13 @@ internal sealed class RegionNavigationService<T> : IRegionNavigationService<T> w
 {
     private readonly IViewManager _viewCacheManager;
     private readonly IRegionIndicatorManager _regionIndicatorManager;
-    private readonly INavigationJobScheduler _navigationJobScheduler;
+    private readonly IJobScheduler _navigationJobScheduler;
     private readonly IRegionPresenter _regionPresenter;
     private volatile IView? _current;
     public RegionNavigationService(T regionPresenter, IServiceProvider serviceProvider)
     {
         _regionPresenter = regionPresenter;
-        _navigationJobScheduler = serviceProvider.GetRequiredService<INavigationJobScheduler>();
+        _navigationJobScheduler = serviceProvider.GetRequiredService<IJobScheduler>();
         _viewCacheManager = serviceProvider.GetRequiredService<IViewManager>();
         _regionIndicatorManager = serviceProvider.GetRequiredService<IRegionIndicatorManager>();
     }

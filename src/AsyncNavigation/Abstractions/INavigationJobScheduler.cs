@@ -1,8 +1,8 @@
 ﻿namespace AsyncNavigation.Abstractions;
 
-internal interface INavigationJobScheduler
+internal interface IJobScheduler
 {
-    Task RunJobAsync(NavigationContext context, Func<NavigationContext, Task> navigationAction);
+    Task RunJobAsync<TContext>(TContext context, Func<TContext, Task> navigationAction) where TContext : IJobContext;
     Task CancelAllAsync();
     Task WaitAllAsync();
 }

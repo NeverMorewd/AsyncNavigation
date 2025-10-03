@@ -4,38 +4,41 @@ using System.Collections.Concurrent;
 
 namespace AsyncNavigation;
 
-internal sealed class NavigationJobScheduler : INavigationJobScheduler
+internal sealed class JobScheduler : IJobScheduler
 {
     private readonly ConcurrentDictionary<Guid, (Task Task, CancellationTokenSource Cts)> _jobs = new();
 
-    public async Task RunJobAsync(NavigationContext navigationContext, Func<NavigationContext, Task> navigationTaskAction)
+    public async Task RunJobAsync<TContext>(
+        TContext jobContext,
+        Func<TContext, Task> jobAction) where TContext : IJobContext
     {
-        if (_jobs.ContainsKey(navigationContext.NavigationId))
-            throw new InvalidOperationException($"Navigation task of {navigationContext} is already started.");
+        if (_jobs.ContainsKey(jobContext.JobId))
+            throw new InvalidOperationException($"Job with id {jobContext.JobId} is already started.");
 
         await HandleExistingJob();
 
-        var job = _jobs.GetOrAdd(navigationContext.NavigationId, _ =>
+        var job = _jobs.GetOrAdd(jobContext.JobId, _ =>
         {
             var ctsForManualCancel = new CancellationTokenSource();
             var linkedCts = CancellationTokenSource.CreateLinkedTokenSource(
-                navigationContext.CancellationToken,
+                jobContext.CancellationToken,
                 ctsForManualCancel.Token);
 
-            navigationContext.CancellationToken = linkedCts.Token;
-            var task = navigationTaskAction(navigationContext);
+            jobContext.CancellationToken = linkedCts.Token;
+
+            var task = jobAction(jobContext);
             return (task, ctsForManualCancel);
         });
 
         try
-
         {
-            navigationContext.WithStatus(NavigationStatus.InProgress);
+            jobContext.OnStarted();
             await job.Task;
         }
         finally
         {
-            if (_jobs.TryRemove(navigationContext.NavigationId, out var jobToAbandon))
+            jobContext.OnCompleted();
+            if (_jobs.TryRemove(jobContext.JobId, out var jobToAbandon))
                 jobToAbandon.Cts.Dispose();
         }
     }
