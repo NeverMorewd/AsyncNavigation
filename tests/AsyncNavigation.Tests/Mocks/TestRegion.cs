@@ -1,11 +1,9 @@
 ﻿using AsyncNavigation.Abstractions;
 using AsyncNavigation.Core;
-using System.Threading;
-using System.Threading.Tasks;
 
 namespace AsyncNavigation.Tests.Mocks;
 
-public class FakeRegion : IRegion
+public class TestRegion : IRegion
 {
     public string Name => throw new NotImplementedException();
 

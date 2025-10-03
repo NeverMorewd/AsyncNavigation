@@ -29,14 +29,12 @@ internal sealed class RegionIndicatorManager : IRegionIndicatorManager
 
     public Task ShowErrorAsync(NavigationContext context, Exception exception)
     {
-        //var (Inner, Others) = _cachedIndicators.GetOrAdd(context, _ => ResolveRegionIndicators(context));
         var (Inner, Others) = ResolveRegionIndicators(context);
         return ShowErrorCore(Inner, Others, context, exception);
     }
 
     public async Task StartAsync(NavigationContext context, Task processTask, TimeSpan? delayTime = null)
     {
-        //var (Inner, Others) = _cachedIndicators.GetOrAdd(context, _ => ResolveRegionIndicators(context));
         var (Inner, Others) = ResolveRegionIndicators(context);
         if (await ShouldShowLoading(context, processTask, delayTime))
         {

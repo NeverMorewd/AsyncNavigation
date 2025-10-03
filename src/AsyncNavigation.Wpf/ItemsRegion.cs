@@ -18,8 +18,7 @@ public class ItemsRegion : RegionBase<ItemsRegion, ItemsControl>
 
         RegionControlAccessor.ExecuteOn(control =>
         {
-            control = itemsControl;
-
+            control.Tag = this;
             control.SetBinding(ItemsControl.ItemsSourceProperty,
                 new Binding(nameof(RegionContext.Items))
                 {

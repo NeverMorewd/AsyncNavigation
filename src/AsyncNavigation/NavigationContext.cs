@@ -9,7 +9,7 @@ namespace AsyncNavigation;
 /// <summary>
 /// Encapsulates information for a single navigation request.
 /// </summary>
-public partial class NavigationContext
+public partial class NavigationContext: IJobContext
 {
     private readonly ConcurrentBag<Exception> _errors = [];
     /// <summary>
@@ -22,7 +22,7 @@ public partial class NavigationContext
     /// </summary>
     public required string ViewName { get; init; }
 
-    public CancellationToken CancellationToken { get; internal set; } = default;
+    public CancellationToken CancellationToken { get; set; } = default;
 
     /// <summary>
     /// Gets the navigation parameters passed to the target view.
@@ -85,6 +85,8 @@ public partial class NavigationContext
     /// Gets a value indicating whether the navigation has completed (either successfully, failed, or cancelled).
     /// </summary>
     public bool IsCompleted => Status is NavigationStatus.Succeeded or NavigationStatus.Failed or NavigationStatus.Cancelled;
+
+    Guid IJobContext.JobId => NavigationId;
 
     public NavigationContext WithStatus(NavigationStatus newStatus, params Exception[] errors)
     {
@@ -175,5 +177,15 @@ public partial class NavigationContext
             return Target.Value!.GetHashCode();
         }
         return base.GetHashCode();
+    }
+
+    void IJobContext.OnStarted()
+    {
+        WithStatus(NavigationStatus.InProgress);
+    }
+
+    void IJobContext.OnCompleted()
+    {
+        
     }
 }

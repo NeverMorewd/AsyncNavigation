@@ -1,5 +1,6 @@
 ﻿using AsyncNavigation.Abstractions;
 using AsyncNavigation.Avalonia;
+using AsyncNavigation.Tests.Infrastructure;
 using AsyncNavigation.Tests.Mocks;
 using AsyncNavigation.Tests.Utils;
 using Microsoft.Extensions.DependencyInjection;
@@ -22,7 +23,7 @@ public class RegionManagerTests : IClassFixture<ServiceFixture>
     [Fact]
     public void AddRegion_ShouldAddSuccessfully()
     {
-        var region = new FakeRegion();
+        var region = new TestRegion();
         _regionManager.AddRegion("Main", region);
 
         Assert.Contains("Main", _regionManager.Regions.Keys);
@@ -32,19 +33,19 @@ public class RegionManagerTests : IClassFixture<ServiceFixture>
     [Fact]
     public void AddRegion_ShouldThrow_WhenDuplicate()
     {
-        var region = new FakeRegion();
+        var region = new TestRegion();
         _regionManager.AddRegion("Main", region);
 
         Assert.Throws<InvalidOperationException>(() =>
-            _regionManager.AddRegion("Main", new FakeRegion()));
+            _regionManager.AddRegion("Main", new TestRegion()));
     }
 
     [Fact]
     public async Task RequestNavigateAsync_ShouldActivateView()
     {
-        var region = new FakeRegion();
+        var region = new TestRegion();
         _regionManager.AddRegion("Main", region);
-        var result = await _regionManager.RequestNavigateAsync("Main", "Home");
+        var result = await _regionManager.RequestNavigateAsync("Main", "TestView");
         Assert.True(result.IsSuccessful);
     }
 
@@ -58,7 +59,7 @@ public class RegionManagerTests : IClassFixture<ServiceFixture>
     [Fact]
     public async Task TryGetRegion_ShouldReturnFalse_WhenRegionCollected()
     {
-        var region = new FakeRegion();
+        var region = new TestRegion();
         _regionManager.AddRegion("Temp", region);
 
         var weak = new WeakReference(region);
@@ -81,7 +82,7 @@ public class RegionManagerTests : IClassFixture<ServiceFixture>
     [Fact]
     public void TryRemoveRegion_ShouldRemoveSuccessfully()
     {
-        var region = new FakeRegion();
+        var region = new TestRegion();
         _regionManager.AddRegion("Removable", region);
 
         var removed = _regionManager.TryRemoveRegion("Removable", out var removedRegion);
@@ -96,7 +97,7 @@ public class RegionManagerTests : IClassFixture<ServiceFixture>
     [Fact]
     public async Task Regions_ShouldNotContainCollectedRegion()
     {
-        var region = new FakeRegion();
+        var region = new TestRegion();
         _regionManager.AddRegion("GCRegion", region);
 
         var weak = new WeakReference(region);

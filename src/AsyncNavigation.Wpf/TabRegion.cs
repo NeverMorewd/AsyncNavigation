@@ -18,6 +18,7 @@ public class TabRegion : RegionBase<TabRegion, TabControl>
 
         RegionControlAccessor.ExecuteOn(control => 
         {
+            control.Tag = this;
             control.SetBinding(ItemsControl.ItemsSourceProperty,
                 new Binding(nameof(RegionContext.Items))
                 {

@@ -1,6 +1,7 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+﻿using AsyncNavigation.Tests.Mocks;
+using Microsoft.Extensions.DependencyInjection;
 
-namespace AsyncNavigation.Tests;
+namespace AsyncNavigation.Tests.Infrastructure;
 
 public class ServiceFixture : IDisposable
 {
@@ -10,6 +11,8 @@ public class ServiceFixture : IDisposable
     {
         ServiceCollection serviceDescriptors = new();
         serviceDescriptors.RegisterNavigationFramework();
+        serviceDescriptors.RegisterView<TestView, TestNavigationAware>("TestView");
+        serviceDescriptors.RegisterView<AnotherTestView, TestNavigationAware>("AnotherTestView");
         ServiceProvider = serviceDescriptors.BuildServiceProvider();
     }
 

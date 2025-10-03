@@ -1,4 +1,5 @@
 ﻿using AsyncNavigation.Core;
+using System.Diagnostics;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
@@ -17,6 +18,7 @@ public class ContentRegion : RegionBase<ContentRegion, ContentControl>
 
         RegionControlAccessor.ExecuteOn(control => 
         {
+            control.Tag = this;
             control.SetBinding(ContentControl.ContentProperty,
                 new Binding(nameof(RegionContext.Selected))
                 {
@@ -68,5 +70,10 @@ public class ContentRegion : RegionBase<ContentRegion, ContentControl>
     public override void ProcessDeactivate(NavigationContext navigationContext)
     {
         _context.Selected = null;
+    }
+
+    ~ContentRegion()
+    {
+        Debug.WriteLine($"{Name} is collected!");      
     }
 }
