@@ -17,6 +17,7 @@ public class ContentRegion : RegionBase<ContentRegion, ContentControl>
 
         RegionControlAccessor.ExecuteOn(control =>
         {
+            control.Tag = this;
             control.ContentTemplate = new FuncDataTemplate<NavigationContext>((context, np) =>
             {
                 return context?.IndicatorHost.Value?.Host as Control;

@@ -18,12 +18,11 @@ public class TabRegion : RegionBase<TabRegion, TabControl>
 
         RegionControlAccessor.ExecuteOn(control => 
         {
-            control.Bind(
-           ItemsControl.ItemsSourceProperty,
-           new Binding(nameof(RegionContext.Items)) { Source = _context });
+            control.Tag = this;
+            control.Bind(ItemsControl.ItemsSourceProperty,
+                new Binding(nameof(RegionContext.Items)) { Source = _context });
 
-            control.Bind(
-                SelectingItemsControl.SelectedItemProperty,
+            control.Bind(SelectingItemsControl.SelectedItemProperty,
                 new Binding(nameof(RegionContext.Selected)) { Source = _context, Mode = BindingMode.TwoWay });
 
             control.ContentTemplate = new FuncDataTemplate<NavigationContext>((context, _) =>

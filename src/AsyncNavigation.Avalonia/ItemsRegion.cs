@@ -18,6 +18,8 @@ public class ItemsRegion : RegionBase<ItemsRegion, ItemsControl>
 
         RegionControlAccessor.ExecuteOn(control =>
         {
+            // binding the lifetime of region to the control
+            control.Tag = this;
             control.ItemTemplate = new FuncDataTemplate<NavigationContext>((context, np) =>
             {
                 return context?.IndicatorHost.Value?.Host as Control;
