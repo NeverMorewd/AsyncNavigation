@@ -9,9 +9,9 @@ public class TestRegion : IRegion
 
     IRegionPresenter IRegion.RegionPresenter => throw new NotImplementedException();
 
-    public Task<NavigationResult> ActivateViewAsync(NavigationContext navigationContext)
+    public Task ActivateViewAsync(NavigationContext navigationContext)
     {
-        return Task.FromResult(NavigationResult.Success(TimeSpan.Zero));
+        return Task.CompletedTask;
     }
 
     public Task<bool> CanGoBackAsync()
@@ -29,12 +29,12 @@ public class TestRegion : IRegion
         throw new NotImplementedException();
     }
 
-    public Task<NavigationResult> GoBackAsync(CancellationToken cancellationToken = default)
+    public Task GoBackAsync(CancellationToken cancellationToken = default)
     {
         throw new NotImplementedException();
     }
 
-    public Task<NavigationResult> GoForwardAsync(CancellationToken cancellationToken = default)
+    public Task GoForwardAsync(CancellationToken cancellationToken = default)
     {
         throw new NotImplementedException();
     }

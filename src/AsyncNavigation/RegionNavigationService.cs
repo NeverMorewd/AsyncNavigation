@@ -24,28 +24,23 @@ internal sealed class RegionNavigationService<T> : IRegionNavigationService<T> w
         get => _current;
         set => _current = value;
     }
-    public async Task<NavigationResult> RequestNavigateAsync(NavigationContext navigationContext)
+    public async Task RequestNavigateAsync(NavigationContext navigationContext)
     {
-        var stopwatch = Stopwatch.StartNew();
         try
         {
             await _navigationJobScheduler.RunJobAsync(navigationContext, CreateNavigateTask);
-            return NavigationResult.Success(stopwatch.Elapsed, navigationContext);
         }
         catch (OperationCanceledException) when (navigationContext.CancellationToken.IsCancellationRequested)
         {
-            return NavigationResult.Cancelled(stopwatch.Elapsed, navigationContext);
+            throw;
         }
         catch (Exception ex)
         {
-            var result = NavigationResult.Failure(ex, stopwatch.Elapsed, navigationContext);
             await _regionIndicatorManager.ShowErrorAsync(navigationContext, ex);
-            return result;
+            throw;
         }
         finally
         {
-            stopwatch.Stop();
-
 #if GC_TEST
             GC.Collect();
 #endif

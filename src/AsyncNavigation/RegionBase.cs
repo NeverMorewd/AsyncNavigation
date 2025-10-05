@@ -1,6 +1,8 @@
 ﻿using AsyncNavigation.Abstractions;
 using AsyncNavigation.Core;
 using Microsoft.Extensions.DependencyInjection;
+using System.Diagnostics;
+using System.Security.Cryptography;
 
 namespace AsyncNavigation;
 
@@ -34,48 +36,37 @@ public abstract class RegionBase<TRegion, TControl> : IRegion, IRegionPresenter
         protected set;
     }
     #region IRegion Methods
-    async Task<NavigationResult> IRegion.ActivateViewAsync(NavigationContext navigationContext)
+    async Task IRegion.ActivateViewAsync(NavigationContext navigationContext)
     {
-        var result = await _regionNavigationService.RequestNavigateAsync(navigationContext);
-        if (result.IsSuccessful)
-        {
-            _navigationHistory.Add(navigationContext);
-        }
-        return result;
+        await _regionNavigationService.RequestNavigateAsync(navigationContext);
+        _navigationHistory.Add(navigationContext);
     }
 
-    public Task<bool> CanGoBackAsync()
+
+    Task<bool> IRegion.CanGoBackAsync()
     {
         return Task.FromResult(_navigationHistory.CanGoBack);
     }
 
-    public async Task<NavigationResult> GoBackAsync(CancellationToken cancellationToken = default)
+    public async Task GoBackAsync(CancellationToken cancellationToken = default)
     {
-        if (await CanGoBackAsync())
-        {
-            var context = _navigationHistory.GoBack();
-            context!.CancellationToken = cancellationToken;
-            context.IsBackNavigation = true;
-            return await _regionNavigationService.RequestNavigateAsync(context);
-        }
-        return NavigationResult.Failure(new NavigationException("Can not go back!"), TimeSpan.Zero);
+        var context = _navigationHistory.GoBack() ?? throw new NavigationException("Cannot go back!");
+        context.IsBackNavigation = true;
+        context.CancellationToken = cancellationToken;
+        await _regionNavigationService.RequestNavigateAsync(context);
     }
 
-    public Task<bool> CanGoForwardAsync()
+    Task<bool> IRegion.CanGoForwardAsync()
     {
         return Task.FromResult(_navigationHistory.CanGoForward);
     }
 
-    public async Task<NavigationResult> GoForwardAsync(CancellationToken cancellationToken = default)
+    public async Task GoForwardAsync(CancellationToken cancellationToken = default)
     {
-        if (await CanGoForwardAsync())
-        {
-            var context = _navigationHistory.GoForward();
-            context!.CancellationToken = cancellationToken;
-            context.IsForwordNavigation = true;
-            return await _regionNavigationService.RequestNavigateAsync(context);
-        }
-        return NavigationResult.Failure(new NavigationException("Can not go forward!"), TimeSpan.Zero);
+        var context = _navigationHistory.GoForward() ?? throw new NavigationException("Cannot go forward!");
+        context.IsForwordNavigation = true;
+        context.CancellationToken = cancellationToken;
+        await _regionNavigationService.RequestNavigateAsync(context);
     }
     Task IRegion.NavigateFromAsync(NavigationContext navigationContext)
     {
@@ -91,4 +82,11 @@ public abstract class RegionBase<TRegion, TControl> : IRegion, IRegionPresenter
     public abstract void RenderIndicator(NavigationContext navigationContext);
     public abstract void ProcessActivate(NavigationContext navigationContext);
     public abstract void ProcessDeactivate(NavigationContext navigationContext);
+
+#if DEBUG
+    ~RegionBase()
+    {
+        Debug.WriteLine($"{Name} was collected!");
+    }
+#endif
 }

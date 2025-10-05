@@ -53,17 +53,27 @@ public abstract class RegionManagerBase : IRegionManager, IDisposable
             CancellationToken = cancellationToken
         };
 
-        if (_currentRegion is not null && _currentRegion != region)
-        {
-            await _currentRegion.NavigateFromAsync(context);
-        }
+        if (context.CancellationToken.IsCancellationRequested)
+            return NavigationResult.Cancelled(context);
 
-        var result = await region.ActivateViewAsync(context);
-        if (result.IsSuccessful)
+        try
         {
+            if (_currentRegion is not null && _currentRegion != region)
+            {
+                await _currentRegion.NavigateFromAsync(context);
+            }
+            await region.ActivateViewAsync(context);
             _currentRegion = region;
+            return NavigationResult.Success(context);
         }
-        return result;
+        catch (OperationCanceledException) when (context.CancellationToken.IsCancellationRequested)
+        {
+            return NavigationResult.Cancelled(context);
+        }
+        catch (Exception ex)
+        {
+            return NavigationResult.Failure(ex, context);
+        }
     }
 
     public void AddRegion(string regionName, IRegion region)
@@ -72,11 +82,27 @@ public abstract class RegionManagerBase : IRegionManager, IDisposable
             throw new InvalidOperationException($"Duplicated RegionName found: {regionName}");
     }
 
-    public Task<NavigationResult> GoForward(string regionName, CancellationToken cancellationToken = default)
-        => GetRegion(regionName).GoForwardAsync(cancellationToken);
+    public async Task<NavigationResult> GoForward(string regionName, CancellationToken cancellationToken = default)
+    {
+        var region = GetRegion(regionName);
+        if (await region.CanGoForwardAsync())
+        {
+            await region.GoForwardAsync(cancellationToken);
+            return NavigationResult.Success(TimeSpan.Zero);
+        }
+        return NavigationResult.Failure(new NavigationException("Can not go forward!"));
+    }
 
-    public Task<NavigationResult> GoBack(string regionName, CancellationToken cancellationToken = default)
-        => GetRegion(regionName).GoBackAsync(cancellationToken);
+    public async Task<NavigationResult> GoBack(string regionName, CancellationToken cancellationToken = default)
+    {
+        var region = GetRegion(regionName);
+        if (await region.CanGoBackAsync())
+        {
+            await region.GoBackAsync(cancellationToken);
+            return NavigationResult.Success(TimeSpan.Zero);
+        }
+        return NavigationResult.Failure(new NavigationException("Can not go back!"));
+    }
 
     public Task<bool> CanGoForwardAsync(string regionName)
         => GetRegion(regionName).CanGoForwardAsync();

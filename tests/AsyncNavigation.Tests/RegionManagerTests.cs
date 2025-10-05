@@ -1,5 +1,4 @@
 ﻿using AsyncNavigation.Abstractions;
-using AsyncNavigation.Avalonia;
 using AsyncNavigation.Tests.Infrastructure;
 using AsyncNavigation.Tests.Mocks;
 using AsyncNavigation.Tests.Utils;
@@ -50,6 +49,19 @@ public class RegionManagerTests : IClassFixture<ServiceFixture>
     }
 
     [Fact]
+    public async Task RequestNavigateAsync_ShouldCancel()
+    {
+        var region = new TestRegion();
+        _regionManager.AddRegion("Main", region);
+        CancellationTokenSource cancellationTokenSource = new CancellationTokenSource();
+        cancellationTokenSource.Cancel();
+        var result = await _regionManager.RequestNavigateAsync("Main", 
+            "TestView", 
+            cancellationToken:cancellationTokenSource.Token);
+        Assert.True(result.IsCancelled);
+    }
+
+    [Fact]
     public async Task RequestNavigateAsync_ShouldThrow_WhenRegionNotFound()
     {
         await Assert.ThrowsAsync<InvalidOperationException>(() =>
@@ -73,8 +85,6 @@ public class RegionManagerTests : IClassFixture<ServiceFixture>
         var success = _regionManager.TryGetRegion("Temp", out var recovered);
         Assert.False(success);
         Assert.Null(recovered);
-
-        
         Assert.DoesNotContain("Temp", _regionManager.Regions.Keys);
         Assert.False(weak.IsAlive);
     }
