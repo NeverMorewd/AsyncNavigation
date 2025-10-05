@@ -1,4 +1,6 @@
-﻿namespace AsyncNavigation.Abstractions;
+﻿using System.Threading;
+
+namespace AsyncNavigation.Abstractions;
 
 internal interface IJobScheduler
 {

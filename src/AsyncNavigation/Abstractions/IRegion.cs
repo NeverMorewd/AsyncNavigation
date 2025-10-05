@@ -7,9 +7,9 @@ public interface IRegion : IDisposable
     string Name { get; }
     internal IRegionPresenter RegionPresenter { get; }
     Task NavigateFromAsync(NavigationContext navigationContext);
-    Task<NavigationResult> ActivateViewAsync(NavigationContext navigationContext);
+    Task ActivateViewAsync(NavigationContext navigationContext);
     Task<bool> CanGoBackAsync();
-    Task<NavigationResult> GoBackAsync(CancellationToken cancellationToken = default);
+    Task GoBackAsync(CancellationToken cancellationToken = default);
     Task<bool> CanGoForwardAsync();
-    Task<NavigationResult> GoForwardAsync(CancellationToken cancellationToken = default);
+    Task GoForwardAsync(CancellationToken cancellationToken = default);
 }

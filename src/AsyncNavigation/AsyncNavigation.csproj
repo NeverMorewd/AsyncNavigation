@@ -6,7 +6,9 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
 
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <DefineConstants>$(DefineConstants);GC_TEST</DefineConstants>
+  </PropertyGroup>
 
   <ItemGroup>
     <Compile Remove="AsyncViewFactory.cs" />

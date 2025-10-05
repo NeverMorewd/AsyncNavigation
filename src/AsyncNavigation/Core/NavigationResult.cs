@@ -1,4 +1,6 @@
-﻿namespace AsyncNavigation.Core;
+﻿using System.Text;
+
+namespace AsyncNavigation.Core;
 
 public class NavigationResult
 {
@@ -13,21 +15,21 @@ public class NavigationResult
     public TimeSpan Duration { get; private init; }
     public NavigationContext? NavigationContext { get; private init; }
 
-    public static NavigationResult Success(TimeSpan duration, NavigationContext? navigationContext = null)
+    public static NavigationResult Success(NavigationContext navigationContext)
     {
-        if (navigationContext != null)
+        navigationContext.EndTime = DateTime.UtcNow;
+        navigationContext.Duration = navigationContext.EndTime - navigationContext.StartTime;
+        navigationContext.WithStatus(NavigationStatus.Succeeded);
+        return new NavigationResult
         {
-            navigationContext.Duration = duration;
-            navigationContext.WithStatus(NavigationStatus.Succeeded);
-            return new NavigationResult
-            {
-                NavigationContext = navigationContext,
-                Status = navigationContext.Status,
-                Exception = navigationContext.Errors,
-                Duration = navigationContext.Duration.GetValueOrDefault()
-            };
-        }
-
+            NavigationContext = navigationContext,
+            Status = navigationContext.Status,
+            Exception = navigationContext.Errors,
+            Duration = navigationContext.Duration.GetValueOrDefault()
+        };
+    }
+    public static NavigationResult Success(TimeSpan duration)
+    {
         return new NavigationResult
         {
             Status = NavigationStatus.Succeeded,
@@ -37,49 +39,76 @@ public class NavigationResult
         };
     }
 
-    public static NavigationResult Failure(Exception exception, TimeSpan duration, NavigationContext? navigationContext = null)
+    public static NavigationResult Failure(Exception exception, NavigationContext navigationContext)
     {
-        if (navigationContext != null)
-        {
-            navigationContext.Duration = duration;
-            return new NavigationResult
-            {
-                NavigationContext = navigationContext.WithStatus(NavigationStatus.Failed, exception),
-                Status = navigationContext.Status,
-                Exception = navigationContext.Errors,
-                Duration = navigationContext.Duration.GetValueOrDefault()
-            };
-        }
+        navigationContext.EndTime = DateTime.UtcNow;
+        navigationContext.Duration = navigationContext.EndTime - navigationContext.StartTime;
+        navigationContext.WithStatus(NavigationStatus.Failed, exception);
 
+        return new NavigationResult
+        {
+            NavigationContext = navigationContext,
+            Status = navigationContext.Status,
+            Exception = navigationContext.Errors,
+            Duration = navigationContext.Duration.GetValueOrDefault()
+        };
+    }
+
+    public static NavigationResult Failure(Exception exception)
+    {
         return new NavigationResult
         {
             Status = NavigationStatus.Failed,
             Exception = exception,
-            Duration = duration,
+            Duration = TimeSpan.Zero,
             NavigationContext = null
         };
     }
 
-    public static NavigationResult Cancelled(TimeSpan duration, NavigationContext? navigationContext = null)
+    public static NavigationResult Cancelled(NavigationContext navigationContext)
     {
-        if (navigationContext != null)
-        {
-            navigationContext.Duration = duration;
-            return new NavigationResult
-            {
-                NavigationContext = navigationContext.WithStatus(NavigationStatus.Cancelled),
-                Status = navigationContext.Status,
-                Exception = navigationContext.Errors,
-                Duration = navigationContext.Duration.GetValueOrDefault()
-            };
-        }
+        navigationContext.EndTime = DateTime.UtcNow;
+        navigationContext.Duration = navigationContext.EndTime - navigationContext.StartTime;
+        navigationContext.WithStatus(NavigationStatus.Cancelled);
 
+        return new NavigationResult
+        {
+            NavigationContext = navigationContext,
+            Status = navigationContext.Status,
+            Exception = navigationContext.Errors,
+            Duration = navigationContext.Duration.GetValueOrDefault()
+        };
+    }
+
+    public static NavigationResult Cancelled()
+    {
         return new NavigationResult
         {
             Status = NavigationStatus.Cancelled,
             Exception = null,
-            Duration = duration,
+            Duration = TimeSpan.Zero,
             NavigationContext = null
         };
     }
+
+    public override string ToString()
+    {
+        var sb = new StringBuilder();
+        sb.AppendLine($"Status: {Status}");
+        sb.AppendLine($"Duration: {Duration.TotalMilliseconds:F2} ms");
+
+        if (Exception != null)
+        {
+            sb.AppendLine($"Exception: {Exception.GetType().Name} - {Exception.Message}");
+        }
+
+        if (NavigationContext != null)
+        {
+            sb.AppendLine($"NavigationContext: {NavigationContext}");
+        }
+
+        return sb.ToString().TrimEnd();
+    }
+
+
 }

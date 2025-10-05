@@ -71,9 +71,4 @@ public class ContentRegion : RegionBase<ContentRegion, ContentControl>
     {
         _context.Selected = null;
     }
-
-    ~ContentRegion()
-    {
-        Debug.WriteLine($"{Name} is collected!");      
-    }
 }

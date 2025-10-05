@@ -9,7 +9,7 @@ namespace AsyncNavigation;
 /// <summary>
 /// Encapsulates information for a single navigation request.
 /// </summary>
-public partial class NavigationContext: IJobContext
+public partial class NavigationContext : IJobContext
 {
     private readonly ConcurrentBag<Exception> _errors = [];
     /// <summary>
@@ -22,6 +22,9 @@ public partial class NavigationContext: IJobContext
     /// </summary>
     public required string ViewName { get; init; }
 
+    /// <summary>
+    /// CancellationToken
+    /// </summary>
     public CancellationToken CancellationToken { get; set; } = default;
 
     /// <summary>
@@ -33,6 +36,9 @@ public partial class NavigationContext: IJobContext
     public SingleAssignment<IView> Source { get; } = new();
     public SingleAssignment<IView> Target { get; } = new();
     public SingleAssignment<IInnerRegionIndicatorHost> IndicatorHost { get; } = new();
+
+    public DateTimeOffset StartTime { get; } = DateTime.UtcNow;
+    public DateTimeOffset EndTime { get; internal set; }
 
     /// <summary>
     /// Gets a value indicating whether this is a back navigation operation.
@@ -47,7 +53,7 @@ public partial class NavigationContext: IJobContext
     /// Gets the current status of the navigation operation.
     /// </summary>
     private NavigationStatus _status;
-    public NavigationStatus Status 
+    public NavigationStatus Status
     {
         get => _status;
         set
@@ -186,6 +192,6 @@ public partial class NavigationContext: IJobContext
 
     void IJobContext.OnCompleted()
     {
-        
+
     }
 }

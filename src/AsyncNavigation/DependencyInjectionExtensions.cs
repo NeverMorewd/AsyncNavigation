@@ -61,14 +61,13 @@ public static class DependencyInjectionExtensions
 
 
 #if GC_TEST
-        NavigationOptions.Default.MaxHistoryItems = 0;
+        NavigationOptions.Default.MaxHistoryItems = 10;
 #endif
 
         serviceDescriptors.AddSingleton(NavigationOptions.Default);
         if (NavigationOptions.Default.NavigationJobScope == NavigationJobScope.App)
         {
             serviceDescriptors.AddSingleton<IJobScheduler, JobScheduler>();
-            //serviceDescriptors.AddSingleton<JobScheduler>();
         }
         else
         {

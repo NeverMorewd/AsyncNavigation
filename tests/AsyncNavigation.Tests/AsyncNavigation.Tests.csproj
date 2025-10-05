@@ -9,6 +9,17 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <AvaloniaXaml Remove="coveragereport\**" />
+    <AvaloniaXaml Remove="TestResults\**" />
+    <Compile Remove="coveragereport\**" />
+    <Compile Remove="TestResults\**" />
+    <EmbeddedResource Remove="coveragereport\**" />
+    <EmbeddedResource Remove="TestResults\**" />
+    <None Remove="coveragereport\**" />
+    <None Remove="TestResults\**" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="coverlet.collector" Version="6.0.4">
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
       <PrivateAssets>all</PrivateAssets>
@@ -20,7 +31,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\src\AsyncNavigation.Avalonia\AsyncNavigation.Avalonia.csproj" />
     <ProjectReference Include="..\..\src\AsyncNavigation\AsyncNavigation.csproj" />
   </ItemGroup>
 
