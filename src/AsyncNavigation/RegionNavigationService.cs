@@ -109,8 +109,8 @@ internal sealed class RegionNavigationService<T> : IRegionNavigationService<T> w
         }
         var view = await _viewCacheManager.ResolveViewAsync(navigationContext.ViewName,
                                 _regionPresenter.EnableViewCache,
-                                view => HandleIsNavigationTargetAsync(view, navigationContext),
-                                view => HandleInitializeAsync(view, navigationContext));
+                                view => RegionNavigationService<T>.HandleIsNavigationTargetAsync(view, navigationContext),
+                                view => RegionNavigationService<T>.HandleInitializeAsync(view, navigationContext));
         navigationContext.CancellationToken.ThrowIfCancellationRequested();
         navigationContext.Target.Value = view;
     }
@@ -151,8 +151,9 @@ internal sealed class RegionNavigationService<T> : IRegionNavigationService<T> w
         }
     }
 
-    private Task<bool> HandleIsNavigationTargetAsync(IView view, NavigationContext navigationContext)
+    private static Task<bool> HandleIsNavigationTargetAsync(IView view, NavigationContext navigationContext)
     {
+        navigationContext.CancellationToken.ThrowIfCancellationRequested();
         if (view.DataContext is INavigationAware navigationAware)
         {
             return navigationAware.IsNavigationTargetAsync(navigationContext);
@@ -160,8 +161,9 @@ internal sealed class RegionNavigationService<T> : IRegionNavigationService<T> w
         // todo: throw?
         return Task.FromResult(true);
     }
-    private Task HandleInitializeAsync(IView view, NavigationContext navigationContext)
+    private static Task HandleInitializeAsync(IView view, NavigationContext navigationContext)
     {
+        navigationContext.CancellationToken.ThrowIfCancellationRequested();
         if (view.DataContext is INavigationAware navigationAware)
         {
             return navigationAware.InitializeAsync(navigationContext);

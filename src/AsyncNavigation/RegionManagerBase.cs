@@ -87,8 +87,15 @@ public abstract class RegionManagerBase : IRegionManager, IDisposable
         var region = GetRegion(regionName);
         if (await region.CanGoForwardAsync())
         {
-            await region.GoForwardAsync(cancellationToken);
-            return NavigationResult.Success(TimeSpan.Zero);
+            try
+            {
+                await region.GoForwardAsync(cancellationToken);
+                return NavigationResult.Success(TimeSpan.Zero);
+            }
+            catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
+            {
+                return NavigationResult.Cancelled();
+            }
         }
         return NavigationResult.Failure(new NavigationException("Can not go forward!"));
     }
@@ -98,8 +105,15 @@ public abstract class RegionManagerBase : IRegionManager, IDisposable
         var region = GetRegion(regionName);
         if (await region.CanGoBackAsync())
         {
-            await region.GoBackAsync(cancellationToken);
-            return NavigationResult.Success(TimeSpan.Zero);
+            try
+            {
+                await region.GoBackAsync(cancellationToken);
+                return NavigationResult.Success(TimeSpan.Zero);
+            }
+            catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
+            {
+                return NavigationResult.Cancelled();
+            }
         }
         return NavigationResult.Failure(new NavigationException("Can not go back!"));
     }
