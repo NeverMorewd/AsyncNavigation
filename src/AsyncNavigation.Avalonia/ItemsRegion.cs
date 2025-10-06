@@ -54,10 +54,10 @@ public class ItemsRegion : RegionBase<ItemsRegion, ItemsControl>
             control.ScrollIntoView(navigationContext);
         });
     }
-    public override void RenderIndicator(NavigationContext navigationContext)
-    {
-        ProcessActivate(navigationContext);
-    }
+    //public override void RenderIndicator(NavigationContext navigationContext)
+    //{
+    //    ProcessActivate(navigationContext);
+    //}
 
     public override void ProcessDeactivate(NavigationContext navigationContext)
     {

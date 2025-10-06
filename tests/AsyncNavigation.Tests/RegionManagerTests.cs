@@ -22,7 +22,7 @@ public class RegionManagerTests : IClassFixture<ServiceFixture>
     [Fact]
     public void AddRegion_ShouldAddSuccessfully()
     {
-        var region = new TestRegion();
+        var region = TestRegion.Build(_serviceProvider);
         _regionManager.AddRegion("Main", region);
 
         Assert.Contains("Main", _regionManager.Regions.Keys);
@@ -32,33 +32,11 @@ public class RegionManagerTests : IClassFixture<ServiceFixture>
     [Fact]
     public void AddRegion_ShouldThrow_WhenDuplicate()
     {
-        var region = new TestRegion();
+        var region = TestRegion.Build(_serviceProvider);
         _regionManager.AddRegion("Main", region);
 
         Assert.Throws<InvalidOperationException>(() =>
-            _regionManager.AddRegion("Main", new TestRegion()));
-    }
-
-    [Fact]
-    public async Task RequestNavigateAsync_ShouldActivateView()
-    {
-        var region = new TestRegion();
-        _regionManager.AddRegion("Main", region);
-        var result = await _regionManager.RequestNavigateAsync("Main", "TestView");
-        Assert.True(result.IsSuccessful);
-    }
-
-    [Fact]
-    public async Task RequestNavigateAsync_ShouldCancel()
-    {
-        var region = new TestRegion();
-        _regionManager.AddRegion("Main", region);
-        CancellationTokenSource cancellationTokenSource = new CancellationTokenSource();
-        cancellationTokenSource.Cancel();
-        var result = await _regionManager.RequestNavigateAsync("Main", 
-            "TestView", 
-            cancellationToken:cancellationTokenSource.Token);
-        Assert.True(result.IsCancelled);
+            _regionManager.AddRegion("Main", TestRegion.Build(_serviceProvider)));
     }
 
     [Fact]
@@ -71,7 +49,7 @@ public class RegionManagerTests : IClassFixture<ServiceFixture>
     [Fact]
     public async Task TryGetRegion_ShouldReturnFalse_WhenRegionCollected()
     {
-        var region = new TestRegion();
+        var region = TestRegion.Build(_serviceProvider);
         _regionManager.AddRegion("Temp", region);
 
         var weak = new WeakReference(region);
@@ -92,14 +70,14 @@ public class RegionManagerTests : IClassFixture<ServiceFixture>
     [Fact]
     public void TryRemoveRegion_ShouldRemoveSuccessfully()
     {
-        var region = new TestRegion();
+        var region = TestRegion.Build(_serviceProvider);
         _regionManager.AddRegion("Removable", region);
 
         var removed = _regionManager.TryRemoveRegion("Removable", out var removedRegion);
         Assert.True(removed);
         Assert.Same(region, removedRegion);
 
-        
+
         var exists = _regionManager.TryGetRegion("Removable", out _);
         Assert.False(exists);
     }
@@ -107,7 +85,7 @@ public class RegionManagerTests : IClassFixture<ServiceFixture>
     [Fact]
     public async Task Regions_ShouldNotContainCollectedRegion()
     {
-        var region = new TestRegion();
+        var region = TestRegion.Build(_serviceProvider);
         _regionManager.AddRegion("GCRegion", region);
 
         var weak = new WeakReference(region);
@@ -122,5 +100,49 @@ public class RegionManagerTests : IClassFixture<ServiceFixture>
         var regions = _regionManager.Regions;
         Assert.DoesNotContain("GCRegion", regions.Keys);
         Assert.False(weak.IsAlive);
+    }
+
+    [Fact]
+    public async Task RequestNavigateAsync_ShouldActivateView()
+    {
+        var region = TestRegion.Build(_serviceProvider);
+        _regionManager.AddRegion("Main", region);
+        var result = await _regionManager.RequestNavigateAsync("Main", "TestView");
+        Assert.True(result.IsSuccessful);
+    }
+
+    [Fact]
+    public async Task RequestNavigateAsync_ShouldCancel()
+    {
+        var region = TestRegion.Build(_serviceProvider);
+        _regionManager.AddRegion("Main", region);
+        CancellationTokenSource cancellationTokenSource = new();
+        cancellationTokenSource.Cancel();
+        var result = await _regionManager.RequestNavigateAsync("Main",
+            "TestView",
+            cancellationToken: cancellationTokenSource.Token);
+        Assert.True(result.IsCancelled);
+    }
+    [Fact]
+    public async Task GoBack_ShouldActivateView()
+    {
+        var region = TestRegion.Build(_serviceProvider);
+        _regionManager.AddRegion("Main", region);
+        _ = await _regionManager.RequestNavigateAsync("Main", "TestView");
+        _ = await _regionManager.RequestNavigateAsync("Main", "AnotherTestView");
+        var result = await _regionManager.GoBack("Main");
+        Assert.True(result.IsSuccessful);
+    }
+    [Fact]
+    public async Task GoBack_ShouldCancel()
+    {
+        var region = TestRegion.Build(_serviceProvider);
+        _regionManager.AddRegion("Main", region);
+        CancellationTokenSource cancellationTokenSource = new();
+        cancellationTokenSource.Cancel();
+        _ = await _regionManager.RequestNavigateAsync("Main", "TestView");
+        _ = await _regionManager.RequestNavigateAsync("Main", "AnotherTestView");
+        var result = await _regionManager.GoBack("Main", cancellationToken: cancellationTokenSource.Token);
+        Assert.True(result.IsCancelled);
     }
 }

@@ -53,14 +53,14 @@ public class ItemsRegion : RegionBase<ItemsRegion, ItemsControl>
     }
     public override void ProcessActivate(NavigationContext navigationContext)
     {
-        _context.Selected = navigationContext;
-    }
-    public override void RenderIndicator(NavigationContext navigationContext)
-    {
         if (!_context.Items.Contains(navigationContext))
             _context.Items.Add(navigationContext);
-        ProcessActivate(navigationContext);
+        _context.Selected = navigationContext;
     }
+    //public override void RenderIndicator(NavigationContext navigationContext)
+    //{       
+    //    ProcessActivate(navigationContext);
+    //}
 
     public override void ProcessDeactivate(NavigationContext navigationContext)
     {

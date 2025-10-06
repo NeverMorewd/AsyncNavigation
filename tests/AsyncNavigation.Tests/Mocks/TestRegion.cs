@@ -1,46 +1,28 @@
 ﻿using AsyncNavigation.Abstractions;
-using AsyncNavigation.Core;
 
 namespace AsyncNavigation.Tests.Mocks;
 
-public class TestRegion : IRegion
+public class TestRegion : RegionBase<TestRegion, object>, IRegionPresenter
 {
-    public string Name => throw new NotImplementedException();
-
-    IRegionPresenter IRegion.RegionPresenter => throw new NotImplementedException();
-
-    public Task ActivateViewAsync(NavigationContext navigationContext)
+    
+    public TestRegion(string name, object control, IServiceProvider serviceProvider) : base(name, control, serviceProvider)
     {
-        return Task.CompletedTask;
+
+    }
+    public bool IsActive { get; private set; }
+    public override void ProcessActivate(NavigationContext navigationContext)
+    {
+        IsActive = true;
     }
 
-    public Task<bool> CanGoBackAsync()
+    public override void ProcessDeactivate(NavigationContext navigationContext)
     {
-        throw new NotImplementedException();
+        IsActive = false;
     }
 
-    public Task<bool> CanGoForwardAsync()
+    
+    public static TestRegion Build(IServiceProvider serviceProvider)
     {
-        throw new NotImplementedException();
-    }
-
-    public void Dispose()
-    {
-        throw new NotImplementedException();
-    }
-
-    public Task GoBackAsync(CancellationToken cancellationToken = default)
-    {
-        throw new NotImplementedException();
-    }
-
-    public Task GoForwardAsync(CancellationToken cancellationToken = default)
-    {
-        throw new NotImplementedException();
-    }
-
-    public Task NavigateFromAsync(NavigationContext navigationContext)
-    {
-        throw new NotImplementedException();
+        return new TestRegion("TestRegion", new object(), serviceProvider);
     }
 }
