@@ -61,10 +61,10 @@ public class TabRegion : RegionBase<TabRegion, TabControl>
         }
     }
 
-    public override void RenderIndicator(NavigationContext navigationContext)
-    {
-        ProcessActivate(navigationContext);
-    }
+    //public override void RenderIndicator(NavigationContext navigationContext)
+    //{
+    //    ProcessActivate(navigationContext);
+    //}
 }
 
 

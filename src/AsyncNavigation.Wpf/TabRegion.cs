@@ -52,6 +52,9 @@ public class TabRegion : RegionBase<TabRegion, TabControl>
 
     public override void ProcessActivate(NavigationContext navigationContext)
     {
+        if (!_context.Items.Contains(navigationContext))
+            _context.Items.Add(navigationContext);
+
         var hit = _context.Items.FirstOrDefault(t => t.Equals(navigationContext));
         if (hit != null)
         {
@@ -70,14 +73,10 @@ public class TabRegion : RegionBase<TabRegion, TabControl>
                 _context.Selected = _context.Items.FirstOrDefault();
         }
     }
-
-    public override void RenderIndicator(NavigationContext navigationContext)
-    {
-        if (!_context.Items.Contains(navigationContext))
-            _context.Items.Add(navigationContext);
-
-        ProcessActivate(navigationContext);
-    }
+    //public override void RenderIndicator(NavigationContext navigationContext)
+    //{
+    //    ProcessActivate(navigationContext);
+    //}
 }
 
 

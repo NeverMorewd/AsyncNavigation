@@ -45,10 +45,10 @@ public class ContentRegion : RegionBase<ContentRegion, ContentControl>
         });
     }
 
-    public override void RenderIndicator(NavigationContext navigationContext)
-    {
-        _context.Selected = navigationContext;
-    }
+    //public override void RenderIndicator(NavigationContext navigationContext)
+    //{
+    //    _context.Selected = navigationContext;
+    //}
 
     public override void ProcessActivate(NavigationContext navigationContext)
     {

@@ -77,28 +77,36 @@ internal sealed class RegionNavigationService<T> : IRegionNavigationService<T> w
             navigationTask,
             NavigationOptions.Default.LoadingIndicatorDelay);
 
-        _regionPresenter.ProcessActivate(navigationContext);
+        //_regionPresenter.ProcessActivate(navigationContext);
     }
 
     private Task RunSinglePageNavigationAsync(NavigationContext navigationContext)
     {
         Func<NavigationContext, Task>[] steps =
-            [RenderIndicatorAsync,
+            [
+             RenderIndicatorAsync,
              HandleBeforeNavigationAsync,
              ResovleViewAsync,
-             HandleAfterNavigationAsync];
+             HandleAfterNavigationAsync
+            ];
         return RegionNavigationService<T>.ExecuteStepsAsync(steps, navigationContext);
     }
 
     private Task RunMultiPageNavigationAsync(NavigationContext navigationContext)
     {
-        Func<NavigationContext, Task>[] steps = [HandleBeforeNavigationAsync, ResovleViewAsync, RenderIndicatorAsync, HandleAfterNavigationAsync];
+        Func<NavigationContext, Task>[] steps = 
+            [
+             HandleBeforeNavigationAsync, 
+             ResovleViewAsync, 
+             RenderIndicatorAsync, 
+             HandleAfterNavigationAsync
+            ];
         return RegionNavigationService<T>.ExecuteStepsAsync(steps, navigationContext);
     }
 
     private Task RenderIndicatorAsync(NavigationContext navigationContext)
     {
-        _regionPresenter.RenderIndicator(navigationContext);
+        _regionPresenter.ProcessActivate(navigationContext);
         return Task.CompletedTask;
     }
     private async Task ResovleViewAsync(NavigationContext navigationContext)

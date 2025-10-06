@@ -81,7 +81,7 @@ public abstract class RegionBase<TRegion, TControl> : IRegion, IRegionPresenter
     }
     #endregion
 
-    public abstract void RenderIndicator(NavigationContext navigationContext);
+    //public abstract void RenderIndicator(NavigationContext navigationContext);
     public abstract void ProcessActivate(NavigationContext navigationContext);
     public abstract void ProcessDeactivate(NavigationContext navigationContext);
 

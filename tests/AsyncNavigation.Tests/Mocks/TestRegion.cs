@@ -20,11 +20,7 @@ public class TestRegion : RegionBase<TestRegion, object>, IRegionPresenter
         IsActive = false;
     }
 
-    public override void RenderIndicator(NavigationContext navigationContext)
-    {
-        IsActive = true;
-    }
-
+    
     public static TestRegion Build(IServiceProvider serviceProvider)
     {
         return new TestRegion("TestRegion", new object(), serviceProvider);
