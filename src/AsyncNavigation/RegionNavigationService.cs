@@ -11,7 +11,7 @@ internal sealed class RegionNavigationService<T> : IRegionNavigationService<T> w
     private readonly IRegionIndicatorManager _regionIndicatorManager;
     private readonly IJobScheduler _navigationJobScheduler;
     private readonly IRegionPresenter _regionPresenter;
-    private volatile IView? _current;
+    private (IView View, NavigationContext NavigationContext)? _current;
     public RegionNavigationService(T regionPresenter, IServiceProvider serviceProvider)
     {
         _regionPresenter = regionPresenter;
@@ -19,7 +19,7 @@ internal sealed class RegionNavigationService<T> : IRegionNavigationService<T> w
         _viewCacheManager = serviceProvider.GetRequiredService<IViewManager>();
         _regionIndicatorManager = serviceProvider.GetRequiredService<IRegionIndicatorManager>();
     }
-    internal IView? CurrentView
+    internal (IView View, NavigationContext NavigationContext)? Current
     {
         get => _current;
         set => _current = value;
@@ -32,6 +32,15 @@ internal sealed class RegionNavigationService<T> : IRegionNavigationService<T> w
         }
         catch (OperationCanceledException) when (navigationContext.CancellationToken.IsCancellationRequested)
         {
+            if (Current.HasValue)
+            {
+                _regionPresenter.ProcessActivate(Current.Value.NavigationContext);
+                await _regionIndicatorManager.Revert(Current.Value.NavigationContext);
+            }
+            else
+            {
+                _regionPresenter.ProcessDeactivate(navigationContext);
+            }
             throw;
         }
         catch (Exception ex)
@@ -125,9 +134,9 @@ internal sealed class RegionNavigationService<T> : IRegionNavigationService<T> w
 
     private async Task HandleBeforeNavigationAsync(NavigationContext navigationContext)
     {
-        if (CurrentView is not null)
+        if (Current.HasValue)
         {
-            var currentAware = (CurrentView.DataContext as INavigationAware)!;
+            var currentAware = (Current.Value.View.DataContext as INavigationAware)!;
             navigationContext.CancellationToken.ThrowIfCancellationRequested();
             await currentAware.OnNavigatedFromAsync(navigationContext);
 
@@ -148,14 +157,17 @@ internal sealed class RegionNavigationService<T> : IRegionNavigationService<T> w
             var contextSnapshot = navigationContext;
             WeakUnloadObserver.Subscribe(aware, a =>
             {
-                if (ReferenceEquals(CurrentView?.DataContext, a))
-                    CurrentView = null;
+                if (Current.HasValue)
+                {
+                    if (ReferenceEquals(Current.Value.View.DataContext, a))
+                        Current = null;
+                }
 
                 _regionPresenter.ProcessDeactivate(contextSnapshot);
             });
             await aware.OnNavigatedToAsync(navigationContext);
             navigationContext.CancellationToken.ThrowIfCancellationRequested();
-            CurrentView = view;
+            Current = (view, navigationContext);
         }
     }
 
@@ -167,7 +179,7 @@ internal sealed class RegionNavigationService<T> : IRegionNavigationService<T> w
             return navigationAware.IsNavigationTargetAsync(navigationContext);
         }
         // todo: throw?
-        return Task.FromResult(true);
+        return Task.FromResult(false);
     }
     private static Task HandleInitializeAsync(IView view, NavigationContext navigationContext)
     {
@@ -177,7 +189,7 @@ internal sealed class RegionNavigationService<T> : IRegionNavigationService<T> w
             return navigationAware.InitializeAsync(navigationContext);
         }
         // todo: throw?
-        return Task.FromResult(true);
+        return Task.CompletedTask;
     }
 
     private static async Task ExecuteStepsAsync(IEnumerable<Func<NavigationContext, Task>> steps, NavigationContext navigationContext)

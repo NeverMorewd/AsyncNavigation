@@ -54,6 +54,15 @@ internal sealed class RegionIndicatorManager : IRegionIndicatorManager
         await OnLoadedCore(Inner, Others, context);
         await ShowContentCore(Inner, context);
     }
+    public Task Revert(NavigationContext navigationContext)
+    {
+        if (navigationContext.IndicatorHost.IsSet)
+        {
+            return ShowContentCore((navigationContext.IndicatorHost.Value as IInnerRegionIndicatorHost)!, navigationContext);
+        }
+        throw new InvalidOperationException("Cannot revert an uncompleted navigation action!");
+      
+    }
     private static IEnumerable<IRegionIndicator> AllIndicators(IRegionIndicator inner, IEnumerable<IRegionIndicator> others) =>
         others?.Append(inner) ?? [inner];
 

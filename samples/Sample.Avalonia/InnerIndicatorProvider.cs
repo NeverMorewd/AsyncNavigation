@@ -5,6 +5,7 @@ using Avalonia.Controls;
 using Avalonia.Layout;
 using Avalonia.Media;
 using System;
+using System.Threading;
 
 namespace Sample.Avalonia;
 
@@ -60,9 +61,26 @@ internal class InnerIndicatorProvider : IInnerIndicatorProvider
             Orientation = Orientation.Vertical,
             VerticalAlignment = VerticalAlignment.Center,
         };
+        CancellationTokenSource cancellationTokenSource = new();
+        navigationContext.WithLinkedCancellationToken(cancellationTokenSource.Token);
+        var cancelButton = new Button
+        {
+            Content = "Cancel",
+            Width = 100,
+            Margin = new Thickness(0, 10, 0, 0),
+            HorizontalAlignment = HorizontalAlignment.Center,
+        };
+
+        cancelButton.Click += (s, e) =>
+        {
+            cancellationTokenSource.Cancel();
+        };
+
+
         panel.Children.Add(textLoading);
         panel.Children.Add(text);
         panel.Children.Add(bar);
+        panel.Children.Add(cancelButton);
         var border = new Border
         {
             Child = panel,

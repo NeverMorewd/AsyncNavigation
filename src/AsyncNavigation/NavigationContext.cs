@@ -194,4 +194,16 @@ public partial class NavigationContext : IJobContext
     {
 
     }
+
+    public NavigationContext WithLinkedCancellationToken(CancellationToken otherToken)
+    {
+        if (!CancellationToken.CanBeCanceled && !otherToken.CanBeCanceled)
+            return this;
+
+        var linkedCts = CancellationTokenSource.CreateLinkedTokenSource(CancellationToken, otherToken);
+        CancellationToken = linkedCts.Token;
+
+        return this;
+    }
+
 }
