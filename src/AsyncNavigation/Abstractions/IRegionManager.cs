@@ -1,4 +1,5 @@
 ﻿using AsyncNavigation.Core;
+using System.Diagnostics.CodeAnalysis;
 
 namespace AsyncNavigation.Abstractions;
 
@@ -6,6 +7,9 @@ public interface IRegionManager
 {
     IReadOnlyDictionary<string, IRegion> Regions { get; }
     void AddRegion(string regionName, IRegion region);
+    bool TryGetRegion(string regionName, [MaybeNullWhen(false)] out IRegion region);
+    bool TryRemoveRegion(string regionName, [MaybeNullWhen(false)] out IRegion region);
+
 
     Task<NavigationResult> RequestNavigateAsync(string regionName, 
         string viewName, 

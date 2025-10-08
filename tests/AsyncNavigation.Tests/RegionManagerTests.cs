@@ -8,21 +8,20 @@ namespace AsyncNavigation.Tests;
 
 public class RegionManagerTests : IClassFixture<ServiceFixture>
 {
-    private readonly RegionManager _regionManager;
+    private readonly IRegionManager _regionManager;
     private readonly IServiceProvider _serviceProvider;
 
     public RegionManagerTests(ServiceFixture serviceFixture)
     {
         _serviceProvider = serviceFixture.ServiceProvider;
-        _regionManager = new RegionManager(
-            _serviceProvider.GetRequiredService<IRegionFactory>(),
-            _serviceProvider);
+        _regionManager = _serviceProvider.GetRequiredService<IRegionManager>();
     }
 
     [Fact]
     public void AddRegion_ShouldAddSuccessfully()
     {
         var region = TestRegion.Build(_serviceProvider);
+        _regionManager.TryRemoveRegion("Main", out _);
         _regionManager.AddRegion("Main", region);
 
         Assert.Contains("Main", _regionManager.Regions.Keys);
@@ -33,6 +32,7 @@ public class RegionManagerTests : IClassFixture<ServiceFixture>
     public void AddRegion_ShouldThrow_WhenDuplicate()
     {
         var region = TestRegion.Build(_serviceProvider);
+        _regionManager.TryRemoveRegion("Main", out _);
         _regionManager.AddRegion("Main", region);
 
         Assert.Throws<InvalidOperationException>(() =>
@@ -106,6 +106,7 @@ public class RegionManagerTests : IClassFixture<ServiceFixture>
     public async Task RequestNavigateAsync_ShouldActivateView()
     {
         var region = TestRegion.Build(_serviceProvider);
+        _regionManager.TryRemoveRegion("Main", out _);
         _regionManager.AddRegion("Main", region);
         var result = await _regionManager.RequestNavigateAsync("Main", "TestView");
         Assert.True(result.IsSuccessful);
@@ -115,6 +116,7 @@ public class RegionManagerTests : IClassFixture<ServiceFixture>
     public async Task RequestNavigateAsync_ShouldCancel()
     {
         var region = TestRegion.Build(_serviceProvider);
+        _regionManager.TryRemoveRegion("Main", out _);
         _regionManager.AddRegion("Main", region);
         CancellationTokenSource cancellationTokenSource = new();
         cancellationTokenSource.Cancel();
@@ -127,6 +129,7 @@ public class RegionManagerTests : IClassFixture<ServiceFixture>
     public async Task GoBack_ShouldActivateView()
     {
         var region = TestRegion.Build(_serviceProvider);
+        _regionManager.TryRemoveRegion("Main", out _);
         _regionManager.AddRegion("Main", region);
         _ = await _regionManager.RequestNavigateAsync("Main", "TestView");
         _ = await _regionManager.RequestNavigateAsync("Main", "AnotherTestView");
@@ -137,6 +140,7 @@ public class RegionManagerTests : IClassFixture<ServiceFixture>
     public async Task GoBack_ShouldCancel()
     {
         var region = TestRegion.Build(_serviceProvider);
+        _regionManager.TryRemoveRegion("Main", out _);
         _regionManager.AddRegion("Main", region);
         CancellationTokenSource cancellationTokenSource = new();
         cancellationTokenSource.Cancel();

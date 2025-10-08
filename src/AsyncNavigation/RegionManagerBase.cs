@@ -1,6 +1,7 @@
 ﻿using AsyncNavigation.Abstractions;
 using AsyncNavigation.Core;
 using System.Collections.Concurrent;
+using System.Diagnostics.CodeAnalysis;
 
 namespace AsyncNavigation;
 
@@ -133,7 +134,7 @@ public abstract class RegionManagerBase : IRegionManager, IDisposable
         throw new InvalidOperationException($"Region '{regionName}' not found or has been collected.");
     }
 
-    public bool TryGetRegion(string regionName, out IRegion? region)
+    public bool TryGetRegion(string regionName, [MaybeNullWhen(false)] out IRegion region)
     {
         region = null;
         if (_regions.TryGetValue(regionName, out var weakRef))
@@ -151,7 +152,7 @@ public abstract class RegionManagerBase : IRegionManager, IDisposable
         return false;
     }
 
-    public bool TryRemoveRegion(string regionName, out IRegion? region)
+    public bool TryRemoveRegion(string regionName, [MaybeNullWhen(false)] out IRegion region)
     {
         region = null;
         if (_regions.TryRemove(regionName, out var weakRef))

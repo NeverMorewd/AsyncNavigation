@@ -1,5 +1,4 @@
-﻿using AsyncNavigation.Abstractions;
-using AsyncNavigation.Tests.Mocks;
+﻿using AsyncNavigation.Tests.Mocks;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace AsyncNavigation.Tests.Infrastructure;
@@ -11,10 +10,16 @@ public class ServiceFixture : IDisposable
     public ServiceFixture()
     {
         ServiceCollection serviceDescriptors = new();
-        serviceDescriptors.RegisterNavigationFramework();
-        serviceDescriptors.AddTransient<IInnerRegionIndicatorHost, TestInnerIndicatorHost>();
+
+        NavigationOptions navigationOptions = new()
+        {
+            MaxHistoryItems = 0
+        };
+        serviceDescriptors.AddNavigationTestSupport(navigationOptions);
+
         serviceDescriptors.RegisterView<TestView, TestNavigationAware>("TestView");
         serviceDescriptors.RegisterView<AnotherTestView, TestNavigationAware>("AnotherTestView");
+        
         ServiceProvider = serviceDescriptors.BuildServiceProvider();
     }
 

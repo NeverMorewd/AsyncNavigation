@@ -4,7 +4,7 @@ namespace AsyncNavigation.Tests.Mocks;
 
 internal class TestInnerIndicatorHost : IInnerRegionIndicatorHost
 {
-    public object Host => new object();
+    public object Host => new();
 
     public Task OnCancelledAsync(NavigationContext context)
     {
