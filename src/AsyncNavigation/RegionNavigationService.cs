@@ -32,15 +32,6 @@ internal sealed class RegionNavigationService<T> : IRegionNavigationService<T> w
         }
         catch (OperationCanceledException) when (navigationContext.CancellationToken.IsCancellationRequested)
         {
-            if (Current.HasValue)
-            {
-                _regionPresenter.ProcessActivate(Current.Value.NavigationContext);
-                await _regionIndicatorManager.Revert(Current.Value.NavigationContext);
-            }
-            else
-            {
-                _regionPresenter.ProcessDeactivate(navigationContext);
-            }
             throw;
         }
         catch (Exception ex)
@@ -58,6 +49,19 @@ internal sealed class RegionNavigationService<T> : IRegionNavigationService<T> w
     public Task OnNavigateFromAsync(NavigationContext navigationContext)
     {
         return HandleBeforeNavigationAsync(navigationContext);
+    }
+    public Task RevertAsync()
+    {
+        if (Current.HasValue)
+        {
+            _regionPresenter.ProcessActivate(Current.Value.NavigationContext);
+            return _regionIndicatorManager.Revert(Current.Value.NavigationContext);
+        }
+        else
+        {
+            _regionPresenter.ProcessDeactivate(null);
+            return Task.CompletedTask;
+        }
     }
     public void Dispose()
     {

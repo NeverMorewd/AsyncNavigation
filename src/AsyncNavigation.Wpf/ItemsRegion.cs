@@ -62,8 +62,10 @@ public class ItemsRegion : RegionBase<ItemsRegion, ItemsControl>
     //    ProcessActivate(navigationContext);
     //}
 
-    public override void ProcessDeactivate(NavigationContext navigationContext)
+    public override void ProcessDeactivate(NavigationContext? navigationContext)
     {
+        if (navigationContext == null)
+            return;
         _context.Items.Remove(navigationContext);
     }
 }

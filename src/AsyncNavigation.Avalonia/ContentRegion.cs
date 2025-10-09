@@ -55,7 +55,7 @@ public class ContentRegion : RegionBase<ContentRegion, ContentControl>
         _context.Selected = navigationContext;
     }
 
-    public override void ProcessDeactivate(NavigationContext navigationContext)
+    public override void ProcessDeactivate(NavigationContext? navigationContext)
     {
         _context.Selected = null;
     }

@@ -15,7 +15,7 @@ public class TestRegion : RegionBase<TestRegion, object>, IRegionPresenter
         IsActive = true;
     }
 
-    public override void ProcessDeactivate(NavigationContext navigationContext)
+    public override void ProcessDeactivate(NavigationContext? navigationContext)
     {
         IsActive = false;
     }

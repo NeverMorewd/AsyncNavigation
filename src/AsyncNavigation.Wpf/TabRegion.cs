@@ -62,8 +62,10 @@ public class TabRegion : RegionBase<TabRegion, TabControl>
         }
     }
 
-    public override void ProcessDeactivate(NavigationContext navigationContext)
+    public override void ProcessDeactivate(NavigationContext? navigationContext)
     {
+        if (navigationContext == null)
+            return;
         var hit = _context.Items.FirstOrDefault(t => ReferenceEquals(t, navigationContext));
         if (hit != null)
         {

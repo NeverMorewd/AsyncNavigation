@@ -74,6 +74,11 @@ public abstract class RegionBase<TRegion, TControl> : IRegion, IRegionPresenter
     {
         return _regionNavigationService.OnNavigateFromAsync(navigationContext);
     }
+
+    Task IRegion.RevertAsync()
+    {
+        return _regionNavigationService.RevertAsync();
+    }
     public virtual void Dispose()
     {
         GC.SuppressFinalize(this);
@@ -83,7 +88,7 @@ public abstract class RegionBase<TRegion, TControl> : IRegion, IRegionPresenter
 
     //public abstract void RenderIndicator(NavigationContext navigationContext);
     public abstract void ProcessActivate(NavigationContext navigationContext);
-    public abstract void ProcessDeactivate(NavigationContext navigationContext);
+    public abstract void ProcessDeactivate(NavigationContext? navigationContext);
 
 #if DEBUG
     ~RegionBase()

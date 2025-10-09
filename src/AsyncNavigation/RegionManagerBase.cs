@@ -69,6 +69,7 @@ public abstract class RegionManagerBase : IRegionManager, IDisposable
         }
         catch (OperationCanceledException) when (context.CancellationToken.IsCancellationRequested)
         {
+            await region.RevertAsync();
             return NavigationResult.Cancelled(context);
         }
         catch (Exception ex)
@@ -95,6 +96,7 @@ public abstract class RegionManagerBase : IRegionManager, IDisposable
             }
             catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
             {
+                await region.RevertAsync();
                 return NavigationResult.Cancelled();
             }
         }
@@ -113,6 +115,7 @@ public abstract class RegionManagerBase : IRegionManager, IDisposable
             }
             catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
             {
+                await region.RevertAsync();
                 return NavigationResult.Cancelled();
             }
         }
