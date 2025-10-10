@@ -14,13 +14,6 @@
             <Setter Property="Command" Value="{Binding AsyncNavigateCommand}" />
             <Setter Property="CommandParameter" Value="{Binding RelativeSource={RelativeSource Mode=Self}, Path=Tag}" />
         </Style>
-        <Style x:Key="NavigationWithDelay" TargetType="{x:Type Button}">
-            <Setter Property="Height" Value="30" />
-            <Setter Property="Width" Value="300" />
-            <Setter Property="Command" Value="{Binding AsyncDelayNavigateCommand}" />
-            <Setter Property="CommandParameter" Value="{Binding RelativeSource={RelativeSource Mode=Self}, Path=Tag}" />
-            <Setter Property="VerticalContentAlignment" Value="Center" />
-        </Style>
         <Style x:Key="NavigationAndForget" TargetType="{x:Type Button}">
             <Setter Property="Height" Value="30" />
             <Setter Property="Width" Value="300" />

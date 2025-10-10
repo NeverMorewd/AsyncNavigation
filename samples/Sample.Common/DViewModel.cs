@@ -17,14 +17,11 @@ public partial class DViewModel : InstanceCounterViewModel<DViewModel>
         var (viewName, parameters) = SampleHelper.ParseNavigationParam(param);
         await _regionManager.RequestNavigateAsync("TabRegion", viewName, parameters);
     }
-
     [ReactiveCommand]
-    private async Task AsyncDelayNavigate(string param)
+    private void AsyncNavigateAndForget(string param)
     {
         var (viewName, parameters) = SampleHelper.ParseNavigationParam(param);
-        parameters ??= new NavigationParameters();
-        parameters!.Add("delay", TimeSpan.FromSeconds(1));
-        await _regionManager.RequestNavigateAsync("TabRegion", viewName, parameters);
+        _ = _regionManager.RequestNavigateAsync("TabRegion", viewName, parameters);
     }
 
     [ReactiveCommand]

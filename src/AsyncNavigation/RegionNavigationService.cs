@@ -1,4 +1,5 @@
 ﻿using AsyncNavigation.Abstractions;
+using AsyncNavigation.Core;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace AsyncNavigation;
@@ -47,7 +48,7 @@ internal sealed class RegionNavigationService<T> : IRegionNavigationService<T> w
     }
     public Task RevertAsync()
     {
-        if (Current.HasValue)
+        if (Current.HasValue && _regionPresenter.IsSinglePageRegion)
         {
             _regionPresenter.ProcessActivate(Current.Value.NavigationContext);
             return _regionIndicatorManager.Revert(Current.Value.NavigationContext);
@@ -76,44 +77,40 @@ internal sealed class RegionNavigationService<T> : IRegionNavigationService<T> w
         var isSinglePageRegion = _regionPresenter!.IsSinglePageRegion;
         _regionIndicatorManager.Setup(navigationContext, isSinglePageRegion);
 
-        var navigationTask = isSinglePageRegion
-            ? RunSinglePageNavigationAsync(navigationContext)
-            : RunMultiPageNavigationAsync(navigationContext);
+        var navigationTask = RunNavigationAsync(navigationContext, _regionPresenter.NavigationPipelineMode);
 
         await _regionIndicatorManager.StartAsync(
             navigationContext,
             navigationTask,
             NavigationOptions.Default.LoadingIndicatorDelay);
-
-        //_regionPresenter.ProcessActivate(navigationContext);
     }
-
-    private Task RunSinglePageNavigationAsync(NavigationContext navigationContext)
+    private Task RunNavigationAsync(NavigationContext context, NavigationPipelineMode mode)
     {
-        Func<NavigationContext, Task>[] pipeline =
-            [
-             OnRenderIndicatorAsync,
-             OnBeforeNavigationAsync,
-             OnResovleViewAsync,
-             OnAfterNavigationAsync
-            ];
-        return RegionNavigationService<T>.ExecutePipelineAsync(pipeline, navigationContext);
-    }
+        Func<NavigationContext, Task>[] pipeline = mode switch
+        {
+            NavigationPipelineMode.RenderFirst =>
+                [
+                    OnRenderIndicatorAsync, 
+                    OnBeforeNavigationAsync, 
+                    OnResovleViewAsync, 
+                    OnAfterNavigationAsync
+                ],
+            NavigationPipelineMode.ResolveFirst =>
+                [
+                    OnBeforeNavigationAsync, 
+                    OnResovleViewAsync, 
+                    OnRenderIndicatorAsync, 
+                    OnAfterNavigationAsync
+                ],
+            _ => throw new ArgumentOutOfRangeException(nameof(mode))
+        };
 
-    private Task RunMultiPageNavigationAsync(NavigationContext navigationContext)
-    {
-        Func<NavigationContext, Task>[] pipeline = 
-            [
-             OnBeforeNavigationAsync, 
-             OnResovleViewAsync,
-             OnRenderIndicatorAsync, 
-             OnAfterNavigationAsync
-            ];
-        return RegionNavigationService<T>.ExecutePipelineAsync(pipeline, navigationContext);
+        return RegionNavigationService<T>.ExecutePipelineAsync(pipeline, context);
     }
 
     private Task OnRenderIndicatorAsync(NavigationContext navigationContext)
     {
+        navigationContext.CancellationToken.ThrowIfCancellationRequested();
         _regionPresenter.ProcessActivate(navigationContext);
         navigationContext.CancellationToken.ThrowIfCancellationRequested();
         return Task.CompletedTask;

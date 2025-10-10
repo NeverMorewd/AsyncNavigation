@@ -17,37 +17,37 @@
         <SplitView.Pane>
             <DockPanel>
                 <ToggleButton
-					ZIndex="99"
+                    Width="45"
+                    HorizontalContentAlignment="Center"
                     Classes="Switch"
                     DockPanel.Dock="Top"
-					Width="45"
-					HorizontalContentAlignment="Center"
-                    IsChecked="{Binding IsSplitViewPaneOpen}" />
+                    IsChecked="{Binding IsSplitViewPaneOpen}"
+                    ZIndex="99" />
                 <StackPanel Classes="Navigation" IsVisible="{Binding IsSplitViewPaneOpen}">
-					<StackPanel Spacing="4" Orientation="Horizontal">
-						<Button Classes="GoBack"/>
-						<Button Classes="GoForward"/>
-					</StackPanel>
+                    <StackPanel Orientation="Horizontal" Spacing="4">
+                        <Button Classes="GoBack" />
+                        <Button Classes="GoForward" />
+                    </StackPanel>
                     <Button
                         Classes="Navigation"
                         Content="ToA"
                         Tag="AView" />
-					<Button
-					   Classes="Navigation"
-					   Content="ToE"
-					   Tag="EView" />
                     <Button
                         Classes="Navigation"
-                        Content="ToB:ItemsRegion;Delay"
-                        Tag="BView" />
+                        Content="ToE"
+                        Tag="EView" />
                     <Button
                         Classes="Navigation"
-                        Content="ToC:ChildContentRegion"
-                        Tag="CView" />
+                        Content="ToE:Delay"
+                        Tag="EView:Delay" />
                     <Button
                         Classes="Navigation"
-                        Content="ToD:TabRegion"
-                        Tag="DView" />
+                        Content="ToA:New"
+                        Tag="AView:New" />
+                    <Button
+                        Classes="Navigation"
+                        Content="ToE:Error"
+                        Tag="EView:Error" />
                     <Button
                         Classes="NavigationAndForget"
                         Content="ToA:Forget"
@@ -58,37 +58,41 @@
                         Tag="EView" />
                     <Button
                         Classes="Navigation"
-                        Content="ToA:New"
-                        Tag="AView:New" />
+                        Content="ToB:ItemsRegion"
+                        Tag="BView" />
                     <Button
                         Classes="Navigation"
-                        Content="ToE:Error"
-                        Tag="EView:Error" />
-					<Button
-					   Classes="DialogShow"
-					   Content="ToA:Dialog.Show"
-					   Tag="AView" />
-					<Button
-					   Classes="DialogShow"
-					   Content="ToE:Dialog.Show"
-					   Tag="EView" />
-					<Button
-					   Classes="DialogShowDialog"
-					   Content="ToA:Dialog.ShowDialog"
-					   Tag="AView" />
-					<Button
-					   Classes="DialogShowDialogAsync"
-					   Content="ToE:Dialog.AsyncShowDialog"
-					   Tag="EView" />
-					<Button
-					   Classes="DialogShowDialogAsyncWithCancelling"
-					   Content="ToA:Dialog.ShowDialogWithCancelling"
-					   Tag="AView" />
-					<Button
+                        Content="ToD:TabRegion"
+                        Tag="DView" />
+                    <Button
+                        Classes="Navigation"
+                        Content="ToC:ChildContentRegion"
+                        Tag="CView" />
+                    <Button
                         Classes="Navigation"
                         Content="ToListBoxRegionView"
                         Tag="ListBoxRegionView" />
-					<Button
+                    <Button
+                        Classes="DialogShow"
+                        Content="ToA:Dialog.Show"
+                        Tag="AView" />
+                    <Button
+                        Classes="DialogShow"
+                        Content="ToE:Dialog.Show"
+                        Tag="EView" />
+                    <Button
+                        Classes="DialogShowDialog"
+                        Content="ToA:Dialog.ShowDialog"
+                        Tag="AView" />
+                    <Button
+                        Classes="DialogShowDialogAsync"
+                        Content="ToE:Dialog.AsyncShowDialog"
+                        Tag="EView" />
+                    <Button
+                        Classes="DialogShowDialogAsyncWithCancelling"
+                        Content="ToA:Dialog.ShowDialogWithCancelling"
+                        Tag="AView" />
+                    <Button
                         Command="{Binding CollectCommand}"
                         Content="Collect"
                         Tag="" />

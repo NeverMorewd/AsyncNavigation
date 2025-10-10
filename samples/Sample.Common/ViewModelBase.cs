@@ -3,6 +3,7 @@ using AsyncNavigation.Abstractions;
 using AsyncNavigation.Core;
 using ReactiveUI;
 using ReactiveUI.SourceGenerators;
+using System.Diagnostics.CodeAnalysis;
 
 namespace Sample.Common;
 
@@ -24,20 +25,16 @@ public abstract partial class ViewModelBase : ReactiveObject, INavigationAware
         return Task.CompletedTask;
     }
 
-    public virtual async Task<bool> IsNavigationTargetAsync(NavigationContext context)
+    public virtual Task<bool> IsNavigationTargetAsync(NavigationContext context)
     {
         if (context.Parameters is not null)
         {
             if (context.Parameters.TryGetValue<bool>("requestNew", out var requestNew) && requestNew)
             {
-                return false;
+                return Task.FromResult(false);
             }
         }
-        if (TryGetDelay(context, out var delay))
-        {
-            await Task.Delay(delay!.Value, context.CancellationToken);
-        }
-        return true;
+        return Task.FromResult(true);
     }
 
     public virtual async Task OnNavigatedFromAsync(NavigationContext context)
@@ -74,7 +71,7 @@ public abstract partial class ViewModelBase : ReactiveObject, INavigationAware
         return RequestUnloadAsync!.Invoke(this, AsyncEventArgs.Empty);
     }
 
-    private static bool TryGetDelay(NavigationContext navigationContext, out TimeSpan? delayTime)
+    private static bool TryGetDelay(NavigationContext navigationContext, [MaybeNullWhen(false)] out TimeSpan? delayTime)
     {
         if (navigationContext.Parameters is not null)
         {

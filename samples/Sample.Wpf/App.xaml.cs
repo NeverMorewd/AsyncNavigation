@@ -22,15 +22,15 @@ namespace Sample.Wpf
             var services = new ServiceCollection();
             services.AddNavigationSupport()
                 .AddSingleton<MainWindowViewModel>()
-                    .RegisterRegionAdapter<ListBoxRegionAdapter>()
-                    .RegisterView<AView, AViewModel>(nameof(AView))
-                    .RegisterView<BView, BViewModel>(nameof(BView))
-                    .RegisterView<CView, CViewModel>(nameof(CView))
-                    .RegisterView<DView, DViewModel>(nameof(DView))
-                    .RegisterView<EView, EViewModel>(nameof(EView))
-                    .RegisterInnerIndicatorProvider<InnerIndicatorProvider>()
-                    .RegisterRegionIndicatorProvider<MessageBoxIndicatorProvider>()
-                    .RegisterView<ListBoxRegionView, ListBoxRegionViewModel>(nameof(ListBoxRegionView));
+                .RegisterRegionAdapter<ListBoxRegionAdapter>()
+                .RegisterView<AView, AViewModel>(nameof(AView))
+                .RegisterView<BView, BViewModel>(nameof(BView))
+                .RegisterView<CView, CViewModel>(nameof(CView))
+                .RegisterView<DView, DViewModel>(nameof(DView))
+                .RegisterView<EView, EViewModel>(nameof(EView))
+                .RegisterInnerIndicatorProvider<InnerIndicatorProvider>()
+                .RegisterRegionIndicatorProvider<MessageBoxIndicatorProvider>()
+                .RegisterView<ListBoxRegionView, ListBoxRegionViewModel>(nameof(ListBoxRegionView));
 
             var sp = services.BuildServiceProvider();
             base.OnStartup(e);

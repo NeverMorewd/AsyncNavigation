@@ -39,7 +39,7 @@ public abstract class RegionManagerBase : IRegionManager, IDisposable
         }
     }
 
-    public async Task<NavigationResult> RequestNavigateAsync(
+    public virtual async Task<NavigationResult> RequestNavigateAsync(
         string regionName,
         string viewName,
         INavigationParameters? navigationParameters = null,
@@ -74,7 +74,6 @@ public abstract class RegionManagerBase : IRegionManager, IDisposable
         }
         catch (Exception ex)
         {
-            var t = ex.GetType();
             return NavigationResult.Failure(ex, context);
         }
     }

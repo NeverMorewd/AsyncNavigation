@@ -38,6 +38,18 @@
                 Content="ToE"
                 Style="{StaticResource NavigationButton}"
                 Tag="EView" />
+            <Button
+                Content="ToE:Delay"
+                Style="{StaticResource NavigationButton}"
+                Tag="EView:Delay" />
+            <Button
+                Content="ToE:Error"
+                Style="{StaticResource NavigationButton}"
+                Tag="EView:Error" />
+            <Button
+                Content="ToA:Forget"
+                Style="{StaticResource NavigationAndForget}"
+                Tag="AView" />
         </StackPanel>
         <ScrollViewer>
             <ItemsControl an:RegionManager.RegionName="ItemsRegion">

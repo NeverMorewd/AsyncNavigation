@@ -5,7 +5,6 @@ using Avalonia.Controls;
 using Avalonia.Layout;
 using Avalonia.Media;
 using System;
-using System.Threading;
 
 namespace Sample.Avalonia;
 

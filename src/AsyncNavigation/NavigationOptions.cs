@@ -40,7 +40,7 @@ public class NavigationOptions
     /// Default value is <c>100 milliseconds</c>.  
     /// This avoids flashing the indicator for very fast navigations.
     /// </remarks>
-    public TimeSpan LoadingIndicatorDelay { get; set; } = TimeSpan.FromMilliseconds(100);
+    public TimeSpan LoadingIndicatorDelay { get; set; } = TimeSpan.FromMilliseconds(10);
 
     /// <summary>
     /// Gets a value indicating whether the loading indicator feature is enabled.
@@ -78,7 +78,6 @@ public class NavigationOptions
 
 
     public ViewCacheStrategy ViewCacheStrategy { get; set; } = ViewCacheStrategy.IgnoreDuplicateKey;
-
 
     /// <summary>
     /// Ensures that only one loading indicator can be registered in the navigation system.

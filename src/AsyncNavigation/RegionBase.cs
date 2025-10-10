@@ -27,7 +27,7 @@ public abstract class RegionBase<TRegion, TControl> : IRegion, IRegionPresenter
     IRegionPresenter IRegion.RegionPresenter => this;
     public bool EnableViewCache { get; protected set; }
     public bool IsSinglePageRegion { get; protected set; }
-
+    public abstract NavigationPipelineMode NavigationPipelineMode { get; }
     public IRegionControlAccessor<TControl> RegionControlAccessor => _controlAccessor;
 
     public string Name
@@ -35,6 +35,7 @@ public abstract class RegionBase<TRegion, TControl> : IRegion, IRegionPresenter
         get;
         protected set;
     }
+
     #region IRegion Methods
     async Task IRegion.ActivateViewAsync(NavigationContext navigationContext)
     {
@@ -85,8 +86,6 @@ public abstract class RegionBase<TRegion, TControl> : IRegion, IRegionPresenter
         _navigationHistory.Clear();
     }
     #endregion
-
-    //public abstract void RenderIndicator(NavigationContext navigationContext);
     public abstract void ProcessActivate(NavigationContext navigationContext);
     public abstract void ProcessDeactivate(NavigationContext? navigationContext);
 

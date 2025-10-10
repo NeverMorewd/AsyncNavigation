@@ -24,21 +24,29 @@
                 Style="{StaticResource NavigationButton}"
                 Tag="EView" />
             <Button
-                Content="ToA:Delay"
-                Style="{StaticResource NavigationWithDelay}"
+                Content="ToE:Delay"
+                Style="{StaticResource NavigationButton}"
                 Tag="AView" />
             <Button
                 Content="ToE:Delay"
-                Style="{StaticResource NavigationWithDelay}"
-                Tag="EView" />
+                Style="{StaticResource NavigationButton}"
+                Tag="EView:Delay" />
             <Button
                 Content="ToA:New"
                 Style="{StaticResource NavigationButton}"
                 Tag="AView:New" />
             <Button
                 Content="ToE:New;Delay"
-                Style="{StaticResource NavigationWithDelay}"
-                Tag="EView:New" />
+                Style="{StaticResource NavigationButton}"
+                Tag="EView:New;Delay" />
+            <Button
+                Content="ToA:Forget"
+                Style="{StaticResource NavigationAndForget}"
+                Tag="AView" />
+            <Button
+                Content="ToA:Forget;New"
+                Style="{StaticResource NavigationAndForget}"
+                Tag="AView:New" />
         </StackPanel>
         <ScrollViewer>
             <TabControl

@@ -45,7 +45,10 @@ public class ItemsRegion : RegionBase<ItemsRegion, ItemsControl>
         EnableViewCache = useCache ?? false;
         IsSinglePageRegion = false;
     }
-
+    public override NavigationPipelineMode NavigationPipelineMode
+    {
+        get => NavigationPipelineMode.RenderFirst;
+    }
     public override void Dispose()
     {
         base.Dispose();
@@ -57,15 +60,12 @@ public class ItemsRegion : RegionBase<ItemsRegion, ItemsControl>
             _context.Items.Add(navigationContext);
         _context.Selected = navigationContext;
     }
-    //public override void RenderIndicator(NavigationContext navigationContext)
-    //{       
-    //    ProcessActivate(navigationContext);
-    //}
 
     public override void ProcessDeactivate(NavigationContext? navigationContext)
     {
-        if (navigationContext == null)
+        var target = navigationContext ?? _context.Selected;
+        if (target == null)
             return;
-        _context.Items.Remove(navigationContext);
+        _ = _context.Items.Remove(target);
     }
 }

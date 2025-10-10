@@ -7,21 +7,44 @@ public static class SampleHelper
 {
     public static (string ViewName, INavigationParameters? Parameters) ParseNavigationParam(string param)
     {
-        var parts = param.Split(':', StringSplitOptions.RemoveEmptyEntries);
+        var parts = param.Split(':', 2, StringSplitOptions.RemoveEmptyEntries);
+        if (parts.Length == 0)
+            return (param, null);
+
+        var viewName = parts[0];
+        NavigationParameters? parameters = null;
+
         if (parts.Length == 2)
         {
-            if (string.Equals(parts[1], "New", StringComparison.OrdinalIgnoreCase))
+            var paramList = parts[1].Split(';', StringSplitOptions.RemoveEmptyEntries);
+            foreach (var p in paramList)
             {
-                return (parts[0], new NavigationParameters { { "requestNew", true } });
+                if (string.Equals(p, "New", StringComparison.OrdinalIgnoreCase))
+                {
+                    parameters ??= [];
+                    parameters.Add("requestNew", true);
+                }
+                else if (string.Equals(p, "Error", StringComparison.OrdinalIgnoreCase))
+                {
+                    parameters ??= [];
+                    parameters.Add("raiseError", true);
+                }
+                else if (string.Equals(p, "Delay", StringComparison.OrdinalIgnoreCase))
+                {
+                    parameters ??= [];
+                    parameters.Add("delay", TimeSpan.FromMilliseconds(2000));
+                }
+                else
+                {
+                    parameters ??= [];
+                    parameters.Add(p, true);
+                }
             }
-            if (string.Equals(parts[1], "Error", StringComparison.OrdinalIgnoreCase))
-            {
-                return (parts[0], new NavigationParameters { { "raiseError", true } });
-            }
-            return (parts[0], null);
         }
-        return (param, null);
+
+        return (viewName, parameters);
     }
+
 
     public static Task<NavigationResult> RequestNavigationCommandExecute(this IRegionManager regionManager, string regionName, string param, CancellationToken cancellationToken = default)
     {

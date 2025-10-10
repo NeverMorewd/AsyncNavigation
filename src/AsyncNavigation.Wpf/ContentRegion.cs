@@ -46,7 +46,10 @@ public class ContentRegion : RegionBase<ContentRegion, ContentControl>
         EnableViewCache = useCache ?? true;
         IsSinglePageRegion = true;
     }
-
+    public override NavigationPipelineMode NavigationPipelineMode
+    {
+        get => NavigationPipelineMode.RenderFirst;
+    }
     public override void Dispose()
     {
         base.Dispose();

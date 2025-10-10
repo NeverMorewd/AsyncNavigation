@@ -27,17 +27,17 @@
                     Style="{StaticResource NavigationButton}"
                     Tag="EView" />
                 <Button
-                    Content="ToB:ItemsRegion;Delay"
-                    Style="{StaticResource NavigationWithDelay}"
-                    Tag="BView" />
-                <Button
-                    Content="ToC:ChildContentRegion"
+                    Content="ToE:Delay"
                     Style="{StaticResource NavigationButton}"
-                    Tag="CView" />
+                    Tag="EView:Delay" />
                 <Button
-                    Content="ToD:TabRegion"
+                    Content="ToA:New"
                     Style="{StaticResource NavigationButton}"
-                    Tag="DView" />
+                    Tag="AView:New" />
+                <Button
+                    Content="ToE:Error"
+                    Style="{StaticResource NavigationButton}"
+                    Tag="EView:Error" />
                 <Button
                     Content="ToA:Forget"
                     Style="{StaticResource NavigationAndForget}"
@@ -47,13 +47,21 @@
                     Style="{StaticResource NavigationAndForget}"
                     Tag="EView" />
                 <Button
-                    Content="ToA:New"
+                    Content="ToB:ItemsRegion"
                     Style="{StaticResource NavigationButton}"
-                    Tag="AView:New" />
+                    Tag="BView" />
                 <Button
-                    Content="ToE:Error"
+                    Content="ToD:TabRegion"
                     Style="{StaticResource NavigationButton}"
-                    Tag="EView:Error" />
+                    Tag="DView" />
+                <Button
+                    Content="ToC:ChildContentRegion"
+                    Style="{StaticResource NavigationButton}"
+                    Tag="CView" />
+                <Button
+                    Content="ToListBoxRegionView"
+                    Style="{StaticResource NavigationButton}"
+                    Tag="ListBoxRegionView" />
                 <Button
                     Content="ToA:Dialog.Show"
                     Style="{StaticResource DialogShow}"
@@ -74,10 +82,6 @@
                     Content="ToA:Dialog.ShowDialogWithCancelling"
                     Style="{StaticResource DialogShowDialogAsyncWithCancelling}"
                     Tag="AView" />
-                <Button
-                    Content="ToListBoxRegionView"
-                    Style="{StaticResource NavigationButton}"
-                    Tag="ListBoxRegionView" />
                 <Button
                     Command="{Binding CollectCommand}"
                     Content="Collect"
