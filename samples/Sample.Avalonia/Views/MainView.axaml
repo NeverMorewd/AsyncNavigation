@@ -54,8 +54,8 @@
                         Tag="AView" />
                     <Button
                         Classes="NavigationAndForget"
-                        Content="ToE:Forget"
-                        Tag="EView" />
+                        Content="ToE:Forget;New"
+                        Tag="EView:New" />
                     <Button
                         Classes="Navigation"
                         Content="ToB:ItemsRegion"

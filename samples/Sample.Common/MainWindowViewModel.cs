@@ -23,6 +23,7 @@ public partial class MainWindowViewModel : ViewModelBase
     {
         var (viewName, parameters) = SampleHelper.ParseNavigationParam(param);
         var result = await _regionManager.RequestNavigateAsync("MainRegion", viewName, parameters);
+        Debug.WriteLine(result.Duration.TotalMilliseconds);
     }
 
     [ReactiveCommand]
@@ -31,7 +32,8 @@ public partial class MainWindowViewModel : ViewModelBase
         var (viewName, parameters) = SampleHelper.ParseNavigationParam(param);
         _ = _regionManager.RequestNavigateAsync("MainRegion", viewName, parameters).ContinueWith(t => 
         {
-            var ret = t.Result; 
+            var result = t.Result;
+            Debug.WriteLine(result.Duration.TotalMilliseconds);
         });
     }
     [ReactiveCommand]

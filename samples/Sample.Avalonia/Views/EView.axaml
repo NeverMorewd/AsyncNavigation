@@ -1028,44 +1028,6 @@
 					<ComboBox Width="50"/>
 					<ComboBox Width="50"/>
 					<ComboBox Width="50"/>
-					<ComboBox Width="50"/>
-					<ComboBox Width="50"/>
-					<ComboBox Width="50"/>
-					<ComboBox Width="50"/>
-					<ComboBox Width="50"/>
-					<ComboBox Width="50"/>
-					<ComboBox Width="50"/>
-					<ComboBox Width="50"/>
-					<ComboBox Width="50"/>
-					<ComboBox Width="50"/>
-					<ComboBox Width="50"/>
-					<ComboBox Width="50"/>
-					<ComboBox Width="50"/>
-					<ComboBox Width="50"/>
-					<ComboBox Width="50"/>
-					<ComboBox Width="50"/>
-					<ComboBox Width="50"/>
-					<ComboBox Width="50"/>
-					<ComboBox Width="50"/>
-					<ComboBox Width="50"/>
-					<ComboBox Width="50"/>
-					<ComboBox Width="50"/>
-					<ComboBox Width="50"/>
-					<ComboBox Width="50"/>
-					<ComboBox Width="50"/>
-					<ComboBox Width="50"/>
-					<ComboBox Width="50"/>
-					<ComboBox Width="50"/>
-					<ComboBox Width="50"/>
-					<ComboBox Width="50"/>
-					<ComboBox Width="50"/>
-					<ComboBox Width="50"/>
-					<ComboBox Width="50"/>
-					<ComboBox Width="50"/>
-					<ComboBox Width="50"/>
-					<ComboBox Width="50"/>
-					<ComboBox Width="50"/>
-					<ComboBox Width="50"/>
 				</WrapPanel>
 			</StackPanel>
 		</Border>

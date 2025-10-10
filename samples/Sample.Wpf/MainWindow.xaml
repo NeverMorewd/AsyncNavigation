@@ -43,9 +43,9 @@
                     Style="{StaticResource NavigationAndForget}"
                     Tag="AView" />
                 <Button
-                    Content="ToE:Forget"
+                    Content="ToE:Forget;New"
                     Style="{StaticResource NavigationAndForget}"
-                    Tag="EView" />
+                    Tag="EView:New" />
                 <Button
                     Content="ToB:ItemsRegion"
                     Style="{StaticResource NavigationButton}"
