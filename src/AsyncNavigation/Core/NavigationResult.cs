@@ -17,9 +17,7 @@ public class NavigationResult
 
     public static NavigationResult Success(NavigationContext navigationContext)
     {
-        navigationContext.EndTime = DateTime.UtcNow;
-        navigationContext.Duration = navigationContext.EndTime - navigationContext.StartTime;
-        navigationContext.WithStatus(NavigationStatus.Succeeded);
+        navigationContext.UpdateStatus(NavigationStatus.Succeeded);
         return new NavigationResult
         {
             NavigationContext = navigationContext,
@@ -41,10 +39,7 @@ public class NavigationResult
 
     public static NavigationResult Failure(Exception exception, NavigationContext navigationContext)
     {
-        navigationContext.EndTime = DateTime.UtcNow;
-        navigationContext.Duration = navigationContext.EndTime - navigationContext.StartTime;
-        navigationContext.WithStatus(NavigationStatus.Failed, exception);
-
+        navigationContext.UpdateStatus(NavigationStatus.Failed, exception);
         return new NavigationResult
         {
             NavigationContext = navigationContext,
@@ -67,9 +62,7 @@ public class NavigationResult
 
     public static NavigationResult Cancelled(NavigationContext navigationContext)
     {
-        navigationContext.EndTime = DateTime.UtcNow;
-        navigationContext.Duration = navigationContext.EndTime - navigationContext.StartTime;
-        navigationContext.WithStatus(NavigationStatus.Cancelled);
+        navigationContext.UpdateStatus(NavigationStatus.Cancelled);
 
         return new NavigationResult
         {

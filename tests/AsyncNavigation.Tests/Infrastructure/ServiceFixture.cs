@@ -13,7 +13,7 @@ public class ServiceFixture : IDisposable
 
         NavigationOptions navigationOptions = new()
         {
-            MaxHistoryItems = 0
+            MaxHistoryItems = 10
         };
         serviceDescriptors.AddNavigationTestSupport(navigationOptions);
 

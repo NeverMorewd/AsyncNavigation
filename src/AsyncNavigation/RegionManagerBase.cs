@@ -51,8 +51,8 @@ public abstract class RegionManagerBase : IRegionManager, IDisposable
             RegionName = regionName,
             ViewName = viewName,
             Parameters = navigationParameters,
-            CancellationToken = cancellationToken
         };
+        context.LinkCancellationToken(cancellationToken);
 
         if (context.CancellationToken.IsCancellationRequested)
             return NavigationResult.Cancelled(context);
@@ -67,13 +67,14 @@ public abstract class RegionManagerBase : IRegionManager, IDisposable
             _currentRegion = region;
             return NavigationResult.Success(context);
         }
-        catch (OperationCanceledException) when (context.CancellationToken.IsCancellationRequested)
+        catch (OperationCanceledException)
         {
             await region.RevertAsync();
             return NavigationResult.Cancelled(context);
         }
         catch (Exception ex)
         {
+            var t = ex.GetType();
             return NavigationResult.Failure(ex, context);
         }
     }
@@ -94,7 +95,7 @@ public abstract class RegionManagerBase : IRegionManager, IDisposable
                 await region.GoForwardAsync(cancellationToken);
                 return NavigationResult.Success(TimeSpan.Zero);
             }
-            catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
+            catch (OperationCanceledException)
             {
                 await region.RevertAsync();
                 return NavigationResult.Cancelled();
@@ -113,7 +114,7 @@ public abstract class RegionManagerBase : IRegionManager, IDisposable
                 await region.GoBackAsync(cancellationToken);
                 return NavigationResult.Success(TimeSpan.Zero);
             }
-            catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
+            catch (OperationCanceledException)
             {
                 await region.RevertAsync();
                 return NavigationResult.Cancelled();

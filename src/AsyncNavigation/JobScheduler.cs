@@ -20,12 +20,7 @@ internal sealed class JobScheduler : IJobScheduler
         var job = _jobs.GetOrAdd(jobContext.JobId, _ =>
         {
             var ctsForManualCancel = new CancellationTokenSource();
-            var linkedCts = CancellationTokenSource.CreateLinkedTokenSource(
-                jobContext.CancellationToken,
-                ctsForManualCancel.Token);
-
-            jobContext.CancellationToken = linkedCts.Token;
-
+            jobContext.LinkCancellationToken(ctsForManualCancel.Token);
             var task = jobAction(jobContext);
             return (task, ctsForManualCancel);
         });

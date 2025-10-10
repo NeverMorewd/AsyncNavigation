@@ -28,7 +28,7 @@ public class DialogService : IDialogService
             await aware.OnDialogOpenedAsync(parameters, cancellationToken);
             cancellationToken.ThrowIfCancellationRequested();
         }
-        catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
+        catch (OperationCanceledException)
         {
             return DialogResult.Cancelled;
         }

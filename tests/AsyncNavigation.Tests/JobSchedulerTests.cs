@@ -15,6 +15,11 @@ public class JobSchedulerTests
 
         public void OnStarted() => Started = true;
         public void OnCompleted() => Completed = true;
+
+        public void LinkCancellationToken(CancellationToken otherToken)
+        {
+            return;
+        }
     }
 
     [Fact]
@@ -58,7 +63,9 @@ public class JobSchedulerTests
         NavigationOptions.Default.NavigationJobStrategy = NavigationJobStrategy.CancelCurrent;
 
         var scheduler = new JobScheduler();
-        var context = new TestJobContext();
+        var cts = new CancellationTokenSource();
+        var context = new NavigationContext { RegionName = "", ViewName = "" };
+        context.LinkCancellationToken(cts.Token);
         var canceled = false;
 
         var task = scheduler.RunJobAsync(context, async ctx =>

@@ -1,7 +1,5 @@
 ﻿using AsyncNavigation.Abstractions;
-using AsyncNavigation.Core;
 using Microsoft.Extensions.DependencyInjection;
-using System.Diagnostics;
 
 namespace AsyncNavigation;
 
@@ -22,7 +20,6 @@ internal sealed class RegionNavigationService<T> : IRegionNavigationService<T> w
     internal (IView View, NavigationContext NavigationContext)? Current
     {
         get => _current;
-        set => _current = value;
     }
     public async Task RequestNavigateAsync(NavigationContext navigationContext)
     {
@@ -30,11 +27,7 @@ internal sealed class RegionNavigationService<T> : IRegionNavigationService<T> w
         {
             await _navigationJobScheduler.RunJobAsync(navigationContext, CreateNavigateTask);
         }
-        catch (OperationCanceledException) when (navigationContext.CancellationToken.IsCancellationRequested)
-        {
-            throw;
-        }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             await _regionIndicatorManager.ShowErrorAsync(navigationContext, ex);
             throw;
@@ -46,9 +39,11 @@ internal sealed class RegionNavigationService<T> : IRegionNavigationService<T> w
 #endif
         }
     }
+
     public Task OnNavigateFromAsync(NavigationContext navigationContext)
     {
-        return HandleBeforeNavigationAsync(navigationContext);
+        navigationContext.CancellationToken.ThrowIfCancellationRequested();
+        return OnBeforeNavigationAsync(navigationContext);
     }
     public Task RevertAsync()
     {
@@ -95,34 +90,35 @@ internal sealed class RegionNavigationService<T> : IRegionNavigationService<T> w
 
     private Task RunSinglePageNavigationAsync(NavigationContext navigationContext)
     {
-        Func<NavigationContext, Task>[] steps =
+        Func<NavigationContext, Task>[] pipeline =
             [
-             RenderIndicatorAsync,
-             HandleBeforeNavigationAsync,
-             ResovleViewAsync,
-             HandleAfterNavigationAsync
+             OnRenderIndicatorAsync,
+             OnBeforeNavigationAsync,
+             OnResovleViewAsync,
+             OnAfterNavigationAsync
             ];
-        return RegionNavigationService<T>.ExecuteStepsAsync(steps, navigationContext);
+        return RegionNavigationService<T>.ExecutePipelineAsync(pipeline, navigationContext);
     }
 
     private Task RunMultiPageNavigationAsync(NavigationContext navigationContext)
     {
-        Func<NavigationContext, Task>[] steps = 
+        Func<NavigationContext, Task>[] pipeline = 
             [
-             HandleBeforeNavigationAsync, 
-             ResovleViewAsync, 
-             RenderIndicatorAsync, 
-             HandleAfterNavigationAsync
+             OnBeforeNavigationAsync, 
+             OnResovleViewAsync,
+             OnRenderIndicatorAsync, 
+             OnAfterNavigationAsync
             ];
-        return RegionNavigationService<T>.ExecuteStepsAsync(steps, navigationContext);
+        return RegionNavigationService<T>.ExecutePipelineAsync(pipeline, navigationContext);
     }
 
-    private Task RenderIndicatorAsync(NavigationContext navigationContext)
+    private Task OnRenderIndicatorAsync(NavigationContext navigationContext)
     {
         _regionPresenter.ProcessActivate(navigationContext);
+        navigationContext.CancellationToken.ThrowIfCancellationRequested();
         return Task.CompletedTask;
     }
-    private async Task ResovleViewAsync(NavigationContext navigationContext)
+    private async Task OnResovleViewAsync(NavigationContext navigationContext)
     {
         if (navigationContext.Target.IsSet)
         {
@@ -136,25 +132,23 @@ internal sealed class RegionNavigationService<T> : IRegionNavigationService<T> w
         navigationContext.Target.Value = view;
     }
 
-    private async Task HandleBeforeNavigationAsync(NavigationContext navigationContext)
+    private async Task OnBeforeNavigationAsync(NavigationContext navigationContext)
     {
         if (Current.HasValue)
         {
             var currentAware = (Current.Value.View.DataContext as INavigationAware)!;
-            navigationContext.CancellationToken.ThrowIfCancellationRequested();
             await currentAware.OnNavigatedFromAsync(navigationContext);
-
             // todo: why detach?
             //if (_regionPresenter.IsSinglePageRegion)
             //{
             //    _unloadHandler.Detach(currentAware);
             //}
         }
+        navigationContext.CancellationToken.ThrowIfCancellationRequested();
     }
 
-    private async Task HandleAfterNavigationAsync(NavigationContext navigationContext)
+    private async Task OnAfterNavigationAsync(NavigationContext navigationContext)
     {
-        navigationContext.CancellationToken.ThrowIfCancellationRequested();
         if (navigationContext.Target.Value is IView view
             && view.DataContext is INavigationAware aware)
         {
@@ -164,15 +158,16 @@ internal sealed class RegionNavigationService<T> : IRegionNavigationService<T> w
                 if (Current.HasValue)
                 {
                     if (ReferenceEquals(Current.Value.View.DataContext, a))
-                        Current = null;
+                        _current = null;
                 }
 
                 _regionPresenter.ProcessDeactivate(contextSnapshot);
             });
             await aware.OnNavigatedToAsync(navigationContext);
             navigationContext.CancellationToken.ThrowIfCancellationRequested();
-            Current = (view, navigationContext);
+            _current = (view, navigationContext);
         }
+        navigationContext.CancellationToken.ThrowIfCancellationRequested();
     }
 
     private static Task<bool> HandleIsNavigationTargetAsync(IView view, NavigationContext navigationContext)
@@ -196,7 +191,7 @@ internal sealed class RegionNavigationService<T> : IRegionNavigationService<T> w
         return Task.CompletedTask;
     }
 
-    private static async Task ExecuteStepsAsync(IEnumerable<Func<NavigationContext, Task>> steps, NavigationContext navigationContext)
+    private static async Task ExecutePipelineAsync(IEnumerable<Func<NavigationContext, Task>> steps, NavigationContext navigationContext)
     {
         foreach (var step in steps)
         {

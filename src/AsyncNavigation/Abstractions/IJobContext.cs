@@ -3,7 +3,8 @@
 internal interface IJobContext
 {
     Guid JobId { get; }
-    CancellationToken CancellationToken { get; internal set; }
+    CancellationToken CancellationToken { get; }
     void OnStarted();
     void OnCompleted();
+    void LinkCancellationToken(CancellationToken otherToken);
 }

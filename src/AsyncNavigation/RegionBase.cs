@@ -53,7 +53,7 @@ public abstract class RegionBase<TRegion, TControl> : IRegion, IRegionPresenter
         cancellationToken.ThrowIfCancellationRequested();
         var context = _navigationHistory.GoBack() ?? throw new NavigationException("Cannot go back!");
         context.IsBackNavigation = true;
-        context.CancellationToken = cancellationToken;
+        context.LinkCancellationToken(cancellationToken);
         await _regionNavigationService.RequestNavigateAsync(context);
     }
 
@@ -67,7 +67,7 @@ public abstract class RegionBase<TRegion, TControl> : IRegion, IRegionPresenter
         cancellationToken.ThrowIfCancellationRequested();
         var context = _navigationHistory.GoForward() ?? throw new NavigationException("Cannot go forward!");
         context.IsForwordNavigation = true;
-        context.CancellationToken = cancellationToken;
+        context.LinkCancellationToken(cancellationToken);
         await _regionNavigationService.RequestNavigateAsync(context);
     }
     Task IRegion.NavigateFromAsync(NavigationContext navigationContext)

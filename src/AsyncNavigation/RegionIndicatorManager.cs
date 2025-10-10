@@ -45,7 +45,7 @@ internal sealed class RegionIndicatorManager : IRegionIndicatorManager
         {
             await processTask;
         }
-        catch (OperationCanceledException) when (context.CancellationToken.IsCancellationRequested)
+        catch (OperationCanceledException)
         {
             await OnCancelledCore(Inner, Others, context);
             throw;
