@@ -105,9 +105,9 @@ internal class MessageBoxIndicator : IRegionIndicator
         });
     }
 
-    private Task ShowInNewThread(Action showAction)
+    private static Task ShowInNewThread(Action showAction)
     {
-        var tcs = new TaskCompletionSource<object?>();
+        var tcs = new TaskCompletionSource();
 
         var thread = new Thread(() =>
         {
@@ -115,7 +115,7 @@ internal class MessageBoxIndicator : IRegionIndicator
             {
                 showAction();
                 System.Windows.Threading.Dispatcher.Run();
-                tcs.SetResult(null);
+                tcs.SetResult();
             }
             catch (Exception ex)
             {
@@ -130,7 +130,7 @@ internal class MessageBoxIndicator : IRegionIndicator
         return tcs.Task;
     }
 
-    private Task ShowInNewThreadForget(Action showAction)
+    private static Task ShowInNewThreadForget(Action showAction)
     {
         var thread = new Thread(() =>
         {

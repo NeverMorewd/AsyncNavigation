@@ -1,13 +1,10 @@
-﻿using AsyncNavigation;
-using Microsoft.Extensions.DependencyInjection;
+﻿using Microsoft.Extensions.DependencyInjection;
 using ReactiveUI;
 using Sample.Avalonia;
 using Sample.Common;
 using Sample.Wpf.Regions;
 using Sample.Wpf.Views;
 using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Media;
 
 namespace Sample.Wpf
 {

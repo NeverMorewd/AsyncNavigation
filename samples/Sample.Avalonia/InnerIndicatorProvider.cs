@@ -61,8 +61,7 @@ internal class InnerIndicatorProvider : IInnerIndicatorProvider
             Orientation = Orientation.Vertical,
             VerticalAlignment = VerticalAlignment.Center,
         };
-        CancellationTokenSource cancellationTokenSource = new();
-        navigationContext.WithLinkedCancellationToken(cancellationTokenSource.Token);
+
         var cancelButton = new Button
         {
             Content = "Cancel",
@@ -71,9 +70,11 @@ internal class InnerIndicatorProvider : IInnerIndicatorProvider
             HorizontalAlignment = HorizontalAlignment.Center,
         };
 
-        cancelButton.Click += (s, e) =>
+        cancelButton.Click += async (s, e) =>
         {
-            cancellationTokenSource.Cancel();
+            cancelButton.IsEnabled = false;
+            cancelButton.Content = "Cancelling...";
+            await navigationContext.CancelAndWaitAsync();
         };
 
 
