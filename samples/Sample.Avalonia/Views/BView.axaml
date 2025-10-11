@@ -17,14 +17,13 @@
             DockPanel.Dock="Top">
             <StackPanel>
                 <TextBlock Text="{Binding Name}" />
-				<TextBlock>
-					InstanceNumber:
-					<Run
+                <TextBlock>
+                    InstanceNumber:<Run
                         FontSize="15"
                         FontWeight="Bold"
                         Foreground="Tomato"
                         Text="{Binding InstanceNumber}" />
-				</TextBlock>
+                </TextBlock>
                 <Button Classes="UnloadView" />
                 <Button Classes="CloseDialog" />
             </StackPanel>
@@ -38,6 +37,18 @@
                 Classes="Navigation"
                 Content="ToE"
                 Tag="EView" />
+            <Button
+                Classes="Navigation"
+                Content="ToE:Delay"
+                Tag="EView:Delay" />
+            <Button
+                Classes="Navigation"
+                Content="ToE:Error"
+                Tag="EView:Error" />
+            <Button
+                Classes="NavigationAndForget"
+                Content="ToA:Forget"
+                Tag="AView" />
         </StackPanel>
         <ScrollViewer>
             <ItemsControl an:RegionManager.RegionName="ItemsRegion">

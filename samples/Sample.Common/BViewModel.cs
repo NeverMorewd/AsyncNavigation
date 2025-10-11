@@ -1,6 +1,9 @@
 ﻿using AsyncNavigation;
 using AsyncNavigation.Abstractions;
+using ReactiveUI;
 using ReactiveUI.SourceGenerators;
+using System.Diagnostics;
+using System.Reactive;
 
 namespace Sample.Common;
 
@@ -11,12 +14,23 @@ public partial class BViewModel : InstanceCounterViewModel<BViewModel>
     {
         _regionManager = regionManager;
     }
-
     [ReactiveCommand]
     private async Task AsyncNavigate(string param)
     {
         var (viewName, parameters) = SampleHelper.ParseNavigationParam(param);
-        await _regionManager.RequestNavigateAsync("ItemsRegion", viewName, parameters);
+        var ret = await _regionManager.RequestNavigateAsync("ItemsRegion", viewName, parameters);
+        Debug.WriteLine(ret);
+    }
+    [ReactiveCommand]
+    private void AsyncNavigateAndForget(string param)
+    {
+        var (viewName, parameters) = SampleHelper.ParseNavigationParam(param);
+        _ = _regionManager.RequestNavigateAsync("ItemsRegion", viewName, parameters).ContinueWith(t => 
+        {
+            var result = t.Result;
+            Debug.WriteLine(result);
+        }).ConfigureAwait(false);
+        //return Task.CompletedTask;
     }
     [ReactiveCommand]
     private Task UnloadView(string param)
@@ -26,14 +40,10 @@ public partial class BViewModel : InstanceCounterViewModel<BViewModel>
     public override async Task OnNavigatedToAsync(NavigationContext context)
     {
         await base.OnNavigatedToAsync(context);
-        //simulate delay
-        await Task.Delay(2000, context.CancellationToken);
     }
 
     public override async Task OnNavigatedFromAsync(NavigationContext context)
     {
         await base.OnNavigatedFromAsync(context);
-        //simulate delay
-        await Task.Delay(2000, context.CancellationToken);
     }
 }

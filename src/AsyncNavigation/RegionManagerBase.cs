@@ -1,6 +1,7 @@
 ﻿using AsyncNavigation.Abstractions;
 using AsyncNavigation.Core;
 using System.Collections.Concurrent;
+using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 
 namespace AsyncNavigation;
@@ -39,7 +40,7 @@ public abstract class RegionManagerBase : IRegionManager, IDisposable
         }
     }
 
-    public async Task<NavigationResult> RequestNavigateAsync(
+    public virtual async Task<NavigationResult> RequestNavigateAsync(
         string regionName,
         string viewName,
         INavigationParameters? navigationParameters = null,
@@ -51,8 +52,8 @@ public abstract class RegionManagerBase : IRegionManager, IDisposable
             RegionName = regionName,
             ViewName = viewName,
             Parameters = navigationParameters,
-            CancellationToken = cancellationToken
         };
+        context.LinkCancellationToken(cancellationToken);
 
         if (context.CancellationToken.IsCancellationRequested)
             return NavigationResult.Cancelled(context);
@@ -67,12 +68,17 @@ public abstract class RegionManagerBase : IRegionManager, IDisposable
             _currentRegion = region;
             return NavigationResult.Success(context);
         }
-        catch (OperationCanceledException) when (context.CancellationToken.IsCancellationRequested)
+        catch (OperationCanceledException ex)
         {
+            Debug.WriteLine($"{context} # Cancel:");
+            Debug.WriteLine(ex);
+            await region.RevertAsync(context);
             return NavigationResult.Cancelled(context);
         }
         catch (Exception ex)
         {
+            Debug.WriteLine($"{context} # Error:");
+            Debug.WriteLine(ex);
             return NavigationResult.Failure(ex, context);
         }
     }
@@ -93,8 +99,9 @@ public abstract class RegionManagerBase : IRegionManager, IDisposable
                 await region.GoForwardAsync(cancellationToken);
                 return NavigationResult.Success(TimeSpan.Zero);
             }
-            catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
+            catch (OperationCanceledException)
             {
+                await region.RevertAsync(null);
                 return NavigationResult.Cancelled();
             }
         }
@@ -111,8 +118,9 @@ public abstract class RegionManagerBase : IRegionManager, IDisposable
                 await region.GoBackAsync(cancellationToken);
                 return NavigationResult.Success(TimeSpan.Zero);
             }
-            catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
+            catch (OperationCanceledException)
             {
+                await region.RevertAsync(null);
                 return NavigationResult.Cancelled();
             }
         }

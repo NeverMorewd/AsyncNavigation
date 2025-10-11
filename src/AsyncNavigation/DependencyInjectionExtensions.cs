@@ -61,7 +61,7 @@ public static class DependencyInjectionExtensions
 
 
 #if GC_TEST
-        NavigationOptions.Default.MaxHistoryItems = 10;
+        NavigationOptions.Default.MaxHistoryItems = 2;
 #endif
 
         serviceDescriptors.AddSingleton(NavigationOptions.Default);

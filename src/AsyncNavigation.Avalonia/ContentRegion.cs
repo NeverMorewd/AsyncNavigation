@@ -35,6 +35,11 @@ public class ContentRegion : RegionBase<ContentRegion, ContentControl>
         IsSinglePageRegion = true;
     }
 
+    public override NavigationPipelineMode NavigationPipelineMode
+    {
+        get => NavigationPipelineMode.RenderFirst;
+    }
+
     public override void Dispose()
     {
         base.Dispose();
@@ -45,17 +50,12 @@ public class ContentRegion : RegionBase<ContentRegion, ContentControl>
         });
     }
 
-    //public override void RenderIndicator(NavigationContext navigationContext)
-    //{
-    //    _context.Selected = navigationContext;
-    //}
-
     public override void ProcessActivate(NavigationContext navigationContext)
     {
         _context.Selected = navigationContext;
     }
 
-    public override void ProcessDeactivate(NavigationContext navigationContext)
+    public override void ProcessDeactivate(NavigationContext? navigationContext)
     {
         _context.Selected = null;
     }

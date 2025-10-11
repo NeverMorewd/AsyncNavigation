@@ -3,6 +3,7 @@
 public interface IRegionIndicatorManager
 {
     void Setup(NavigationContext context, bool useSingleton);
+    Task Revert(NavigationContext navigationContext);
     Task ShowErrorAsync(NavigationContext context, Exception exception);
     Task StartAsync(NavigationContext context, Task processTask, TimeSpan? delayTime = null);
 }

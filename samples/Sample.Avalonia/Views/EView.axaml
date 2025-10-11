@@ -27,6 +27,22 @@
 				</TextBlock>
 				<Button Classes="UnloadView"/>
 				<Button Classes="CloseDialog"/>
+				<ItemsControl ItemsSource="{Binding HeavyItems}">
+					<ItemsControl.ItemTemplate>
+						<DataTemplate>
+							<DockPanel LastChildFill="True">
+								<ComboBox Width="50" />
+								<Expander Width="50" />
+								<DatePicker Width="50" />
+							</DockPanel>
+						</DataTemplate>
+					</ItemsControl.ItemTemplate>
+					<ItemsControl.ItemsPanel>
+						<ItemsPanelTemplate>
+							<WrapPanel />
+						</ItemsPanelTemplate>
+					</ItemsControl.ItemsPanel>
+				</ItemsControl>
 			</StackPanel>
 		</Border>
 	</DockPanel>

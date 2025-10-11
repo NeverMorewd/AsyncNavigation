@@ -1,6 +1,8 @@
 ﻿using AsyncNavigation.Abstractions;
+using AsyncNavigation.Core;
 using System.Collections.Concurrent;
 using System.Windows;
+using System.Windows.Threading;
 
 namespace AsyncNavigation.Wpf;
 
@@ -93,13 +95,11 @@ public sealed class RegionManager : RegionManagerBase
     }
     #endregion
 
-    private readonly List<IDisposable> _subscriptions;
     public RegionManager(IRegionFactory regionFactory, IServiceProvider serviceProvider):base(regionFactory, serviceProvider)
     {
         if (Volatile.Read(ref _current) != null)
             throw new InvalidOperationException("RegionManager is already created. Only one instance is allowed.");
 
-        _subscriptions = [];
         _current = this;
 
         foreach (var cache in _tempRegionCache)
@@ -114,5 +114,11 @@ public sealed class RegionManager : RegionManagerBase
         }
         _tempRegionCache.Clear();
     }
-    
+
+    //public async override Task<NavigationResult> RequestNavigateAsync(string regionName, string viewName, INavigationParameters? navigationParameters = null, CancellationToken cancellationToken = default)
+    //{
+    //    var task = base.RequestNavigateAsync(regionName, viewName, navigationParameters, cancellationToken);
+    //    task.ConfigureAwait(false).GetAwaiter().OnCompleted(() => { });
+    //    return await task;
+    //}
 }

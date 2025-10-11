@@ -1,6 +1,7 @@
 ﻿using AsyncNavigation.Abstractions;
 using AsyncNavigation.Core;
 using System.Collections.Concurrent;
+using System.Collections.Generic;
 
 namespace AsyncNavigation;
 
@@ -12,20 +13,22 @@ internal sealed class JobScheduler : IJobScheduler
         TContext jobContext,
         Func<TContext, Task> jobAction) where TContext : IJobContext
     {
-        if (_jobs.ContainsKey(jobContext.JobId))
-            throw new InvalidOperationException($"Job with id {jobContext.JobId} is already started.");
-
         await HandleExistingJob();
+
+        var cts = new CancellationTokenSource();
+        jobContext.LinkCancellationToken(cts.Token);
+        var task = jobAction(jobContext);
+
+        if (!_jobs.TryAdd(jobContext.JobId, (task, cts)))
+        {
+            cts.Dispose();
+            throw new InvalidOperationException($"Job with id {jobContext.JobId} is already started.");
+        }
 
         var job = _jobs.GetOrAdd(jobContext.JobId, _ =>
         {
             var ctsForManualCancel = new CancellationTokenSource();
-            var linkedCts = CancellationTokenSource.CreateLinkedTokenSource(
-                jobContext.CancellationToken,
-                ctsForManualCancel.Token);
-
-            jobContext.CancellationToken = linkedCts.Token;
-
+            jobContext.LinkCancellationToken(ctsForManualCancel.Token);
             var task = jobAction(jobContext);
             return (task, ctsForManualCancel);
         });
@@ -33,7 +36,8 @@ internal sealed class JobScheduler : IJobScheduler
         try
         {
             jobContext.OnStarted();
-            await job.Task;
+            await task;
+            //await job.Task;
         }
         finally
         {
@@ -45,9 +49,22 @@ internal sealed class JobScheduler : IJobScheduler
 
     public Task WaitAllAsync() => Task.WhenAll(_jobs.Values.Select(j => j.Task));
 
-    public Task CancelAllAsync() => Task.WhenAll(_jobs.Values.Select(j => j.Cts.CancelAsync()));
-
-    private async Task HandleExistingJob()
+    public Task CancelAllAsync()
+    { 
+        return Task.WhenAll(_jobs.Values.Select(job =>
+        { 
+            return job.Cts.CancelAsync();
+        })); 
+    }
+    public Task CancelAllAsyncOld()
+    {
+        foreach (var cts in _jobs.Values.Select(j => j.Cts))
+        {
+            cts.Cancel();
+        }
+        return Task.CompletedTask;
+    }
+    private async ValueTask HandleExistingJob()
     {
         if (_jobs.IsEmpty)
             return;

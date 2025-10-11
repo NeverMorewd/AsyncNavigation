@@ -27,7 +27,7 @@ public abstract class RegionBase<TRegion, TControl> : IRegion, IRegionPresenter
     IRegionPresenter IRegion.RegionPresenter => this;
     public bool EnableViewCache { get; protected set; }
     public bool IsSinglePageRegion { get; protected set; }
-
+    public abstract NavigationPipelineMode NavigationPipelineMode { get; }
     public IRegionControlAccessor<TControl> RegionControlAccessor => _controlAccessor;
 
     public string Name
@@ -35,6 +35,7 @@ public abstract class RegionBase<TRegion, TControl> : IRegion, IRegionPresenter
         get;
         protected set;
     }
+
     #region IRegion Methods
     async Task IRegion.ActivateViewAsync(NavigationContext navigationContext)
     {
@@ -53,7 +54,7 @@ public abstract class RegionBase<TRegion, TControl> : IRegion, IRegionPresenter
         cancellationToken.ThrowIfCancellationRequested();
         var context = _navigationHistory.GoBack() ?? throw new NavigationException("Cannot go back!");
         context.IsBackNavigation = true;
-        context.CancellationToken = cancellationToken;
+        context.LinkCancellationToken(cancellationToken);
         await _regionNavigationService.RequestNavigateAsync(context);
     }
 
@@ -67,12 +68,17 @@ public abstract class RegionBase<TRegion, TControl> : IRegion, IRegionPresenter
         cancellationToken.ThrowIfCancellationRequested();
         var context = _navigationHistory.GoForward() ?? throw new NavigationException("Cannot go forward!");
         context.IsForwordNavigation = true;
-        context.CancellationToken = cancellationToken;
+        context.LinkCancellationToken(cancellationToken);
         await _regionNavigationService.RequestNavigateAsync(context);
     }
     Task IRegion.NavigateFromAsync(NavigationContext navigationContext)
     {
         return _regionNavigationService.OnNavigateFromAsync(navigationContext);
+    }
+
+    Task IRegion.RevertAsync(NavigationContext? navigationContext)
+    {
+        return _regionNavigationService.RevertAsync(navigationContext);
     }
     public virtual void Dispose()
     {
@@ -80,10 +86,8 @@ public abstract class RegionBase<TRegion, TControl> : IRegion, IRegionPresenter
         _navigationHistory.Clear();
     }
     #endregion
-
-    //public abstract void RenderIndicator(NavigationContext navigationContext);
     public abstract void ProcessActivate(NavigationContext navigationContext);
-    public abstract void ProcessDeactivate(NavigationContext navigationContext);
+    public abstract void ProcessDeactivate(NavigationContext? navigationContext);
 
 #if DEBUG
     ~RegionBase()

@@ -1,4 +1,5 @@
 ﻿using AsyncNavigation.Abstractions;
+using AsyncNavigation.Core;
 
 namespace AsyncNavigation.Tests.Mocks;
 
@@ -10,14 +11,20 @@ public class TestRegion : RegionBase<TestRegion, object>, IRegionPresenter
 
     }
     public bool IsActive { get; private set; }
+    public NavigationContext? Current { get; private set; }
+
+    public override NavigationPipelineMode NavigationPipelineMode => NavigationPipelineMode.RenderFirst;
+
     public override void ProcessActivate(NavigationContext navigationContext)
     {
         IsActive = true;
+        Current = navigationContext;
     }
 
-    public override void ProcessDeactivate(NavigationContext navigationContext)
+    public override void ProcessDeactivate(NavigationContext? navigationContext)
     {
         IsActive = false;
+        Current = null;
     }
 
     

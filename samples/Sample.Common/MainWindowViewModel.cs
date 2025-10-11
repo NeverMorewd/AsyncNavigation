@@ -22,25 +22,20 @@ public partial class MainWindowViewModel : ViewModelBase
     private async Task AsyncNavigate(string param)
     {
         var (viewName, parameters) = SampleHelper.ParseNavigationParam(param);
-        await _regionManager.RequestNavigateAsync("MainRegion", viewName, parameters);
+        var result = await _regionManager.RequestNavigateAsync("MainRegion", viewName, parameters);
+        Debug.WriteLine(result.Duration.TotalMilliseconds);
     }
 
     [ReactiveCommand]
     private void AsyncNavigateAndForget(string param)
     {
         var (viewName, parameters) = SampleHelper.ParseNavigationParam(param);
-        _ = _regionManager.RequestNavigateAsync("MainRegion", viewName, parameters);
+        _ = _regionManager.RequestNavigateAsync("MainRegion", viewName, parameters).ContinueWith(t => 
+        {
+            var result = t.Result;
+            Debug.WriteLine(result.Duration.TotalMilliseconds);
+        });
     }
-
-    [ReactiveCommand]
-    private async Task AsyncDelayNavigate(string param)
-    {
-        var (viewName, parameters) = SampleHelper.ParseNavigationParam(param);
-        parameters ??= new NavigationParameters();
-        parameters!.Add("delay", TimeSpan.FromSeconds(1));
-        await _regionManager.RequestNavigateAsync("MainRegion", viewName, parameters);
-    }
-
     [ReactiveCommand]
     private void Show(string param)
     {

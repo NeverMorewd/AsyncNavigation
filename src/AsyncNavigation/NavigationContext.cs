@@ -9,54 +9,94 @@ namespace AsyncNavigation;
 /// <summary>
 /// Encapsulates information for a single navigation request.
 /// </summary>
-public partial class NavigationContext : IJobContext
+public partial class NavigationContext
 {
+    private readonly TaskCompletionSource<bool> _completionTcs = new();
     private readonly ConcurrentBag<Exception> _errors = [];
+
     /// <summary>
     /// Gets the name of the target region.
     /// </summary>
-    public required string RegionName { get; init; }
+    public required string RegionName 
+    { 
+        get; 
+        init; 
+    }
 
     /// <summary>
     /// Gets the name of the target view.
     /// </summary>
-    public required string ViewName { get; init; }
+    public required string ViewName 
+    { 
+        get; 
+        init; 
+    }
 
     /// <summary>
     /// CancellationToken
     /// </summary>
-    public CancellationToken CancellationToken { get; set; } = default;
+    public CancellationToken CancellationToken
+    {
+        get;
+        private set;
+    } = CancellationToken.None;
 
     /// <summary>
     /// Gets the navigation parameters passed to the target view.
     /// </summary>
-    public INavigationParameters? Parameters { get; internal set; } = null;
+    public INavigationParameters? Parameters 
+    { 
+        get; 
+        internal set; 
+    } = null;
 
 
     public SingleAssignment<IView> Source { get; } = new();
     public SingleAssignment<IView> Target { get; } = new();
     public SingleAssignment<IInnerRegionIndicatorHost> IndicatorHost { get; } = new();
 
-    public DateTimeOffset StartTime { get; } = DateTime.UtcNow;
-    public DateTimeOffset EndTime { get; internal set; }
+    public DateTimeOffset StartTime 
+    { 
+        get; 
+    } = DateTime.UtcNow;
+
+    public DateTimeOffset EndTime 
+    { 
+        get; 
+        private set; 
+    }
 
     /// <summary>
     /// Gets a value indicating whether this is a back navigation operation.
     /// </summary>
-    public bool IsBackNavigation { get; internal set; }
+    public bool IsBackNavigation 
+    { 
+        get; 
+        internal set; 
+    }
 
     /// <summary>
     /// Gets a value indicating whether this is a forward navigation operation.
     /// </summary>
-    public bool IsForwordNavigation { get; internal set; }
+    public bool IsForwordNavigation 
+    { 
+        get; 
+        internal set; 
+    }
+
     /// <summary>
     /// Gets the current status of the navigation operation.
+    /// Note:
+    /// - The setter is <c>private</c>, which means this property can only be modified 
+    ///   within the ViewModel itself.
+    /// - When bound to XAML, this property supports only <b>OneWay</b> and <b>OneTime</b>
+    ///   binding modes, since the UI cannot update a property with a private setter.
     /// </summary>
     private NavigationStatus _status;
     public NavigationStatus Status
     {
         get => _status;
-        set
+        private set
         {
             if (_status != value)
             {
@@ -80,7 +120,7 @@ public partial class NavigationContext : IJobContext
     /// Gets the duration of the navigation operation.
     /// Only meaningful when Status is Succeeded, Failed, or Cancelled.
     /// </summary>
-    public TimeSpan? Duration { get; internal set; }
+    public TimeSpan? Duration { get; private set; }
 
     /// <summary>
     /// Gets a value indicating whether the navigation is still in progress.
@@ -92,51 +132,42 @@ public partial class NavigationContext : IJobContext
     /// </summary>
     public bool IsCompleted => Status is NavigationStatus.Succeeded or NavigationStatus.Failed or NavigationStatus.Cancelled;
 
-    Guid IJobContext.JobId => NavigationId;
-
-    public NavigationContext WithStatus(NavigationStatus newStatus, params Exception[] errors)
+    internal NavigationContext UpdateStatus(NavigationStatus newStatus, params Exception[] errors)
     {
         if (IsCompleted && !IsForwordNavigation && !IsBackNavigation)
             throw new InvalidOperationException("Cannot change status after navigation is completed.");
 
         Status = newStatus;
 
-        if (errors == null || errors.Length == 0)
+        if (IsCompleted)
         {
-            return this;
+            OnNavigationCompleted();
         }
-        return WithErrors(errors);
-    }
 
-    public NavigationContext WithParameter(string key, object value)
-    {
-        if (IsCompleted && !IsForwordNavigation && !IsBackNavigation)
-            throw new InvalidOperationException("Cannot add parameters after navigation is completed.");
-
-        Parameters ??= new NavigationParameters();
-        Parameters.Add(key, value);
+        if (errors != null && errors.Length > 0)
+        {
+            AddErrors(errors);
+        }
         return this;
     }
 
-    public NavigationContext WithParameters(IEnumerable<KeyValuePair<string, object>> parameters)
-    {
-
-        if (IsCompleted && !IsForwordNavigation && !IsBackNavigation)
-            throw new InvalidOperationException("Cannot add parameters after navigation is completed.");
-
-        Parameters ??= new NavigationParameters();
-        Parameters.AddRange(parameters);
-        return this;
-    }
-
-    private NavigationContext WithErrors(params Exception[] exceptions)
+    private void AddErrors(params Exception[] exceptions)
     {
         foreach (var ex in exceptions)
         {
             _errors.Add(ex);
         }
-        return this;
     }
+
+    private void OnNavigationCompleted()
+    {
+        EndTime = DateTimeOffset.UtcNow;
+        Duration = EndTime - StartTime;
+        _completionTcs.TrySetResult(true);
+        _cts?.Dispose();
+        _cts = null;
+    }
+
 
     /// <summary>
     /// Returns a string representation of the navigation context.
@@ -185,13 +216,14 @@ public partial class NavigationContext : IJobContext
         return base.GetHashCode();
     }
 
-    void IJobContext.OnStarted()
+#if DEBUG
+    ~NavigationContext()
     {
-        WithStatus(NavigationStatus.InProgress);
+        if (!IsCompleted)
+        {
+            System.Diagnostics.Debug.WriteLine($"NavigationContext for View '{ViewName}' in Region '{RegionName}' was not completed before being finalized. Status: {Status}");
+        }
     }
+#endif
 
-    void IJobContext.OnCompleted()
-    {
-
-    }
 }

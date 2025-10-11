@@ -1,4 +1,5 @@
 ﻿using AsyncNavigation.Abstractions;
+using AsyncNavigation.Core;
 
 namespace AsyncNavigation;
 
@@ -107,9 +108,30 @@ public static class CoreExtensions
     }
     public static void DisposeAll(this IEnumerable<IDisposable> disposables)
     {
-        foreach(var disposable in disposables)
+        foreach (var disposable in disposables)
         {
             disposable.Dispose();
         }
+    }
+
+    public static NavigationContext WithParameter(this NavigationContext navigationContext, string key, object value)
+    {
+        if (navigationContext.IsCompleted && !navigationContext.IsForwordNavigation && !navigationContext.IsBackNavigation)
+            throw new InvalidOperationException("Cannot add parameters after navigation is completed.");
+
+        navigationContext.Parameters ??= new NavigationParameters();
+        navigationContext.Parameters.Add(key, value);
+        return navigationContext;
+    }
+
+    public static NavigationContext WithParameters(this NavigationContext navigationContext, IEnumerable<KeyValuePair<string, object>> parameters)
+    {
+
+        if (navigationContext.IsCompleted && !navigationContext.IsForwordNavigation && !navigationContext.IsBackNavigation)
+            throw new InvalidOperationException("Cannot add parameters after navigation is completed.");
+
+        navigationContext.Parameters ??= new NavigationParameters();
+        navigationContext.Parameters.AddRange(parameters);
+        return navigationContext;
     }
 }

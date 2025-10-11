@@ -44,6 +44,10 @@ public class TabRegion : RegionBase<TabRegion, TabControl>
         EnableViewCache = useCache ?? false;
         IsSinglePageRegion = false;
     }
+    public override NavigationPipelineMode NavigationPipelineMode
+    {
+        get => NavigationPipelineMode.ResolveFirst;
+    }
     public override void Dispose()
     {
         base.Dispose();
@@ -55,28 +59,17 @@ public class TabRegion : RegionBase<TabRegion, TabControl>
         if (!_context.Items.Contains(navigationContext))
             _context.Items.Add(navigationContext);
 
-        var hit = _context.Items.FirstOrDefault(t => t.Equals(navigationContext));
-        if (hit != null)
-        {
-            _context.Selected = hit;
-        }
+        _context.Selected = navigationContext;
     }
 
-    public override void ProcessDeactivate(NavigationContext navigationContext)
+    public override void ProcessDeactivate(NavigationContext? navigationContext)
     {
-        var hit = _context.Items.FirstOrDefault(t => ReferenceEquals(t, navigationContext));
-        if (hit != null)
-        {
-            bool wasSelected = ReferenceEquals(_context.Selected, hit);
-            _context.Items.Remove(hit);
-            if (wasSelected)
-                _context.Selected = _context.Items.FirstOrDefault();
-        }
+        var target = navigationContext ?? _context.Selected;
+        if (target == null)
+            return;
+
+        _ = _context.Items.Remove(target);
     }
-    //public override void RenderIndicator(NavigationContext navigationContext)
-    //{
-    //    ProcessActivate(navigationContext);
-    //}
 }
 
 

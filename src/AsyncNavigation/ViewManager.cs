@@ -70,7 +70,7 @@ internal sealed class ViewManager : IViewManager
             AddView(key, newView);
             return newView;
         }
-        catch
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             DisposeView(newView);
             throw;

@@ -29,7 +29,7 @@ internal sealed class WeakUnloadObserver
                 await target.OnUnloadAsync(args.CancellationToken);
                 onUnloadCallback?.Invoke(target);
             }
-            catch (OperationCanceledException) when (args.CancellationToken.IsCancellationRequested)
+            catch (OperationCanceledException)
             {
                 // ignore cancellation
             }

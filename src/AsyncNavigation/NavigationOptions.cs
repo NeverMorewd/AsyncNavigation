@@ -79,7 +79,6 @@ public class NavigationOptions
 
     public ViewCacheStrategy ViewCacheStrategy { get; set; } = ViewCacheStrategy.IgnoreDuplicateKey;
 
-
     /// <summary>
     /// Ensures that only one loading indicator can be registered in the navigation system.
     /// </summary>

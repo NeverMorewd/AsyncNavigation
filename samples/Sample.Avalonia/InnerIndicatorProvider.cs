@@ -60,9 +60,27 @@ internal class InnerIndicatorProvider : IInnerIndicatorProvider
             Orientation = Orientation.Vertical,
             VerticalAlignment = VerticalAlignment.Center,
         };
+
+        var cancelButton = new Button
+        {
+            Content = "Cancel",
+            Width = 100,
+            Margin = new Thickness(0, 10, 0, 0),
+            HorizontalAlignment = HorizontalAlignment.Center,
+        };
+
+        cancelButton.Click += async (s, e) =>
+        {
+            cancelButton.IsEnabled = false;
+            cancelButton.Content = "Cancelling...";
+            await navigationContext.CancelAndWaitAsync();
+        };
+
+
         panel.Children.Add(textLoading);
         panel.Children.Add(text);
         panel.Children.Add(bar);
+        panel.Children.Add(cancelButton);
         var border = new Border
         {
             Child = panel,
