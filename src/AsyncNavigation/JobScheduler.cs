@@ -1,7 +1,6 @@
 ﻿using AsyncNavigation.Abstractions;
 using AsyncNavigation.Core;
 using System.Collections.Concurrent;
-using System.Collections.Generic;
 
 namespace AsyncNavigation;
 
@@ -25,19 +24,10 @@ internal sealed class JobScheduler : IJobScheduler
             throw new InvalidOperationException($"Job with id {jobContext.JobId} is already started.");
         }
 
-        var job = _jobs.GetOrAdd(jobContext.JobId, _ =>
-        {
-            var ctsForManualCancel = new CancellationTokenSource();
-            jobContext.LinkCancellationToken(ctsForManualCancel.Token);
-            var task = jobAction(jobContext);
-            return (task, ctsForManualCancel);
-        });
-
         try
         {
             jobContext.OnStarted();
             await task;
-            //await job.Task;
         }
         finally
         {
