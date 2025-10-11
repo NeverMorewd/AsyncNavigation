@@ -5,12 +5,12 @@ using System.Diagnostics;
 
 namespace AsyncNavigation;
 
-internal sealed class DefaultViewFactory : IViewFactory
+internal sealed class ViewFactory : IViewFactory
 {
     private readonly IServiceProvider _serviceProvider;
     private readonly ConcurrentDictionary<string, Func<IView>> _viewFactories = new();
 
-    public DefaultViewFactory(IServiceProvider serviceProvider)
+    public ViewFactory(IServiceProvider serviceProvider)
     {
         _serviceProvider = serviceProvider ?? throw new ArgumentNullException(nameof(serviceProvider));
     }

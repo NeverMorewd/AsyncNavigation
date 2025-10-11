@@ -77,7 +77,7 @@ public static class DependencyInjectionExtensions
             .AddSingleton<IDialogService, DialogService>()
             .AddSingleton<IRegionNavigationServiceFactory, RegionNavigationServiceFactory>()
             .AddSingleton<IRegionFactory, RegionFactory>()
-            .AddSingleton<IViewFactory, DefaultViewFactory>()
+            .AddSingleton<IViewFactory, ViewFactory>()
             .AddTransient<IViewManager, ViewManager>()
             .AddTransient<IRegionNavigationHistory, RegionNavigationHistory>()
             .AddTransient<IRegionIndicatorProvider, RegionIndicatorProvider>()
