@@ -76,9 +76,9 @@ public abstract class RegionBase<TRegion, TControl> : IRegion, IRegionPresenter
         return _regionNavigationService.OnNavigateFromAsync(navigationContext);
     }
 
-    Task IRegion.RevertAsync()
+    Task IRegion.RevertAsync(NavigationContext? navigationContext)
     {
-        return _regionNavigationService.RevertAsync();
+        return _regionNavigationService.RevertAsync(navigationContext);
     }
     public virtual void Dispose()
     {

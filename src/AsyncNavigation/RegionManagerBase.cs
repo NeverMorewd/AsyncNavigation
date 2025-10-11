@@ -1,6 +1,7 @@
 ﻿using AsyncNavigation.Abstractions;
 using AsyncNavigation.Core;
 using System.Collections.Concurrent;
+using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 
 namespace AsyncNavigation;
@@ -67,13 +68,17 @@ public abstract class RegionManagerBase : IRegionManager, IDisposable
             _currentRegion = region;
             return NavigationResult.Success(context);
         }
-        catch (OperationCanceledException)
+        catch (OperationCanceledException ex)
         {
-            await region.RevertAsync();
+            Debug.WriteLine($"{context} # Cancel:");
+            Debug.WriteLine(ex);
+            await region.RevertAsync(context);
             return NavigationResult.Cancelled(context);
         }
         catch (Exception ex)
         {
+            Debug.WriteLine($"{context} # Error:");
+            Debug.WriteLine(ex);
             return NavigationResult.Failure(ex, context);
         }
     }
@@ -96,7 +101,7 @@ public abstract class RegionManagerBase : IRegionManager, IDisposable
             }
             catch (OperationCanceledException)
             {
-                await region.RevertAsync();
+                await region.RevertAsync(null);
                 return NavigationResult.Cancelled();
             }
         }
@@ -115,7 +120,7 @@ public abstract class RegionManagerBase : IRegionManager, IDisposable
             }
             catch (OperationCanceledException)
             {
-                await region.RevertAsync();
+                await region.RevertAsync(null);
                 return NavigationResult.Cancelled();
             }
         }

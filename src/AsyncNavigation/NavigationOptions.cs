@@ -40,7 +40,7 @@ public class NavigationOptions
     /// Default value is <c>100 milliseconds</c>.  
     /// This avoids flashing the indicator for very fast navigations.
     /// </remarks>
-    public TimeSpan LoadingIndicatorDelay { get; set; } = TimeSpan.FromMilliseconds(10);
+    public TimeSpan LoadingIndicatorDelay { get; set; } = TimeSpan.FromMilliseconds(100);
 
     /// <summary>
     /// Gets a value indicating whether the loading indicator feature is enabled.

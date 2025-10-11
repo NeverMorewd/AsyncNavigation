@@ -20,7 +20,7 @@ public abstract partial class ViewModelBase : ReactiveObject, INavigationAware
 
     public event AsyncEventHandler<AsyncEventArgs>? RequestUnloadAsync;
 
-    public Task InitializeAsync(NavigationContext context)
+    public virtual Task InitializeAsync(NavigationContext context)
     {
         return Task.CompletedTask;
     }

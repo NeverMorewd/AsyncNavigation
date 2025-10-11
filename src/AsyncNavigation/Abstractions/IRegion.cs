@@ -10,5 +10,5 @@ public interface IRegion : IDisposable
     Task GoBackAsync(CancellationToken cancellationToken = default);
     Task<bool> CanGoForwardAsync();
     Task GoForwardAsync(CancellationToken cancellationToken = default);
-    Task RevertAsync();
+    Task RevertAsync(NavigationContext? navigationContext);
 }

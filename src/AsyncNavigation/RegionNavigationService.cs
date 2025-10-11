@@ -1,6 +1,7 @@
 ﻿using AsyncNavigation.Abstractions;
 using AsyncNavigation.Core;
 using Microsoft.Extensions.DependencyInjection;
+using System.Diagnostics;
 
 namespace AsyncNavigation;
 
@@ -46,7 +47,7 @@ internal sealed class RegionNavigationService<T> : IRegionNavigationService<T> w
         navigationContext.CancellationToken.ThrowIfCancellationRequested();
         return OnBeforeNavigationAsync(navigationContext);
     }
-    public Task RevertAsync()
+    public Task RevertAsync(NavigationContext? navigationContext)
     {
         if (Current.HasValue && _regionPresenter.IsSinglePageRegion)
         {
@@ -55,7 +56,7 @@ internal sealed class RegionNavigationService<T> : IRegionNavigationService<T> w
         }
         else
         {
-            _regionPresenter.ProcessDeactivate(null);
+            _regionPresenter.ProcessDeactivate(navigationContext);
             return Task.CompletedTask;
         }
     }
@@ -188,11 +189,21 @@ internal sealed class RegionNavigationService<T> : IRegionNavigationService<T> w
         return Task.CompletedTask;
     }
 
-    private static async Task ExecutePipelineAsync(IEnumerable<Func<NavigationContext, Task>> steps, NavigationContext navigationContext)
+    private static async Task ExecutePipelineAsync(IEnumerable<Func<NavigationContext, Task>> pipelines, NavigationContext navigationContext)
     {
-        foreach (var step in steps)
+        Debug.WriteLine($"[{Environment.CurrentManagedThreadId}]Start:{navigationContext}");
+        try
         {
-            await step(navigationContext);
+            foreach (var pipeline in pipelines)
+            {
+                Debug.WriteLine($"[{Environment.CurrentManagedThreadId}]{navigationContext} # {pipeline.Method?.Name}");
+                navigationContext.CancellationToken.ThrowIfCancellationRequested();
+                await pipeline(navigationContext);
+            }
+        }
+        finally
+        {
+            Debug.WriteLine($"[{Environment.CurrentManagedThreadId}]End:{navigationContext}");
         }
     }
 }
