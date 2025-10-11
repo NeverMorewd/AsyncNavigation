@@ -50,12 +50,12 @@
                         Tag="EView:Error" />
                     <Button
                         Classes="NavigationAndForget"
-                        Content="ToA:Forget"
-                        Tag="AView" />
+                        Content="ToA:Forget;New"
+                        Tag="AView:New" />
                     <Button
                         Classes="NavigationAndForget"
-                        Content="ToE:Forget;New"
-                        Tag="EView:New" />
+                        Content="ToE:Forget;Delay"
+                        Tag="EView:Delay" />
                     <Button
                         Classes="Navigation"
                         Content="ToB:ItemsRegion"

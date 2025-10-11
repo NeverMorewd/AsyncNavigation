@@ -25,10 +25,6 @@ public partial class App : Application
             /// default is CancelCurrent <see cref="NavigationJobStrategy.CancelCurrent"/>
             NavigationJobStrategy = NavigationJobStrategy.CancelCurrent
         };
-        if (IsRunningInBrowser())
-        {
-            navigationOptions.NavigationJobStrategy = NavigationJobStrategy.Queue;
-        }
 
         var services = new ServiceCollection();
         services.AddNavigationSupport(navigationOptions)
@@ -64,9 +60,5 @@ public partial class App : Application
         #endregion
 
         base.OnFrameworkInitializationCompleted();
-    }
-    private static bool IsRunningInBrowser()
-    {
-        return RuntimeInformation.IsOSPlatform(OSPlatform.Create("BROWSER"));
     }
 }

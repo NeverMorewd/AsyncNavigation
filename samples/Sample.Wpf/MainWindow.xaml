@@ -39,13 +39,13 @@
                     Style="{StaticResource NavigationButton}"
                     Tag="EView:Error" />
                 <Button
-                    Content="ToA:Forget"
+                    Content="ToA:Forget;New"
                     Style="{StaticResource NavigationAndForget}"
-                    Tag="AView" />
+                    Tag="AView:New" />
                 <Button
-                    Content="ToE:Forget;New"
+                    Content="ToE:Forget;Delay"
                     Style="{StaticResource NavigationAndForget}"
-                    Tag="EView:New" />
+                    Tag="EView:Delay" />
                 <Button
                     Content="ToB:ItemsRegion"
                     Style="{StaticResource NavigationButton}"
