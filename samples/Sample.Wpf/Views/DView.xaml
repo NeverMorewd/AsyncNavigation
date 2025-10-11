@@ -26,10 +26,6 @@
             <Button
                 Content="ToE:Delay"
                 Style="{StaticResource NavigationButton}"
-                Tag="AView" />
-            <Button
-                Content="ToE:Delay"
-                Style="{StaticResource NavigationButton}"
                 Tag="EView:Delay" />
             <Button
                 Content="ToA:New"
