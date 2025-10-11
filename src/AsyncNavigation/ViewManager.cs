@@ -171,7 +171,7 @@ internal sealed class ViewManager : IViewManager
             catch (Exception ex)
             {
                 Debug.Fail($"Dispose {name} error.", ex.ToString());
-                NavigationDiagnostics.Report(ex, $"Dispose {name} error:");
+                throw;
             }
         }
     }

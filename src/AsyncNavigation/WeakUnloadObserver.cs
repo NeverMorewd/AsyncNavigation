@@ -24,15 +24,8 @@ internal sealed class WeakUnloadObserver
                 return;
             }
 
-            try
-            {
-                await target.OnUnloadAsync(args.CancellationToken);
-                onUnloadCallback?.Invoke(target);
-            }
-            catch (OperationCanceledException)
-            {
-                // ignore cancellation
-            }
+            await target.OnUnloadAsync(args.CancellationToken);
+            onUnloadCallback?.Invoke(target);
         }
 
         navigationAware.RequestUnloadAsync += HandleRequestUnloadAsync;
