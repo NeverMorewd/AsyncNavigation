@@ -20,23 +20,18 @@ jobs:
         run: dotnet build ./src/AsyncNavigation --configuration Release
 
       - name: Pack Abstraction NuGet
-        run: dotnet pack ./src/AsyncNavigation --configuration Release -o ./nugets
+        run: dotnet pack ./src/AsyncNavigation --configuration Release --no-build -o ./nugets
 
       - name: List NuGet packages
         run: ls -la ./nugets
 
-      - name: Publish Abstraction NuGet
+      - name: Publish NuGet package
         run: |
-          for nupkg in ./nugets/*.nupkg; do
-            if [ -f "$nupkg" ]; then
-              dotnet nuget push "$nupkg" \
-                --api-key ${{ secrets.NUGET_API_KEY }} \
-                --source "https://api.nuget.org/v3/index.json" \
-                --skip-duplicate
-            fi
-          done
+          if [ -n "$(find ./nugets -name '*.nupkg')" ]; then
+            dotnet nuget push "./nugets/*.nupkg" --api-key ${{ secrets.NUGET_API_KEY }} --source https://api.nuget.org/v3/index.json --skip-duplicate
+          fi
 
-      - name: Upload Abstraction Artifact
+      - name: Upload a Build Artifact
         uses: actions/upload-artifact@v4.3.1
         with:
           name: nugets-abstraction
@@ -59,26 +54,21 @@ jobs:
         run: dotnet build ./src/AsyncNavigation.Avalonia --configuration Release
 
       - name: Pack Avalonia NuGet
-        run: dotnet pack ./src/AsyncNavigation.Avalonia --configuration Release -o ./nugets
+        run: dotnet pack ./src/AsyncNavigation.Avalonia --configuration Release --no-build -o ./nugets
 
       - name: List NuGet packages
         run: ls -la ./nugets
 
-      - name: Publish Avalonia NuGet
+      - name: Publish NuGet package
         run: |
-          for nupkg in ./nugets/*.nupkg; do
-            if [ -f "$nupkg" ]; then
-              dotnet nuget push "$nupkg" \
-                --api-key ${{ secrets.NUGET_API_KEY }} \
-                --source "https://api.nuget.org/v3/index.json" \
-                --skip-duplicate
-            fi
-          done
+          if [ -n "$(find ./nugets -name '*.nupkg')" ]; then
+            dotnet nuget push "./nugets/*.nupkg" --api-key ${{ secrets.NUGET_API_KEY }} --source https://api.nuget.org/v3/index.json --skip-duplicate
+          fi
 
-      - name: Upload Avalonia Artifact
+      - name: Upload a Build Artifact
         uses: actions/upload-artifact@v4.3.1
         with:
-          name: nugets-avaloniaui
+          name: nugets-abstraction
           path: ./nugets
 
   # 3️⃣ WPF
@@ -98,25 +88,20 @@ jobs:
         run: dotnet build ./src/AsyncNavigation.Wpf --configuration Release
 
       - name: Pack WPF NuGet
-        run: dotnet pack ./src/AsyncNavigation.Wpf --configuration Release -o ./nugets
+        run: dotnet pack ./src/AsyncNavigation.Wpf --configuration Release --no-build -o ./nugets
 
       - name: List NuGet packages
         shell: pwsh
         run: Get-ChildItem -Path "./nugets"
 
-      - name: Publish WPF NuGet
-        shell: pwsh
+      - name: Publish NuGet package
         run: |
-          $nupkgs = Get-ChildItem -Path "./nugets" -Filter "*.nupkg"
-          foreach ($pkg in $nupkgs) {
-            dotnet nuget push $pkg.FullName `
-              --api-key ${{ secrets.NUGET_API_KEY }} `
-              --source "https://api.nuget.org/v3/index.json" `
-              --skip-duplicate
-          }
+          if [ -n "$(find ./nugets -name '*.nupkg')" ]; then
+            dotnet nuget push "./nugets/*.nupkg" --api-key ${{ secrets.NUGET_API_KEY }} --source https://api.nuget.org/v3/index.json --skip-duplicate
+          fi
 
-      - name: Upload WPF Artifact
+      - name: Upload a Build Artifact
         uses: actions/upload-artifact@v4.3.1
         with:
-          name: nugets-wpf
+          name: nugets-abstraction
           path: ./nugets
