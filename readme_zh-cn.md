@@ -56,7 +56,50 @@ dotnet add package AsyncNavigation.Avaloniaui
 
 ## ⚡ 快速开始
 
-### 配置IOC
+### 准备ViewModel
+```csharp
+public class SampleViewModel : INavigationAware
+{
+    public event AsyncEventHandler<AsyncEventArgs>? AsyncRequestUnloadEvent;
+
+    public virtual Task InitializeAsync(NavigationContext context)
+    {
+        return Task.CompletedTask;
+    }
+
+    public virtual Task<bool> IsNavigationTargetAsync(NavigationContext context)
+    {
+        return Task.FromResult(true);
+    }
+
+    public virtual async Task OnNavigatedFromAsync(NavigationContext context)
+    {
+        await Task.Delay(100, context.CancellationToken);
+    }
+
+    public virtual async Task OnNavigatedToAsync(NavigationContext context)
+    {
+        await Task.Delay(100, context.CancellationToken);
+    }
+
+    public virtual Task OnUnloadAsync(CancellationToken cancellationToken)
+    {
+        return Task.CompletedTask;
+    }
+
+    protected Task RequestUnloadAsync()
+    {
+        if (AsyncRequestUnloadEvent == null)
+        {
+            return Task.CompletedTask;
+        }
+        return AsyncRequestUnloadEvent!.Invoke(this, AsyncEventArgs.Empty);
+    }
+}
+
+```
+
+### 配置
 ```csharp
 
   var services = new ServiceCollection();
@@ -65,7 +108,7 @@ dotnet add package AsyncNavigation.Avaloniaui
           .RegisterView<BView, BViewModel>("BView");
 
 ```
-### 执行导航
+### 执行
 ```csharp
 
   private readonly IRegionManager _regionManager;

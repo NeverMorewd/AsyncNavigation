@@ -60,7 +60,7 @@ dotnet add package AsyncNavigation.Avaloniaui
 
 ### ViewModel
 ```csharp
-public class SampleViewModel: INavigationAware
+public class SampleViewModel : INavigationAware
 {
     public event AsyncEventHandler<AsyncEventArgs>? AsyncRequestUnloadEvent;
 
