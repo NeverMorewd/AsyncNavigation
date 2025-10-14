@@ -164,10 +164,13 @@ jobs:
           Write-Host "Publishing AsyncNavigation.Wpf to NuGet.org..."
           $packages = Get-ChildItem -Path "./nugets" -Filter "*.nupkg"
           if ($packages.Count -gt 0) {
-            dotnet nuget push "./nugets/*.nupkg" `
-              --api-key ${{ secrets.GLOBALKEY }} `
-              --source https://api.nuget.org/v3/index.json `
-              --skip-duplicate
+            foreach ($package in $packages) {
+              Write-Host "Publishing $($package.Name)..."
+              dotnet nuget push $package.FullName `
+                --api-key ${{ secrets.GLOBALKEY }} `
+                --source https://api.nuget.org/v3/index.json `
+                --skip-duplicate
+            }
             Write-Host "Publish completed successfully"
           } else {
             Write-Host "No .nupkg files found"
