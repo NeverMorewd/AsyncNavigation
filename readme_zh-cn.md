@@ -1,50 +1,48 @@
 # 🚀 AsyncNavigation
 
-[中文文档](readme_zh-cn.md)
 
-> A lightweight asynchronous navigation framework based on **Microsoft.Extensions.DependencyInjection**
-
----
-
-## ✨ Features
-
--  **Fully Asynchronous Navigation**  
-  Natively supports `async/await`, making navigation and asynchronous operations seamless and intuitive.
-
--  **Built-in DialogService**  
-  Provides asynchronous implementation for dialog navigation.
-
--  **Supports Cancellation**  
-  Built-in `CancellationToken` support allows safe cancellation of navigation at any time.
-
--  **Customizable Navigation Indicators**  
-  Developers can define custom indicators to visualize navigation states such as *loading*, *error*, or *completed*.
-
--  **Multiple Built-in Region Types**  
-  In addition to standard single-page navigation based on `ContentControl`, also supports `ItemsControl` and `TabControl`.
-
--  **RegionAdapter Extension Mechanism**  
-  Extend and customize navigation behaviors by implementing your own `RegionAdapter`.
-
--  **Fine-grained Control Options**  
-  Offers rich configuration options to make navigation behavior align precisely with application needs.
-
--  **Lifecycle Management**  
-  Automatically handles view creation, caching, and release — effectively preventing memory leaks.
-
--  **Highly Abstract Core Layer**  
-  Core logic is encapsulated within abstractions, minimizing platform-specific code and improving testability.
-
--  **Minimal Dependencies**  
-  Depends only on `Microsoft.Extensions.DependencyInjection.Abstractions (>= 8.0)`.
-
--  **Framework-Agnostic**  
-  Works with any MVVM framework, giving developers complete freedom of choice.
-
+> 基于 **Microsoft.Extensions.DependencyInjection** 的轻量级异步导航框架
 
 ---
 
-## 📦 Installation
+## ✨ 功能特性
+
+-  **完全异步导航支持**  
+  原生支持 `async/await`，让页面导航与异步任务协同更加自然与简洁。
+
+-  **内置 DialogService**  
+  通过异步方法轻松实现对话框导航。
+
+-  **支持取消操作**  
+  内置 `CancellationToken` 支持，可在任意阶段安全地中断导航。
+
+-  **可自定义导航指示器**  
+  允许开发者自定义导航过程的视觉反馈，用于指示加载、异常或完成等状态。
+
+-  **多种内置 Region 类型**  
+  除常见的基于 `ContentControl` 的单页面导航外，还原生支持 `ItemsControl` 与 `TabControl` 导航。
+
+-  **RegionAdapter 扩展机制**  
+  通过自定义 `RegionAdapter`，可灵活扩展并实现个性化导航逻辑。
+
+-  **精细化控制选项**  
+  提供丰富的导航配置选项，让导航行为更贴合业务需求。
+
+-  **生命周期自动管理**  
+  自动处理视图的创建、缓存与释放，有效避免内存泄漏。
+
+-  **抽象层高度聚合**  
+  核心逻辑高度抽象化，减少平台相关代码，便于扩展与单元测试。
+
+-  **依赖极少**  
+  仅依赖 `Microsoft.Extensions.DependencyInjection.Abstractions (>= 8.0)`。
+
+-  **框架无关**  
+  不依赖任何特定 MVVM 框架，可自由集成至任意架构中。
+
+---
+
+## 📦 安装
 
 ### WPF
 ```bash
@@ -56,9 +54,9 @@ dotnet add package AsyncNavigation.Wpf
 dotnet add package AsyncNavigation.Avaloniaui
 ```
 
-## ⚡ Get started
+## ⚡ 快速开始
 
-### ViewModel
+### 准备ViewModel
 ```csharp
 public class SampleViewModel : INavigationAware
 {
@@ -101,7 +99,7 @@ public class SampleViewModel : INavigationAware
 
 ```
 
-### Config
+### 配置
 ```csharp
 
   var services = new ServiceCollection();
@@ -110,7 +108,7 @@ public class SampleViewModel : INavigationAware
           .RegisterView<BView, BViewModel>("BView");
 
 ```
-### Execute
+### 执行
 ```csharp
 
   private readonly IRegionManager _regionManager;

@@ -35,7 +35,7 @@ public partial class BViewModel : InstanceCounterViewModel<BViewModel>
     [ReactiveCommand]
     private Task UnloadView(string param)
     {
-        return RequestUnload();
+        return RequestUnloadAsync();
     }
     public override async Task OnNavigatedToAsync(NavigationContext context)
     {
