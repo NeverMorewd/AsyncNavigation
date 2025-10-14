@@ -56,6 +56,17 @@ dotnet add package AsyncNavigation.Avaloniaui
 
 ## ⚡ 快速开始
 
+### 准备Region
+
+##### 设置 Namespace
+```
+ xmlns:an="https://github.com/NeverMorewd/AsyncNavigation"
+```
+##### 设置 RegionName
+```xml
+ <ContentControl an:RegionManager.RegionName="MainRegion" />
+```
+
 ### 准备ViewModel
 ```csharp
 public class SampleViewModel : INavigationAware
