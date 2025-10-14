@@ -58,19 +58,23 @@ dotnet add package AsyncNavigation.Avaloniaui
 
 ## ⚡ Get started
 
-### Region
+#### Region
 
-##### Set Namespace
+  ###### Set Namespace
 ```
  xmlns:an="https://github.com/NeverMorewd/AsyncNavigation"
 ```
-##### Set RegionName
+  ###### Set RegionName
 ```xml
  <ContentControl an:RegionManager.RegionName="MainRegion" />
 ```
 
-### ViewModel
+#### ViewModel
+<details>
+<summary>Code Examples</summary>
+  
 ```csharp
+
 public class SampleViewModel : INavigationAware
 {
     public event AsyncEventHandler<AsyncEventArgs>? AsyncRequestUnloadEvent;
@@ -112,7 +116,9 @@ public class SampleViewModel : INavigationAware
 
 ```
 
-### Config
+</details>
+
+#### Config
 ```csharp
 
   var services = new ServiceCollection();
@@ -121,7 +127,11 @@ public class SampleViewModel : INavigationAware
           .RegisterView<BView, BViewModel>("BView");
 
 ```
-### Execute
+#### Execute
+
+<details>
+<summary>Code Examples</summary>
+
 ```csharp
 
   private readonly IRegionManager _regionManager;
@@ -166,3 +176,4 @@ public class SampleViewModel : INavigationAware
   }
 
 ```
+</details>
