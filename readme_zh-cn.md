@@ -1,6 +1,5 @@
 # 🚀 AsyncNavigation
 
-[English](./README.md) | [中文文档](./README_zh-cn.md)
 
 > 基于 **Microsoft.Extensions.DependencyInjection** 的轻量级异步导航框架
 

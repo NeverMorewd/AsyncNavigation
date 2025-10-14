@@ -1,6 +1,6 @@
 # 🚀 AsyncNavigation
 
-[English](readme.md) | [中文文档](readme_zh-cn.md)
+[中文文档](readme_zh-cn.md)
 
 > A lightweight asynchronous navigation framework based on **Microsoft.Extensions.DependencyInjection**
 
