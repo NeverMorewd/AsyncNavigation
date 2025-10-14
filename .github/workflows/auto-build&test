@@ -29,15 +29,15 @@ jobs:
 
     - name: Restore dependencies
       run: dotnet restore
-      working-directory: test/AsyncNavigation.Tests
+      working-directory: tests/AsyncNavigation.Tests
 
     - name: Build
       run: dotnet build --configuration Release --no-restore
-      working-directory: test/AsyncNavigation.Tests
+      working-directory: tests/AsyncNavigation.Tests
 
     - name: Run tests
       run: dotnet test --configuration Release --no-build
-      working-directory: test/AsyncNavigation.Tests
+      working-directory: tests/AsyncNavigation.Tests
 
   build-avaloniaui-desktop:
     runs-on: ${{ matrix.os }}
