@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
 
 jobs:
-  # 1️⃣ abstraction
+  # 1️⃣ Abstraction
   nuget-abstraction:
     runs-on: ubuntu-latest
     steps:
@@ -24,12 +24,14 @@ jobs:
 
       - name: Publish Abstraction NuGet
         run: |
-          if ls ./nugets/*.nupkg 1> /dev/null 2>&1; then
-            dotnet nuget push ./nugets/*.nupkg \
-              --api-key ${{ secrets.NUGET_API_KEY }} \
-              --source https://api.nuget.org/v3/index.json \
-              --skip-duplicate
-          fi
+          for nupkg in ./nugets/*.nupkg; do
+            if [ -f "$nupkg" ]; then
+              dotnet nuget push "$nupkg" \
+                --api-key ${{ secrets.NUGET_API_KEY }} \
+                --source "https://api.nuget.org/v3/index.json" \
+                --skip-duplicate
+            fi
+          done
 
       - name: Upload Abstraction Artifact
         uses: actions/upload-artifact@v4.3.1
@@ -58,12 +60,14 @@ jobs:
 
       - name: Publish Avalonia NuGet
         run: |
-          if ls ./nugets/*.nupkg 1> /dev/null 2>&1; then
-            dotnet nuget push ./nugets/*.nupkg \
-              --api-key ${{ secrets.NUGET_API_KEY }} \
-              --source https://api.nuget.org/v3/index.json \
-              --skip-duplicate
-          fi
+          for nupkg in ./nugets/*.nupkg; do
+            if [ -f "$nupkg" ]; then
+              dotnet nuget push "$nupkg" \
+                --api-key ${{ secrets.NUGET_API_KEY }} \
+                --source "https://api.nuget.org/v3/index.json" \
+                --skip-duplicate
+            fi
+          done
 
       - name: Upload Avalonia Artifact
         uses: actions/upload-artifact@v4.3.1
@@ -94,10 +98,10 @@ jobs:
         shell: pwsh
         run: |
           $nupkgs = Get-ChildItem -Path "./nugets" -Filter "*.nupkg"
-          if ($nupkgs) {
-            dotnet nuget push .\nugets\*.nupkg `
+          foreach ($pkg in $nupkgs) {
+            dotnet nuget push $pkg.FullName `
               --api-key ${{ secrets.NUGET_API_KEY }} `
-              --source https://api.nuget.org/v3/index.json `
+              --source "https://api.nuget.org/v3/index.json" `
               --skip-duplicate
           }
 
