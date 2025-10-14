@@ -28,7 +28,7 @@ jobs:
       - name: Publish NuGet package
         run: |
           if [ -n "$(find ./nugets -name '*.nupkg')" ]; then
-            dotnet nuget push "./nugets/*.nupkg" --api-key ${{ secrets.NUGET_API_KEY }} --source https://api.nuget.org/v3/index.json --skip-duplicate
+            dotnet nuget push "./nugets/*.nupkg" --api-key ${{ secrets.GLOBALKEY }} --source https://api.nuget.org/v3/index.json --skip-duplicate
           fi
 
       - name: Upload a Build Artifact
@@ -62,7 +62,7 @@ jobs:
       - name: Publish NuGet package
         run: |
           if [ -n "$(find ./nugets -name '*.nupkg')" ]; then
-            dotnet nuget push "./nugets/*.nupkg" --api-key ${{ secrets.NUGET_API_KEY }} --source https://api.nuget.org/v3/index.json --skip-duplicate
+            dotnet nuget push "./nugets/*.nupkg" --api-key ${{ secrets.GLOBALKEY }} --source https://api.nuget.org/v3/index.json --skip-duplicate
           fi
 
       - name: Upload a Build Artifact
@@ -97,7 +97,7 @@ jobs:
       - name: Publish NuGet package
         run: |
           if [ -n "$(find ./nugets -name '*.nupkg')" ]; then
-            dotnet nuget push "./nugets/*.nupkg" --api-key ${{ secrets.NUGET_API_KEY }} --source https://api.nuget.org/v3/index.json --skip-duplicate
+            dotnet nuget push "./nugets/*.nupkg" --api-key ${{ secrets.GLOBALKEY }} --source https://api.nuget.org/v3/index.json --skip-duplicate
           fi
 
       - name: Upload a Build Artifact
