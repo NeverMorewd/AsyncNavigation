@@ -1,0 +1,109 @@
+
+name: build&test
+
+on:
+  push:
+    branches:
+      - main
+    paths-ignore:
+      - '**/*.md'
+  pull_request:
+    branches:
+      - main
+    paths-ignore:
+      - '**/*.md'
+
+jobs:
+  test:
+   runs-on: ${{ matrix.os }}
+   strategy:
+    matrix:
+      os: [windows-2022, ubuntu-22.04, macos-13]
+   steps:
+    - uses: actions/checkout@v3
+    
+    - name: Setup .NET 8
+      uses: actions/setup-dotnet@v3
+      with:
+        dotnet-version: 8.0.x
+
+    - name: Restore dependencies
+      run: dotnet restore
+      working-directory: test/AsyncNavigation.Tests
+
+    - name: Build
+      run: dotnet build --configuration Release --no-restore
+      working-directory: test/AsyncNavigation.Tests
+
+    - name: Run tests
+      run: dotnet test --configuration Release --no-build
+      working-directory: test/AsyncNavigation.Tests
+
+  build-avaloniaui-desktop:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [windows-2022, ubuntu-22.04, macos-13]
+    steps:
+    - uses: actions/checkout@v3
+    - name: Setup .NET 8
+      uses: actions/setup-dotnet@v3
+      with:
+        dotnet-version: 8.0.x
+    - name: Install dependencies
+      run: dotnet restore
+      working-directory: samples/Sample.Avalonia.Desktop
+    - name: Build
+      run: dotnet build --configuration Release --no-restore
+      working-directory: samples/Sample.Avalonia.Desktop
+      
+  build-avaloniaui-browser:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [windows-2022]
+    steps:
+    - uses: actions/checkout@v3
+    - name: Setup .NET 8
+      uses: actions/setup-dotnet@v3
+      with:
+        dotnet-version: 8.0.x
+    - name: Install dependencies
+      run: dotnet restore
+      working-directory: samples/Sample.Avalonia.Browser
+    - name: Build
+      run: dotnet build --configuration Release --no-restore
+      working-directory: samples/Sample.Avalonia.Browser
+      
+  build-avaloniaui-android:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [windows-2022]
+    steps:
+    - uses: actions/checkout@v3
+    - name: Setup .NET 8
+      uses: actions/setup-dotnet@v3
+      with:
+        dotnet-version: 8.0.x
+    - name: Install dependencies
+      run: dotnet restore
+      working-directory: samples/Sample.Avalonia.Android
+    - name: Build
+      run: dotnet build --configuration Release --no-restore
+      working-directory: samples/Sample.Avalonia.Android
+      
+  build-wpf:
+    runs-on: windows-2022
+    steps:
+    - uses: actions/checkout@v3
+    - name: Setup .NET 8
+      uses: actions/setup-dotnet@v3
+      with:
+        dotnet-version: 8.0.x
+    - name: Install dependencies
+      run: dotnet restore
+      working-directory: samples/Sample.Wpf
+    - name: Build WPF Sample
+      run: dotnet build --configuration Release --no-restore
+      working-directory: samples/Sample.Wpf
