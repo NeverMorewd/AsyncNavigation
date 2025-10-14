@@ -4,104 +4,179 @@ on:
   workflow_dispatch:
 
 jobs:
-  # 1️⃣ Abstraction
   nuget-abstraction:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
         uses: actions/checkout@v4.1.1
-
+        
       - name: Setup .NET 8
         uses: actions/setup-dotnet@v3
         with:
           dotnet-version: 8.0.x
-
+          
       - name: Build Abstraction
-        run: dotnet build ./src/AsyncNavigation --configuration Release
-
+        run: |
+          echo "Building AsyncNavigation..."
+          dotnet build ./src/AsyncNavigation --configuration Release
+          echo "Build completed successfully"
+        
       - name: Pack Abstraction NuGet
-        run: dotnet pack ./src/AsyncNavigation --configuration Release --no-build -o ./nugets
-
+        run: |
+          echo "Packing AsyncNavigation NuGet package..."
+          dotnet pack ./src/AsyncNavigation --configuration Release --no-build -o ./nugets
+          echo "Pack completed"
+        
       - name: List NuGet packages
-        run: ls -la ./nugets
-
+        run: |
+          echo "Generated NuGet packages:"
+          ls -la ./nugets
+        
       - name: Publish NuGet package
         run: |
+          echo "Publishing AsyncNavigation to NuGet.org..."
           if [ -n "$(find ./nugets -name '*.nupkg')" ]; then
-            dotnet nuget push "./nugets/*.nupkg" --api-key ${{ secrets.GLOBALKEY }} --source https://api.nuget.org/v3/index.json --skip-duplicate
+            dotnet nuget push "./nugets/*.nupkg" \
+              --api-key ${{ secrets.GLOBALKEY }} \
+              --source https://api.nuget.org/v3/index.json \
+              --skip-duplicate
+            echo "Publish completed successfully"
+          else
+            echo "No .nupkg files found"
+            exit 1
           fi
-
-      - name: Upload a Build Artifact
+          
+      - name: Upload Build Artifact
         uses: actions/upload-artifact@v4.3.1
         with:
-          name: nugets-abstraction
-          path: ./nugets
+          name: nuget-abstraction
+          path: ./nugets/*.nupkg
+          if-no-files-found: error
 
-  # 2️⃣ Avalonia
   nuget-avaloniaui:
     needs: nuget-abstraction
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
         uses: actions/checkout@v4.1.1
-
+        
       - name: Setup .NET 8
         uses: actions/setup-dotnet@v3
         with:
           dotnet-version: 8.0.x
-
+          
+      - name: Wait for NuGet indexing
+        run: |
+          echo "Waiting 30 seconds for NuGet.org to index the package..."
+          sleep 30
+          echo "Wait completed"
+        
+      - name: Clear NuGet cache
+        run: |
+          echo "Clearing local NuGet cache..."
+          dotnet nuget locals all --clear
+          echo "Cache cleared"
+        
       - name: Build Avalonia
-        run: dotnet build ./src/AsyncNavigation.Avalonia --configuration Release
-
+        run: |
+          echo "Building AsyncNavigation.Avalonia..."
+          dotnet build ./src/AsyncNavigation.Avalonia --configuration Release
+          echo "Build completed successfully"
+        
       - name: Pack Avalonia NuGet
-        run: dotnet pack ./src/AsyncNavigation.Avalonia --configuration Release --no-build -o ./nugets
-
+        run: |
+          echo "Packing AsyncNavigation.Avalonia NuGet package..."
+          dotnet pack ./src/AsyncNavigation.Avalonia --configuration Release --no-build -o ./nugets
+          echo "Pack completed"
+        
       - name: List NuGet packages
-        run: ls -la ./nugets
-
+        run: |
+          echo "Generated NuGet packages:"
+          ls -la ./nugets
+        
       - name: Publish NuGet package
         run: |
+          echo "Publishing AsyncNavigation.Avalonia to NuGet.org..."
           if [ -n "$(find ./nugets -name '*.nupkg')" ]; then
-            dotnet nuget push "./nugets/*.nupkg" --api-key ${{ secrets.GLOBALKEY }} --source https://api.nuget.org/v3/index.json --skip-duplicate
+            dotnet nuget push "./nugets/*.nupkg" \
+              --api-key ${{ secrets.GLOBALKEY }} \
+              --source https://api.nuget.org/v3/index.json \
+              --skip-duplicate
+            echo "Publish completed successfully"
+          else
+            echo "No .nupkg files found"
+            exit 1
           fi
-
-      - name: Upload a Build Artifact
+          
+      - name: Upload Build Artifact
         uses: actions/upload-artifact@v4.3.1
         with:
-          name: nugets-abstraction
-          path: ./nugets
+          name: nuget-avaloniaui
+          path: ./nugets/*.nupkg
+          if-no-files-found: error
 
-  # 3️⃣ WPF
   nuget-wpf:
-    needs: nuget-abstraction
+    needs: nuget-avaloniaui
     runs-on: windows-latest
     steps:
       - name: Checkout
         uses: actions/checkout@v4.1.1
-
+        
       - name: Setup .NET 8
         uses: actions/setup-dotnet@v3
         with:
           dotnet-version: 8.0.x
-
+          
+      - name: Wait for NuGet indexing
+        shell: pwsh
+        run: |
+          Write-Host "Waiting 30 seconds for NuGet.org to index the package..."
+          Start-Sleep -Seconds 30
+          Write-Host "Wait completed"
+        
+      - name: Clear NuGet cache
+        run: |
+          echo "Clearing local NuGet cache..."
+          dotnet nuget locals all --clear
+          echo "Cache cleared"
+        
       - name: Build WPF
-        run: dotnet build ./src/AsyncNavigation.Wpf --configuration Release
-
+        run: |
+          echo "Building AsyncNavigation.Wpf..."
+          dotnet build ./src/AsyncNavigation.Wpf --configuration Release
+          echo "Build completed successfully"
+        
       - name: Pack WPF NuGet
-        run: dotnet pack ./src/AsyncNavigation.Wpf --configuration Release --no-build -o ./nugets
-
+        run: |
+          echo "Packing AsyncNavigation.Wpf NuGet package..."
+          dotnet pack ./src/AsyncNavigation.Wpf --configuration Release --no-build -o ./nugets
+          echo "Pack completed"
+        
       - name: List NuGet packages
         shell: pwsh
-        run: Get-ChildItem -Path "./nugets"
-
-      - name: Publish NuGet package
         run: |
-          if [ -n "$(find ./nugets -name '*.nupkg')" ]; then
-            dotnet nuget push "./nugets/*.nupkg" --api-key ${{ secrets.GLOBALKEY }} --source https://api.nuget.org/v3/index.json --skip-duplicate
-          fi
-
-      - name: Upload a Build Artifact
+          Write-Host "Generated NuGet packages:"
+          Get-ChildItem -Path "./nugets"
+        
+      - name: Publish NuGet package
+        shell: pwsh
+        run: |
+          Write-Host "Publishing AsyncNavigation.Wpf to NuGet.org..."
+          $packages = Get-ChildItem -Path "./nugets" -Filter "*.nupkg"
+          if ($packages.Count -gt 0) {
+            dotnet nuget push "./nugets/*.nupkg" `
+              --api-key ${{ secrets.GLOBALKEY }} `
+              --source https://api.nuget.org/v3/index.json `
+              --skip-duplicate
+            Write-Host "Publish completed successfully"
+          } else {
+            Write-Host "No .nupkg files found"
+            exit 1
+          }
+          
+      - name: Upload Build Artifact
         uses: actions/upload-artifact@v4.3.1
         with:
-          name: nugets-abstraction
-          path: ./nugets
+          name: nuget-wpf
+          path: ./nugets/*.nupkg
+          if-no-files-found: error
