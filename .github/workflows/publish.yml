@@ -1,0 +1,108 @@
+name: Pack & Publish NuGet Packages
+
+on:
+  workflow_dispatch:
+
+jobs:
+  # 1️⃣ abstraction
+  nuget-abstraction:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4.1.1
+
+      - name: Setup .NET 8
+        uses: actions/setup-dotnet@v3
+        with:
+          dotnet-version: 8.0.x
+
+      - name: Build Abstraction
+        run: dotnet build ./src/AsyncNavigation --configuration Release
+
+      - name: Pack Abstraction NuGet
+        run: dotnet pack ./src/AsyncNavigation --configuration Release --no-build -o ./nugets
+
+      - name: Publish Abstraction NuGet
+        run: |
+          if ls ./nugets/*.nupkg 1> /dev/null 2>&1; then
+            dotnet nuget push "./nugets/*.nupkg" \
+              --api-key ${{ secrets.NUGET_API_KEY }} \
+              --source https://api.nuget.org/v3/index.json \
+              --skip-duplicate
+          fi
+
+      - name: Upload Abstraction Artifact
+        uses: actions/upload-artifact@v4.3.1
+        with:
+          name: nugets-abstraction
+          path: ./nugets
+
+  # 2️⃣ Avalonia
+  nuget-avaloniaui:
+    needs: nuget-abstraction
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4.1.1
+
+      - name: Setup .NET 8
+        uses: actions/setup-dotnet@v3
+        with:
+          dotnet-version: 8.0.x
+
+      - name: Build Avalonia
+        run: dotnet build ./src/AsyncNavigation.Avalonia --configuration Release
+
+      - name: Pack Avalonia NuGet
+        run: dotnet pack ./src/AsyncNavigation.Avalonia --configuration Release --no-build -o ./nugets
+
+      - name: Publish Avalonia NuGet
+        run: |
+          if ls ./nugets/*.nupkg 1> /dev/null 2>&1; then
+            dotnet nuget push "./nugets/*.nupkg" \
+              --api-key ${{ secrets.NUGET_API_KEY }} \
+              --source https://api.nuget.org/v3/index.json \
+              --skip-duplicate
+          fi
+
+      - name: Upload Avalonia Artifact
+        uses: actions/upload-artifact@v4.3.1
+        with:
+          name: nugets-avaloniaui
+          path: ./nugets
+
+  # 3️⃣ WPF
+  nuget-wpf:
+    needs: nuget-abstraction
+    runs-on: windows-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4.1.1
+
+      - name: Setup .NET 8
+        uses: actions/setup-dotnet@v3
+        with:
+          dotnet-version: 8.0.x
+
+      - name: Build WPF
+        run: dotnet build ./src/AsyncNavigation.Wpf --configuration Release
+
+      - name: Pack WPF NuGet
+        run: dotnet pack ./src/AsyncNavigation.Wpf --configuration Release --no-build -o ./nugets
+
+      - name: Publish WPF NuGet
+        shell: pwsh
+        run: |
+          $nupkgs = Get-ChildItem -Path "./nugets" -Filter "*.nupkg"
+          if ($nupkgs) {
+            dotnet nuget push ".\nugets\*.nupkg" `
+              --api-key ${{ secrets.NUGET_API_KEY }} `
+              --source https://api.nuget.org/v3/index.json `
+              --skip-duplicate
+          }
+
+      - name: Upload WPF Artifact
+        uses: actions/upload-artifact@v4.3.1
+        with:
+          name: nugets-wpf
+          path: ./nugets
