@@ -76,24 +76,6 @@ jobs:
       run: dotnet build --configuration Release --no-restore
       working-directory: samples/Sample.Avalonia.Browser
       
-  build-avaloniaui-android:
-    runs-on: ${{ matrix.os }}
-    strategy:
-      matrix:
-        os: [ubuntu-22.04]
-    steps:
-    - uses: actions/checkout@v3
-    - name: Setup .NET 8
-      uses: actions/setup-dotnet@v3
-      with:
-        dotnet-version: 8.0.x
-    - name: Install dependencies
-      run: dotnet restore
-      working-directory: samples/Sample.Avalonia.Android
-    - name: Build
-      run: dotnet build --configuration Release --no-restore
-      working-directory: samples/Sample.Avalonia.Android
-      
   build-wpf:
     runs-on: windows-2022
     steps:
