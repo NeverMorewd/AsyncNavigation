@@ -1,13 +1,13 @@
 ﻿using AsyncNavigation;
 using AsyncNavigation.Core;
 using Avalonia;
+using Avalonia.Controls;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Markup.Xaml;
 using Microsoft.Extensions.DependencyInjection;
 using Sample.Avalonia.Regions;
 using Sample.Avalonia.Views;
 using Sample.Common;
-using System.Runtime.InteropServices;
 
 namespace Sample.Avalonia;
 
@@ -49,6 +49,7 @@ public partial class App : Application
             {
                 DataContext = viewModel
             };
+            desktop.ShutdownMode = ShutdownMode.OnMainWindowClose;
         }
         else if (ApplicationLifetime is ISingleViewApplicationLifetime singleViewPlatform)
         {
