@@ -9,5 +9,5 @@ public interface INavigationAware
     Task OnNavigatedFromAsync(NavigationContext context);   
     Task<bool> IsNavigationTargetAsync(NavigationContext context);
     Task OnUnloadAsync(CancellationToken cancellationToken);
-    event AsyncEventHandler<AsyncEventArgs> RequestUnloadAsync;
+    event AsyncEventHandler<AsyncEventArgs> AsyncRequestUnloadEvent;
 }

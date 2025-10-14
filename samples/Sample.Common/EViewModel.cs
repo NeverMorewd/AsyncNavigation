@@ -20,7 +20,7 @@ public partial class EViewModel : InstanceCounterViewModel<EViewModel>, IDialogA
     [ReactiveCommand]
     private Task UnloadView(string param)
     {
-        return RequestUnload();
+        return RequestUnloadAsync();
     }
 
     [ReactiveCommand]

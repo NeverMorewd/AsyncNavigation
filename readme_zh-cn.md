@@ -53,3 +53,60 @@ dotnet add package AsyncNavigation.Wpf
 ```bash
 dotnet add package AsyncNavigation.Avaloniaui
 ```
+
+## ⚡ 快速开始
+
+### 配置IOC
+```csharp
+
+  var services = new ServiceCollection();
+  services.AddNavigationSupport()
+          .RegisterView<AView, AViewModel>("AView")
+          .RegisterView<BView, BViewModel>("BView");
+
+```
+### 执行导航
+```csharp
+
+  private readonly IRegionManager _regionManager;
+  private readonly IDialogService _dialogService;
+
+  public MainWindowViewModel(IRegionManager regionManager, IDialogService dialogService)
+  {
+      _regionManager = regionManager;
+      _dialogService = dialogService;
+  }
+
+  [ReactiveCommand]
+  private async Task AsyncNavigate(string param)
+  {
+      var result = await _regionManager.RequestNavigateAsync("MainRegion", "AView");
+  }
+
+  [ReactiveCommand]
+  private void Show(string param)
+  {
+      _dialogService.Show("AView", callback: result => 
+      {
+          Debug.WriteLine(result.Result);
+      });
+  }
+  [ReactiveCommand]
+  private async Task AsyncShowDialog(string param)
+  {
+      var result = await _dialogService.ShowDialogAsync("AView");
+  }
+
+  [ReactiveCommand]
+  private async Task GoForward()
+  {
+      await _regionManager.GoForward("MainRegion");
+  }
+
+  [ReactiveCommand]
+  private async Task GoBack()
+  {
+      await _regionManager.GoBack("MainRegion");
+  }
+
+```

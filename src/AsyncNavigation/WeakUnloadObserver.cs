@@ -19,7 +19,7 @@ internal sealed class WeakUnloadObserver
             {
                 if (sender is INavigationAware aware)
                 {
-                    aware.RequestUnloadAsync -= HandleRequestUnloadAsync;
+                    aware.AsyncRequestUnloadEvent -= HandleRequestUnloadAsync;
                 }
                 return;
             }
@@ -28,7 +28,7 @@ internal sealed class WeakUnloadObserver
             onUnloadCallback?.Invoke(target);
         }
 
-        navigationAware.RequestUnloadAsync += HandleRequestUnloadAsync;
+        navigationAware.AsyncRequestUnloadEvent += HandleRequestUnloadAsync;
     }
 }
 
