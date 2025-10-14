@@ -20,7 +20,10 @@ jobs:
         run: dotnet build ./src/AsyncNavigation --configuration Release
 
       - name: Pack Abstraction NuGet
-        run: dotnet pack ./src/AsyncNavigation --configuration Release --no-build -o ./nugets
+        run: dotnet pack ./src/AsyncNavigation --configuration Release -o ./nugets
+
+      - name: List NuGet packages
+        run: ls -la ./nugets
 
       - name: Publish Abstraction NuGet
         run: |
@@ -56,7 +59,10 @@ jobs:
         run: dotnet build ./src/AsyncNavigation.Avalonia --configuration Release
 
       - name: Pack Avalonia NuGet
-        run: dotnet pack ./src/AsyncNavigation.Avalonia --configuration Release --no-build -o ./nugets
+        run: dotnet pack ./src/AsyncNavigation.Avalonia --configuration Release -o ./nugets
+
+      - name: List NuGet packages
+        run: ls -la ./nugets
 
       - name: Publish Avalonia NuGet
         run: |
@@ -92,7 +98,11 @@ jobs:
         run: dotnet build ./src/AsyncNavigation.Wpf --configuration Release
 
       - name: Pack WPF NuGet
-        run: dotnet pack ./src/AsyncNavigation.Wpf --configuration Release --no-build -o ./nugets
+        run: dotnet pack ./src/AsyncNavigation.Wpf --configuration Release -o ./nugets
+
+      - name: List NuGet packages
+        shell: pwsh
+        run: Get-ChildItem -Path "./nugets"
 
       - name: Publish WPF NuGet
         shell: pwsh
