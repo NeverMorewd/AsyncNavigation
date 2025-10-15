@@ -3,7 +3,6 @@ using AsyncNavigation.Abstractions;
 using ReactiveUI;
 using ReactiveUI.SourceGenerators;
 using System.Diagnostics;
-using System.Reactive;
 
 namespace Sample.Common;
 
@@ -22,15 +21,15 @@ public partial class BViewModel : InstanceCounterViewModel<BViewModel>
         Debug.WriteLine(ret);
     }
     [ReactiveCommand]
-    private void AsyncNavigateAndForget(string param)
+    private Task AsyncNavigateAndForget(string param)
     {
         var (viewName, parameters) = SampleHelper.ParseNavigationParam(param);
-        _ = _regionManager.RequestNavigateAsync("ItemsRegion", viewName, parameters).ContinueWith(t => 
+        _ = _regionManager.RequestNavigateAsync("ItemsRegion", viewName, parameters).ContinueWith(t =>
         {
             var result = t.Result;
             Debug.WriteLine(result);
-        }).ConfigureAwait(false);
-        //return Task.CompletedTask;
+        });
+        return Task.CompletedTask;
     }
     [ReactiveCommand]
     private Task UnloadView(string param)

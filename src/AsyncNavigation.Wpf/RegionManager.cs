@@ -16,14 +16,18 @@ public sealed class RegionManager : RegionManagerBase
     private static void OnRegionNameChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
     {
         var name = e.NewValue as string;
+        var oldName = e.OldValue as string;
+
+        if (name == oldName)
+            return;
 
         if (string.IsNullOrEmpty(name))
         {
-            var oldName = e.OldValue as string;
             if (!string.IsNullOrEmpty(oldName))
                 OnRemoveRegionNameCore(oldName);
             return;
         }
+
         var serviceProvider = GetServiceProvider(d);
         var preferCache = GetPreferCache(d);
         OnAddRegionNameCore(name, d, serviceProvider, preferCache);

@@ -17,10 +17,6 @@ public partial class MainWindowViewModel : ViewModelBase
         _regionManager = regionManager;
         _dialogService = dialogService;
 
-        // In Avalonia, the application lifetime hasn't started yet at this point,
-        // and regions registered in XAML are not yet initialized. Therefore, we need
-        // to set replay:true to make this navigation request pending until the region
-        // registration is completed. This is not a concern in WPF.
         _regionManager.RequestNavigateAsync("MainRegion", "AView", replay: false).ContinueWith(t => 
         {
             if (t.IsFaulted)

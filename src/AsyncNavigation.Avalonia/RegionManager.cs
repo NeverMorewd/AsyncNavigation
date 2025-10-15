@@ -59,9 +59,13 @@ public sealed class RegionManager : RegionManagerBase
             .AddClassHandler<AvaloniaObject, string>((target, args) => 
             {
                 var name = args.NewValue.GetValueOrDefault();
+                var old = args.OldValue.GetValueOrDefault();
+
+                if (name == old)
+                    return;
+
                 if (string.IsNullOrEmpty(name))
                 {
-                    var old = args.OldValue.GetValueOrDefault();
                     if (!string.IsNullOrEmpty(old))
                     {
                         OnRemoveRegionNameCore(old);
