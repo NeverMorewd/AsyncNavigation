@@ -1,15 +1,10 @@
 ﻿using AsyncNavigation.Abstractions;
-using AsyncNavigation.Core;
-using System.Collections.Concurrent;
 using System.Windows;
-using System.Windows.Threading;
 
 namespace AsyncNavigation.Wpf;
 
 public sealed class RegionManager : RegionManagerBase
 {
-    private static readonly ConcurrentDictionary<string, (WeakReference<DependencyObject> Target, IServiceProvider ServiceProvider, bool? PreferCache)> _tempRegionCache = [];
-    private static RegionManager? _current;
     #region RegionName
     public static readonly DependencyProperty RegionNameProperty =
          DependencyProperty.RegisterAttached(
@@ -26,26 +21,12 @@ public sealed class RegionManager : RegionManagerBase
         {
             var oldName = e.OldValue as string;
             if (!string.IsNullOrEmpty(oldName))
-                _tempRegionCache.TryRemove(oldName, out _);
+                OnRemoveRegionNameCore(oldName);
             return;
         }
         var serviceProvider = GetServiceProvider(d);
         var preferCache = GetPreferCache(d);
-        if (_current == null)
-        {
-            if (!_tempRegionCache.TryAdd(
-                name,
-                (new WeakReference<DependencyObject>(d), serviceProvider, preferCache)))
-            {
-                throw new InvalidOperationException($"Duplicated RegionName found: {name}");
-            }
-        }
-        else
-        {
-            if (_current.TryGetRegion(name, out _))
-                throw new InvalidOperationException($"Duplicated RegionName found:{name}");
-            _current.CreateRegion(name, d, serviceProvider, preferCache);
-        }
+        OnAddRegionNameCore(name, d, serviceProvider, preferCache);
     }
 
     public static string GetRegionName(DependencyObject obj)
@@ -95,23 +76,8 @@ public sealed class RegionManager : RegionManagerBase
     }
     #endregion
 
-    public RegionManager(IRegionFactory regionFactory, IServiceProvider serviceProvider):base(regionFactory, serviceProvider)
+    public RegionManager(IRegionFactory regionFactory,
+        IServiceProvider serviceProvider) : base(regionFactory, serviceProvider)
     {
-        if (Volatile.Read(ref _current) != null)
-            throw new InvalidOperationException("RegionManager is already created. Only one instance is allowed.");
-
-        _current = this;
-
-        foreach (var cache in _tempRegionCache)
-        {
-            if (cache.Value.Target.TryGetTarget(out var target) && target != null)
-            {
-                CreateRegion(cache.Key,
-                    target,
-                    cache.Value.ServiceProvider,
-                    cache.Value.PreferCache);
-            }
-        }
-        _tempRegionCache.Clear();
     }
 }

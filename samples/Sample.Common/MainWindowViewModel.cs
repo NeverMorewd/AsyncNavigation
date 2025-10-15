@@ -21,14 +21,13 @@ public partial class MainWindowViewModel : ViewModelBase
         // and regions registered in XAML are not yet initialized. Therefore, we need
         // to set replay:true to make this navigation request pending until the region
         // registration is completed. This is not a concern in WPF.
-        _regionManager.RequestNavigateAsync("MainRegion", "AView", replay: true).ContinueWith(t => 
+        _regionManager.RequestNavigateAsync("MainRegion", "AView", replay: false).ContinueWith(t => 
         {
             if (t.IsFaulted)
             {
                 Debug.WriteLine($"RequestNavigate Failed:{t.Result.Exception}");
             }
         });
-        platformService.WaitOnDispatcher(Task.Delay(100));
     }
     [Reactive]
     private bool _isSplitViewPaneOpen = false;

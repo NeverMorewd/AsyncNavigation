@@ -15,14 +15,32 @@ public abstract class RegionManagerBase : IRegionManager, IDisposable
     private readonly ConcurrentDictionary<string, ConcurrentQueue<(Func<Task<NavigationResult>> Task, TaskCompletionSource<NavigationResult> Tcs)>> _pendingNavigations;
     private IRegion? _currentRegion;
     private readonly int _maxReplayCount;
+    private static readonly ConcurrentDictionary<string, (WeakReference<object> Target, IServiceProvider? ServiceProvider, bool? PreferCache)> _tempRegionCache = [];
+    private static RegionManagerBase? _current;
 
     protected RegionManagerBase(IRegionFactory regionFactory, IServiceProvider serviceProvider)
     {
+        if (Volatile.Read(ref _current) != null)
+            throw new InvalidOperationException("RegionManager is already created. Only one instance is allowed.");
+        
         _regions = new ConcurrentDictionary<string, WeakReference<IRegion>>();
         _pendingNavigations = new ConcurrentDictionary<string, ConcurrentQueue<(Func<Task<NavigationResult>> Task, TaskCompletionSource<NavigationResult> Tcs)>>();
         _serviceProvider = serviceProvider;
         _regionFactory = regionFactory;
         _maxReplayCount = serviceProvider.GetRequiredService<NavigationOptions>().MaxReplayItems;
+        _current = this;
+        
+        foreach (var cache in _tempRegionCache)
+        {
+            if (cache.Value.Target.TryGetTarget(out var target) && target != null)
+            {
+                CreateRegion(cache.Key,
+                    target,
+                    cache.Value.ServiceProvider,
+                    cache.Value.PreferCache);
+            }
+        }
+        _tempRegionCache.Clear();
     }
 
     public IReadOnlyDictionary<string, IRegion> Regions
@@ -223,6 +241,8 @@ public abstract class RegionManagerBase : IRegionManager, IDisposable
             }
         }
         _regions.Clear();
+        _pendingNavigations.Clear();
+        _tempRegionCache.Clear();
     }
     private async Task TryReplayPendingNavigations(string regionName)
     {
@@ -236,5 +256,33 @@ public abstract class RegionManagerBase : IRegionManager, IDisposable
                 tcs.TrySetResult(result);
             }
         }
+    }
+
+
+    protected static void OnAddRegionNameCore(string name, 
+        object d,
+        IServiceProvider? serviceProvider, 
+        bool? preferCache)
+    {
+        if (_current == null)
+        {
+            if (!_tempRegionCache.TryAdd(
+                name,
+                (new WeakReference<object>(d), serviceProvider, preferCache)))
+            {
+                throw new InvalidOperationException($"Duplicated RegionName found: {name}");
+            }
+        }
+        else
+        {
+            if (_current.TryGetRegion(name, out _))
+                throw new InvalidOperationException($"Duplicated RegionName found:{name}");
+            _current.CreateRegion(name, d, serviceProvider, preferCache);
+        }
+    }
+
+    protected static void OnRemoveRegionNameCore(string name)
+    {
+        _current?.TryRemoveRegion(name, out _);
     }
 }
