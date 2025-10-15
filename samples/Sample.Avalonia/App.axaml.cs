@@ -20,6 +20,8 @@ public partial class App : Application
 
     public override void OnFrameworkInitializationCompleted()
     {
+
+        base.OnFrameworkInitializationCompleted();
         NavigationOptions navigationOptions = new()
         {
             /// default is CancelCurrent <see cref="NavigationJobStrategy.CancelCurrent"/>
@@ -41,13 +43,12 @@ public partial class App : Application
 
         #region setup lifetime
         var sp = services.BuildServiceProvider();
-        var viewModel = sp.GetRequiredService<MainWindowViewModel>();
 
         if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
         {
             desktop.MainWindow = new MainWindow
             {
-                DataContext = viewModel
+                DataContext = sp.GetRequiredService<MainWindowViewModel>()
             };
             desktop.ShutdownMode = ShutdownMode.OnMainWindowClose;
         }
@@ -55,11 +56,9 @@ public partial class App : Application
         {
             singleViewPlatform.MainView = new MainView
             {
-                DataContext = viewModel
+                DataContext = sp.GetRequiredService<MainWindowViewModel>()
             };
         }
         #endregion
-
-        base.OnFrameworkInitializationCompleted();
     }
 }

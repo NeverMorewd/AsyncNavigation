@@ -31,7 +31,7 @@ public partial class EViewModel : InstanceCounterViewModel<EViewModel>, IDialogA
     }
     public override Task InitializeAsync(NavigationContext context)
     {
-        AddItems(100);
+        AddItems(20);
         return base.InitializeAsync(context);
     }
     public async Task OnDialogOpenedAsync(IDialogParameters? parameters, CancellationToken cancellationToken)

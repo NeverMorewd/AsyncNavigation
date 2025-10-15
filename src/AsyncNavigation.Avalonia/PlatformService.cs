@@ -76,6 +76,7 @@ internal class PlatformService : PlatformServiceBase<Window>
     {
         if (!task.IsCompleted)
         {
+            Ensurelifetime();
             var frame = new DispatcherFrame();
             task.ContinueWith(static (_, s) => ((DispatcherFrame)s!).Continue = false, frame);
             Dispatcher.UIThread.PushFrame(frame);
@@ -87,10 +88,27 @@ internal class PlatformService : PlatformServiceBase<Window>
     {
         if (!task.IsCompleted)
         {
+            Ensurelifetime();
             var frame = new DispatcherFrame();
             task.ContinueWith(static (_, s) => ((DispatcherFrame)s!).Continue = false, frame);
             Dispatcher.UIThread.PushFrame(frame);
         }
         task.GetAwaiter().GetResult();
+    }
+    private static void Ensurelifetime()
+    {
+        if (!CheckLifetime())
+        {
+            throw new InvalidOperationException("lifetime has not been ready yet!");
+        }
+    }
+    private static bool CheckLifetime()
+    {
+        var lifetimeReady = Application.Current != null && Application.Current!.ApplicationLifetime != null;
+        if (Application.Current!.ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktopStyleApplicationLifetime)
+        {
+            lifetimeReady = lifetimeReady && desktopStyleApplicationLifetime.MainWindow != null;
+        }
+        return lifetimeReady;
     }
 }

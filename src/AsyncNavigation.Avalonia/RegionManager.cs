@@ -3,9 +3,10 @@ using Avalonia;
 
 namespace AsyncNavigation.Avalonia;
 
-public sealed class RegionManager : RegionManagerBase,
-    IObserver<AvaloniaPropertyChangedEventArgs<string>>
+public sealed class RegionManager : RegionManagerBase
 {
+    private static readonly IDisposable _subscription;
+
     #region RegionName
     public static readonly AttachedProperty<string> RegionNameProperty =
            AvaloniaProperty.RegisterAttached<RegionManager, AvaloniaObject, string>("RegionName");
@@ -22,15 +23,15 @@ public sealed class RegionManager : RegionManagerBase,
     #endregion
 
     #region ServiceProvider
-    public static readonly AttachedProperty<IServiceProvider> ServiceProviderProperty =
-           AvaloniaProperty.RegisterAttached<RegionManager, AvaloniaObject, IServiceProvider>("ServiceProvider");
+    public static readonly AttachedProperty<IServiceProvider?> ServiceProviderProperty =
+           AvaloniaProperty.RegisterAttached<RegionManager, AvaloniaObject, IServiceProvider?>("ServiceProvider", defaultValue: null);
 
-    public static IServiceProvider GetServiceProvider(AvaloniaObject obj)
+    public static IServiceProvider? GetServiceProvider(AvaloniaObject obj)
     {
         return obj.GetValue(ServiceProviderProperty);
     }
 
-    public static void SetServiceProvider(AvaloniaObject obj, IServiceProvider value)
+    public static void SetServiceProvider(AvaloniaObject obj, IServiceProvider? value)
     {
         obj.SetValue(ServiceProviderProperty, value);
     }
@@ -51,59 +52,46 @@ public sealed class RegionManager : RegionManagerBase,
     }
     #endregion
 
-    private readonly List<IDisposable> _subscriptions = [];
-
-    public RegionManager(IRegionFactory regionFactory, IServiceProvider serviceProvider)
-        : base(regionFactory, serviceProvider)
+    static RegionManager()
     {
-        RegionNameProperty.Changed
-            .Subscribe(this)
-            .AddTo(_subscriptions);
-    }
-
-    void IObserver<AvaloniaPropertyChangedEventArgs<string>>.OnCompleted()
-    {
-
-    }
-
-    void IObserver<AvaloniaPropertyChangedEventArgs<string>>.OnError(Exception error)
-    {
-        throw error;
-    }
-
-    void IObserver<AvaloniaPropertyChangedEventArgs<string>>.OnNext(AvaloniaPropertyChangedEventArgs<string> value)
-    {
-        var name = value.NewValue.GetValueOrDefault();
-        if (string.IsNullOrEmpty(name))
-        {
-            var old = value.OldValue.GetValueOrDefault();
-            if (!string.IsNullOrEmpty(old))
+        _subscription = RegionNameProperty
+            .Changed
+            .AddClassHandler<AvaloniaObject, string>((target, args) => 
             {
-                TryRemoveRegion(old, out _);
-            }
-            return;
-        }
-        if (TryGetRegion(name, out _))
-            throw new InvalidOperationException($"Duplicated RegionName found:{name}");
+                var name = args.NewValue.GetValueOrDefault();
+                var old = args.OldValue.GetValueOrDefault();
 
-        bool? useCache = null;
-        IServiceProvider serviceProvider = _serviceProvider;
+                if (name == old)
+                    return;
 
-        if (value.Sender.IsSet(PreferCacheProperty))
-        {
-            useCache = value.Sender.GetValue(PreferCacheProperty);
-        }
-        if (value.Sender.IsSet(ServiceProviderProperty))
-        {
-            serviceProvider = value.Sender.GetValue(ServiceProviderProperty) ?? serviceProvider;
-        }
+                if (string.IsNullOrEmpty(name))
+                {
+                    if (!string.IsNullOrEmpty(old))
+                    {
+                        OnRemoveRegionNameCore(old);
+                    }
+                    return;
+                }
+                bool? useCache = null;
+                if (args.Sender.IsSet(PreferCacheProperty))
+                {
+                    useCache = args.Sender.GetValue(PreferCacheProperty);
+                }
+                var serviceProvider = args.Sender.GetValue(ServiceProviderProperty);
 
-        CreateRegion(name, value.Sender, serviceProvider, useCache);
+                OnAddRegionNameCore(name, target, serviceProvider, useCache);
+            });
+    }
+
+    public RegionManager(IRegionFactory regionFactory, 
+        IServiceProvider serviceProvider) : base(regionFactory, serviceProvider)
+    {
+
     }
 
     public override void Dispose()
     {
         base.Dispose();
-        _subscriptions.DisposeAll();
+        _subscription?.Dispose();
     }
 }

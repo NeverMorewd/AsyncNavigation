@@ -10,10 +10,20 @@ public partial class MainWindowViewModel : ViewModelBase
 {
     private readonly IRegionManager _regionManager;
     private readonly IDialogService _dialogService;
-    public MainWindowViewModel(IRegionManager regionManager, IDialogService dialogService)
+    public MainWindowViewModel(IRegionManager regionManager, 
+        IDialogService dialogService,
+        IPlatformService platformService)
     {
         _regionManager = regionManager;
         _dialogService = dialogService;
+
+        _regionManager.RequestNavigateAsync("MainRegion", "AView", replay: false).ContinueWith(t => 
+        {
+            if (t.IsFaulted)
+            {
+                Debug.WriteLine($"RequestNavigate Failed:{t.Result.Exception}");
+            }
+        });
     }
     [Reactive]
     private bool _isSplitViewPaneOpen = false;
