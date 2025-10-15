@@ -1,5 +1,6 @@
 ﻿using AsyncNavigation.Abstractions;
 using AsyncNavigation.Core;
+using Microsoft.Extensions.DependencyInjection;
 using System.Collections.Concurrent;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
@@ -11,13 +12,17 @@ public abstract class RegionManagerBase : IRegionManager, IDisposable
     protected readonly IServiceProvider _serviceProvider;
     protected readonly IRegionFactory _regionFactory;
     protected readonly ConcurrentDictionary<string, WeakReference<IRegion>> _regions;
+    private readonly ConcurrentDictionary<string, ConcurrentQueue<(Func<Task<NavigationResult>> Task, TaskCompletionSource<NavigationResult> Tcs)>> _pendingNavigations;
     private IRegion? _currentRegion;
+    private readonly int _maxReplayCount;
 
     protected RegionManagerBase(IRegionFactory regionFactory, IServiceProvider serviceProvider)
     {
         _regions = new ConcurrentDictionary<string, WeakReference<IRegion>>();
+        _pendingNavigations = new ConcurrentDictionary<string, ConcurrentQueue<(Func<Task<NavigationResult>> Task, TaskCompletionSource<NavigationResult> Tcs)>>();
         _serviceProvider = serviceProvider;
         _regionFactory = regionFactory;
+        _maxReplayCount = serviceProvider.GetRequiredService<NavigationOptions>().MaxReplayItems;
     }
 
     public IReadOnlyDictionary<string, IRegion> Regions
@@ -44,9 +49,26 @@ public abstract class RegionManagerBase : IRegionManager, IDisposable
         string regionName,
         string viewName,
         INavigationParameters? navigationParameters = null,
+        bool replay = false,
         CancellationToken cancellationToken = default)
     {
-        var region = GetRegion(regionName);
+        if (!TryGetRegion(regionName, out var region))
+        {
+            if (replay)
+            {
+                var queue = _pendingNavigations.GetOrAdd(regionName, _ => new ConcurrentQueue<(Func<Task<NavigationResult>>, TaskCompletionSource<NavigationResult>)>());
+                var tcs = new TaskCompletionSource<NavigationResult>(TaskCreationOptions.RunContinuationsAsynchronously);
+
+                queue.Enqueue((() => RequestNavigateAsync(regionName, viewName, navigationParameters, replay: false, cancellationToken), tcs));
+                while (queue.Count > _maxReplayCount && queue.TryDequeue(out _)) { }
+
+                Debug.WriteLine($"[Replay] Region '{regionName}' not found. Navigation request cached, waiting for region creation...");
+
+                return await tcs.Task;
+            }
+
+            throw new InvalidOperationException($"Region '{regionName}' can not be found or has been collected.");
+        }
         var context = new NavigationContext
         {
             RegionName = regionName,
@@ -87,6 +109,8 @@ public abstract class RegionManagerBase : IRegionManager, IDisposable
     {
         if (!_regions.TryAdd(regionName, new WeakReference<IRegion>(region)))
             throw new InvalidOperationException($"Duplicated RegionName found: {regionName}");
+
+        _ = TryReplayPendingNavigations(regionName);
     }
 
     public async Task<NavigationResult> GoForward(string regionName, CancellationToken cancellationToken = default)
@@ -199,5 +223,18 @@ public abstract class RegionManagerBase : IRegionManager, IDisposable
             }
         }
         _regions.Clear();
+    }
+    private async Task TryReplayPendingNavigations(string regionName)
+    {
+        if (_pendingNavigations.TryRemove(regionName, out var queue))
+        {
+            Debug.WriteLine($"[Replay] Found {queue.Count} cached navigations for '{regionName}', replaying...");
+            while (queue.TryDequeue(out var item))
+            {
+                var (taskFactory, tcs) = item;
+                var result = await taskFactory();
+                tcs.TrySetResult(result);
+            }
+        }
     }
 }

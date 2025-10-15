@@ -12,8 +12,9 @@ public interface IRegionManager
 
 
     Task<NavigationResult> RequestNavigateAsync(string regionName, 
-        string viewName, 
+        string viewName,
         INavigationParameters? navigationParameters = null,
+        bool replay = false,
         CancellationToken cancellationToken = default);
 
     Task<bool> CanGoForwardAsync(string regionName);

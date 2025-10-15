@@ -15,7 +15,7 @@ namespace Sample.Wpf
     {
         protected override void OnStartup(StartupEventArgs e)
         {
-            Current.ShutdownMode = ShutdownMode.OnMainWindowClose;
+            Current.ShutdownMode = ShutdownMode.OnExplicitShutdown;
             PlatformRegistrationManager.SetRegistrationNamespaces(RegistrationNamespace.Wpf);
 
 

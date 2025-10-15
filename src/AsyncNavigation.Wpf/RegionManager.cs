@@ -114,11 +114,4 @@ public sealed class RegionManager : RegionManagerBase
         }
         _tempRegionCache.Clear();
     }
-
-    //public async override Task<NavigationResult> RequestNavigateAsync(string regionName, string viewName, INavigationParameters? navigationParameters = null, CancellationToken cancellationToken = default)
-    //{
-    //    var task = base.RequestNavigateAsync(regionName, viewName, navigationParameters, cancellationToken);
-    //    task.ConfigureAwait(false).GetAwaiter().OnCompleted(() => { });
-    //    return await task;
-    //}
 }

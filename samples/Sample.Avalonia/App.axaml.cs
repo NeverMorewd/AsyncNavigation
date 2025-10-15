@@ -20,6 +20,8 @@ public partial class App : Application
 
     public override void OnFrameworkInitializationCompleted()
     {
+
+        base.OnFrameworkInitializationCompleted();
         NavigationOptions navigationOptions = new()
         {
             /// default is CancelCurrent <see cref="NavigationJobStrategy.CancelCurrent"/>
@@ -59,7 +61,5 @@ public partial class App : Application
             };
         }
         #endregion
-
-        base.OnFrameworkInitializationCompleted();
     }
 }

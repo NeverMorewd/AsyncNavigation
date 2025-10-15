@@ -24,13 +24,17 @@ public class NavigationOptions
     /// MaxHistoryItems represents the maximum number of navigation history items globally,
     /// while MaxCachedViews only controlled per-region view caching in the old design.
     /// </remarks>
-    //[Obsolete("MaxCachedViews is deprecated. Use MaxHistoryItems instead.")]
     public int MaxCachedViews { get; set; } = 10;
 
     /// <summary>
     /// Gets or sets the maximum number of navigation history items globally.
     /// </summary>
     public int MaxHistoryItems { get; set; } = 10;
+
+    /// <summary>
+    /// Gets or sets the maximum number of navigation replay items globally.
+    /// </summary>
+    public int MaxReplayItems { get; set; } = 10;
 
 
     /// <summary>
@@ -123,5 +127,8 @@ public class NavigationOptions
 
         if (other.NavigationJobScope != Default.NavigationJobScope)
             NavigationJobScope = other.NavigationJobScope;
+
+        if (other.MaxReplayItems != Default.MaxReplayItems)
+            MaxReplayItems = other.MaxReplayItems;
     }
 }

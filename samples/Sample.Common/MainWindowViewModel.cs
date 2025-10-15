@@ -10,10 +10,25 @@ public partial class MainWindowViewModel : ViewModelBase
 {
     private readonly IRegionManager _regionManager;
     private readonly IDialogService _dialogService;
-    public MainWindowViewModel(IRegionManager regionManager, IDialogService dialogService)
+    public MainWindowViewModel(IRegionManager regionManager, 
+        IDialogService dialogService,
+        IPlatformService platformService)
     {
         _regionManager = regionManager;
         _dialogService = dialogService;
+
+        // In Avalonia, the application lifetime hasn't started yet at this point,
+        // and regions registered in XAML are not yet initialized. Therefore, we need
+        // to set replay:true to make this navigation request pending until the region
+        // registration is completed. This is not a concern in WPF.
+        _regionManager.RequestNavigateAsync("MainRegion", "AView", replay: true).ContinueWith(t => 
+        {
+            if (t.IsFaulted)
+            {
+                Debug.WriteLine($"RequestNavigate Failed:{t.Result.Exception}");
+            }
+        });
+        platformService.WaitOnDispatcher(Task.Delay(100));
     }
     [Reactive]
     private bool _isSplitViewPaneOpen = false;
