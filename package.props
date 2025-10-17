@@ -1,11 +1,16 @@
 <Project>
     <PropertyGroup>
-        <Version>0.0.1-beta</Version>
+        <Version>0.0.2-beta</Version>
         <Authors>Nevermore</Authors>
         <RepositoryUrl>https://github.com/NeverMorewd/AsyncNavigation</RepositoryUrl>
         <PackageLicenseExpression>MIT</PackageLicenseExpression>
         <PublishRepositoryUrl>true</PublishRepositoryUrl>
+        <PackageReadmeFile>readme.md</PackageReadmeFile>
         <PackageProjectUrl>https://github.com/NeverMorewd/AsyncNavigation</PackageProjectUrl>
         <Description>A lightweight asynchronous navigation framework based on Microsoft.Extensions.DependencyInjection</Description>
     </PropertyGroup>
+
+  <ItemGroup>
+    <None Include="..\..\readme.md" Link="readme.md"  Pack="true" PackagePath=""/>
+  </ItemGroup>
 </Project>
