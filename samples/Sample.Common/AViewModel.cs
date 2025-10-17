@@ -27,7 +27,9 @@ public partial class AViewModel : InstanceCounterViewModel<AViewModel>, IDialogA
     [ReactiveCommand]
     private Task CloseDialog(string param)
     {
-        return RequestCloseAsync!.Invoke(this, new DialogCloseEventArgs(new DialogResult(DialogButtonResult.OK), CancellationToken.None));
+        return RequestCloseAsync!.Invoke(this, 
+            new DialogCloseEventArgs(new DialogResult(DialogButtonResult.OK), 
+            CancellationToken.None));
     }
     [ReactiveCommand]
     private Task CloseDialogWithCancelling(string param)
@@ -39,17 +41,17 @@ public partial class AViewModel : InstanceCounterViewModel<AViewModel>, IDialogA
     public async Task OnDialogOpenedAsync(IDialogParameters? parameters, CancellationToken cancellationToken)
     {
         IsDialog = true;
-        if (cancellationToken != CancellationToken.None)
+        if (cancellationToken.CanBeCanceled)
         {
-            await Task.Delay(TimeSpan.FromSeconds(5), cancellationToken);
+            await Task.Delay(TimeSpan.FromSeconds(2), cancellationToken);
         }
     }
 
     public async Task OnDialogClosingAsync(IDialogResult? dialogResult, CancellationToken cancellationToken)
     {
-        if (cancellationToken != CancellationToken.None)
+        if (cancellationToken.CanBeCanceled)
         {
-            await Task.Delay(TimeSpan.FromSeconds(5), cancellationToken);
+            await Task.Delay(TimeSpan.FromSeconds(2), cancellationToken);
         }
     }
 

@@ -6,4 +6,6 @@ internal interface IPlatformService<TWindow> : IPlatformService
 {
     Task ShowAsync(TWindow window, bool isModal);
     void Show(TWindow window, bool isModal);
+    void AttachClosing(TWindow window, Action<object?, Core.WindowClosingEventArgs> handler);
+    void ShowMainWindow(TWindow mainWindow);
 }

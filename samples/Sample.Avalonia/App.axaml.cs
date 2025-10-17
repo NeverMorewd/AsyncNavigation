@@ -40,9 +40,9 @@ public partial class App : Application
                 .RegisterRegionIndicatorProvider<NotifyIndicatorProvider>()
                 .RegisterInnerIndicatorProvider<InnerIndicatorProvider>()
                 .RegisterRegionAdapter<ListBoxRegionAdapter>();
-
-        #region setup lifetime
         var sp = services.BuildServiceProvider();
+        #region setup lifetime
+
 
         if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
         {

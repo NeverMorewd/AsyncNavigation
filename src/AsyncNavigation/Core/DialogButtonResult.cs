@@ -10,5 +10,6 @@ public enum DialogButtonResult
     Ignore = 5,
     Yes = 6,
     No = 7,
+    Done =8,
     Continue = 11,
 }

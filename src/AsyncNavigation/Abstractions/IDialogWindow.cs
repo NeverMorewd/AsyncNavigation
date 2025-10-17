@@ -1,5 +1,5 @@
 ﻿namespace AsyncNavigation.Abstractions;
 
-public interface IDialogWindow : IWindowBase
+public interface IDialogWindow : IDialogWindowBase
 {
 }

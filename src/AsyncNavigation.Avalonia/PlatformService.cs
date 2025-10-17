@@ -2,6 +2,7 @@
 using Avalonia.Controls;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Threading;
+using System.Diagnostics.CodeAnalysis;
 
 namespace AsyncNavigation.Avalonia;
 
@@ -15,6 +16,29 @@ internal class PlatformService : PlatformServiceBase<Window>
     public override void WaitOnDispatcher(Task task)
     {
         WaitOnDispatcherFrame(task);
+    }
+    public override void AttachClosing(Window window, Action<object?, Core.WindowClosingEventArgs> handler)
+    {
+        window.Closing += (s, e) => 
+        {
+            var args = new Core.WindowClosingEventArgs { Cancel = e.Cancel };
+            handler(s, args);
+            e.Cancel = args.Cancel;
+        };
+    }
+    public override void ShowMainWindow(Window mainWindow)
+    {
+        if (TryGetDesktopLifetime(out var lifetime))
+        {
+            lifetime.MainWindow = mainWindow;
+            mainWindow.Show();
+            return;
+        }
+        throw new NotSupportedException($"Lifetime: '{Application.Current!.ApplicationLifetime?.GetType()}' is not supported");
+    }
+    public void DetachClosing(Window window, Func<object?, Core.WindowClosingEventArgs, Task> handler)
+    {
+       
     }
 
     public override void Show(Window window, bool isModal)
@@ -68,6 +92,13 @@ internal class PlatformService : PlatformServiceBase<Window>
         }
         else
         {
+            if (!CheckLifetime())
+            {
+                if (Application.Current!.ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktopLifetime)
+                {
+                    desktopLifetime.MainWindow = window;
+                }
+            }
             window.Show();
         }
     }
@@ -110,5 +141,15 @@ internal class PlatformService : PlatformServiceBase<Window>
             lifetimeReady = lifetimeReady && desktopStyleApplicationLifetime.MainWindow != null;
         }
         return lifetimeReady;
+    }
+    private static bool TryGetDesktopLifetime([MaybeNullWhen(false)]out IClassicDesktopStyleApplicationLifetime classicDesktopStyleApplicationLifetime)
+    {
+        if (Application.Current!.ApplicationLifetime is IClassicDesktopStyleApplicationLifetime lifetime)
+        {
+            classicDesktopStyleApplicationLifetime = lifetime;
+            return true;
+        }
+        classicDesktopStyleApplicationLifetime = null;
+        return false;
     }
 }

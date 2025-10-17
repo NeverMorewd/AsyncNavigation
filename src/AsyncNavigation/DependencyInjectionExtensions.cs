@@ -83,4 +83,12 @@ public static class DependencyInjectionExtensions
             .AddTransient<IRegionIndicatorProvider, RegionIndicatorProvider>()
             .AddTransient<IRegionIndicatorManager, RegionIndicatorManager>();
     }
+
+    public static IServiceCollection RegisterDialogWindow<T>(this IServiceCollection serviceDescriptors, string? windowName = null)
+      where T : class, IDialogWindow
+    {
+        windowName ??= typeof(T).Name;
+        serviceDescriptors.AddKeyedTransient<IDialogWindow, T>(windowName);
+        return serviceDescriptors;
+    }
 }
