@@ -1,6 +1,6 @@
 ﻿namespace AsyncNavigation.Abstractions;
 
-public interface IWindowBase
+public interface IDialogWindowBase
 {
     string? Title { get; set; }
     object? Content { get; set; }

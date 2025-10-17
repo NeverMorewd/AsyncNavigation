@@ -1,4 +1,5 @@
-﻿using System.Windows;
+﻿using AsyncNavigation.Core;
+using System.Windows;
 using System.Windows.Threading;
 
 namespace AsyncNavigation.Wpf;
@@ -54,5 +55,21 @@ internal class PlatformService : PlatformServiceBase<Window>
             Dispatcher.PushFrame(frame);
         }
         task.GetAwaiter().GetResult();
+    }
+
+    public override void AttachClosing(Window window, Action<object?, WindowClosingEventArgs> handler)
+    {
+        window.Closing += (s, e) => 
+        {
+            var args = new WindowClosingEventArgs { Cancel = e.Cancel };
+            handler(s, args);
+            e.Cancel = args.Cancel;
+        };
+    }
+
+    public override void ShowMainWindow(Window mainWindow)
+    {
+        Application.Current.MainWindow = mainWindow;
+        mainWindow.Show();
     }
 }

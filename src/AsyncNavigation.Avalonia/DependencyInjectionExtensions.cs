@@ -55,7 +55,7 @@ public static class DependencyInjectionExtensions
             .RegisterRegionAdapter<TabRegionAdapter>()         
             .AddTransient<IInnerRegionIndicatorHost, InnerIndicatorHost>()
             .AddSingleton<IRegionManager, RegionManager>()
-            .AddKeyedTransient<IDialogWindow, DefaultDialogContainer>(NavigationConstants.DEFAULT_DIALOG_WINDOW_KEY)
+            .RegisterDialogWindow<DefaultDialogContainer>(NavigationConstants.DEFAULT_DIALOG_WINDOW_KEY)
             .AddSingleton<IPlatformService, PlatformService>();
     }
 

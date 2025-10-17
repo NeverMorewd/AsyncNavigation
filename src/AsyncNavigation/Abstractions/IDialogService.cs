@@ -17,4 +17,10 @@ public interface IDialogService
         string? windowName = null,
         IDialogParameters? parameters = null,
         CancellationToken cancellationToken = default);
+
+    Task FrontShowAsync<TWindow>(string name,
+      Func<IDialogResult, TWindow> mainWindowBuilder,
+      string? windowName = null,
+      IDialogParameters? parameters = null,
+      CancellationToken cancellationToken = default) where TWindow : class;
 }
