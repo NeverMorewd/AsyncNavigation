@@ -16,10 +16,11 @@ public partial class FrontDialogViewModel : InstanceCounterViewModel<FrontDialog
     {
         if (RequestCloseAsync != null)
         {
+            var buttonResult = Ratio == 100 ? DialogButtonResult.Done : DialogButtonResult.Cancel;
             return RequestCloseAsync.Invoke(
                 this,
                 new DialogCloseEventArgs(
-                    new DialogResult(DialogButtonResult.OK),
+                    new DialogResult(buttonResult),
                     CancellationToken.None
                 )
             );
