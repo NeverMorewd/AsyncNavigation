@@ -8,11 +8,17 @@ using Microsoft.Extensions.DependencyInjection;
 using Sample.Avalonia.Regions;
 using Sample.Avalonia.Views;
 using Sample.Common;
+using System.Diagnostics.CodeAnalysis;
 
 namespace Sample.Avalonia;
 
 public partial class App : Application
 {
+    [DynamicDependency(DynamicallyAccessedMemberTypes.PublicConstructors, typeof(MainWindowViewModel))]
+    public App()
+    {
+        
+    }
     public override void Initialize()
     {
         AvaloniaXamlLoader.Load(this);

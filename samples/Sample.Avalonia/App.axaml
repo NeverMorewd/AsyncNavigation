@@ -4,8 +4,8 @@
              RequestedThemeVariant="Default">
              <!-- "Default" ThemeVariant follows system theme variant. "Dark" or "Light" are other available options. -->
     <Application.Styles>
-        <!--<FluentTheme />-->
-		<SimpleTheme/>
+        <FluentTheme />
+<!--		<SimpleTheme/>-->
 		<Style Selector="StackPanel.Navigation">
 			<Setter Property="Spacing" Value="5" />
 			<Setter Property="Orientation" Value="Vertical" />

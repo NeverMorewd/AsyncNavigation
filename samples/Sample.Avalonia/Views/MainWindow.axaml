@@ -8,9 +8,11 @@
     mc:Ignorable="d"
     x:Class="Sample.Avalonia.Views.MainWindow"
     xmlns="https://github.com/avaloniaui"
+    xmlns:vm="using:Sample.Common"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:views="clr-namespace:Sample.Avalonia.Views"
-    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    x:DataType="vm:MainWindowViewModel">
     <views:MainView />
 </Window>

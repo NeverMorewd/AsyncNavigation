@@ -1,6 +1,7 @@
 ﻿using AsyncNavigation;
 using AsyncNavigation.Abstractions;
 using AsyncNavigation.Core;
+using System.Diagnostics.CodeAnalysis;
 
 namespace Microsoft.Extensions.DependencyInjection;
 
@@ -12,7 +13,10 @@ public static class DependencyInjectionExtensions
             { typeof(INavigationAware), (sp, vmType) => sp.GetRequiredService(vmType) },
             { typeof(IDialogAware), (sp, vmType) => sp.GetRequiredService(vmType) }
         };
-    public static IServiceCollection RegisterView<TView, TViewModel>(
+
+    public static IServiceCollection RegisterView<
+        [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicConstructors)] TView,
+        [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicConstructors)] TViewModel>(
         this IServiceCollection services, object? viewKey = null)
         where TView : class, IView
         where TViewModel : class
@@ -47,7 +51,7 @@ public static class DependencyInjectionExtensions
         }
         return services;
     }
-    public static IServiceCollection RegisterRegionIndicatorProvider<T>(this IServiceCollection services) where T : class, IRegionIndicatorProvider
+    public static IServiceCollection RegisterRegionIndicatorProvider<[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicConstructors)] T>(this IServiceCollection services) where T : class, IRegionIndicatorProvider
     {
         ArgumentNullException.ThrowIfNull(services);
         return services.AddSingleton<IRegionIndicatorProvider, T>();
@@ -84,7 +88,7 @@ public static class DependencyInjectionExtensions
             .AddTransient<IRegionIndicatorManager, RegionIndicatorManager>();
     }
 
-    public static IServiceCollection RegisterDialogWindow<T>(this IServiceCollection serviceDescriptors, string? windowName = null)
+    public static IServiceCollection RegisterDialogWindow<[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicConstructors)] T>(this IServiceCollection serviceDescriptors, string? windowName = null)
       where T : class, IDialogWindow
     {
         windowName ??= typeof(T).Name;
