@@ -3,6 +3,7 @@ using AsyncNavigation.Abstractions;
 using AsyncNavigation.Avalonia;
 using AsyncNavigation.Core;
 using Microsoft.Extensions.DependencyInjection.Extensions;
+using System.Diagnostics.CodeAnalysis;
 
 namespace Microsoft.Extensions.DependencyInjection;
 
@@ -45,7 +46,6 @@ public static class DependencyInjectionExtensions
     /// });
     /// </code>
     /// </remarks>
-
     public static IServiceCollection AddNavigationSupport(this IServiceCollection serviceDescriptors, NavigationOptions? navigationOptions = null)
     {
         return serviceDescriptors
@@ -69,7 +69,7 @@ public static class DependencyInjectionExtensions
     /// </typeparam>
     /// <param name="serviceDescriptors">The service collection to add the registration to.</param>
     /// <returns>The same <see cref="IServiceCollection"/> instance for method chaining.</returns>
-    public static IServiceCollection RegisterRegionAdapter<T>(this IServiceCollection serviceDescriptors)
+    public static IServiceCollection RegisterRegionAdapter<[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicConstructors)] T>(this IServiceCollection serviceDescriptors)
         where T : class, IRegionAdapter
     {
         return serviceDescriptors.AddSingleton<IRegionAdapter, T>();
@@ -103,7 +103,7 @@ public static class DependencyInjectionExtensions
     /// <see cref="ServiceCollectionDescriptorExtensions"/>.
     /// </para>
     /// </remarks>
-    public static IServiceCollection RegisterInnerIndicatorProvider<T>(this IServiceCollection serviceDescriptors)
+    public static IServiceCollection RegisterInnerIndicatorProvider<[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicConstructors)] T>(this IServiceCollection serviceDescriptors)
         where T : class, IInnerIndicatorProvider
     {
         serviceDescriptors.TryAddTransient<IInnerIndicatorProvider, T>();

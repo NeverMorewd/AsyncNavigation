@@ -17,7 +17,6 @@ public partial class App : Application
     {
         AvaloniaXamlLoader.Load(this);
     }
-
     public override void OnFrameworkInitializationCompleted()
     {
 
@@ -30,7 +29,7 @@ public partial class App : Application
 
         var services = new ServiceCollection();
         services.AddNavigationSupport(navigationOptions)
-                .AddSingleton<MainWindowViewModel>()
+                .AddSingletonWitAllMembers<MainWindowViewModel>()
                 .RegisterView<AView, AViewModel>(nameof(AView))
                 .RegisterView<BView, BViewModel>(nameof(BView))
                 .RegisterView<CView, CViewModel>(nameof(CView))

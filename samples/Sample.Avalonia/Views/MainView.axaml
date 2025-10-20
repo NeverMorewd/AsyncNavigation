@@ -7,6 +7,7 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:vm="clr-namespace:Sample.Common;assembly=Sample.Common"
     d:DesignHeight="450"
+    x:DataType="vm:MainWindowViewModel"
     d:DesignWidth="800"
     mc:Ignorable="d">
     <SplitView

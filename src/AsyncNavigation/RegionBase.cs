@@ -2,7 +2,6 @@
 using AsyncNavigation.Core;
 using Microsoft.Extensions.DependencyInjection;
 using System.Diagnostics;
-using System.Security.Cryptography;
 
 namespace AsyncNavigation;
 

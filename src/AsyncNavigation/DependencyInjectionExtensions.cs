@@ -1,6 +1,7 @@
 ﻿using AsyncNavigation;
 using AsyncNavigation.Abstractions;
 using AsyncNavigation.Core;
+using System.Diagnostics.CodeAnalysis;
 
 namespace Microsoft.Extensions.DependencyInjection;
 
@@ -12,46 +13,8 @@ public static class DependencyInjectionExtensions
             { typeof(INavigationAware), (sp, vmType) => sp.GetRequiredService(vmType) },
             { typeof(IDialogAware), (sp, vmType) => sp.GetRequiredService(vmType) }
         };
-    public static IServiceCollection RegisterView<TView, TViewModel>(
-        this IServiceCollection services, object? viewKey = null)
-        where TView : class, IView
-        where TViewModel : class
-    {
-        ArgumentNullException.ThrowIfNull(services);
-        viewKey ??= typeof(TView);
 
-        services.AddTransient<TViewModel>();
-        services.AddTransient<TView>();
-
-        services.AddKeyedTransient<IView>(viewKey, (sp, _) =>
-        {
-            var view = sp.GetRequiredService<TView>();
-            view.DataContext ??= sp.GetRequiredService<TViewModel>();
-            return view;
-        });
-
-        var vmType = typeof(TViewModel);
-        bool hasMapping = false;
-
-        foreach (var awareFace in AwareInterfaceMappings)
-        {
-            if (awareFace.Key.IsAssignableFrom(vmType))
-            {
-                hasMapping = true;
-                services.AddKeyedTransient(awareFace.Key, viewKey, (sp, _) => awareFace.Value(sp, vmType));
-            }
-        }
-        if (!hasMapping)
-        {
-            throw new InvalidOperationException($"ViewModel type '{vmType.Name}' must implement at least one of the following interfaces: {string.Join(", ", AwareInterfaceMappings.Keys.Select(t => t.Name))}");
-        }
-        return services;
-    }
-    public static IServiceCollection RegisterRegionIndicatorProvider<T>(this IServiceCollection services) where T : class, IRegionIndicatorProvider
-    {
-        ArgumentNullException.ThrowIfNull(services);
-        return services.AddSingleton<IRegionIndicatorProvider, T>();
-    }
+    [DynamicDependency(DynamicallyAccessedMemberTypes.All, typeof(RegionContext))]
     internal static IServiceCollection RegisterNavigationFramework(this IServiceCollection serviceDescriptors, NavigationOptions? navigationOptions = null)
     {
         if (navigationOptions is not null)
@@ -84,11 +47,104 @@ public static class DependencyInjectionExtensions
             .AddTransient<IRegionIndicatorManager, RegionIndicatorManager>();
     }
 
-    public static IServiceCollection RegisterDialogWindow<T>(this IServiceCollection serviceDescriptors, string? windowName = null)
+    /// <summary>
+    /// Registers a view and its corresponding view model with the specified view key.
+    /// The view must implement IView interface and both view and view model will be registered as transient services.
+    /// Additionally, registers the view as a keyed IView service and ensures the view model implements at least one required interface.
+    /// </summary>
+    /// <typeparam name="TView">The type of the view to register, must implement IView interface</typeparam>
+    /// <typeparam name="TViewModel">The type of the view model to register</typeparam>
+    /// <param name="services">The IServiceCollection to add the services to</param>
+    /// <param name="viewKey">The key to use for registering the view as a keyed service</param>
+    /// <returns>The IServiceCollection so that additional calls can be chained</returns>
+    /// <exception cref="InvalidOperationException">Thrown when the view model doesn't implement any of the required interfaces</exception>
+    public static IServiceCollection RegisterView<[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.All)] TView,
+        [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.All)] TViewModel>(this IServiceCollection services, object viewKey)
+            where TView : class, IView
+            where TViewModel : class
+    {
+        ArgumentNullException.ThrowIfNull(services);
+        ArgumentNullException.ThrowIfNull(viewKey);
+
+        services.AddTransient<TViewModel>();
+        services.AddTransient<TView>();
+
+        services.AddKeyedTransient<IView>(viewKey, (sp, _) =>
+        {
+            var view = sp.GetRequiredService<TView>();
+            view.DataContext ??= sp.GetRequiredService<TViewModel>();
+            return view;
+        });
+
+        var vmType = typeof(TViewModel);
+        bool hasMapping = false;
+
+        foreach (var awareFace in AwareInterfaceMappings)
+        {
+            if (awareFace.Key.IsAssignableFrom(vmType))
+            {
+                hasMapping = true;
+                services.AddKeyedTransient(awareFace.Key, viewKey, (sp, _) => awareFace.Value(sp, vmType));
+            }
+        }
+        if (!hasMapping)
+        {
+            throw new InvalidOperationException($"ViewModel type '{vmType.Name}' must implement at least one of the following interfaces: {string.Join(", ", AwareInterfaceMappings.Keys.Select(t => t.Name))}");
+        }
+        return services;
+    }
+
+    /// <summary>
+    /// Registers a region indicator provider as a singleton service.
+    /// The provider must implement IRegionIndicatorProvider interface.
+    /// </summary>
+    /// <typeparam name="T">The type of the region indicator provider to register, must implement IRegionIndicatorProvider</typeparam>
+    /// <param name="services">The IServiceCollection to add the service to</param>
+    /// <returns>The IServiceCollection so that additional calls can be chained</returns>
+    public static IServiceCollection RegisterRegionIndicatorProvider<[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicConstructors)] T>(this IServiceCollection services) where T : class, IRegionIndicatorProvider
+    {
+        ArgumentNullException.ThrowIfNull(services);
+        return services.AddSingleton<IRegionIndicatorProvider, T>();
+    }
+
+    /// <summary>
+    /// Registers a dialog window as a keyed transient service.
+    /// The window must implement IDialogWindow interface.
+    /// If no window name is provided, the type name will be used as the key.
+    /// </summary>
+    /// <typeparam name="T">The type of the dialog window to register, must implement IDialogWindow</typeparam>
+    /// <param name="serviceDescriptors">The IServiceCollection to add the service to</param>
+    /// <param name="windowName">The optional name to use as the key for the dialog window registration</param>
+    /// <returns>The IServiceCollection so that additional calls can be chained</returns>
+    public static IServiceCollection RegisterDialogWindow<[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicConstructors)] T>(this IServiceCollection serviceDescriptors, string? windowName = null)
       where T : class, IDialogWindow
     {
         windowName ??= typeof(T).Name;
         serviceDescriptors.AddKeyedTransient<IDialogWindow, T>(windowName);
         return serviceDescriptors;
+    }
+
+    /// <summary>
+    /// Registers a service as a singleton with all members dynamically accessible.
+    /// This method preserves dynamic access to all members of the type during trimming.
+    /// </summary>
+    /// <typeparam name="T">The type of the service to register</typeparam>
+    /// <param name="serviceDescriptors">The IServiceCollection to add the service to</param>
+    /// <returns>The IServiceCollection so that additional calls can be chained</returns>
+    public static IServiceCollection AddSingletonWitAllMembers<[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.All)] T>(this IServiceCollection serviceDescriptors) where T : class
+    {
+        return serviceDescriptors.AddSingleton<T>();
+    }
+
+    /// <summary>
+    /// Registers a service as transient with all members dynamically accessible.
+    /// This method preserves dynamic access to all members of the type during trimming.
+    /// </summary>
+    /// <typeparam name="T">The type of the service to register</typeparam>
+    /// <param name="serviceDescriptors">The IServiceCollection to add the service to</param>
+    /// <returns>The IServiceCollection so that additional calls can be chained</returns>
+    public static IServiceCollection AddTransientWitAllMembers<[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.All)] T>(this IServiceCollection serviceDescriptors) where T : class
+    {
+        return serviceDescriptors.AddTransient<T>();
     }
 }
