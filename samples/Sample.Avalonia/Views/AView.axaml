@@ -8,7 +8,8 @@
 	xmlns:vm="using:Sample.Common"
     d:DesignHeight="450"
     d:DesignWidth="800"
-    mc:Ignorable="d">
+    mc:Ignorable="d"
+	x:DataType="vm:AViewModel">
     <DockPanel LastChildFill="True">
         <Border
             HorizontalAlignment="Stretch"

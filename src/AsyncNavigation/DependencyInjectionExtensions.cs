@@ -15,8 +15,8 @@ public static class DependencyInjectionExtensions
         };
 
     public static IServiceCollection RegisterView<
-        [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicConstructors)] TView,
-        [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicConstructors)] TViewModel>(
+        [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.All)] TView,
+        [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.All)] TViewModel>(
         this IServiceCollection services, object? viewKey = null)
         where TView : class, IView
         where TViewModel : class
