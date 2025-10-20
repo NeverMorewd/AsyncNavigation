@@ -8,7 +8,6 @@ using Microsoft.Extensions.DependencyInjection;
 using Sample.Avalonia.Regions;
 using Sample.Avalonia.Views;
 using Sample.Common;
-using System.Diagnostics.CodeAnalysis;
 
 namespace Sample.Avalonia;
 
@@ -18,7 +17,6 @@ public partial class App : Application
     {
         AvaloniaXamlLoader.Load(this);
     }
-    [DynamicDependency(DynamicallyAccessedMemberTypes.All, typeof(MainWindowViewModel))]
     public override void OnFrameworkInitializationCompleted()
     {
 
@@ -31,7 +29,7 @@ public partial class App : Application
 
         var services = new ServiceCollection();
         services.AddNavigationSupport(navigationOptions)
-                .AddSingleton<MainWindowViewModel>()
+                .AddSingletonWitAllMembers<MainWindowViewModel>()
                 .RegisterView<AView, AViewModel>(nameof(AView))
                 .RegisterView<BView, BViewModel>(nameof(BView))
                 .RegisterView<CView, CViewModel>(nameof(CView))
