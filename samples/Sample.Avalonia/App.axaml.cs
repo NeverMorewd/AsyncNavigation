@@ -14,11 +14,6 @@ namespace Sample.Avalonia;
 
 public partial class App : Application
 {
-    [DynamicDependency(DynamicallyAccessedMemberTypes.PublicConstructors, typeof(MainWindowViewModel))]
-    public App()
-    {
-        
-    }
     public override void Initialize()
     {
         AvaloniaXamlLoader.Load(this);

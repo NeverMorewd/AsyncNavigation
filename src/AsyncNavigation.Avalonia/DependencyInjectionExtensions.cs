@@ -46,7 +46,6 @@ public static class DependencyInjectionExtensions
     /// });
     /// </code>
     /// </remarks>
-
     public static IServiceCollection AddNavigationSupport(this IServiceCollection serviceDescriptors, NavigationOptions? navigationOptions = null)
     {
         return serviceDescriptors

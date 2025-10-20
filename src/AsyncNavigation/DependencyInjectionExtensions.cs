@@ -56,6 +56,7 @@ public static class DependencyInjectionExtensions
         ArgumentNullException.ThrowIfNull(services);
         return services.AddSingleton<IRegionIndicatorProvider, T>();
     }
+    [DynamicDependency(DynamicallyAccessedMemberTypes.All, typeof(RegionContext))]
     internal static IServiceCollection RegisterNavigationFramework(this IServiceCollection serviceDescriptors, NavigationOptions? navigationOptions = null)
     {
         if (navigationOptions is not null)
