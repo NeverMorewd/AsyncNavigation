@@ -61,7 +61,7 @@ internal sealed class ViewFactory : IViewFactory
             {
                 var view = _serviceProvider.GetRequiredKeyedService<IView>(viewName);
 
-                if (view.DataContext is null)
+                if (view.DataContext is not INavigationAware)
                 {
                     var navigationAware = _serviceProvider.GetKeyedService<INavigationAware>(viewName);
                     if (navigationAware is not null)
