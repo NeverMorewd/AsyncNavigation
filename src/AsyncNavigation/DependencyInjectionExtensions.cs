@@ -7,11 +7,11 @@ namespace Microsoft.Extensions.DependencyInjection;
 
 public static class DependencyInjectionExtensions
 {
-    private static readonly Dictionary<Type, Func<IServiceProvider, Type, object>> AwareInterfaceMappings =
+    private static readonly Dictionary<Type, Func<IServiceProvider, object, Type, object>> AwareInterfaceMappings =
         new()
         {
-            { typeof(INavigationAware), (sp, vmType) => sp.GetRequiredService(vmType) },
-            { typeof(IDialogAware), (sp, vmType) => sp.GetRequiredService(vmType) }
+            { typeof(INavigationAware), (sp, key, vmType) => sp.GetRequiredKeyedService(vmType,key) },
+            { typeof(IDialogAware), (sp, key, vmType) => sp.GetRequiredKeyedService(vmType,key) }
         };
 
     [DynamicDependency(DynamicallyAccessedMemberTypes.All, typeof(RegionContext))]
@@ -66,13 +66,13 @@ public static class DependencyInjectionExtensions
         ArgumentNullException.ThrowIfNull(services);
         ArgumentNullException.ThrowIfNull(viewKey);
 
-        services.AddTransient<TViewModel>();
-        services.AddTransient<TView>();
+        services.AddKeyedTransient<TViewModel>(viewKey);
+        services.AddKeyedTransient<TView>(viewKey);
 
-        services.AddKeyedTransient<IView>(viewKey, (sp, _) =>
+        services.AddKeyedTransient<IView>(viewKey, (sp, key) =>
         {
-            var view = sp.GetRequiredService<TView>();
-            view.DataContext ??= sp.GetRequiredService<TViewModel>();
+            var view = sp.GetRequiredKeyedService<TView>(key);
+            view.DataContext ??= sp.GetRequiredKeyedService<TViewModel>(key);
             return view;
         });
 
@@ -84,7 +84,7 @@ public static class DependencyInjectionExtensions
             if (awareFace.Key.IsAssignableFrom(vmType))
             {
                 hasMapping = true;
-                services.AddKeyedTransient(awareFace.Key, viewKey, (sp, _) => awareFace.Value(sp, vmType));
+                services.AddKeyedTransient(awareFace.Key, viewKey, (sp, key) => awareFace.Value(sp, key!, vmType));
             }
         }
         if (!hasMapping)
@@ -93,7 +93,86 @@ public static class DependencyInjectionExtensions
         }
         return services;
     }
+    public static IServiceCollection RegisterNavigation<[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.All)] TView,
+        [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.All)] TViewModel>(this IServiceCollection services, object viewKey)
+            where TView : class, IView
+            where TViewModel : class, INavigationAware
+    {
+        ArgumentNullException.ThrowIfNull(services);
+        ArgumentNullException.ThrowIfNull(viewKey);
 
+        services.AddKeyedTransient<TViewModel>(viewKey);
+        services.AddKeyedTransient<TView>(viewKey);
+
+        services.AddKeyedTransient<IView>(viewKey, (sp, key) =>
+        {
+            var view = sp.GetRequiredKeyedService<TView>(key);
+            view.DataContext ??= sp.GetRequiredKeyedService<TViewModel>(key);
+            return view;
+        });
+        return services;
+    }
+    public static IServiceCollection RegisterNavigation<[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.All)] TView,
+        [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.All)] TViewModel>(this IServiceCollection services,
+        object viewKey,
+        Func<IServiceProvider, object?, TViewModel> viewModelBuilder)
+        where TView : class, IView
+        where TViewModel : class, INavigationAware
+    {
+        ArgumentNullException.ThrowIfNull(services);
+        ArgumentNullException.ThrowIfNull(viewKey);
+        ArgumentNullException.ThrowIfNull(viewModelBuilder);
+
+        services.AddKeyedTransient<TView>(viewKey);
+        services.AddKeyedTransient(viewKey, viewModelBuilder);
+        services.AddKeyedTransient<IView>(viewKey, (sp, key) =>
+        {
+            var view = sp.GetRequiredKeyedService<TView>(key);
+            view.DataContext ??= sp.GetRequiredKeyedService<TViewModel>(key);
+            return view;
+        });
+        return services;
+    }
+    public static IServiceCollection RegisterDialog<[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.All)] TView,
+        [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.All)] TViewModel>(this IServiceCollection services, object viewKey)
+            where TView : class, IView
+            where TViewModel : class, IDialogAware
+    {
+        ArgumentNullException.ThrowIfNull(services);
+        ArgumentNullException.ThrowIfNull(viewKey);
+
+        services.AddKeyedTransient<TViewModel>(viewKey);
+        services.AddKeyedTransient<TView>(viewKey);
+
+        services.AddKeyedTransient<IView>(viewKey, (sp, key) =>
+        {
+            var view = sp.GetRequiredKeyedService<TView>(key);
+            view.DataContext ??= sp.GetRequiredKeyedService<TViewModel>(key);
+            return view;
+        });
+        return services;
+    }
+    public static IServiceCollection RegisterDialog<[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.All)] TView,
+        [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.All)] TViewModel>(this IServiceCollection services,
+        object viewKey,
+        Func<IServiceProvider, object?, TViewModel> viewModelBuilder)
+        where TView : class, IView
+        where TViewModel : class, IDialogAware
+    {
+        ArgumentNullException.ThrowIfNull(services);
+        ArgumentNullException.ThrowIfNull(viewKey);
+        ArgumentNullException.ThrowIfNull(viewModelBuilder);
+
+        services.AddKeyedTransient<TView>(viewKey);
+        services.AddKeyedTransient(viewKey, viewModelBuilder);
+        services.AddKeyedTransient<IView>(viewKey, (sp, key) =>
+        {
+            var view = sp.GetRequiredKeyedService<TView>(viewKey);
+            view.DataContext ??= sp.GetRequiredKeyedService<TViewModel>(key);
+            return view;
+        });
+        return services;
+    }
     /// <summary>
     /// Registers a region indicator provider as a singleton service.
     /// The provider must implement IRegionIndicatorProvider interface.

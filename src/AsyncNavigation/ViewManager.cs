@@ -1,6 +1,5 @@
 ﻿using AsyncNavigation.Abstractions;
 using AsyncNavigation.Core;
-using System;
 using System.Collections.Concurrent;
 using System.Diagnostics;
 
