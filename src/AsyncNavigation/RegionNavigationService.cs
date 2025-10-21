@@ -9,15 +9,17 @@ internal sealed class RegionNavigationService<T> : IRegionNavigationService<T> w
 {
     private readonly IViewManager _viewCacheManager;
     private readonly IRegionIndicatorManager _regionIndicatorManager;
-    private readonly IJobScheduler _navigationJobScheduler;
+    private readonly IAsyncJobProcessor _navigationJobScheduler;
     private readonly IRegionPresenter _regionPresenter;
     private (IView View, NavigationContext NavigationContext)? _current;
+    private readonly NavigationJobStrategy _navigationJobStrategy;
     public RegionNavigationService(T regionPresenter, IServiceProvider serviceProvider)
     {
         _regionPresenter = regionPresenter;
-        _navigationJobScheduler = serviceProvider.GetRequiredService<IJobScheduler>();
+        _navigationJobScheduler = serviceProvider.GetRequiredService<IAsyncJobProcessor>();
         _viewCacheManager = serviceProvider.GetRequiredService<IViewManager>();
         _regionIndicatorManager = serviceProvider.GetRequiredService<IRegionIndicatorManager>();
+        _navigationJobStrategy = serviceProvider.GetRequiredService<NavigationOptions>()!.NavigationJobStrategy;
     }
     internal (IView View, NavigationContext NavigationContext)? Current
     {
@@ -27,7 +29,7 @@ internal sealed class RegionNavigationService<T> : IRegionNavigationService<T> w
     {
         try
         {
-            await _navigationJobScheduler.RunJobAsync(navigationContext, CreateNavigateTask);
+            await _navigationJobScheduler.RunJobAsync(navigationContext, CreateNavigateTask, _navigationJobStrategy);
         }
         catch (Exception ex) when (ex is not OperationCanceledException)
         {
