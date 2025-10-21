@@ -1,5 +1,4 @@
 ﻿using AsyncNavigation.Abstractions;
-using System.Xml.Linq;
 
 namespace AsyncNavigation;
 

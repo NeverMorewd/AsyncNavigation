@@ -1,5 +1,4 @@
-﻿// File: RegionManagerBase.cs
-using AsyncNavigation.Abstractions;
+﻿using AsyncNavigation.Abstractions;
 using AsyncNavigation.Core;
 using Microsoft.Extensions.DependencyInjection;
 using System.Collections.Concurrent;
@@ -110,19 +109,6 @@ public abstract class RegionManagerBase : IRegionManager, IDisposable
         }
     }
 
-    private async Task<NavigationResult> HandleNavigationException(Exception ex, IRegion region, NavigationContext context)
-    {
-        if (ex is OperationCanceledException)
-        {
-            Debug.WriteLine($"[Cancel] {context}");
-            await region.RevertAsync(context);
-            return NavigationResult.Cancelled(context);
-        }
-
-        Debug.WriteLine($"[Error] {context} -> {ex}");
-        return NavigationResult.Failure(ex, context);
-    }
-
     private async Task<NavigationResult> EnqueueReplayNavigation(
         string regionName,
         string viewName,
@@ -169,80 +155,6 @@ public abstract class RegionManagerBase : IRegionManager, IDisposable
         }
         return false;
     }
-
-    protected void CreateRegionSafe(string name, object target, IServiceProvider? provider, bool? preferCache)
-    {
-        lock (_regionLock)
-        {
-            if (TryGetRegion(name, out _))
-                throw new InvalidOperationException($"Duplicated RegionName found: {name}");
-            provider ??= _serviceProvider;
-            var region = _regionFactory.CreateRegion(name, target, provider, preferCache);
-            AddRegion(name, region);
-        }
-    }
-
-    private async Task TryReplayPendingNavigations(string name)
-    {
-        if (_pendingNavigations.TryRemove(name, out var queue))
-        {
-            Debug.WriteLine($"[Replay] Found {queue.Count} cached navigations for '{name}', replaying...");
-            while (queue.TryDequeue(out var item))
-            {
-                var (taskFactory, tcs) = item;
-                var result = await taskFactory();
-                tcs.TrySetResult(result);
-            }
-        }
-    }
-
-    private void CleanupCollectedRegions()
-    {
-        foreach (var key in _regions.Keys)
-        {
-            if (_regions.TryGetValue(key, out var weakRef) && !weakRef.TryGetTarget(out _))
-                _regions.TryRemove(key, out _);
-        }
-    }
-
-    private void RecoverTempRegions()
-    {
-        lock (_staticLock)
-        {
-            foreach (var kv in _tempRegionCache)
-            {
-                if (kv.Value.Target.TryGetTarget(out var target) && target is not null)
-                    CreateRegionSafe(kv.Key, target, kv.Value.ServiceProvider, kv.Value.PreferCache);
-            }
-            _tempRegionCache.Clear();
-        }
-    }
-
-    protected static void OnAddRegionNameCore(string name, object d, IServiceProvider? sp, bool? preferCache)
-    {
-        lock (_staticLock)
-        {
-            if (_current == null)
-            {
-                if (!_tempRegionCache.TryAdd(name, (new WeakReference<object>(d), sp, preferCache)))
-                    throw new InvalidOperationException($"Duplicated RegionName found: {name}");
-            }
-            else
-            {
-                _current.CreateRegionSafe(name, d, sp, preferCache);
-            }
-        }
-    }
-
-    protected static void OnRemoveRegionNameCore(string name)
-    {
-        lock (_staticLock)
-        {
-            _current?.TryRemoveRegion(name, out _);
-        }
-    }
-
-    // --- Implement remaining IRegionManager navigation methods ---
 
     public async Task<NavigationResult> GoForward(string regionName, CancellationToken cancellationToken = default)
     {
@@ -295,6 +207,90 @@ public abstract class RegionManagerBase : IRegionManager, IDisposable
         if (TryGetRegion(regionName, out var region))
             return region!;
         throw new InvalidOperationException($"Region '{regionName}' not found or has been collected.");
+    }
+
+    protected void CreateRegionSafe(string name, object target, IServiceProvider? provider, bool? preferCache)
+    {
+        lock (_regionLock)
+        {
+            if (TryGetRegion(name, out _))
+                throw new InvalidOperationException($"Duplicated RegionName found: {name}");
+            provider ??= _serviceProvider;
+            var region = _regionFactory.CreateRegion(name, target, provider, preferCache);
+            AddRegion(name, region);
+        }
+    }
+
+    private async Task TryReplayPendingNavigations(string name)
+    {
+        if (_pendingNavigations.TryRemove(name, out var queue))
+        {
+            Debug.WriteLine($"[Replay] Found {queue.Count} cached navigations for '{name}', replaying...");
+            while (queue.TryDequeue(out var item))
+            {
+                var (taskFactory, tcs) = item;
+                var result = await taskFactory();
+                tcs.TrySetResult(result);
+            }
+        }
+    }
+
+    private void CleanupCollectedRegions()
+    {
+        foreach (var key in _regions.Keys)
+        {
+            if (_regions.TryGetValue(key, out var weakRef) && !weakRef.TryGetTarget(out _))
+                _regions.TryRemove(key, out _);
+        }
+    }
+
+    private void RecoverTempRegions()
+    {
+        lock (_staticLock)
+        {
+            foreach (var kv in _tempRegionCache)
+            {
+                if (kv.Value.Target.TryGetTarget(out var target) && target is not null)
+                    CreateRegionSafe(kv.Key, target, kv.Value.ServiceProvider, kv.Value.PreferCache);
+            }
+            _tempRegionCache.Clear();
+        }
+    }
+
+    private static async Task<NavigationResult> HandleNavigationException(Exception ex, IRegion region, NavigationContext context)
+    {
+        if (ex is OperationCanceledException)
+        {
+            Debug.WriteLine($"[Cancel] {context}");
+            await region.RevertAsync(context);
+            return NavigationResult.Cancelled(context);
+        }
+
+        Debug.WriteLine($"[Error] {context} -> {ex}");
+        return NavigationResult.Failure(ex, context);
+    }
+    protected static void OnAddRegionNameCore(string name, object d, IServiceProvider? sp, bool? preferCache)
+    {
+        lock (_staticLock)
+        {
+            if (_current == null)
+            {
+                if (!_tempRegionCache.TryAdd(name, (new WeakReference<object>(d), sp, preferCache)))
+                    throw new InvalidOperationException($"Duplicated RegionName found: {name}");
+            }
+            else
+            {
+                _current.CreateRegionSafe(name, d, sp, preferCache);
+            }
+        }
+    }
+
+    protected static void OnRemoveRegionNameCore(string name)
+    {
+        lock (_staticLock)
+        {
+            _current?.TryRemoveRegion(name, out _);
+        }
     }
 
     public virtual void Dispose()
