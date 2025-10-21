@@ -20,11 +20,11 @@ public class AsyncJobProcessorTests : IClassFixture<ServiceFixture>
     [Fact]
     public async Task RunJobAsync_Should_RunJobSuccessfully()
     {
-        var scheduler = _serviceProvider.GetRequiredService<IAsyncJobProcessor>();
+        var processor = _serviceProvider.GetRequiredService<IAsyncJobProcessor>();
         using var context = new TestJobContext();
         var executed = false;
 
-        await scheduler.RunJobAsync(context, async ctx =>
+        await processor.RunJobAsync(context, async ctx =>
         {
             await Task.Delay(10);
             executed = true;
@@ -38,16 +38,16 @@ public class AsyncJobProcessorTests : IClassFixture<ServiceFixture>
     [Fact]
     public async Task RunJobAsync_Should_Throw_When_SameJobIdStartedTwice()
     {
-        var scheduler = new AsyncJobProcessor();
+        var processor = _serviceProvider.GetRequiredService<IAsyncJobProcessor>();
         using var context = new TestJobContext();
 
-        var task1 = scheduler.RunJobAsync(context, async ctx =>
+        var task1 = processor.RunJobAsync(context, async ctx =>
         {
             await Task.Delay(50);
         }, NavigationJobStrategy.CancelCurrent);
 
         var ex = await Assert.ThrowsAsync<InvalidOperationException>(() =>
-            scheduler.RunJobAsync(context,
+            processor.RunJobAsync(context,
             ctx => Task.CompletedTask,
             NavigationJobStrategy.CancelCurrent));
 
@@ -57,11 +57,11 @@ public class AsyncJobProcessorTests : IClassFixture<ServiceFixture>
     [Fact]
     public async Task CancelAllAsync_Should_CancelRunningJob()
     {
-        var scheduler = new AsyncJobProcessor();
+        var processor = _serviceProvider.GetRequiredService<IAsyncJobProcessor>();
         using var context = new TestJobContext();
         var canceled = false;
 
-        var task = scheduler.RunJobAsync(context, async ctx =>
+        var task = processor.RunJobAsync(context, async ctx =>
         {
             try
             {
@@ -76,7 +76,7 @@ public class AsyncJobProcessorTests : IClassFixture<ServiceFixture>
 
         await Task.Delay(50);
 
-        await scheduler.CancelAllAsync();
+        await processor.CancelAllAsync();
 
         await Assert.ThrowsAsync<TaskCanceledException>(() => task);
         Assert.True(canceled);
@@ -85,20 +85,20 @@ public class AsyncJobProcessorTests : IClassFixture<ServiceFixture>
     [Fact]
     public async Task QueueStrategy_Should_ExecuteJobsInSequence()
     {
-        var scheduler = new AsyncJobProcessor();
+        var processor = _serviceProvider.GetRequiredService<IAsyncJobProcessor>();
         var context1 = new TestJobContext();
         var context2 = new TestJobContext();
 
         var order = new List<int>();
 
-        var task1 = scheduler.RunJobAsync(context1, async _ =>
+        var task1 = processor.RunJobAsync(context1, async _ =>
         {
             order.Add(1);
             await Task.Delay(100);
             order.Add(2);
         }, NavigationJobStrategy.Queue);
 
-        var task2 = scheduler.RunJobAsync(context2, _ =>
+        var task2 = processor.RunJobAsync(context2, _ =>
         {
             order.Add(3);
             return Task.CompletedTask;
@@ -114,11 +114,11 @@ public class AsyncJobProcessorTests : IClassFixture<ServiceFixture>
     [Fact]
     public async Task RunJobAsync_Should_CallOnCompleted_WhenJobThrows()
     {
-        var scheduler = new AsyncJobProcessor();
+        var processor = _serviceProvider.GetRequiredService<IAsyncJobProcessor>();
         using var context = new TestJobContext();
 
         var ex = await Assert.ThrowsAsync<InvalidOperationException>(() =>
-            scheduler.RunJobAsync(context, ctx =>
+            processor.RunJobAsync(context, ctx =>
             {
                 throw new InvalidOperationException("Simulated failure");
             }, NavigationJobStrategy.Queue));
@@ -130,11 +130,11 @@ public class AsyncJobProcessorTests : IClassFixture<ServiceFixture>
     [Fact]
     public async Task CancelAllAsync_Should_AllowNewJobsAfterCancellation()
     {
-        var scheduler = new AsyncJobProcessor();
+        var processor = _serviceProvider.GetRequiredService<IAsyncJobProcessor>();
         using var context1 = new TestJobContext();
         var canceled = false;
 
-        var task1 = scheduler.RunJobAsync(context1, async ctx =>
+        var task1 = processor.RunJobAsync(context1, async ctx =>
         {
             try
             {
@@ -148,13 +148,13 @@ public class AsyncJobProcessorTests : IClassFixture<ServiceFixture>
         }, NavigationJobStrategy.Queue);
 
         await Task.Delay(10);
-        await scheduler.CancelAllAsync();
+        await processor.CancelAllAsync();
 
         await Assert.ThrowsAsync<TaskCanceledException>(() => task1);
         Assert.True(canceled);
 
         using var context2 = new TestJobContext();
-        var task2 = scheduler.RunJobAsync(context2, _ => Task.CompletedTask, NavigationJobStrategy.Queue);
+        var task2 = processor.RunJobAsync(context2, _ => Task.CompletedTask, NavigationJobStrategy.Queue);
 
         await task2; 
         Assert.True(context2.Completed);
@@ -163,13 +163,13 @@ public class AsyncJobProcessorTests : IClassFixture<ServiceFixture>
     [Fact]
     public async Task QueueStrategy_Should_Handle_ConcurrentSubmissions()
     {
-        var scheduler = new AsyncJobProcessor();
+        var processor = _serviceProvider.GetRequiredService<IAsyncJobProcessor>();
         var contexts = Enumerable.Range(0, 5).Select(_ => new TestJobContext()).ToList();
         var tasks = new List<Task>();
 
         foreach (var ctx in contexts)
         {
-            tasks.Add(Task.Run(() => scheduler.RunJobAsync(ctx, async _ =>
+            tasks.Add(Task.Run(() => processor.RunJobAsync(ctx, async _ =>
             {
                 await Task.Delay(10);
             }, NavigationJobStrategy.Queue)));
@@ -188,7 +188,7 @@ public class AsyncJobProcessorTests : IClassFixture<ServiceFixture>
     [Trait("Category", "Stress")]
     public async Task RunJobAsync_QueueStrategy_Should_Handle_10000_ConcurrentJobs()
     {
-        var processor = new AsyncJobProcessor();
+        var processor = _serviceProvider.GetRequiredService<IAsyncJobProcessor>();
         var jobCount = 10_000;
         var contexts = new TestJobContext[jobCount];
         var tasks = new Task[jobCount];
@@ -232,7 +232,7 @@ public class AsyncJobProcessorTests : IClassFixture<ServiceFixture>
     [Trait("Category", "Stress")]
     public async Task RunJobAsync_CancelCurrentStrategy_Should_Handle_RapidSuccessiveJobs()
     {
-        IAsyncJobProcessor processor = new AsyncJobProcessor();
+        var processor = _serviceProvider.GetRequiredService<IAsyncJobProcessor>();
         var iterations = 500;
         var cancellationDelayMs = 2;
         var jobDurationMs = 100;
