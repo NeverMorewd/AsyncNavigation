@@ -4,30 +4,33 @@ using System.Collections.Concurrent;
 
 namespace AsyncNavigation;
 
-internal sealed class JobScheduler : IJobScheduler
+internal sealed class AsyncJobProcessor : IAsyncJobProcessor
 {
-    private readonly ConcurrentDictionary<Guid, (Task Task, CancellationTokenSource Cts)> _jobs = new();
+    private readonly ConcurrentDictionary<Guid, (Lazy<Task> LazyTask, CancellationTokenSource Cts)> _jobs = new();
+
+    int IAsyncJobProcessor.JobsCount => _jobs.Count;
 
     public async Task RunJobAsync<TContext>(
         TContext jobContext,
-        Func<TContext, Task> jobAction) where TContext : IJobContext
+        Func<TContext, Task> jobAction,
+        NavigationJobStrategy navigationJobStrategy) where TContext : IJobContext
     {
-        await HandleExistingJob();
+        await HandleExistingJobs(navigationJobStrategy);
 
         var cts = new CancellationTokenSource();
         jobContext.LinkCancellationToken(cts.Token);
-        var task = jobAction(jobContext);
-
-        if (!_jobs.TryAdd(jobContext.JobId, (task, cts)))
+        var lazyTask = new Lazy<Task>(() => jobAction(jobContext));
+        if (!_jobs.TryAdd(jobContext.JobId, (lazyTask, cts)))
         {
             cts.Dispose();
             throw new InvalidOperationException($"Job with id {jobContext.JobId} is already started.");
         }
 
+        jobContext.OnStarted();
+
         try
         {
-            jobContext.OnStarted();
-            await task;
+            await lazyTask.Value;
         }
         finally
         {
@@ -37,7 +40,7 @@ internal sealed class JobScheduler : IJobScheduler
         }
     }
 
-    public Task WaitAllAsync() => Task.WhenAll(_jobs.Values.Select(j => j.Task));
+    public Task WaitAllAsync() => Task.WhenAll(_jobs.Values.Select(j => j.LazyTask.Value));
 
     public Task CancelAllAsync()
     { 
@@ -46,20 +49,12 @@ internal sealed class JobScheduler : IJobScheduler
             return job.Cts.CancelAsync();
         })); 
     }
-    public Task CancelAllAsyncOld()
-    {
-        foreach (var cts in _jobs.Values.Select(j => j.Cts))
-        {
-            cts.Cancel();
-        }
-        return Task.CompletedTask;
-    }
-    private async ValueTask HandleExistingJob()
+    private async ValueTask HandleExistingJobs(NavigationJobStrategy navigationJobStrategy)
     {
         if (_jobs.IsEmpty)
             return;
 
-        switch (NavigationOptions.Default.NavigationJobStrategy)
+        switch (navigationJobStrategy)
         {
             case NavigationJobStrategy.CancelCurrent:
                 await CancelAllAsync();

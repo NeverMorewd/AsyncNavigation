@@ -41,6 +41,9 @@
 -  **Framework-Agnostic**  
   Works with any MVVM framework, giving developers complete freedom of choice.
 
+-  **Support Native Aot**  
+  Fully supports Avalonia's Native AOT compilation and trimming, without any additional configuration required.
+
 
 ---
 

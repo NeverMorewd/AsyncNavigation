@@ -30,11 +30,11 @@ public static class DependencyInjectionExtensions
         serviceDescriptors.AddSingleton(NavigationOptions.Default);
         if (NavigationOptions.Default.NavigationJobScope == NavigationJobScope.App)
         {
-            serviceDescriptors.AddSingleton<IJobScheduler, JobScheduler>();
+            serviceDescriptors.AddSingleton<IAsyncJobProcessor, AsyncJobProcessor>();
         }
         else
         {
-            serviceDescriptors.AddTransient<IJobScheduler, JobScheduler>();
+            serviceDescriptors.AddTransient<IAsyncJobProcessor, AsyncJobProcessor>();
         }
         return serviceDescriptors
             .AddSingleton<IDialogService, DialogService>()
