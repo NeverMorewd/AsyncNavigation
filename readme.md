@@ -125,6 +125,8 @@ public class SampleViewModel : INavigationAware
   services.AddNavigationSupport()
           .RegisterView<AView, AViewModel>("AView")
           .RegisterView<BView, BViewModel>("BView");
+          .RegisterNavigation<CView, NavigationAware>("CNavigation");
+          .RegisterDialog<CView, DialogAware>("CDialog");
 
 ```
 #### Execute
