@@ -1,22 +1,26 @@
 ﻿using AsyncNavigation.Abstractions;
 using AsyncNavigation.Core;
+using AsyncNavigation.Tests.Infrastructure;
 using AsyncNavigation.Tests.Mocks;
+using Microsoft.Extensions.DependencyInjection;
 using System.Diagnostics;
 using Xunit.Abstractions;
 
 namespace AsyncNavigation.Tests;
 
-public class AsyncJobProcessorTests
+public class AsyncJobProcessorTests : IClassFixture<ServiceFixture>
 {
     private readonly ITestOutputHelper _testOutputHelper;
-    public AsyncJobProcessorTests(ITestOutputHelper testOutputHelper)
+    private readonly IServiceProvider _serviceProvider;
+    public AsyncJobProcessorTests(ServiceFixture serviceFixture, ITestOutputHelper testOutputHelper)
     {
         _testOutputHelper = testOutputHelper;
+        _serviceProvider = serviceFixture.ServiceProvider;
     }
     [Fact]
     public async Task RunJobAsync_Should_RunJobSuccessfully()
     {
-        var scheduler = new AsyncJobProcessor();
+        var scheduler = _serviceProvider.GetRequiredService<IAsyncJobProcessor>();
         using var context = new TestJobContext();
         var executed = false;
 
