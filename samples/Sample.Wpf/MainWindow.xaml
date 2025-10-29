@@ -83,6 +83,10 @@
                     Style="{StaticResource DialogShowDialogAsyncWithCancelling}"
                     Tag="AView" />
                 <Button
+                    Content="ToA:Window.Show"
+                    Style="{StaticResource WindowShow}"
+                    Tag="AWindow" />
+                <Button
                     Command="{Binding CollectCommand}"
                     Content="Collect"
                     Tag="" />

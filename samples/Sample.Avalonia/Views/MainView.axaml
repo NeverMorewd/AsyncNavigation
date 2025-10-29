@@ -94,6 +94,10 @@
                         Content="ToA:Dialog.ShowDialogWithCancelling"
                         Tag="AView" />
                     <Button
+                        Classes="WindowShow"
+                        Content="ToA:Window.Show"
+                        Tag="AWindow" />
+                    <Button
                         Command="{Binding CollectCommand}"
                         Content="Collect"
                         Tag="" />

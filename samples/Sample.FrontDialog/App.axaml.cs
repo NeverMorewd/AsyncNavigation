@@ -1,5 +1,4 @@
-﻿using AsyncNavigation;
-using AsyncNavigation.Abstractions;
+﻿using AsyncNavigation.Abstractions;
 using Avalonia;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Markup.Xaml;
@@ -20,20 +19,29 @@ public partial class App : Application
         var services = new ServiceCollection();
         services.AddNavigationSupport()
                 .AddSingleton<MainWindowViewModel>()
-                .RegisterDialogWindow<DialogWindow>()
-                .RegisterView<FrontView, FrontDialogViewModel>(nameof(FrontView));
+                .RegisterDialog<DialogWindow, FrontDialogViewModel>("DialogWindow");
         var sp = services.BuildServiceProvider();
 
         var dialogService = sp.GetRequiredService<IDialogService>();
-        await dialogService.FrontShowAsync(nameof(FrontView), result => 
+        await dialogService.FrontShowWindowAsync("DialogWindow", result => 
         {
-            var win = new MainWindow
+            if (result.Result == AsyncNavigation.Core.DialogButtonResult.Done)
             {
-                DataContext = sp.GetRequiredService<MainWindowViewModel>()
-            };
-            return win;
-        },
-        nameof(DialogWindow));
+                var win = new MainWindow
+                {
+                    DataContext = sp.GetRequiredService<MainWindowViewModel>()
+                };
+                return win;
+            }
+            else
+            {
+                if (Application.Current?.ApplicationLifetime is IControlledApplicationLifetime applicationLifetime)
+                {
+                    applicationLifetime.Shutdown();
+                }
+                return null;
+            }
+        });
         base.OnFrameworkInitializationCompleted();
     }
 }

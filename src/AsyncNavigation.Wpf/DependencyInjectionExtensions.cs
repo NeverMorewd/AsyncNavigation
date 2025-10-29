@@ -4,6 +4,7 @@ using AsyncNavigation.Core;
 using AsyncNavigation.Wpf;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using System.Diagnostics.CodeAnalysis;
+using System.Windows;
 
 namespace Microsoft.Extensions.DependencyInjection;
 
@@ -57,7 +58,7 @@ public static class DependencyInjectionExtensions
             .AddTransient<IInnerRegionIndicatorHost, InnerIndicatorHost>()
             .AddSingleton<RegionManager>()
             .AddSingleton<IRegionManager>(sp => sp.GetRequiredService<RegionManager>())
-            .RegisterDialogWindow<DefaultDialogContainer>(NavigationConstants.DEFAULT_DIALOG_WINDOW_KEY)
+            .RegisterDialogContainer<DefaultDialogContainer>(NavigationConstants.DEFAULT_DIALOG_WINDOW_KEY)
             .AddSingleton<IPlatformService, PlatformService>();
     }
 

@@ -28,6 +28,13 @@
             <Setter Property="CommandParameter" Value="{Binding RelativeSource={RelativeSource Mode=Self}, Path=Tag}" />
             <Setter Property="VerticalContentAlignment" Value="Center" />
         </Style>
+        <Style x:Key="WindowShow" TargetType="{x:Type Button}">
+            <Setter Property="Height" Value="30" />
+            <Setter Property="Width" Value="300" />
+            <Setter Property="Command" Value="{Binding ShowWindowCommand}" />
+            <Setter Property="CommandParameter" Value="{Binding RelativeSource={RelativeSource Mode=Self}, Path=Tag}" />
+            <Setter Property="VerticalContentAlignment" Value="Center" />
+        </Style>
         <Style x:Key="DialogShowDialog" TargetType="{x:Type Button}">
             <Setter Property="Height" Value="30" />
             <Setter Property="Width" Value="300" />

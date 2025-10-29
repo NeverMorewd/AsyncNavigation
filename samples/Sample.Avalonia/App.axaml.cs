@@ -36,6 +36,7 @@ public partial class App : Application
                 .RegisterView<DView, DViewModel>(nameof(DView))
                 .RegisterView<EView, EViewModel>(nameof(EView))
                 .RegisterView<ListBoxRegionView, ListBoxRegionViewModel>(nameof(ListBoxRegionView))
+                .RegisterDialog<AWindow, AViewModel>(nameof(AWindow))
                 .RegisterRegionIndicatorProvider<NotifyIndicatorProvider>()
                 .RegisterInnerIndicatorProvider<InnerIndicatorProvider>()
                 .RegisterRegionAdapter<ListBoxRegionAdapter>();
