@@ -1,4 +1,5 @@
 ﻿using AsyncNavigation.Abstractions;
+using AsyncNavigation;
 using Avalonia;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Markup.Xaml;
@@ -35,7 +36,7 @@ public partial class App : Application
             }
             else
             {
-                if (Application.Current?.ApplicationLifetime is IControlledApplicationLifetime applicationLifetime)
+                if (Current?.ApplicationLifetime is IControlledApplicationLifetime applicationLifetime)
                 {
                     applicationLifetime.Shutdown();
                 }

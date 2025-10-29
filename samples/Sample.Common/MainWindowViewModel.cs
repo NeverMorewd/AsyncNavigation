@@ -1,4 +1,5 @@
-﻿using AsyncNavigation.Abstractions;
+﻿using AsyncNavigation;
+using AsyncNavigation.Abstractions;
 using AsyncNavigation.Core;
 using ReactiveUI;
 using ReactiveUI.SourceGenerators;
@@ -11,8 +12,7 @@ public partial class MainWindowViewModel : ViewModelBase
     private readonly IRegionManager _regionManager;
     private readonly IDialogService _dialogService;
     public MainWindowViewModel(IRegionManager regionManager, 
-        IDialogService dialogService,
-        IPlatformService platformService)
+        IDialogService dialogService)
     {
         _regionManager = regionManager;
         _dialogService = dialogService;
@@ -49,7 +49,7 @@ public partial class MainWindowViewModel : ViewModelBase
     [ReactiveCommand]
     private void Show(string param)
     {
-        _dialogService.Show(param, callback: result => 
+        _dialogService.ShowView(param, callBack: result => 
         {
             Debug.WriteLine(result.Result);
         });
@@ -58,7 +58,7 @@ public partial class MainWindowViewModel : ViewModelBase
     [ReactiveCommand]
     private async Task AsyncShowDialog(string param)
     {
-       var result = await _dialogService.ShowDialogAsync(param);
+       var result = await _dialogService.ShowViewDialogAsync(param);
     }
     [ReactiveCommand]
     private async Task AsyncShowDialogWithCancelling(string param)
@@ -66,7 +66,7 @@ public partial class MainWindowViewModel : ViewModelBase
         var cts = new CancellationTokenSource();
         cts.CancelAfter(TimeSpan.FromSeconds(2));
 
-        var result = await _dialogService.ShowDialogAsync(param, cancellationToken: cts.Token);
+        var result = await _dialogService.ShowViewDialogAsync(param, cancellationToken: cts.Token);
 
         if(result.Status == DialogStatus.Cancelled)
         {
@@ -76,12 +76,12 @@ public partial class MainWindowViewModel : ViewModelBase
     [ReactiveCommand]
     private void ShowDialog(string param)
     {
-        var result = _dialogService.ShowDialog(param);
+        var result = _dialogService.ShowViewDialog(param);
     }
     [ReactiveCommand]
     private void ShowWindow(string param)
     {
-        var result = _dialogService.ShowDialogWindow(param);
+        var result = _dialogService.ShowWindowDialog(param);
     }
 
     [ReactiveCommand]
