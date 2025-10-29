@@ -78,6 +78,11 @@ public partial class MainWindowViewModel : ViewModelBase
     {
         var result = _dialogService.ShowDialog(param);
     }
+    [ReactiveCommand]
+    private void ShowWindow(string param)
+    {
+        var result = _dialogService.ShowDialogWindow(param);
+    }
 
     [ReactiveCommand]
     private async Task GoForward()

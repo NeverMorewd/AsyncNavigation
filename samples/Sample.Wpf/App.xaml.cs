@@ -15,7 +15,7 @@ namespace Sample.Wpf
     {
         protected override void OnStartup(StartupEventArgs e)
         {
-            Current.ShutdownMode = ShutdownMode.OnExplicitShutdown;
+            Current.ShutdownMode = ShutdownMode.OnMainWindowClose;
             PlatformRegistrationManager.SetRegistrationNamespaces(RegistrationNamespace.Wpf);
 
 
@@ -28,6 +28,7 @@ namespace Sample.Wpf
                 .RegisterView<CView, CViewModel>(nameof(CView))
                 .RegisterView<DView, DViewModel>(nameof(DView))
                 .RegisterView<EView, EViewModel>(nameof(EView))
+                .RegisterDialog<AWindow, AViewModel>(nameof(AWindow))
                 .RegisterInnerIndicatorProvider<InnerIndicatorProvider>()
                 .RegisterRegionIndicatorProvider<MessageBoxIndicatorProvider>()
                 .RegisterView<ListBoxRegionView, ListBoxRegionViewModel>(nameof(ListBoxRegionView));

@@ -36,6 +36,7 @@ public class DialogService : IDialogService
         await _platformService.ShowAsync(dialogWindow, true);
         return await closeTask;
     }
+
     public IDialogResult ShowDialog(string name, 
         string? windowName = null, 
         IDialogParameters? parameters = null, 
@@ -44,6 +45,7 @@ public class DialogService : IDialogService
         var showTask = ShowDialogAsync(name, windowName, parameters, cancellationToken);
         return _platformService.WaitOnDispatcher(showTask);
     }
+
     public void Show(string name, 
         string? windowName = null, 
         IDialogParameters? parameters = null,  
@@ -66,6 +68,7 @@ public class DialogService : IDialogService
 
         _platformService.Show(dialogWindow, false);
     }
+
     public async Task FrontShowAsync<TWindow>(string name,
         Func<IDialogResult, TWindow> mainWindowBuilder,
         string? windowName = null,
@@ -84,30 +87,93 @@ public class DialogService : IDialogService
         await closeTask;
     }
 
+    public void ShowWindow(string windowName, IDialogParameters? parameters = null, Action<IDialogResult>? callback = null, CancellationToken cancellationToken = default)
+    {
+        var (dialogWindow, aware) = PrepareDialogWindow(windowName);
+
+        var openTask = aware.OnDialogOpenedAsync(parameters, cancellationToken);
+        _platformService.WaitOnDispatcher(openTask);
+
+        var closeTask = HandleCloseInternalAsync(dialogWindow, aware);
+        _ = closeTask.ContinueWith(t =>
+        {
+            if (t.Status == TaskStatus.RanToCompletion)
+            {
+                callback?.Invoke(t.Result);
+            }
+        }, cancellationToken);
+
+        _platformService.Show(dialogWindow, false);
+    }
+
+    public async Task<IDialogResult> ShowDialogWindowAsync(string windowName, IDialogParameters? parameters = null, CancellationToken cancellationToken = default)
+    {
+        var (dialogWindow, aware) = PrepareDialogWindow(windowName);
+
+        try
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+            await aware.OnDialogOpenedAsync(parameters, cancellationToken);
+            cancellationToken.ThrowIfCancellationRequested();
+        }
+        catch (OperationCanceledException)
+        {
+            return DialogResult.Cancelled;
+        }
+        var closeTask = HandleCloseInternalAsync(dialogWindow, aware);
+        await _platformService.ShowAsync(dialogWindow, true);
+        return await closeTask;
+    }
+
+    public IDialogResult ShowDialogWindow(string windowName, IDialogParameters? parameters = null, CancellationToken cancellationToken = default)
+    {
+        var showTask = ShowDialogWindowAsync(windowName, parameters, cancellationToken);
+        return _platformService.WaitOnDispatcher(showTask);
+    }
+
+    public async Task FrontShowWindowAsync<TWindow>(string windowName, Func<IDialogResult, TWindow> mainWindowBuilder, IDialogParameters? parameters = null, CancellationToken cancellationToken = default) where TWindow : class
+    {
+        var (dialogWindow, aware) = PrepareDialogWindow(windowName);
+
+        var openTask = aware.OnDialogOpenedAsync(parameters, cancellationToken);
+        await openTask;
+
+        var closeTask = HandleCloseInternalAsync(dialogWindow, aware, mainWindowBuilder);
+
+        _platformService.ShowMainWindow(dialogWindow);
+        _platformService.Show(dialogWindow, false);
+        await closeTask;
+    }
+
+
     private IDialogWindow ResolveDialogWindow(string? windowName) =>
         string.IsNullOrEmpty(windowName)
             ? _serviceProvider.GetRequiredKeyedService<IDialogWindow>(NavigationConstants.DEFAULT_DIALOG_WINDOW_KEY)
             : _serviceProvider.GetRequiredKeyedService<IDialogWindow>(windowName);
 
-    private (IView View, IDialogAware Aware) ResolveDialogViewModel(string name)
+    private (IView View, IDialogAware Aware) ResolveDialogView(string name)
     {
         var view = _serviceProvider.GetRequiredKeyedService<IView>(name);
         if (view.DataContext is IDialogAware aware)
         {
-            
+            return (view, aware);
         }
         else
         {
-            aware = _serviceProvider.GetRequiredKeyedService<IDialogAware>(name);
+            aware = ResolveDialogViewModel(name);
             view.DataContext = aware;
+            return (view, aware);
         }
-        return (view, aware);
+    }
+    private IDialogAware ResolveDialogViewModel(string name)
+    {
+        return _serviceProvider.GetRequiredKeyedService<IDialogAware>(name);
     }
 
     private (IDialogWindow Window, IDialogAware ViewModel) PrepareDialog(string name, string? windowName = null)
     {
         var window = ResolveDialogWindow(windowName);
-        var (view, viewModel) = ResolveDialogViewModel(name);
+        var (view, viewModel) = ResolveDialogView(name);
 
         window.Title = viewModel.Title;
         window.Content = view;
@@ -115,7 +181,22 @@ public class DialogService : IDialogService
 
         return (window, viewModel);
     }
-
+    private (IDialogWindow Window, IDialogAware ViewModel) PrepareDialogWindow(string windowName)
+    {
+        var window = ResolveDialogWindow(windowName);
+        if (window.DataContext is IDialogAware aware)
+        {
+            window.Title = aware.Title;
+            return (window, aware);
+        }
+        else
+        {
+            aware = ResolveDialogViewModel(windowName);
+            window.DataContext = aware;
+            window.Title = aware.Title;
+            return (window, aware);
+        }
+    }
     protected Task<IDialogResult> HandleCloseInternalAsync(
         IDialogWindowBase dialogWindow,
         IDialogAware dialogAware,
@@ -213,7 +294,7 @@ public class DialogService : IDialogService
             }
             catch (Exception)
             {
-                
+
             }
         }
     }
@@ -231,6 +312,7 @@ public class DialogService : IDialogService
                 "Please switch to the UI thread using Dispatcher or an appropriate synchronization context before calling this method.");
         }
     }
+
 
     private class DialogCloseState
     {
