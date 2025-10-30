@@ -23,6 +23,15 @@
 -  **Multiple Built-in Region Types**  
   In addition to standard single-page navigation based on `ContentControl`, also supports `ItemsControl` and `TabControl`.
 
+-  **Minimal Dependencies**  
+  Depends only on `Microsoft.Extensions.DependencyInjection.Abstractions (>= 8.0)`.
+
+-  **Framework-Agnostic**  
+  Works with any MVVM framework, giving developers complete freedom of choice.
+
+-  **Support Native Aot**  
+  Fully supports Avalonia's Native AOT compilation and trimming, without any additional configuration required.
+
 -  **RegionAdapter Extension Mechanism**  
   Extend and customize navigation behaviors by implementing your own `RegionAdapter`.
 
@@ -34,15 +43,6 @@
 
 -  **Highly Abstract Core Layer**  
   Core logic is encapsulated within abstractions, minimizing platform-specific code and improving testability.
-
--  **Minimal Dependencies**  
-  Depends only on `Microsoft.Extensions.DependencyInjection.Abstractions (>= 8.0)`.
-
--  **Framework-Agnostic**  
-  Works with any MVVM framework, giving developers complete freedom of choice.
-
--  **Support Native Aot**  
-  Fully supports Avalonia's Native AOT compilation and trimming, without any additional configuration required.
 
 
 ---
