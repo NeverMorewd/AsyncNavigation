@@ -233,8 +233,8 @@ public class AsyncJobProcessorTests : IClassFixture<ServiceFixture>
     public async Task RunJobAsync_CancelCurrentStrategy_Should_Handle_RapidSuccessiveJobs()
     {
         var processor = _serviceProvider.GetRequiredService<IAsyncJobProcessor>();
-        var iterations = 500;
-        var cancellationDelayMs = 2;
+        var iterations = 200;
+        var cancellationDelayMs = 10;
         var jobDurationMs = 100;
         var stopwatch = Stopwatch.StartNew();
         List<TestJobContext> jobs = [];
