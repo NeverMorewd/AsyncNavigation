@@ -1,4 +1,4 @@
-# 🚀 AsyncNavigation
+﻿# 🚀 AsyncNavigation
 
 [中文文档](readme_zh-cn.md)
 
@@ -130,6 +130,7 @@ public class SampleViewModel : INavigationAware
           .RegisterView<BView, BViewModel>("BView");
           .RegisterNavigation<CView, NavigationAware>("CNavigation");
           .RegisterDialog<CView, DialogAware>("CDialog");
+          .RegisterDialogWindow<AWindow, AViewModel>("AWindow");
 
 ```
 #### Execute
@@ -157,15 +158,22 @@ public class SampleViewModel : INavigationAware
   [ReactiveCommand]
   private void Show(string param)
   {
-      _dialogService.Show("AView", callback: result => 
+      _dialogService.ShowView("AView", callback: result => 
       {
           Debug.WriteLine(result.Result);
       });
   }
+
+  [ReactiveCommand]
+  private void ShowWindow(string param)
+  {
+      var result = _dialogService.ShowWindowDialog(param);
+  }
+
   [ReactiveCommand]
   private async Task AsyncShowDialog(string param)
   {
-      var result = await _dialogService.ShowDialogAsync("AView");
+      var result = await _dialogService.ShowViewDialogAsync("AView");
   }
 
   [ReactiveCommand]
