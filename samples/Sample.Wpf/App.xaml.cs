@@ -28,7 +28,7 @@ namespace Sample.Wpf
                 .RegisterView<CView, CViewModel>(nameof(CView))
                 .RegisterView<DView, DViewModel>(nameof(DView))
                 .RegisterView<EView, EViewModel>(nameof(EView))
-                .RegisterDialog<AWindow, AViewModel>(nameof(AWindow))
+                .RegisterDialogWindow<AWindow, AViewModel>(nameof(AWindow))
                 .RegisterInnerIndicatorProvider<InnerIndicatorProvider>()
                 .RegisterRegionIndicatorProvider<MessageBoxIndicatorProvider>()
                 .RegisterView<ListBoxRegionView, ListBoxRegionViewModel>(nameof(ListBoxRegionView));

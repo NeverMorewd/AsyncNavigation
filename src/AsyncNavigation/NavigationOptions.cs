@@ -131,4 +131,18 @@ public class NavigationOptions
         if (other.MaxReplayItems != Default.MaxReplayItems)
             MaxReplayItems = other.MaxReplayItems;
     }
+
+    public override bool Equals(object? obj)
+    {
+        if (obj is NavigationOptions navigationOptions)
+        {
+            return MaxCachedViews == navigationOptions.MaxCachedViews &&
+                   MaxHistoryItems == navigationOptions.MaxHistoryItems &&
+                   MaxReplayItems == navigationOptions.MaxReplayItems &&
+                   LoadingIndicatorDelay == navigationOptions.LoadingIndicatorDelay &&
+                   NavigationJobStrategy == navigationOptions.NavigationJobStrategy &&
+                   NavigationJobScope == navigationOptions.NavigationJobScope;
+        }
+        return base.Equals(obj);
+    }
 }
