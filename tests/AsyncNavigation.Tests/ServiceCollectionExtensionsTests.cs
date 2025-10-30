@@ -1,16 +1,17 @@
 ﻿using AsyncNavigation.Abstractions;
 using AsyncNavigation.Tests.Mocks;
 using Microsoft.Extensions.DependencyInjection;
+using Xunit.Abstractions;
 
 namespace AsyncNavigation.Tests;
 
 public class ServiceCollectionExtensionsTests
 {
-    private readonly ServiceCollection _services;
+    private readonly ITestOutputHelper _testOutputHelper;
 
-    public ServiceCollectionExtensionsTests()
+    public ServiceCollectionExtensionsTests(ITestOutputHelper testOutputHelper)
     {
-        _services = new ServiceCollection();
+        _testOutputHelper = testOutputHelper;
     }
 
     #region RegisterView Tests
@@ -20,14 +21,14 @@ public class ServiceCollectionExtensionsTests
     {
         // Arrange
         var viewKey = "testView";
-
+        var services = new ServiceCollection();
         // Act
-        _services.RegisterView<TestView, TestNavigationAware>(viewKey);
-        var serviceProvider = _services.BuildServiceProvider();
+        services.RegisterView<TestView, TestNavigationAware>(viewKey);
+        var serviceProvider = services.BuildServiceProvider();
 
         // Assert
-        var view = serviceProvider.GetRequiredKeyedService<TestView>(viewKey);
-        var viewModel = serviceProvider.GetRequiredKeyedService<TestNavigationAware>(viewKey);
+        var view = serviceProvider.GetRequiredKeyedService<IView>(viewKey);
+        var viewModel = serviceProvider.GetRequiredKeyedService<INavigationAware>(viewKey);
         var keyedView = serviceProvider.GetRequiredKeyedService<IView>(viewKey);
 
         Assert.NotNull(view);
@@ -42,7 +43,6 @@ public class ServiceCollectionExtensionsTests
         // Arrange
         IServiceCollection services = null!;
         var viewKey = "testView";
-
         // Act & Assert
         Assert.Throws<ArgumentNullException>(() =>
             services.RegisterView<TestView, TestNavigationAware>(viewKey));
@@ -52,11 +52,11 @@ public class ServiceCollectionExtensionsTests
     public void RegisterView_NullViewKey_ThrowsArgumentNullException()
     {
         // Arrange
-        object viewKey = null!;
-
+        string viewKey = null!;
+        var services = new ServiceCollection();
         // Act & Assert
         Assert.Throws<ArgumentNullException>(() =>
-            _services.RegisterView<TestView, TestNavigationAware>(viewKey));
+            services.RegisterView<TestView, TestNavigationAware>(viewKey));
     }
 
     [Fact]
@@ -64,10 +64,10 @@ public class ServiceCollectionExtensionsTests
     {
         // Arrange
         var viewKey = "invalidView";
-
+        var services = new ServiceCollection();
         // Act & Assert
         var exception = Assert.Throws<InvalidOperationException>(() =>
-            _services.RegisterView<TestView, TestView>(viewKey));
+            services.RegisterView<TestView, TestView>(viewKey));
 
         Assert.Contains("must implement at least one of the following interfaces", exception.Message);
     }
@@ -77,10 +77,10 @@ public class ServiceCollectionExtensionsTests
     {
         // Arrange
         var viewKey = "dataContextView";
-
+        var services = new ServiceCollection();
         // Act
-        _services.RegisterView<TestView, TestNavigationAware>(viewKey);
-        var serviceProvider = _services.BuildServiceProvider();
+        services.RegisterView<TestView, TestNavigationAware>(viewKey);
+        var serviceProvider = services.BuildServiceProvider();
 
         // Assert
         var keyedView = serviceProvider.GetRequiredKeyedService<IView>(viewKey) as TestView;
@@ -95,12 +95,12 @@ public class ServiceCollectionExtensionsTests
         // Arrange
         var viewKey1 = "view1";
         var viewKey2 = "view2";
-
+        var services = new ServiceCollection();
         // Act
-        _services.RegisterView<TestView, TestNavigationAware>(viewKey1);
-        _services.RegisterView<TestView, AnotherTestNavigationAware>(viewKey2);
+        services.RegisterView<TestView, TestNavigationAware>(viewKey1);
+        services.RegisterView<TestView, AnotherTestNavigationAware>(viewKey2);
 
-        var serviceProvider = _services.BuildServiceProvider();
+        var serviceProvider = services.BuildServiceProvider();
 
         // Assert
         var view1 = serviceProvider.GetRequiredKeyedService<IView>(viewKey1);
@@ -119,10 +119,10 @@ public class ServiceCollectionExtensionsTests
     {
         // Arrange
         var viewKey = "multiAwareView";
-
+        var services = new ServiceCollection();
         // Act
-        _services.RegisterView<TestView, TestMultiAwareViewModel>(viewKey);
-        var serviceProvider = _services.BuildServiceProvider();
+        services.RegisterView<TestView, TestMultiAwareViewModel>(viewKey);
+        var serviceProvider = services.BuildServiceProvider();
 
         // Assert
         var view = serviceProvider.GetRequiredKeyedService<IView>(viewKey);
@@ -147,14 +147,15 @@ public class ServiceCollectionExtensionsTests
     {
         // Arrange
         var viewKey = "navigationView";
+        var services = new ServiceCollection();
 
         // Act
-        _services.RegisterNavigation<TestView, TestNavigationAware>(viewKey);
-        var serviceProvider = _services.BuildServiceProvider();
+        services.RegisterNavigation<TestView, TestNavigationAware>(viewKey);
+        var serviceProvider = services.BuildServiceProvider();
 
         // Assert
-        var view = serviceProvider.GetRequiredKeyedService<TestView>(viewKey);
-        var viewModel = serviceProvider.GetRequiredKeyedService<TestNavigationAware>(viewKey);
+        var view = serviceProvider.GetRequiredService<TestView>();
+        var viewModel = serviceProvider.GetRequiredService<TestNavigationAware>();
         var keyedView = serviceProvider.GetRequiredKeyedService<IView>(viewKey);
 
         Assert.NotNull(view);
@@ -182,14 +183,15 @@ public class ServiceCollectionExtensionsTests
         // Arrange
         var viewKey = "customNavigationView";
         var customViewModel = new TestNavigationAware();
-        TestNavigationAware viewModelBuilder(IServiceProvider sp, object? key) => customViewModel;
+        TestNavigationAware viewModelBuilder(IServiceProvider sp) => customViewModel;
+        var services = new ServiceCollection();
 
         // Act
-        _services.RegisterNavigation<TestView, TestNavigationAware>(viewKey, viewModelBuilder);
-        var serviceProvider = _services.BuildServiceProvider();
+        services.RegisterNavigation<TestView, TestNavigationAware>(viewKey, viewModelBuilder);
+        var serviceProvider = services.BuildServiceProvider();
 
         // Assert
-        var keyedViewModel = serviceProvider.GetRequiredKeyedService<TestNavigationAware>(viewKey);
+        var keyedViewModel = serviceProvider.GetRequiredKeyedService<INavigationAware>(viewKey);
         var keyedView = serviceProvider.GetRequiredKeyedService<IView>(viewKey);
 
         Assert.Same(customViewModel, keyedViewModel);
@@ -202,11 +204,12 @@ public class ServiceCollectionExtensionsTests
     {
         // Arrange
         var viewKey = "navigationView";
-        Func<IServiceProvider, object?, TestNavigationAware> viewModelBuilder = null!;
+        Func<IServiceProvider, TestNavigationAware> viewModelBuilder = null!;
+        var services = new ServiceCollection();
 
         // Act & Assert
         Assert.Throws<ArgumentNullException>(() =>
-            _services.RegisterNavigation<TestView, TestNavigationAware>(viewKey, viewModelBuilder));
+            services.RegisterNavigation<TestView, TestNavigationAware>(viewKey, viewModelBuilder));
     }
 
     [Fact]
@@ -214,12 +217,13 @@ public class ServiceCollectionExtensionsTests
     {
         // Arrange
         var sameKey = "sameKey";
+        var services = new ServiceCollection();
 
         // Act
-        _services.RegisterNavigation<TestView, TestNavigationAware>(sameKey);
-        _services.RegisterNavigation<AnotherTestView, AnotherTestNavigationAware>(sameKey);
+        services.RegisterNavigation<TestView, TestNavigationAware>(sameKey);
+        services.RegisterNavigation<AnotherTestView, AnotherTestNavigationAware>(sameKey);
 
-        var serviceProvider = _services.BuildServiceProvider();
+        var serviceProvider = services.BuildServiceProvider();
 
         // Assert
         var keyedView = serviceProvider.GetRequiredKeyedService<IView>(sameKey);
@@ -234,11 +238,12 @@ public class ServiceCollectionExtensionsTests
         // Arrange
         var viewKey = "customDataContextView";
         var customViewModel = new TestNavigationAware();
-        TestNavigationAware viewModelBuilder(IServiceProvider sp, object? key) => customViewModel;
+        TestNavigationAware viewModelBuilder(IServiceProvider sp) => customViewModel;
+        var services = new ServiceCollection();
 
         // Act
-        _services.RegisterNavigation<TestView, TestNavigationAware>(viewKey, viewModelBuilder);
-        var serviceProvider = _services.BuildServiceProvider();
+        services.RegisterNavigation<TestView, TestNavigationAware>(viewKey, viewModelBuilder);
+        var serviceProvider = services.BuildServiceProvider();
 
         // Assert
         var keyedView = serviceProvider.GetRequiredKeyedService<IView>(viewKey) as TestView;
@@ -255,20 +260,22 @@ public class ServiceCollectionExtensionsTests
     {
         // Arrange
         var viewKey = "dialogView";
-
+        var services = new ServiceCollection();
         // Act
-        _services.RegisterDialog<TestView, TestDialogAware>(viewKey);
-        var serviceProvider = _services.BuildServiceProvider();
+        services.RegisterDialog<TestView, TestDialogAware>(viewKey);
+        var serviceProvider = services.BuildServiceProvider();
 
         // Assert
-        var view = serviceProvider.GetRequiredKeyedService<TestView>(viewKey);
-        var viewModel = serviceProvider.GetRequiredKeyedService<TestDialogAware>(viewKey);
+        var view = serviceProvider.GetRequiredService<TestView>();
+        var viewModel = serviceProvider.GetRequiredService<TestDialogAware>();
+        var dialogAware = serviceProvider.GetRequiredKeyedService<IDialogAware>(viewKey);
         var keyedView = serviceProvider.GetRequiredKeyedService<IView>(viewKey);
 
         Assert.NotNull(view);
         Assert.NotNull(viewModel);
         Assert.NotNull(keyedView);
         Assert.IsType<TestDialogAware>(keyedView.DataContext);
+        Assert.IsType<TestDialogAware>(dialogAware);
     }
 
     [Fact]
@@ -289,14 +296,14 @@ public class ServiceCollectionExtensionsTests
         // Arrange
         var viewKey = "customDialogView";
         var customViewModel = new TestDialogAware();
-        TestDialogAware viewModelBuilder(IServiceProvider sp, object? key) => customViewModel;
-
+        TestDialogAware viewModelBuilder(IServiceProvider sp) => customViewModel;
+        var services = new ServiceCollection();
         // Act
-        _services.RegisterDialog<TestView, TestDialogAware>(viewKey, viewModelBuilder);
-        var serviceProvider = _services.BuildServiceProvider();
+        services.RegisterDialog<TestView, TestDialogAware>(viewKey, viewModelBuilder);
+        var serviceProvider = services.BuildServiceProvider();
 
         // Assert
-        var keyedViewModel = serviceProvider.GetRequiredKeyedService<TestDialogAware>(viewKey);
+        var keyedViewModel = serviceProvider.GetRequiredKeyedService<IDialogAware>(viewKey);
         var keyedView = serviceProvider.GetRequiredKeyedService<IView>(viewKey);
 
         Assert.Same(customViewModel, keyedViewModel);
@@ -309,11 +316,11 @@ public class ServiceCollectionExtensionsTests
     {
         // Arrange
         var viewKey = "dialogView";
-        Func<IServiceProvider, object?, TestDialogAware> viewModelBuilder = null!;
-
+        Func<IServiceProvider, TestDialogAware> viewModelBuilder = null!;
+        var services = new ServiceCollection();
         // Act & Assert
         Assert.Throws<ArgumentNullException>(() =>
-            _services.RegisterDialog<TestView, TestDialogAware>(viewKey, viewModelBuilder));
+            services.RegisterDialog<TestView, TestDialogAware>(viewKey, viewModelBuilder));
     }
 
     [Fact]
@@ -321,13 +328,13 @@ public class ServiceCollectionExtensionsTests
     {
         // Arrange
         var mixedKey = "mixedKey";
-
+        var services = new ServiceCollection();
         // Act
-        _services.RegisterView<TestView, TestMultiAwareViewModel>(mixedKey);
-        _services.RegisterNavigation<AnotherTestView, AnotherTestNavigationAware>(mixedKey);
-        _services.RegisterDialog<TestView, TestDialogAware>(mixedKey);
+        services.RegisterView<TestView, TestMultiAwareViewModel>(mixedKey);
+        services.RegisterNavigation<AnotherTestView, AnotherTestNavigationAware>(mixedKey);
+        services.RegisterDialog<TestView, TestDialogAware>(mixedKey);
 
-        var serviceProvider = _services.BuildServiceProvider();
+        var serviceProvider = services.BuildServiceProvider();
 
         // Assert
         var keyedView = serviceProvider.GetRequiredKeyedService<IView>(mixedKey);
@@ -342,11 +349,11 @@ public class ServiceCollectionExtensionsTests
         // Arrange
         var viewKey = "dialogCustomDataContext";
         var customViewModel = new TestDialogAware();
-        TestDialogAware viewModelBuilder(IServiceProvider sp, object? key) => customViewModel;
-
+        TestDialogAware viewModelBuilder(IServiceProvider sp) => customViewModel;
+        var services = new ServiceCollection();
         // Act
-        _services.RegisterDialog<TestView, TestDialogAware>(viewKey, viewModelBuilder);
-        var serviceProvider = _services.BuildServiceProvider();
+        services.RegisterDialog<TestView, TestDialogAware>(viewKey, viewModelBuilder);
+        var serviceProvider = services.BuildServiceProvider();
 
         // Assert
         var keyedView = serviceProvider.GetRequiredKeyedService<IView>(viewKey) as TestView;
@@ -364,12 +371,13 @@ public class ServiceCollectionExtensionsTests
         // Arrange
         var key1 = "key1";
         var key2 = "key2";
+        var services = new ServiceCollection();
 
         // Act
-        _services.RegisterView<TestView, TestNavigationAware>(key1);
-        _services.RegisterView<TestView, AnotherTestNavigationAware>(key2);
+        services.RegisterView<TestView, TestNavigationAware>(key1);
+        services.RegisterView<TestView, AnotherTestNavigationAware>(key2);
 
-        var serviceProvider = _services.BuildServiceProvider();
+        var serviceProvider = services.BuildServiceProvider();
 
         // Assert
         var view1 = serviceProvider.GetRequiredKeyedService<IView>(key1);
@@ -387,12 +395,13 @@ public class ServiceCollectionExtensionsTests
     {
         // Arrange
         var sameKey = "conflictingKey";
+        var services = new ServiceCollection();
 
         // Act
-        _services.RegisterView<TestView, TestMultiAwareViewModel>(sameKey);
-        _services.RegisterNavigation<AnotherTestView, AnotherTestNavigationAware>(sameKey);
+        services.RegisterView<TestView, TestMultiAwareViewModel>(sameKey);
+        services.RegisterNavigation<AnotherTestView, AnotherTestNavigationAware>(sameKey);
 
-        var serviceProvider = _services.BuildServiceProvider();
+        var serviceProvider = services.BuildServiceProvider();
 
         // Assert
         var keyedView = serviceProvider.GetRequiredKeyedService<IView>(sameKey);
@@ -405,10 +414,11 @@ public class ServiceCollectionExtensionsTests
     {
         // Arrange
         var viewKey = "disposableView";
-        _services.RegisterView<TestView, TestNavigationAware>(viewKey);
+        var services = new ServiceCollection();
+        services.RegisterView<TestView, TestNavigationAware>(viewKey);
 
         // Act & Assert
-        using var serviceProvider = _services.BuildServiceProvider();
+        using var serviceProvider = services.BuildServiceProvider();
         var view = serviceProvider.GetRequiredKeyedService<IView>(viewKey);
 
         Assert.NotNull(view);
@@ -416,14 +426,14 @@ public class ServiceCollectionExtensionsTests
 
     [Theory]
     [InlineData("stringKey")]
-    [InlineData(123)]
-    [InlineData('c')]
-    [InlineData(1.5)]
-    public void RegisterView_WithDifferentKeyTypes_WorksCorrectly(object viewKey)
+    [InlineData("123")]
+    [InlineData("1.5")]
+    public void RegisterView_WithDifferentKeyTypes_WorksCorrectly(string viewKey)
     {
         // Act
-        _services.RegisterView<TestView, TestNavigationAware>(viewKey);
-        var serviceProvider = _services.BuildServiceProvider();
+        var services = new ServiceCollection();
+        services.RegisterView<TestView, TestNavigationAware>(viewKey);
+        var serviceProvider = services.BuildServiceProvider();
 
         // Assert
         var keyedView = serviceProvider.GetRequiredKeyedService<IView>(viewKey);
@@ -436,28 +446,29 @@ public class ServiceCollectionExtensionsTests
     {
         // Arrange
         var viewKey = "duplicateView";
+        var services = new ServiceCollection();
 
         // Act
-        _services.RegisterView<TestView, TestNavigationAware>(viewKey);
-        _services.RegisterView<TestView, TestNavigationAware>(viewKey);
-        _services.RegisterView<AnotherTestView, TestNavigationAware>(viewKey);
-        _services.RegisterView<AnotherTestView, AnotherTestNavigationAware>(viewKey);
+        services.RegisterView<TestView, TestNavigationAware>(viewKey);
+        services.RegisterView<TestView, TestNavigationAware>(viewKey);
+        services.RegisterView<AnotherTestView, TestNavigationAware>(viewKey);
+        services.RegisterView<AnotherTestView, AnotherTestNavigationAware>(viewKey);
 
-        var serviceProvider = _services.BuildServiceProvider();
+        var serviceProvider = services.BuildServiceProvider();
 
-        var views = serviceProvider.GetKeyedServices<TestView>(viewKey);
+        var views = serviceProvider.GetServices<TestView>();
         Assert.True(views.Count() == 2);
 
-        var anotherViews = serviceProvider.GetKeyedServices<AnotherTestView>(viewKey);
+        var anotherViews = serviceProvider.GetServices<AnotherTestView>();
         Assert.True(anotherViews.Count() == 2);
 
         var keyedViews = serviceProvider.GetKeyedServices<IView>(viewKey);
         Assert.True(keyedViews.Count() == 4);
 
-        var testNavigationAwares = serviceProvider.GetKeyedServices<TestNavigationAware>(viewKey);
+        var testNavigationAwares = serviceProvider.GetServices<TestNavigationAware>();
         Assert.True(testNavigationAwares.Count() == 3);
 
-        var anotherTestNavigationAwares = serviceProvider.GetKeyedServices<AnotherTestNavigationAware>(viewKey);
+        var anotherTestNavigationAwares = serviceProvider.GetServices<AnotherTestNavigationAware>();
         Assert.True(anotherTestNavigationAwares.Count() == 1);
 
         var keyedAwares = serviceProvider.GetKeyedServices<INavigationAware>(viewKey);
@@ -475,18 +486,20 @@ public class ServiceCollectionExtensionsTests
         var registerViewKey = "RegisterView";
         var registerNavigationKey = "RegisterNavigation";
         var registerDialogKey = "RegisterDialog";
+        var services = new ServiceCollection();
 
         // Act
-        _services.RegisterView<TestView, TestMultiAwareViewModel>(registerViewKey);
-        _services.RegisterNavigation<TestView, TestNavigationAware>(registerNavigationKey);
-        _services.RegisterDialog<TestView, TestDialogAware>(registerDialogKey);
+        services.RegisterView<TestView, TestMultiAwareViewModel>(registerViewKey);
+        services.RegisterNavigation<TestView, TestNavigationAware>(registerNavigationKey);
+        services.RegisterDialog<TestView, TestDialogAware>(registerDialogKey);
 
-        var serviceProvider = _services.BuildServiceProvider();
+        var serviceProvider = services.BuildServiceProvider();
 
         // Assert
-        Assert.Single(serviceProvider.GetKeyedServices<TestView>(registerViewKey));
-        Assert.Single(serviceProvider.GetKeyedServices<TestView>(registerNavigationKey));
-        Assert.Single(serviceProvider.GetKeyedServices<TestView>(registerDialogKey));
+        Assert.Equal(3, serviceProvider.GetServices<TestView>().Count());
+        Assert.Empty(serviceProvider.GetKeyedServices<TestView>(registerViewKey));
+        Assert.Empty(serviceProvider.GetKeyedServices<TestView>(registerNavigationKey));
+        Assert.Empty(serviceProvider.GetKeyedServices<TestView>(registerDialogKey));
         Assert.Single(serviceProvider.GetKeyedServices<IView>(registerViewKey));
         Assert.Single(serviceProvider.GetKeyedServices<IView>(registerNavigationKey));
         Assert.Single(serviceProvider.GetKeyedServices<IView>(registerDialogKey));
@@ -500,22 +513,205 @@ public class ServiceCollectionExtensionsTests
     {
         // Arrange
         var viewKey = "RegisterView";
+        var services = new ServiceCollection();
 
         // Act
-        _services.RegisterView<TestView, TestMultiAwareViewModel>(viewKey);
-        _services.RegisterNavigation<TestView, TestNavigationAware>(viewKey);
-        _services.RegisterDialog<TestView, TestDialogAware>(viewKey);
+        services.RegisterView<TestView, TestMultiAwareViewModel>(viewKey);
+        services.RegisterNavigation<TestView, TestNavigationAware>(viewKey);
+        services.RegisterDialog<TestView, TestDialogAware>(viewKey);
 
-        var serviceProvider = _services.BuildServiceProvider();
+        var serviceProvider = services.BuildServiceProvider();
 
         // Assert
-        Assert.True(3 == serviceProvider.GetKeyedServices<TestView>(viewKey).Count());
+        Assert.True(3 == serviceProvider.GetServices<TestView>().Count());
         Assert.True(3 == serviceProvider.GetKeyedServices<IView>(viewKey).Count());
-        Assert.IsNotType<TestMultiAwareViewModel>(serviceProvider.GetRequiredKeyedService<IView>(viewKey).DataContext);
-        Assert.IsNotType<TestNavigationAware>(serviceProvider.GetRequiredKeyedService<IView>(viewKey).DataContext);
-        Assert.IsType<TestDialogAware>(serviceProvider.GetRequiredKeyedService<IView>(viewKey).DataContext);
-        Assert.IsNotType<TestNavigationAware>(serviceProvider.GetRequiredKeyedService<INavigationAware>(viewKey));
-        Assert.IsNotType<TestDialogAware>(serviceProvider.GetRequiredKeyedService<IDialogAware>(viewKey));
+
+        var finalVM = serviceProvider.GetRequiredKeyedService<IView>(viewKey).DataContext;
+
+        Assert.IsNotType<TestMultiAwareViewModel>(finalVM);
+        Assert.IsNotType<TestNavigationAware>(finalVM);
+        Assert.IsType<TestDialogAware>(finalVM);
+        Assert.IsNotType<TestMultiAwareViewModel>(serviceProvider.GetRequiredKeyedService<INavigationAware>(viewKey));
+        Assert.IsType<TestNavigationAware>(serviceProvider.GetRequiredKeyedService<INavigationAware>(viewKey));
+        Assert.IsType<TestDialogAware>(serviceProvider.GetRequiredKeyedService<IDialogAware>(viewKey));
     }
+    #endregion
+
+    #region RegisterFramework Tests
+    [Fact]
+    public void RegisterNavigationFramework_Default()
+    {
+        // Arrange
+        var services = new ServiceCollection();
+        services.RegisterNavigationFramework();
+        services.AddSingleton<IPlatformService, TestPlatformService>();
+        services.AddTransient<IInnerRegionIndicatorHost, TestInnerRegionIndicatorHost>();
+        var serviceProvider = services.BuildServiceProvider();
+        // Act
+
+        var options = serviceProvider.GetRequiredService<NavigationOptions>();
+
+        var jobProcessor1 = serviceProvider.GetRequiredService<IAsyncJobProcessor>();
+        var jobProcessor2 = serviceProvider.GetRequiredService<IAsyncJobProcessor>();
+
+        var dialogService1 = serviceProvider.GetRequiredService<IDialogService>();
+        var dialogService2 = serviceProvider.GetRequiredService<IDialogService>();
+
+        var regionNavigationServiceFactory1 = serviceProvider.GetRequiredService<IRegionNavigationServiceFactory>();
+        var regionNavigationServiceFactory2 = serviceProvider.GetRequiredService<IRegionNavigationServiceFactory>();
+
+        var regionFactory1 = serviceProvider.GetRequiredService<IRegionFactory>();
+        var regionFactory2 = serviceProvider.GetRequiredService<IRegionFactory>();
+
+        var viewFactory1 = serviceProvider.GetRequiredService<IViewFactory>();
+        var viewFactory2 = serviceProvider.GetRequiredService<IViewFactory>();
+
+        var viewManager1 = serviceProvider.GetRequiredService<IViewManager>();
+        var viewManager2 = serviceProvider.GetRequiredService<IViewManager>();
+
+        var regionNavigationHistory1 = serviceProvider.GetRequiredService<IRegionNavigationHistory>();
+        var regionNavigationHistory2 = serviceProvider.GetRequiredService<IRegionNavigationHistory>();
+
+        var regionIndicatorProvider1 = serviceProvider.GetRequiredService<IRegionIndicatorProvider>();
+        var regionIndicatorProvider2 = serviceProvider.GetRequiredService<IRegionIndicatorProvider>();
+
+        var regionIndicatorManager1 = serviceProvider.GetRequiredService<IRegionIndicatorManager>();
+        var regionIndicatorManager2 = serviceProvider.GetRequiredService<IRegionIndicatorManager>();
+
+        //Assert
+        Assert.NotNull(jobProcessor1);
+        if (options.NavigationJobScope == Core.NavigationJobScope.Region)
+        {
+            _testOutputHelper.WriteLine("NavigationJobScope is Region - expecting transient IAsyncJobProcessor instances.");
+            Assert.NotEqual(jobProcessor1, jobProcessor2);
+        }
+        else
+        {
+            _testOutputHelper.WriteLine("NavigationJobScope is App - expecting singleton IAsyncJobProcessor instances.");
+            Assert.Equal(jobProcessor1, jobProcessor2);
+        }
+
+            Assert.NotNull(dialogService1);
+        Assert.Equal(dialogService1, dialogService2);
+
+        Assert.NotNull(regionNavigationServiceFactory1);
+        Assert.Equal(regionNavigationServiceFactory1, regionNavigationServiceFactory2);
+
+        Assert.NotNull(regionFactory1);
+        Assert.Equal(regionFactory1, regionFactory2);
+
+        Assert.NotNull(viewFactory1);
+        Assert.Equal(viewFactory1, viewFactory2);
+
+        Assert.NotNull(viewManager1);
+        Assert.NotNull(viewManager2);
+        Assert.NotEqual(viewManager1, viewManager2);
+
+        Assert.NotNull(regionNavigationHistory1);
+        Assert.NotNull(regionNavigationHistory2);
+        Assert.NotEqual(regionNavigationHistory1, regionNavigationHistory2);
+
+        Assert.NotNull(regionIndicatorProvider1);
+        Assert.NotNull(regionIndicatorProvider2);
+        Assert.NotEqual(regionIndicatorProvider1, regionIndicatorProvider2);
+
+        Assert.NotNull(regionIndicatorManager1);
+        Assert.NotNull(regionIndicatorManager2);
+        Assert.NotEqual(regionIndicatorManager1, regionIndicatorManager2);
+    }
+
+    [Fact]
+    public void RegisterNavigationFramework_CustomOptions_NavigationJobScopeApp()
+    {
+        // Arrange
+        var services = new ServiceCollection();
+        services.RegisterNavigationFramework(new NavigationOptions { NavigationJobScope = Core.NavigationJobScope.App });
+        services.AddSingleton<IPlatformService, TestPlatformService>();
+        services.AddTransient<IInnerRegionIndicatorHost, TestInnerRegionIndicatorHost>();
+        var serviceProvider = services.BuildServiceProvider();
+        // Act
+        var jobProcessor1 = serviceProvider.GetRequiredService<IAsyncJobProcessor>();
+        var jobProcessor2 = serviceProvider.GetRequiredService<IAsyncJobProcessor>();
+     
+        //Assert
+        Assert.NotNull(jobProcessor1);
+        Assert.Equal(jobProcessor1, jobProcessor2);
+    }
+
+    [Fact]
+    public void RegisterNavigationFramework_CustomOptions_NavigationJobScopeRegion()
+    {
+        // Arrange
+        var services = new ServiceCollection();
+        services.RegisterNavigationFramework(new NavigationOptions { NavigationJobScope = Core.NavigationJobScope.Region });
+        services.AddSingleton<IPlatformService, TestPlatformService>();
+        services.AddTransient<IInnerRegionIndicatorHost, TestInnerRegionIndicatorHost>();
+        var serviceProvider = services.BuildServiceProvider();
+        // Act
+        var jobProcessor1 = serviceProvider.GetRequiredService<IAsyncJobProcessor>();
+        var jobProcessor2 = serviceProvider.GetRequiredService<IAsyncJobProcessor>();
+
+        //Assert
+        Assert.NotNull(jobProcessor1);
+        Assert.NotNull(jobProcessor2);
+        Assert.NotEqual(jobProcessor1, jobProcessor2);
+    }
+
+    [Fact]
+    public void RegisterNavigationFramework_CustomOptions()
+    {
+        // Arrange
+        var services = new ServiceCollection();
+        var options = new NavigationOptions
+        {
+            MaxCachedViews = 20,
+            MaxHistoryItems = 30,
+            MaxReplayItems = 15,
+            LoadingIndicatorDelay = TimeSpan.FromMilliseconds(500),
+            NavigationJobStrategy = Core.NavigationJobStrategy.Queue,
+            NavigationJobScope = Core.NavigationJobScope.App,
+            ViewCacheStrategy = Core.ViewCacheStrategy.UpdateDuplicateKey
+        };
+
+        services.RegisterNavigationFramework(options);
+        services.AddSingleton<IPlatformService, TestPlatformService>();
+        services.AddTransient<IInnerRegionIndicatorHost, TestInnerRegionIndicatorHost>();
+        var serviceProvider = services.BuildServiceProvider();
+        // Act
+        var actualOptions = serviceProvider.GetRequiredService<NavigationOptions>();
+
+        //Assert
+        Assert.NotNull(actualOptions);
+        Assert.Equal(actualOptions, options);
+    }
+
+    #endregion
+
+    #region RegisterDialogWindow Tests
+    [Fact]
+    public void RegisterDialogWindow_Default()
+    {
+        // Arrange
+        var windowName = "RegisterDialogWindow";
+        var services = new ServiceCollection();
+
+        // Act
+        services.RegisterDialogWindow<TestDialogWindow, TestDialogAware>(windowName);
+
+        var serviceProvider = services.BuildServiceProvider();
+        var window = serviceProvider.GetRequiredService<TestDialogWindow>();
+        var viewModel = serviceProvider.GetRequiredService<TestDialogAware>();
+        var dialogWindow = serviceProvider.GetRequiredKeyedService<IDialogWindow>(windowName);
+        var dataContext = dialogWindow.DataContext;
+        var dialogAware = serviceProvider.GetRequiredKeyedService<IDialogAware>(windowName);
+        // Assert
+        Assert.True(1 == serviceProvider.GetServices<TestDialogWindow>().Count());
+
+        Assert.IsAssignableFrom<IDialogWindow>(window);
+        Assert.IsAssignableFrom<IDialogAware>(viewModel);
+        Assert.IsType<TestDialogAware>(dataContext);
+        Assert.IsType<TestDialogAware>(dialogAware);
+    }
+
     #endregion
 }

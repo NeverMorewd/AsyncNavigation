@@ -20,7 +20,7 @@ public partial class App : Application
         var services = new ServiceCollection();
         services.AddNavigationSupport()
                 .AddSingleton<MainWindowViewModel>()
-                .RegisterDialog<DialogWindow, FrontDialogViewModel>("DialogWindow");
+                .RegisterDialogWindow<DialogWindow, FrontDialogViewModel>("DialogWindow");
         var sp = services.BuildServiceProvider();
 
         var dialogService = sp.GetRequiredService<IDialogService>();

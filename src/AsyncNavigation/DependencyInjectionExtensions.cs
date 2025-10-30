@@ -3,16 +3,17 @@ using AsyncNavigation.Abstractions;
 using AsyncNavigation.Core;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using System.Diagnostics.CodeAnalysis;
+using System.Xml.Linq;
 
 namespace Microsoft.Extensions.DependencyInjection;
 
 public static class DependencyInjectionExtensions
 {
-    private static readonly Dictionary<Type, Func<IServiceProvider, object, Type, object>> AwareInterfaceMappings =
+    private static readonly Dictionary<Type, Func<IServiceProvider, Type, object>> AwareInterfaceMappings =
         new()
         {
-            { typeof(INavigationAware), (sp, key, vmType) => sp.GetRequiredKeyedService(vmType,key) },
-            { typeof(IDialogAware), (sp, key, vmType) => sp.GetRequiredKeyedService(vmType,key) }
+            { typeof(INavigationAware), (sp, vmType) => sp.GetRequiredService(vmType) },
+            { typeof(IDialogAware), (sp, vmType) => sp.GetRequiredService(vmType) }
         };
 
 
@@ -31,11 +32,6 @@ public static class DependencyInjectionExtensions
         {
             NavigationOptions.Default.MergeFrom(navigationOptions);
         }
-
-
-#if GC_TEST
-        NavigationOptions.Default.MaxHistoryItems = 2;
-#endif
 
         serviceDescriptors.AddSingleton(NavigationOptions.Default);
         if (NavigationOptions.Default.NavigationJobScope == NavigationJobScope.App)
@@ -65,24 +61,24 @@ public static class DependencyInjectionExtensions
     /// <typeparam name="TView">The type of the view to register, must implement IView interface</typeparam>
     /// <typeparam name="TViewModel">The type of the view model to register</typeparam>
     /// <param name="services">The IServiceCollection to add the services to</param>
-    /// <param name="viewKey">The key to use for registering the view as a keyed service</param>
+    /// <param name="name">The key to use for registering the view as a keyed service</param>
     /// <returns>The IServiceCollection so that additional calls can be chained</returns>
     /// <exception cref="InvalidOperationException">Thrown when the view model doesn't implement any of the required interfaces</exception>
     public static IServiceCollection RegisterView<[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.All)] TView,
-        [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.All)] TViewModel>(this IServiceCollection services, object viewKey)
+        [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.All)] TViewModel>(this IServiceCollection services, string name)
             where TView : class, IView
             where TViewModel : class
     {
         ArgumentNullException.ThrowIfNull(services);
-        ArgumentNullException.ThrowIfNull(viewKey);
+        ArgumentNullException.ThrowIfNull(name);
 
-        services.AddKeyedTransient<TViewModel>(viewKey);
-        services.AddKeyedTransient<TView>(viewKey);
+        services.AddTransient<TViewModel>();
+        services.AddTransient<TView>();
 
-        services.AddKeyedTransient<IView>(viewKey, (sp, key) =>
+        services.AddKeyedTransient<IView>(name, (sp, _) =>
         {
-            var view = sp.GetRequiredKeyedService<TView>(key);
-            view.DataContext ??= sp.GetRequiredKeyedService<TViewModel>(key);
+            var view = sp.GetRequiredService<TView>();
+            view.DataContext = sp.GetRequiredService<TViewModel>();
             return view;
         });
 
@@ -94,7 +90,7 @@ public static class DependencyInjectionExtensions
             if (awareFace.Key.IsAssignableFrom(vmType))
             {
                 hasMapping = true;
-                services.AddKeyedTransient(awareFace.Key, viewKey, (sp, key) => awareFace.Value(sp, key!, vmType));
+                services.AddKeyedTransient(awareFace.Key, name, (sp, _) => awareFace.Value(sp, vmType));
             }
         }
         if (!hasMapping)
@@ -104,81 +100,101 @@ public static class DependencyInjectionExtensions
         return services;
     }
     public static IServiceCollection RegisterNavigation<[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.All)] TView,
-        [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.All)] TViewModel>(this IServiceCollection services, object viewKey)
+        [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.All)] TViewModel>(this IServiceCollection services, string name)
             where TView : class, IView
             where TViewModel : class, INavigationAware
     {
         ArgumentNullException.ThrowIfNull(services);
-        ArgumentNullException.ThrowIfNull(viewKey);
+        ArgumentNullException.ThrowIfNull(name);
 
-        services.AddKeyedTransient<TViewModel>(viewKey);
-        services.AddKeyedTransient<TView>(viewKey);
-
-        services.AddKeyedTransient<IView>(viewKey, (sp, key) =>
+        services.AddTransient<TView>();
+        services.AddTransient<TViewModel>();
+        services.AddKeyedTransient<INavigationAware>(name, (sp, _) =>
         {
-            var view = sp.GetRequiredKeyedService<TView>(key);
-            view.DataContext ??= sp.GetRequiredKeyedService<TViewModel>(key);
+            return sp.GetRequiredService<TViewModel>();
+        });
+        services.AddKeyedTransient<IView>(name, (sp, key) =>
+        {
+            var view = sp.GetRequiredService<TView>();
+            view.DataContext = sp.GetRequiredKeyedService<INavigationAware>(key);
             return view;
         });
         return services;
     }
     public static IServiceCollection RegisterNavigation<[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.All)] TView,
         [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.All)] TViewModel>(this IServiceCollection services,
-        object viewKey,
-        Func<IServiceProvider, object?, TViewModel> viewModelBuilder)
+        string name,
+        Func<IServiceProvider, TViewModel> viewModelBuilder)
         where TView : class, IView
         where TViewModel : class, INavigationAware
     {
         ArgumentNullException.ThrowIfNull(services);
-        ArgumentNullException.ThrowIfNull(viewKey);
+        ArgumentNullException.ThrowIfNull(name);
         ArgumentNullException.ThrowIfNull(viewModelBuilder);
 
-        services.AddKeyedTransient<TView>(viewKey);
-        services.AddKeyedTransient(viewKey, viewModelBuilder);
-        services.AddKeyedTransient<IView>(viewKey, (sp, key) =>
+        services.AddTransient<TView>();
+        services.AddTransient(sp =>
         {
-            var view = sp.GetRequiredKeyedService<TView>(key);
-            view.DataContext ??= sp.GetRequiredKeyedService<TViewModel>(key);
+            return viewModelBuilder(sp);
+        });
+        services.AddKeyedTransient<INavigationAware>(name, (sp, _) =>
+        {
+            return sp.GetRequiredService<TViewModel>();
+        });
+        services.AddKeyedTransient<IView>(name, (sp, key) =>
+        {
+            var view = sp.GetRequiredService<TView>();
+            view.DataContext = sp.GetRequiredKeyedService<INavigationAware>(key);
             return view;
         });
         return services;
     }
     public static IServiceCollection RegisterDialog<[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.All)] TView,
-        [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.All)] TViewModel>(this IServiceCollection services, object viewKey)
+        [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.All)] TViewModel>(this IServiceCollection services, string name)
             where TView : class, IView
             where TViewModel : class, IDialogAware
     {
         ArgumentNullException.ThrowIfNull(services);
-        ArgumentNullException.ThrowIfNull(viewKey);
+        ArgumentNullException.ThrowIfNull(name);
 
-        services.AddKeyedTransient<TViewModel>(viewKey);
-        services.AddKeyedTransient<TView>(viewKey);
-
-        services.AddKeyedTransient<IView>(viewKey, (sp, key) =>
+        services.AddTransient<TViewModel>();
+        services.AddTransient<TView>();
+        services.AddKeyedTransient<IDialogAware>(name, (sp, _) =>
         {
-            var view = sp.GetRequiredKeyedService<TView>(key);
-            view.DataContext ??= sp.GetRequiredKeyedService<TViewModel>(key);
+            return sp.GetRequiredService<TViewModel>();
+        });
+        services.AddKeyedTransient<IView>(name, (sp, key) =>
+        {
+            var view = sp.GetRequiredService<TView>();
+            view.DataContext = sp.GetRequiredKeyedService<IDialogAware>(key);
             return view;
         });
         return services;
     }
     public static IServiceCollection RegisterDialog<[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.All)] TView,
         [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.All)] TViewModel>(this IServiceCollection services,
-        object viewKey,
-        Func<IServiceProvider, object?, TViewModel> viewModelBuilder)
+        string name,
+        Func<IServiceProvider, TViewModel> viewModelBuilder)
         where TView : class, IView
         where TViewModel : class, IDialogAware
     {
         ArgumentNullException.ThrowIfNull(services);
-        ArgumentNullException.ThrowIfNull(viewKey);
+        ArgumentNullException.ThrowIfNull(name);
         ArgumentNullException.ThrowIfNull(viewModelBuilder);
 
-        services.AddKeyedTransient<TView>(viewKey);
-        services.AddKeyedTransient(viewKey, viewModelBuilder);
-        services.AddKeyedTransient<IView>(viewKey, (sp, key) =>
+        services.AddTransient<TView>();
+        services.AddTransient(sp =>
         {
-            var view = sp.GetRequiredKeyedService<TView>(viewKey);
-            view.DataContext ??= sp.GetRequiredKeyedService<TViewModel>(key);
+            return viewModelBuilder(sp);
+        });
+        services.AddKeyedTransient<IDialogAware>(name, (sp, _) =>
+        {
+            return sp.GetRequiredService<TViewModel>();
+        });
+        services.AddKeyedTransient<IView>(name, (sp, key) =>
+        {
+            var view = sp.GetRequiredService<TView>();
+            view.DataContext = sp.GetRequiredKeyedService<IDialogAware>(key);
             return view;
         });
         return services;
@@ -190,7 +206,7 @@ public static class DependencyInjectionExtensions
     /// <typeparam name="T">The type of the region indicator provider to register, must implement IRegionIndicatorProvider</typeparam>
     /// <param name="services">The IServiceCollection to add the service to</param>
     /// <returns>The IServiceCollection so that additional calls can be chained</returns>
-    public static IServiceCollection RegisterRegionIndicatorProvider<[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicConstructors)] T>(this IServiceCollection services) where T : class, IRegionIndicatorProvider
+    public static IServiceCollection RegisterRegionIndicatorProvider<[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.All)] T>(this IServiceCollection services) where T : class, IRegionIndicatorProvider
     {
         ArgumentNullException.ThrowIfNull(services);
         return services.AddSingleton<IRegionIndicatorProvider, T>();
@@ -204,13 +220,20 @@ public static class DependencyInjectionExtensions
     /// <param name="serviceDescriptors">The IServiceCollection to add the service to</param>
     /// <param name="windowName">The optional name to use as the key for the dialog window registration</param>
     /// <returns>The IServiceCollection so that additional calls can be chained</returns>
-    public static IServiceCollection RegisterDialogContainer<[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicConstructors)] T>(this IServiceCollection serviceDescriptors, string windowName)
+    public static IServiceCollection RegisterDialogContainer<[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.All)] T>(this IServiceCollection serviceDescriptors, string windowName)
       where T : class, IDialogWindow
     {
-        serviceDescriptors.TryAddKeyedTransient<IDialogWindow, T>(windowName);
+        if (windowName == NavigationConstants.DEFAULT_DIALOG_WINDOW_KEY)
+        {
+            serviceDescriptors.TryAddKeyedTransient<IDialogWindow, T>(windowName);
+        }
+        else
+        {
+            serviceDescriptors.AddKeyedTransient<IDialogWindow, T>(windowName);
+        }
         return serviceDescriptors;
     }
-    public static IServiceCollection OverrideDefaultDialogContainer<[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicConstructors)] T>(this IServiceCollection serviceDescriptors)
+    public static IServiceCollection OverrideDefaultDialogContainer<[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.All)] T>(this IServiceCollection serviceDescriptors)
       where T : class, IDialogWindow
     {
         serviceDescriptors.AddKeyedTransient<IDialogWindow, T>(NavigationConstants.DEFAULT_DIALOG_WINDOW_KEY);
@@ -228,9 +251,8 @@ public static class DependencyInjectionExtensions
     {
         return serviceDescriptors.AddSingleton<T>();
     }
-
     /// <summary>
-    /// Registers a service as transient with all members dynamically accessible.
+    /// Registers a service as a transient with all members dynamically accessible.
     /// This method preserves dynamic access to all members of the type during trimming.
     /// </summary>
     /// <typeparam name="T">The type of the service to register</typeparam>
@@ -249,7 +271,7 @@ public static class DependencyInjectionExtensions
     /// <param name="services">The <see cref="IServiceCollection"/> to add the services to.</param>
     /// <param name="windowName">A unique string used as the registration key for the dialog window.</param>
     /// <returns>The <see cref="IServiceCollection"/> to allow for method chaining.</returns>
-    public static IServiceCollection RegisterDialog<[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.All)] TWindow,
+    public static IServiceCollection RegisterDialogWindow<[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.All)] TWindow,
         [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.All)] TViewModel>(this IServiceCollection services, string windowName)
             where TWindow : class, IDialogWindow
             where TViewModel : class, IDialogAware
@@ -257,13 +279,16 @@ public static class DependencyInjectionExtensions
         ArgumentNullException.ThrowIfNull(services);
         ArgumentNullException.ThrowIfNull(windowName);
 
-        services.AddKeyedTransient<TViewModel>(windowName);
-        services.AddKeyedTransient<TWindow>(windowName);
-
+        services.AddTransient<TViewModel>();
+        services.AddTransient<TWindow>();
+        services.AddKeyedTransient<IDialogAware>(windowName, (sp, _) =>
+        {
+            return sp.GetRequiredService<TViewModel>();
+        });
         services.AddKeyedTransient<IDialogWindow>(windowName, (sp, key) =>
         {
-            var window = sp.GetRequiredKeyedService<TWindow>(key);
-            window.DataContext ??= sp.GetRequiredKeyedService<TViewModel>(key);
+            var window = sp.GetRequiredService<TWindow>();
+            window.DataContext = sp.GetRequiredKeyedService<IDialogAware>(key);
             return window;
         });
         return services;
@@ -279,10 +304,10 @@ public static class DependencyInjectionExtensions
     /// <param name="windowName">A unique string used as the registration key for the dialog window.</param>
     /// <param name="viewModelBuilder">A delegate used to construct the dialog’s view model instance.</param>
     /// <returns>The <see cref="IServiceCollection"/> to allow for method chaining.</returns>
-    public static IServiceCollection RegisterDialog<[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.All)] TWindow,
+    public static IServiceCollection RegisterDialogWindow<[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.All)] TWindow,
         [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.All)] TViewModel>(this IServiceCollection services,
         string windowName,
-        Func<IServiceProvider, string?, TViewModel> viewModelBuilder)
+        Func<IServiceProvider, TViewModel> viewModelBuilder)
         where TWindow : class, IDialogWindow
         where TViewModel : class, IDialogAware
     {
@@ -290,12 +315,19 @@ public static class DependencyInjectionExtensions
         ArgumentNullException.ThrowIfNull(windowName);
         ArgumentNullException.ThrowIfNull(viewModelBuilder);
 
-        services.AddKeyedTransient<TWindow>(windowName);
-        services.AddKeyedTransient(windowName, (sp, key) => viewModelBuilder(sp, key?.ToString()));
+        services.AddTransient<TWindow>();
+        services.AddTransient(sp =>
+        {
+            return viewModelBuilder(sp);
+        });
+        services.AddKeyedTransient<IDialogAware>(windowName, (sp, _) =>
+        {
+            return sp.GetRequiredService<TViewModel>();
+        });
         services.AddKeyedTransient<IDialogWindow>(windowName, (sp, key) =>
         {
             var window = sp.GetRequiredKeyedService<TWindow>(windowName);
-            window.DataContext ??= sp.GetRequiredKeyedService<TViewModel>(key);
+            window.DataContext = sp.GetRequiredKeyedService<IDialogAware>(key);
             return window;
         });
         return services;

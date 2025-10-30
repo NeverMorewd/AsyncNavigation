@@ -2,7 +2,6 @@
 using AsyncNavigation.Abstractions;
 using AsyncNavigation.Avalonia;
 using AsyncNavigation.Core;
-using Avalonia.Controls;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using System.Diagnostics.CodeAnalysis;
 

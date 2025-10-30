@@ -4,7 +4,6 @@ using AsyncNavigation.Core;
 using AsyncNavigation.Wpf;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using System.Diagnostics.CodeAnalysis;
-using System.Windows;
 
 namespace Microsoft.Extensions.DependencyInjection;
 
