@@ -37,7 +37,7 @@ jobs:
       working-directory: tests/AsyncNavigation.Tests
 
     - name: Run tests
-      run: dotnet test --configuration Release --no-build
+      run: dotnet test --configuration Release --no-build  --logger "console;verbosity=detailed"
       working-directory: tests/AsyncNavigation.Tests
 
   build-avaloniaui-desktop:
