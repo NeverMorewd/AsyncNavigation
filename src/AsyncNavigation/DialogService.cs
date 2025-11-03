@@ -148,11 +148,9 @@ public class DialogService : IDialogService
         var openTask = aware.OnDialogOpenedAsync(parameters, cancellationToken);
         await openTask;
 
-        var closeTask = HandleCloseInternalAsync(dialogWindow, aware, mainWindowBuilder);
-
+        _ = HandleCloseInternalAsync(dialogWindow, aware, mainWindowBuilder);
         _platformService.ShowMainWindow(dialogWindow);
         _platformService.Show(dialogWindow, false);
-        await closeTask;
     }
 
 
@@ -205,7 +203,7 @@ public class DialogService : IDialogService
             return (window, aware);
         }
     }
-    protected Task<IDialogResult> HandleCloseInternalAsync(
+    protected async Task<IDialogResult> HandleCloseInternalAsync(
         IDialogWindowBase dialogWindow,
         IDialogAware dialogAware,
         Func<IDialogResult, object?>? mainWindowBuilder = null)
@@ -217,7 +215,9 @@ public class DialogService : IDialogService
         dialogWindow.Closed += OnClosed;
         _platformService.AttachClosing(dialogWindow, OnWindowClosing);
 
-        return tcs.Task.ContinueWith(FinalizeDialogClose, TaskScheduler.Default).Unwrap();
+        var result = await tcs.Task;
+        await FinalizeDialogCloseNew(result);
+        return result;
 
         async Task OnRequestClose(object? sender, DialogCloseEventArgs args)
         {
@@ -276,7 +276,7 @@ public class DialogService : IDialogService
 
         async Task<IDialogResult> FinalizeDialogClose(Task<IDialogResult> resultTask)
         {
-            var result = resultTask.Result;
+            var result = await resultTask;
 
             try
             {
@@ -289,7 +289,19 @@ public class DialogService : IDialogService
 
             return result;
         }
+        async Task<IDialogResult> FinalizeDialogCloseNew(IDialogResult result)
+        {
+            try
+            {
+                await dialogAware.OnDialogClosedAsync(result, CancellationToken.None);
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"OnDialogClosedAsync failed: {ex}");
+            }
 
+            return result;
+        }
         void ShowMainWindowIfNeeded(IDialogResult result)
         {
             if (mainWindowBuilder == null)
