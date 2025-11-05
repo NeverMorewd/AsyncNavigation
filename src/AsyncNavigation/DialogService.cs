@@ -203,7 +203,8 @@ public class DialogService : IDialogService
             return (window, aware);
         }
     }
-    protected async Task<IDialogResult> HandleCloseInternalAsync(
+
+    private async Task<IDialogResult> HandleCloseInternalAsync(
         IDialogWindowBase dialogWindow,
         IDialogAware dialogAware,
         Func<IDialogResult, object?>? mainWindowBuilder = null)
@@ -216,7 +217,7 @@ public class DialogService : IDialogService
         _platformService.AttachClosing(dialogWindow, OnWindowClosing);
 
         var result = await tcs.Task;
-        await FinalizeDialogCloseNew(result);
+        await FinalizeDialogCloseAsync(result);
         return result;
 
         async Task OnRequestClose(object? sender, DialogCloseEventArgs args)
@@ -244,10 +245,10 @@ public class DialogService : IDialogService
 
             try
             {
-                var result = closeState.GetResultOrDefault();
-                await dialogAware.OnDialogClosingAsync(result, CancellationToken.None);
+                var state = closeState.GetResultOrDefault();
+                await dialogAware.OnDialogClosingAsync(state, CancellationToken.None);
 
-                closeState.SetResult(result);
+                closeState.SetResult(state);
                 CloseOnUIThread(dialogWindow);
             }
             catch (OperationCanceledException)
@@ -273,51 +274,27 @@ public class DialogService : IDialogService
             ShowMainWindowIfNeeded(closeState.GetResultOrDefault());
             tcs.TrySetResult(closeState.GetResultOrDefault());
         }
-
-        async Task<IDialogResult> FinalizeDialogClose(Task<IDialogResult> resultTask)
+        async Task<IDialogResult> FinalizeDialogCloseAsync(IDialogResult dialogResult)
         {
-            var result = await resultTask;
-
             try
             {
-                await dialogAware.OnDialogClosedAsync(result, CancellationToken.None);
+                await dialogAware.OnDialogClosedAsync(dialogResult, CancellationToken.None);
             }
             catch (Exception ex)
             {
                 System.Diagnostics.Debug.WriteLine($"OnDialogClosedAsync failed: {ex}");
             }
-
             return result;
         }
-        async Task<IDialogResult> FinalizeDialogCloseNew(IDialogResult result)
-        {
-            try
-            {
-                await dialogAware.OnDialogClosedAsync(result, CancellationToken.None);
-            }
-            catch (Exception ex)
-            {
-                System.Diagnostics.Debug.WriteLine($"OnDialogClosedAsync failed: {ex}");
-            }
-
-            return result;
-        }
-        void ShowMainWindowIfNeeded(IDialogResult result)
+        void ShowMainWindowIfNeeded(IDialogResult dialogResult)
         {
             if (mainWindowBuilder == null)
                 return;
 
-            try
+            var mainWindow = mainWindowBuilder.Invoke(dialogResult);
+            if (mainWindow is not null)
             {
-                var mainWindow = mainWindowBuilder.Invoke(result);
-                if (mainWindow is not null)
-                {
-                    _platformService.ShowMainWindow(mainWindow);
-                }
-            }
-            catch (Exception)
-            {
-
+                _platformService.ShowMainWindow(mainWindow);
             }
         }
     }
@@ -339,26 +316,25 @@ public class DialogService : IDialogService
     private class DialogCloseState
     {
         private IDialogResult? _result;
-        private bool _isHandled;
 
-        public bool IsHandled => _isHandled;
+        public bool IsHandled { get; private set; }
 
         public void SetResult(IDialogResult result)
         {
             _result = result;
-            _isHandled = true;
+            IsHandled = true;
         }
 
         public void SetCancelled()
         {
             _result = DialogResult.Cancelled;
-            _isHandled = true;
+            IsHandled = true;
         }
 
         public void SetResultIfNotSet(IDialogResult result)
         {
             _result ??= result;
-            _isHandled = true;
+            IsHandled = true;
         }
 
         public IDialogResult GetResultOrDefault()
