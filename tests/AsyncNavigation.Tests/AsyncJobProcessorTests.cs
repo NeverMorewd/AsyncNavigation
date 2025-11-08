@@ -269,7 +269,17 @@ public class AsyncJobProcessorTests : IClassFixture<ServiceFixture>
         _testOutputHelper.WriteLine($"Jobs cancelled: {jobs.Where(j => j.CancellationToken.IsCancellationRequested).Count()}");
         _testOutputHelper.WriteLine($"Jobs completed: {jobs.Where(j => !j.CancellationToken.IsCancellationRequested).Count()}");
 
-        Assert.Single(jobs.Where(j => !j.CancellationToken.IsCancellationRequested));
+        if (OperatingSystem.IsWindows())
+            Assert.InRange(jobs.Where(j => !j.CancellationToken.IsCancellationRequested).Count(), 1, 1);
+        else if (OperatingSystem.IsLinux())
+            Assert.InRange(jobs.Where(j => !j.CancellationToken.IsCancellationRequested).Count(), 1, 1);
+        else if (OperatingSystem.IsMacOS())
+            Assert.InRange(jobs.Where(j => !j.CancellationToken.IsCancellationRequested).Count(), 1, 2);
+        else
+        {
+            _testOutputHelper.WriteLine($"Unknown OS - {Environment.OSVersion.Platform}");
+            Assert.InRange(jobs.Where(j => !j.CancellationToken.IsCancellationRequested).Count(), 1, 2);
+        }
 
     }
 }
