@@ -16,6 +16,7 @@
   </PropertyGroup>
   <PropertyGroup>
     <ApplicationManifest>app.manifest</ApplicationManifest>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
   <!--<ItemGroup>
 	 <TrimmerRootDescriptor Include="roots.xml" />
