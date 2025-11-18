@@ -14,6 +14,21 @@
     <Grid>
         <DockPanel LastChildFill="True">
             <StackPanel DockPanel.Dock="Right">
+                <StackPanel
+                    Margin="0,4,0,4"
+                    VerticalAlignment="Center"
+                    Orientation="Horizontal">
+                    <Label VerticalAlignment="Center" Content="Search:" />
+                    <ComboBox
+                        Margin="3,0,0,0"
+                        Height="35"
+                        Name="SearchBox"
+                        Width="245"
+                        HorizontalAlignment="Stretch"
+                        VerticalAlignment="Center"
+                        ItemsSource="{Binding Views}"
+                        SelectedItem="{Binding SelectedView}" />
+                </StackPanel>
                 <StackPanel Orientation="Horizontal">
                     <Button Style="{StaticResource GoBack}" />
                     <Button Style="{StaticResource GoForward}" />

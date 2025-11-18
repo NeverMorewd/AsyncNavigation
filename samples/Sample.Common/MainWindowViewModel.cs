@@ -1,9 +1,12 @@
 ﻿using AsyncNavigation;
 using AsyncNavigation.Abstractions;
 using AsyncNavigation.Core;
+using DynamicData.Binding;
 using ReactiveUI;
 using ReactiveUI.SourceGenerators;
+using System.Collections.ObjectModel;
 using System.Diagnostics;
+using System.Reactive.Linq;
 
 namespace Sample.Common;
 
@@ -11,12 +14,14 @@ public partial class MainWindowViewModel : ViewModelBase
 {
     private readonly IRegionManager _regionManager;
     private readonly IDialogService _dialogService;
+    private readonly IRegistrationTracker _registrationTracker;
     public MainWindowViewModel(IRegionManager regionManager, 
-        IDialogService dialogService)
+        IDialogService dialogService,
+        IRegistrationTracker registrationTracker)
     {
         _regionManager = regionManager;
         _dialogService = dialogService;
-
+        _registrationTracker = registrationTracker;
         _regionManager.RequestNavigateAsync("MainRegion", "AView", replay: false).ContinueWith(t => 
         {
             if (t.IsFaulted)
@@ -24,9 +29,33 @@ public partial class MainWindowViewModel : ViewModelBase
                 Debug.WriteLine($"RequestNavigate Failed:{t.Result.Exception}");
             }
         });
+        Views = _registrationTracker.TryGetViews(out var views) ? [.. views] : [];
+
+        this.WhenAnyValue(vm => vm.SelectedView)
+            .Subscribe(viewName =>
+            {
+                if (!string.IsNullOrEmpty(viewName))
+                {
+                    AsyncNavigateAndForget(viewName);
+                }
+            });
     }
     [Reactive]
     private bool _isSplitViewPaneOpen = false;
+    
+    public ObservableCollection<string> Views { get; }
+    [Reactive]
+    private string? _selectedView;
+
+    public static bool FilterPredicate(string? search, object? item)
+    {
+        if (item is not null && !string.IsNullOrEmpty(search))
+        {
+            return item.ToString()!.Contains(search ?? string.Empty, StringComparison.OrdinalIgnoreCase);
+        }
+        return false;
+    }
+        
 
     [ReactiveCommand]
     private async Task AsyncNavigate(string param)
