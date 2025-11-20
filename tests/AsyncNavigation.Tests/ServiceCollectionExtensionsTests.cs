@@ -693,7 +693,7 @@ public class ServiceCollectionExtensionsTests
     public void RegisterDialogWindow_Default()
     {
         // Arrange
-        var windowName = "RegisterDialogWindow";
+        const string windowName = "RegisterDialogWindow";
         var services = new ServiceCollection();
 
         // Act

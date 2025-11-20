@@ -16,7 +16,7 @@
             BorderThickness="1"
             DockPanel.Dock="Top">
             <StackPanel>
-                <TextBlock Text="{Binding Name}" />
+                <TextBlock Text="{Binding Name}"/>
                 <TextBlock>
                     InstanceNumber:<Run
                         FontSize="15"

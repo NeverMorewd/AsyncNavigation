@@ -128,7 +128,28 @@ public partial class MainWindowViewModel : ViewModelBase
     [ReactiveCommand]
     private void Collect()
     {
+        var beforeCollect = GC.GetTotalMemory(false);
         GC.Collect();
         GC.WaitForPendingFinalizers();
+        var afterCollect = GC.GetTotalMemory(false);
+        var freedMemory = beforeCollect - afterCollect;
+        
+        Debug.WriteLine($"release size: {FormatBytes(freedMemory)}");
+        
+    }
+    
+    private static string FormatBytes(long bytes)
+    {
+        string[] suffixes = ["B", "KB", "MB", "GB"];
+        var counter = 0;
+        decimal number = bytes;
+    
+        while (Math.Round(number / 1024) >= 1)
+        {
+            number /= 1024;
+            counter++;
+        }
+    
+        return $"{number:n2} {suffixes[counter]}";
     }
 }
