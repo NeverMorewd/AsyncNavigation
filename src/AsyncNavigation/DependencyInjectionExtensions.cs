@@ -327,7 +327,7 @@ public static class DependencyInjectionExtensions
     {
         ArgumentNullException.ThrowIfNull(services);
 
-        services.AddSingletonWitAllMembers<IRouteMatcher>(sp =>
+        services.AddSingletonWitAllMembers<IRouter>(sp =>
         {
             var router = ActivatorUtilities.CreateInstance<Router>(sp);
             configureRoutes?.Invoke(router, sp);

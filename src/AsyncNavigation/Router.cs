@@ -8,12 +8,12 @@ public class Router : IRouter
 {
     private readonly Dictionary<string, Route> _routes = [];
 
-    public IRouteBuilder MapNavigation(string pathTemplate)
+    public IRouteBuilder MapNavigation(string pathTemplate, params NavigationTarget[] targets)
     {
         if (string.IsNullOrWhiteSpace(pathTemplate))
             throw new ArgumentException("Path template cannot be null or empty.", nameof(pathTemplate));
 
-        return new RouteBuilder(this, pathTemplate);
+        return new RouteBuilder(this, pathTemplate, targets);
     }
 
     public IReadOnlyList<Route> Routes => new ReadOnlyCollection<Route>([.. _routes.Values]);

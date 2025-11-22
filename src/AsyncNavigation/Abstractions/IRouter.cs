@@ -3,7 +3,7 @@
 namespace AsyncNavigation.Abstractions;
 public interface IRouteMapper
 {
-    IRouteBuilder MapNavigation(string pathTemplate);
+    IRouteBuilder MapNavigation(string pathTemplate, params NavigationTarget[] targets);
 }
 public interface IRouteMatcher
 {

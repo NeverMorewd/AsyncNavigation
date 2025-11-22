@@ -1,5 +1,6 @@
 ﻿using AsyncNavigation.Abstractions;
 using AsyncNavigation.Core;
+using System.Data;
 using System.Text;
 
 namespace AsyncNavigation;
@@ -7,52 +8,47 @@ namespace AsyncNavigation;
 public class RouteBuilder : IRouteBuilder
 {
     private readonly Router _router;
-    private readonly string _template;
-    private NavigationTarget? _fallbackStep;
 
-    internal RouteBuilder(Router router, string template)
+    private readonly Route _route;
+
+    internal RouteBuilder(Router router, string template, params NavigationTarget[] targets)
     {
+        if (targets == null || targets.Length == 0)
+            throw new ArgumentException("At least one navigation target is required.", nameof(targets));
         _router = router;
-        _template = NormalizePath(template);
-    }
-
-
-    public IRouteBuilder WithFallback(NavigationTarget step)
-    {
-        ArgumentNullException.ThrowIfNull(step);
-        _fallbackStep = step;
-        return this;
-    }
-
-    public IRouteBuilder WithTargets(params NavigationTarget[] steps)
-    {
-        if (steps == null || steps.Length == 0)
-            throw new ArgumentException("At least one navigation step is required.", nameof(steps));
-
-        var route = new Route
+        _route = new Route
         {
-            Path = _template,
-            Targets = steps.AsReadOnly(),
-            Fallback = _fallbackStep
+            Path = NormalizePath(template),
+            Targets = targets.AsReadOnly()
         };
-
-        _router.Add(route);
-        return this;
+        _router.Add(_route);
     }
 
+    public IRouteBuilder WithFallback(NavigationTarget target)
+    {
+        ArgumentNullException.ThrowIfNull(target);
+        _route.Fallback = target;
+        return this;
+    }
+    public IRouteBuilder WithSegments(params string[] segments)
+    {
+        if (segments == null || segments.Length == 0)
+            throw new ArgumentException("At least one segment is required.", nameof(segments));
+
+        _route.Segments = segments;
+        return this;
+    }
     private static string NormalizePath(string? path)
     {
         if (string.IsNullOrEmpty(path))
             return string.Empty;
 
         var sb = new StringBuilder();
-
         int start = 0;
         int end = path.Length;
 
         while (start < end && path[start] == '/')
             start++;
-
         while (end > start && path[end - 1] == '/')
             end--;
 
@@ -60,7 +56,6 @@ public class RouteBuilder : IRouteBuilder
             return string.Empty;
 
         sb.Append('/');
-
         bool lastWasSlash = false;
         for (int i = start; i < end; i++)
         {

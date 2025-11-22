@@ -4,6 +4,6 @@ namespace AsyncNavigation.Abstractions;
 
 public interface IRouteBuilder
 {
-    IRouteBuilder WithTargets(params NavigationTarget[] targets);
+    IRouteBuilder WithSegments(params string[] segments);
     IRouteBuilder WithFallback(NavigationTarget target);
 }

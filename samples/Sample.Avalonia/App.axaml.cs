@@ -42,21 +42,24 @@ public partial class App : Application
                 .RegisterRegionAdapter<ListBoxRegionAdapter>()
                 .RegisterRouter((mapper, sp) =>
                 {
-                    mapper.MapNavigation("ChildEView")
-                          .WithTargets(new NavigationTarget("MainRegion", "CView"),
-                                       new NavigationTarget("ChildContentRegion", "EView"));
+                    mapper.MapNavigation("Path_ChildEView", 
+                                         new NavigationTarget("MainRegion", "CView"),
+                                         new NavigationTarget("ChildContentRegion", "EView"));
 
-                    mapper.MapNavigation("ChildAView")
-                          .WithTargets(new NavigationTarget("MainRegion", "CView"),
-                                       new NavigationTarget("ChildContentRegion", "AView"));
+                    mapper.MapNavigation("Path_ChildAView",
+                                         new NavigationTarget("MainRegion", "CView"),
+                                         new NavigationTarget("ChildContentRegion", "AView"));
 
-                    mapper.MapNavigation("TabAView")
-                          .WithTargets(new NavigationTarget("MainRegion", "DView"),
-                                       new NavigationTarget("TabRegion", "AView"));
+                    mapper.MapNavigation("Path_TabEView", new NavigationTarget("MainRegion", "DView"),
+                                       new NavigationTarget("TabRegion", "EView"));
 
-                    mapper.MapNavigation("UnknownView")
-                          .WithTargets(new NavigationTarget("UnknownRegion", "UnknownView"))
-                          .WithFallback(new NavigationTarget("", ""));
+                    mapper.MapNavigation("Tab.Tab_A",
+                                         new NavigationTarget("MainRegion", "DView"),
+                                         new NavigationTarget("TabRegion", "AView"))
+                              .WithSegments("Tab","Tab_A");
+
+                    mapper.MapNavigation("Path_UnknownView", new NavigationTarget("UnknownRegion", "UnknownView"))
+                          .WithFallback(new NavigationTarget("MainRegion", "AView"));
                 });
         var sp = services.BuildServiceProvider();
         #region setup lifetime

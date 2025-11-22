@@ -1,7 +1,6 @@
 ﻿using AsyncNavigation;
 using AsyncNavigation.Abstractions;
 using AsyncNavigation.Core;
-using DynamicData.Binding;
 using ReactiveUI;
 using ReactiveUI.SourceGenerators;
 using System.Collections.ObjectModel;
@@ -15,10 +14,13 @@ public partial class MainWindowViewModel : ViewModelBase
     private readonly IRegionManager _regionManager;
     private readonly IDialogService _dialogService;
     private readonly IRegistrationTracker _registrationTracker;
+    private readonly IRouter _router;
     public MainWindowViewModel(IRegionManager regionManager, 
         IDialogService dialogService,
-        IRegistrationTracker registrationTracker)
+        IRegistrationTracker registrationTracker,
+        IRouter router)
     {
+        _router = router;
         _regionManager = regionManager;
         _dialogService = dialogService;
         _registrationTracker = registrationTracker;
@@ -29,14 +31,25 @@ public partial class MainWindowViewModel : ViewModelBase
                 Debug.WriteLine($"RequestNavigate Failed:{t.Result.Exception}");
             }
         });
+
         Views = _registrationTracker.TryGetViews(out var views) ? [.. views] : [];
+        foreach (var mappedNavigation in _router.Routes)
+        {
+            Views.Add(mappedNavigation.Path);
+        }
+        Views.Add("/Tab/Tab_A");
 
         this.WhenAnyValue(vm => vm.SelectedView)
-            .Subscribe(viewName =>
+            .WhereNotNull()
+            .Subscribe(target =>
             {
-                if (!string.IsNullOrEmpty(viewName))
+                if (target.StartsWith("/",StringComparison.OrdinalIgnoreCase))
                 {
-                    AsyncNavigateAndForget(viewName);
+                    AsyncPathNavigateAndForget(target);
+                }
+                else
+                {
+                    AsyncNavigateAndForget(target);
                 }
             });
     }
@@ -73,6 +86,14 @@ public partial class MainWindowViewModel : ViewModelBase
         {
             var result = t.Result;
             Debug.WriteLine(result.Duration.TotalMilliseconds);
+        });
+    }
+    private void AsyncPathNavigateAndForget(string path)
+    {
+        _ = _regionManager.RequestPathNavigateAsync(path).ContinueWith(t =>
+        {
+            var result = t.Result;
+            Debug.WriteLine($"RequestPathNavigateAsync:{result.Duration.TotalMilliseconds}");
         });
     }
     [ReactiveCommand]
