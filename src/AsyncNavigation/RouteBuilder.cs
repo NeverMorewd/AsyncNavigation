@@ -32,7 +32,7 @@ public class RouteBuilder : IRouteBuilder
         var route = new Route
         {
             Path = _template,
-            Steps = steps.AsReadOnly(),
+            Targets = steps.AsReadOnly(),
             Fallback = _fallbackStep
         };
 

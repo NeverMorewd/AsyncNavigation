@@ -4,7 +4,7 @@ using System.Collections.ObjectModel;
 
 namespace AsyncNavigation;
 
-public class Router : IRoute
+public class Router : IRouter
 {
     private readonly Dictionary<string, Route> _routes = [];
 

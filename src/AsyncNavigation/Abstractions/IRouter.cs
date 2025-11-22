@@ -11,7 +11,7 @@ public interface IRouteMatcher
     IReadOnlyList<Route> Routes { get; }
 }
 
-public interface IRoute : IRouteMatcher, IRouteMapper
+public interface IRouter : IRouteMatcher, IRouteMapper
 {
 
 }
