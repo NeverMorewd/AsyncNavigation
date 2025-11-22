@@ -39,7 +39,25 @@ public partial class App : Application
                 .RegisterDialogWindow<AWindow, AViewModel>(nameof(AWindow))
                 .RegisterRegionIndicatorProvider<NotifyIndicatorProvider>()
                 .RegisterInnerIndicatorProvider<InnerIndicatorProvider>()
-                .RegisterRegionAdapter<ListBoxRegionAdapter>();
+                .RegisterRegionAdapter<ListBoxRegionAdapter>()
+                .RegisterRouter((mapper, sp) =>
+                {
+                    mapper.MapNavigation("ChildEView")
+                          .WithTargets(new NavigationTarget("MainRegion", "CView"),
+                                       new NavigationTarget("ChildContentRegion", "EView"));
+
+                    mapper.MapNavigation("ChildAView")
+                          .WithTargets(new NavigationTarget("MainRegion", "CView"),
+                                       new NavigationTarget("ChildContentRegion", "AView"));
+
+                    mapper.MapNavigation("TabAView")
+                          .WithTargets(new NavigationTarget("MainRegion", "DView"),
+                                       new NavigationTarget("TabRegion", "AView"));
+
+                    mapper.MapNavigation("UnknownView")
+                          .WithTargets(new NavigationTarget("UnknownRegion", "UnknownView"))
+                          .WithFallback(new NavigationTarget("", ""));
+                });
         var sp = services.BuildServiceProvider();
         #region setup lifetime
 

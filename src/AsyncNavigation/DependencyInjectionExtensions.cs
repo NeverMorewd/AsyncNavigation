@@ -263,7 +263,14 @@ public static class DependencyInjectionExtensions
     {
         return serviceDescriptors.AddSingleton<T>();
     }
-
+    /// <summary>
+    /// Registers a service as a singleton with all members dynamically accessible.
+    /// </summary>
+    public static IServiceCollection AddSingletonWitAllMembers<[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.All)] T>(
+        this IServiceCollection serviceDescriptors, Func<IServiceProvider, T> builder) where T : class
+    {
+        return serviceDescriptors.AddSingleton(builder);
+    }
     /// <summary>
     /// Registers a service as a transient with all members dynamically accessible.
     /// </summary>
@@ -272,7 +279,14 @@ public static class DependencyInjectionExtensions
     {
         return serviceDescriptors.AddTransient<T>();
     }
-
+    /// <summary>
+    /// Registers a service as a transient with all members dynamically accessible.
+    /// </summary>
+    public static IServiceCollection AddTransientWitAllMembers<[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.All)] T>(
+        this IServiceCollection serviceDescriptors, Func<IServiceProvider, T> builder) where T : class
+    {
+        return serviceDescriptors.AddTransient(builder);
+    }
     /// <summary>
     /// Registers a dialog window and its associated view model using the specified window name as a key.
     /// </summary>
@@ -305,4 +319,22 @@ public static class DependencyInjectionExtensions
             where TWindow : class, IDialogWindow
             where TViewModel : class, IDialogAware
         => RegisterDialogWindow<TWindow, TViewModel>(services, windowName, null);
+
+
+    public static IServiceCollection RegisterRouter(
+       this IServiceCollection services,
+       Action<IRouteMapper, IServiceProvider>? configureRoutes = null)
+    {
+        ArgumentNullException.ThrowIfNull(services);
+
+        services.AddSingletonWitAllMembers<IRouteMatcher>(sp =>
+        {
+            var router = ActivatorUtilities.CreateInstance<Router>(sp);
+            configureRoutes?.Invoke(router, sp);
+            return router;
+        });
+
+        return services;
+    }
+
 }
