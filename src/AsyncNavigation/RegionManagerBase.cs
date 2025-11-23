@@ -19,6 +19,7 @@ public abstract class RegionManagerBase : IRegionManager, IDisposable
     private readonly IServiceProvider _serviceProvider;
     private readonly IRegionFactory _regionFactory;
     private readonly int _maxReplayCount;
+    private IRouter? _router;
 
     private IRegion? _currentRegion;
 
@@ -30,7 +31,7 @@ public abstract class RegionManagerBase : IRegionManager, IDisposable
                 throw new InvalidOperationException("RegionManager is already created. Only one instance is allowed.");
             _current = this;
         }
-
+        _router = serviceProvider.GetService<IRouter>();
         _regionFactory = regionFactory;
         _serviceProvider = serviceProvider;
         _maxReplayCount = serviceProvider.GetRequiredService<NavigationOptions>().MaxReplayItems;
@@ -307,5 +308,36 @@ public abstract class RegionManagerBase : IRegionManager, IDisposable
             _tempRegionCache.Clear();
 
         Debug.WriteLine("[Dispose] RegionManager disposed.");
+    }
+
+    public async Task<NavigationResult> RequestPathNavigateAsync(string path, INavigationParameters? navigationParameters = null, bool replay = false, CancellationToken cancellationToken = default)
+    {
+        _router ??= _serviceProvider.GetRequiredService<IRouter>();
+        var route = _router.Match(path) ?? throw new InvalidOperationException($"No route matched for path '{path}'.");
+
+        foreach (var target in route.Targets)
+        {
+            try
+            {
+                var result = await RequestNavigateAsync(target.RegionName, target.ViewName, navigationParameters, replay, cancellationToken);
+                if (!result.IsSuccessful && route.Fallback is not null)
+                {
+                    return await RequestNavigateAsync(route.Fallback.RegionName, route.Fallback.ViewName, navigationParameters, replay, cancellationToken);
+                }
+                else if (!result.IsSuccessful)
+                {
+                    return result;
+                }
+            }
+            catch (Exception ex) when (route.Fallback is not null)
+            {
+                if (route.Fallback is not null)
+                {
+                    return await RequestNavigateAsync(route.Fallback.RegionName, route.Fallback.ViewName, navigationParameters, replay, cancellationToken);
+                }
+                return NavigationResult.Failure(ex);
+            }
+        }
+        return NavigationResult.Success(TimeSpan.Zero);
     }
 }

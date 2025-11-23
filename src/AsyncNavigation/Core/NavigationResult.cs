@@ -26,13 +26,13 @@ public class NavigationResult
             Duration = navigationContext.Duration.GetValueOrDefault()
         };
     }
-    public static NavigationResult Success(TimeSpan duration)
+    public static NavigationResult Success(TimeSpan? duration = null)
     {
         return new NavigationResult
         {
             Status = NavigationStatus.Succeeded,
             Exception = null,
-            Duration = duration,
+            Duration = duration.GetValueOrDefault(),
             NavigationContext = null
         };
     }

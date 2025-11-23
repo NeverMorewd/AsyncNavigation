@@ -8,7 +8,7 @@ namespace AsyncNavigation;
 internal sealed class ViewManager : IViewManager
 {
     private readonly ConcurrentDictionary<string, WeakReference<IView>> _viewCache = new();
-    private readonly LinkedList<string> _lruList = new();
+    private readonly LinkedList<string> _lruList = [];
     private readonly object _lruLock = new();
     private readonly ViewCacheStrategy _strategy;
     private readonly int _maxCacheSize;
