@@ -36,6 +36,7 @@ public static class DependencyInjectionExtensions
         {
             serviceDescriptors.AddTransient<IAsyncJobProcessor, AsyncJobProcessor>();
         }
+        RegistrationTracker.Instance.Clear();
         return serviceDescriptors
             .AddSingleton<IDialogService, DialogService>()
             .AddSingleton<IRegionNavigationServiceFactory, RegionNavigationServiceFactory>()

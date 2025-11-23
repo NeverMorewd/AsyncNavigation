@@ -31,4 +31,8 @@ public class RegistrationTracker : IRegistrationTracker
         }
         return dict;
     }
+    internal void Clear()
+    {
+        _categoryRegistry.Clear();
+    }
 }
