@@ -2,7 +2,7 @@ name: Deploy sample.wasm
 
 env:
   PROJECT_PATH: samples/Sample.Avalonia.Browser/Sample.Avalonia.Browser.csproj
-  DEPLOY_DIR: samples/Sample.Avalonia.Browser/bin/Release/net10.0-browser/publish/wwwroot
+  DEPLOY_DIR: samples/Sample.Avalonia.Browser/bin/Release/net8-browser/publish/wwwroot
 on:
   workflow_dispatch:
 
@@ -35,6 +35,6 @@ jobs:
         uses: JamesIves/github-pages-deploy-action@v4.5.0
         with:
           github_token: ${{ secrets.DELOY_TOKEN }}
-          branch: deploy-pages-samplewasm
+          branch: page-samplewasm
           folder: ${{ env.DEPLOY_DIR }}
           single-commit: true
