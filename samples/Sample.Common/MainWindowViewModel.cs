@@ -15,6 +15,7 @@ public partial class MainWindowViewModel : ViewModelBase
     private readonly IDialogService _dialogService;
     private readonly IRegistrationTracker _registrationTracker;
     private readonly IRouter _router;
+    
     public MainWindowViewModel(IRegionManager regionManager, 
         IDialogService dialogService,
         IRegistrationTracker registrationTracker,
@@ -55,7 +56,8 @@ public partial class MainWindowViewModel : ViewModelBase
     }
     [Reactive]
     private bool _isSplitViewPaneOpen = false;
-    
+    public IObservable<bool> SupportDialog { get; } = Observable.Return(!OperatingSystem.IsBrowser());
+
     public ObservableCollection<string> Views { get; }
     [Reactive]
     private string? _selectedView;
@@ -96,7 +98,7 @@ public partial class MainWindowViewModel : ViewModelBase
             Debug.WriteLine($"RequestPathNavigateAsync:{result.Duration.TotalMilliseconds}");
         });
     }
-    [ReactiveCommand]
+    [ReactiveCommand(CanExecute = nameof(SupportDialog))]
     private void Show(string param)
     {
         _dialogService.ShowView(param, callBack: result => 
@@ -105,12 +107,12 @@ public partial class MainWindowViewModel : ViewModelBase
         });
     }
 
-    [ReactiveCommand]
+    [ReactiveCommand(CanExecute = nameof(SupportDialog))]
     private async Task AsyncShowDialog(string param)
     {
        var result = await _dialogService.ShowViewDialogAsync(param);
     }
-    [ReactiveCommand]
+    [ReactiveCommand(CanExecute = nameof(SupportDialog))]
     private async Task AsyncShowDialogWithCancelling(string param)
     {
         var cts = new CancellationTokenSource();
@@ -123,12 +125,12 @@ public partial class MainWindowViewModel : ViewModelBase
             Debug.WriteLine("Dialog was cancelled");
         }
     }
-    [ReactiveCommand]
+    [ReactiveCommand(CanExecute = nameof(SupportDialog))]
     private void ShowDialog(string param)
     {
         var result = _dialogService.ShowViewDialog(param);
     }
-    [ReactiveCommand]
+    [ReactiveCommand(CanExecute = nameof(SupportDialog))]
     private void ShowWindow(string param)
     {
         var result = _dialogService.ShowWindowDialog(param);
