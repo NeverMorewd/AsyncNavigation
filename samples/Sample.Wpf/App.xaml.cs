@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+﻿using AsyncNavigation.Core;
+using Microsoft.Extensions.DependencyInjection;
 using ReactiveUI;
 using Sample.Avalonia;
 using Sample.Common;
@@ -31,7 +32,28 @@ namespace Sample.Wpf
                 .RegisterDialogWindow<AWindow, AViewModel>(nameof(AWindow))
                 .RegisterInnerIndicatorProvider<InnerIndicatorProvider>()
                 .RegisterRegionIndicatorProvider<MessageBoxIndicatorProvider>()
-                .RegisterView<ListBoxRegionView, ListBoxRegionViewModel>(nameof(ListBoxRegionView));
+                .RegisterView<ListBoxRegionView, ListBoxRegionViewModel>(nameof(ListBoxRegionView))
+                .RegisterRouter((mapper, sp) =>
+                {
+                    mapper.MapNavigation("Path_ChildEView",
+                                         new NavigationTarget("MainRegion", "CView"),
+                                         new NavigationTarget("ChildContentRegion", "EView"));
+
+                    mapper.MapNavigation("Path_ChildAView",
+                                         new NavigationTarget("MainRegion", "CView"),
+                                         new NavigationTarget("ChildContentRegion", "AView"));
+
+                    mapper.MapNavigation("Path_TabEView", new NavigationTarget("MainRegion", "DView"),
+                                       new NavigationTarget("TabRegion", "EView"));
+
+                    mapper.MapNavigation("Tab.Tab_A",
+                                         new NavigationTarget("MainRegion", "DView"),
+                                         new NavigationTarget("TabRegion", "AView"))
+                                         .WithSegments("Tab", "Tab_A");
+
+                    mapper.MapNavigation("Path_UnknownView", new NavigationTarget("UnknownRegion", "UnknownView"))
+                          .WithFallback(new NavigationTarget("MainRegion", "AView"));
+                });
 
             var sp = services.BuildServiceProvider();
             base.OnStartup(e);
