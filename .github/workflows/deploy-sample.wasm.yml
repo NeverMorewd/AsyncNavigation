@@ -1,0 +1,41 @@
+name: Deploy sample.wasm
+
+env:
+  PROJECT_PATH: sample/Sample.Avalonia.Browser/Sample.Avalonia.Browser.csproj
+  OUTPUT_DIR: sample/Sample.Avalonia.Browser/bin/Release/browser/publish
+  DEPLOY_DIR: sample/Sample.Avalonia.Browser/bin/Release/browser/publish/wwwroot
+on:
+  workflow_dispatch:
+
+jobs:
+  deploy-to-github-pages:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+
+      - name: Setup dotnet
+        uses: actions/setup-dotnet@v5
+        with:
+          dotnet-version: |
+            10.0.x
+
+      - name: Install wasm-tools
+        run: dotnet workload install wasm-tools
+
+      - name: Publish .NET Project
+        run: dotnet publish $PROJECT_PATH -c Release -o $OUTPUT_DIR --nologo
+
+      - name: copy index.html to 404.html
+        run: cp $DEPLOY_DIR/index.html $DEPLOY_DIR/404.html
+
+      - name: Add .nojekyll file
+        run: touch $DEPLOY_DIR/.nojekyll
+
+      - name: Commit wwwroot to GitHub Pages
+        uses: JamesIves/github-pages-deploy-action@v4.5.0
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          branch: gh-pages
+          folder: ${{ env.DEPLOY_DIR }}
+          single-commit: true
