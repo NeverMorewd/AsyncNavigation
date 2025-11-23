@@ -1,9 +1,9 @@
 name: Deploy sample.wasm
 
 env:
-  PROJECT_PATH: sample/Sample.Avalonia.Browser/Sample.Avalonia.Browser.csproj
-  OUTPUT_DIR: sample/Sample.Avalonia.Browser/bin/Release/browser/publish
-  DEPLOY_DIR: sample/Sample.Avalonia.Browser/bin/Release/browser/publish/wwwroot
+  PROJECT_PATH: samples/Sample.Avalonia.Browser/Sample.Avalonia.Browser.csproj
+  OUTPUT_DIR: samples/Sample.Avalonia.Browser/bin/Release/browser/publish
+  DEPLOY_DIR: samples/Sample.Avalonia.Browser/bin/Release/browser/publish/wwwroot
 on:
   workflow_dispatch:
 
