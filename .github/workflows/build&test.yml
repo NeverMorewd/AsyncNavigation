@@ -1,4 +1,4 @@
-
+﻿
 name: build&test
 
 on:
@@ -21,12 +21,12 @@ jobs:
     matrix:
       os: [windows-2022, ubuntu-22.04, macos-13]
    steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v5
     
-    - name: Setup .NET 8
-      uses: actions/setup-dotnet@v3
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v5
       with:
-        dotnet-version: 8.0.x
+        dotnet-version: 10.0.x
 
     - name: Restore dependencies
       run: dotnet restore
@@ -46,11 +46,11 @@ jobs:
       matrix:
         os: [windows-2022, ubuntu-22.04, macos-13]
     steps:
-    - uses: actions/checkout@v3
-    - name: Setup .NET 8
-      uses: actions/setup-dotnet@v3
+    - uses: actions/checkout@v5
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v5
       with:
-        dotnet-version: 8.0.x
+        dotnet-version: 10.0.x
     - name: Install dependencies
       run: dotnet restore
       working-directory: samples/Sample.Avalonia.Desktop
@@ -64,11 +64,11 @@ jobs:
       matrix:
         os: [windows-2022]
     steps:
-    - uses: actions/checkout@v3
-    - name: Setup .NET 8
-      uses: actions/setup-dotnet@v3
+    - uses: actions/checkout@v5
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v5
       with:
-        dotnet-version: 8.0.x
+        dotnet-version: 10.0.x
     - name: Install dependencies
       run: dotnet restore
       working-directory: samples/Sample.Avalonia.Browser
@@ -79,11 +79,11 @@ jobs:
   build-wpf:
     runs-on: windows-2022
     steps:
-    - uses: actions/checkout@v3
-    - name: Setup .NET 8
-      uses: actions/setup-dotnet@v3
+    - uses: actions/checkout@v5
+    - name: Setup .NET 10
+      uses: actions/setup-dotnet@v5
       with:
-        dotnet-version: 8.0.x
+        dotnet-version: 10.0.x
     - name: Install dependencies
       run: dotnet restore
       working-directory: samples/Sample.Wpf

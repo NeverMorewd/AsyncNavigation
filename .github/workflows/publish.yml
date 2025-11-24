@@ -1,4 +1,4 @@
-name: Pack & Publish NuGet Packages
+﻿name: Pack & Publish NuGet Packages
 
 on:
   workflow_dispatch:
@@ -8,12 +8,12 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v4.1.1
+        uses: actions/checkout@v5
         
-      - name: Setup .NET 8
-        uses: actions/setup-dotnet@v3
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v5
         with:
-          dotnet-version: 8.0.x
+          dotnet-version: 10.0.x
           
       - name: Build Abstraction
         run: |
@@ -47,7 +47,7 @@ jobs:
           fi
           
       - name: Upload Build Artifact
-        uses: actions/upload-artifact@v4.3.1
+        uses: actions/upload-artifact@v4.6.2
         with:
           name: nuget-abstraction
           path: ./nugets/*.nupkg
@@ -58,12 +58,12 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v4.1.1
+        uses: actions/checkout@v5
         
-      - name: Setup .NET 8
-        uses: actions/setup-dotnet@v3
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v5
         with:
-          dotnet-version: 8.0.x
+          dotnet-version: 10.0.x
           
       - name: Wait for NuGet indexing
         run: |
@@ -109,7 +109,7 @@ jobs:
           fi
           
       - name: Upload Build Artifact
-        uses: actions/upload-artifact@v4.3.1
+        uses: actions/upload-artifact@v4.6.2
         with:
           name: nuget-avaloniaui
           path: ./nugets/*.nupkg
@@ -120,12 +120,12 @@ jobs:
     runs-on: windows-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v4.1.1
+        uses: actions/checkout@v5
         
-      - name: Setup .NET 8
-        uses: actions/setup-dotnet@v3
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v5
         with:
-          dotnet-version: 8.0.x
+          dotnet-version: 10.0.x
           
       - name: Wait for NuGet indexing
         shell: pwsh
@@ -178,7 +178,7 @@ jobs:
           }
           
       - name: Upload Build Artifact
-        uses: actions/upload-artifact@v4.3.1
+        uses: actions/upload-artifact@v4.6.2
         with:
           name: nuget-wpf
           path: ./nugets/*.nupkg
