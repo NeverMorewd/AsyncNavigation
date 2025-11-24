@@ -416,5 +416,7 @@ FodyWeavers.xsd
 *.msix
 *.msm
 *.msp
-/src/AsyncNavigation/.idea/.idea.AsyncNavigation/.idea
+
+# temp
+/.idea
 /tests/AsyncNavigation.Tests/coveragereport
