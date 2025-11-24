@@ -2,8 +2,10 @@
 
 [中文文档](readme_zh-cn.md)
 
+
 > A lightweight asynchronous navigation framework based on **Microsoft.Extensions.DependencyInjection**
 
+Try it online : [demo](https://nevermorewd.github.io/AsyncNavigation/)
 ---
 
 ## ✨ Features

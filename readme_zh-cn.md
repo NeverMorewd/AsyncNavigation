@@ -3,6 +3,7 @@
 
 > 基于 **Microsoft.Extensions.DependencyInjection** 的轻量级异步导航框架
 
+在线体验 : [demo](https://nevermorewd.github.io/AsyncNavigation/)
 ---
 
 ## ✨ 功能特性
@@ -22,6 +23,16 @@
 -  **多种内置 Region 类型**  
   除常见的基于 `ContentControl` 的单页面导航外，还原生支持 `ItemsControl` 与 `TabControl` 导航。
 
+-  **依赖极少**  
+  仅依赖 `Microsoft.Extensions.DependencyInjection.Abstractions (>= 8.0)`。
+
+-  **框架无关**  
+  不依赖任何特定 MVVM 框架，可自由集成至任意架构中。
+
+-  **支持 Native Aot**  
+  支持avalonia的aot编译和裁剪，无需任何额外配置.
+
+
 -  **RegionAdapter 扩展机制**  
   通过自定义 `RegionAdapter`，可灵活扩展并实现个性化导航逻辑。
 
@@ -33,15 +44,6 @@
 
 -  **抽象层高度聚合**  
   核心逻辑高度抽象化，减少平台相关代码，便于扩展与单元测试。
-
--  **依赖极少**  
-  仅依赖 `Microsoft.Extensions.DependencyInjection.Abstractions (>= 8.0)`。
-
--  **框架无关**  
-  不依赖任何特定 MVVM 框架，可自由集成至任意架构中。
-
--  **支持 Native Aot**  
-  支持avalonia的aot编译和裁剪，无需任何额外配置.
 
 ---
 
