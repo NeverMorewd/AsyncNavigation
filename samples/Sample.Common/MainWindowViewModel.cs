@@ -6,6 +6,7 @@ using ReactiveUI.SourceGenerators;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Reactive.Linq;
+using System.Runtime.InteropServices;
 
 namespace Sample.Common;
 
@@ -54,6 +55,9 @@ public partial class MainWindowViewModel : ViewModelBase
                 }
             });
     }
+
+    public string FooterText => $"Powered by .NET {Environment.Version} • {RuntimeInformation.OSDescription}";
+
     [Reactive]
     private bool _isSplitViewPaneOpen = false;
     public IObservable<bool> SupportDialog { get; } = Observable.Return(!OperatingSystem.IsBrowser());

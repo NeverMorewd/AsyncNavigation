@@ -1,125 +1,132 @@
 ﻿<UserControl
-    d:DesignHeight="450"
-    d:DesignWidth="800"
-    mc:Ignorable="d"
     x:Class="Sample.Avalonia.Views.MainView"
-    x:DataType="vm:MainWindowViewModel"
     xmlns="https://github.com/avaloniaui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:an="https://github.com/NeverMorewd/AsyncNavigation"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:vm="clr-namespace:Sample.Common;assembly=Sample.Common"
-    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
-    <SplitView
-        DisplayMode="CompactInline"
-        IsPaneOpen="{Binding IsSplitViewPaneOpen}"
-        OpenPaneLength="310"
-        PanePlacement="Right">
-        <SplitView.Pane>
-            <DockPanel>
-                <ToggleButton
-                    Classes="Switch"
-                    DockPanel.Dock="Top"
-                    HorizontalContentAlignment="Center"
-                    IsChecked="{Binding IsSplitViewPaneOpen}"
-                    Width="45"
-                    ZIndex="99" />
-                <StackPanel Classes="Navigation" IsVisible="{Binding IsSplitViewPaneOpen}">
-                    <StackPanel
-                        Orientation="Horizontal"
-                        Spacing="3"
-                        VerticalAlignment="Center">
-                        <Label Content="Search:" VerticalAlignment="Center" />
-                        <AutoCompleteBox
-                            HorizontalAlignment="Stretch"
-                            ItemsSource="{Binding Views}"
-                            Name="SearchBox"
-                            SelectedItem="{Binding SelectedView}"
+    d:DesignHeight="450"
+    d:DesignWidth="800"
+    x:DataType="vm:MainWindowViewModel"
+    mc:Ignorable="d">
+    <Grid RowDefinitions="*,30">
+        <SplitView
+            DisplayMode="CompactInline"
+            IsPaneOpen="{Binding IsSplitViewPaneOpen}"
+            OpenPaneLength="310"
+            PanePlacement="Right">
+            <SplitView.Pane>
+                <DockPanel>
+                    <ToggleButton
+                        Width="45"
+                        HorizontalContentAlignment="Center"
+                        Classes="Switch"
+                        DockPanel.Dock="Top"
+                        IsChecked="{Binding IsSplitViewPaneOpen}"
+                        ZIndex="99" />
+                    <StackPanel Classes="Navigation" IsVisible="{Binding IsSplitViewPaneOpen}">
+                        <StackPanel
                             VerticalAlignment="Center"
-                            Width="230" />
+                            Orientation="Horizontal"
+                            Spacing="3">
+                            <Label VerticalAlignment="Center" Content="Search:" />
+                            <AutoCompleteBox
+                                Name="SearchBox"
+                                Width="230"
+                                HorizontalAlignment="Stretch"
+                                VerticalAlignment="Center"
+                                ItemsSource="{Binding Views}"
+                                SelectedItem="{Binding SelectedView}" />
+                        </StackPanel>
+                        <StackPanel Orientation="Horizontal" Spacing="4">
+                            <Button Classes="GoBack" />
+                            <Button Classes="GoForward" />
+                        </StackPanel>
+                        <Button
+                            Classes="Navigation"
+                            Content="ToA"
+                            Tag="AView" />
+                        <Button
+                            Classes="Navigation"
+                            Content="ToE"
+                            Tag="EView" />
+                        <Button
+                            Classes="Navigation"
+                            Content="ToE:Delay"
+                            Tag="EView:Delay" />
+                        <Button
+                            Classes="Navigation"
+                            Content="ToA:New"
+                            Tag="AView:New" />
+                        <Button
+                            Classes="Navigation"
+                            Content="ToE:Error"
+                            Tag="EView:Error" />
+                        <Button
+                            Classes="NavigationAndForget"
+                            Content="ToA:Forget;New"
+                            Tag="AView:New" />
+                        <Button
+                            Classes="NavigationAndForget"
+                            Content="ToE:Forget;Delay"
+                            Tag="EView:Delay" />
+                        <Button
+                            Classes="Navigation"
+                            Content="ToB:ItemsRegion"
+                            Tag="BView" />
+                        <Button
+                            Classes="Navigation"
+                            Content="ToD:TabRegion"
+                            Tag="DView" />
+                        <Button
+                            Classes="Navigation"
+                            Content="ToC:ChildContentRegion"
+                            Tag="CView" />
+                        <Button
+                            Classes="Navigation"
+                            Content="ToListBoxRegionView"
+                            Tag="ListBoxRegionView" />
+                        <Button
+                            Classes="DialogShow"
+                            Content="ToA:Dialog.Show"
+                            Tag="AView" />
+                        <Button
+                            Classes="DialogShow"
+                            Content="ToE:Dialog.Show"
+                            Tag="EView" />
+                        <Button
+                            Classes="DialogShowDialog"
+                            Content="ToA:Dialog.ShowDialog"
+                            Tag="AView" />
+                        <Button
+                            Classes="DialogShowDialogAsync"
+                            Content="ToE:Dialog.AsyncShowDialog"
+                            Tag="EView" />
+                        <Button
+                            Classes="DialogShowDialogAsyncWithCancelling"
+                            Content="ToA:Dialog.ShowDialogWithCancelling"
+                            Tag="AView" />
+                        <Button
+                            Classes="WindowShow"
+                            Content="ToA:Window.Show"
+                            Tag="AWindow" />
+                        <Button
+                            Command="{Binding CollectCommand}"
+                            Content="Collect"
+                            Tag="" />
                     </StackPanel>
-                    <StackPanel Orientation="Horizontal" Spacing="4">
-                        <Button Classes="GoBack" />
-                        <Button Classes="GoForward" />
-                    </StackPanel>
-                    <Button
-                        Classes="Navigation"
-                        Content="ToA"
-                        Tag="AView" />
-                    <Button
-                        Classes="Navigation"
-                        Content="ToE"
-                        Tag="EView" />
-                    <Button
-                        Classes="Navigation"
-                        Content="ToE:Delay"
-                        Tag="EView:Delay" />
-                    <Button
-                        Classes="Navigation"
-                        Content="ToA:New"
-                        Tag="AView:New" />
-                    <Button
-                        Classes="Navigation"
-                        Content="ToE:Error"
-                        Tag="EView:Error" />
-                    <Button
-                        Classes="NavigationAndForget"
-                        Content="ToA:Forget;New"
-                        Tag="AView:New" />
-                    <Button
-                        Classes="NavigationAndForget"
-                        Content="ToE:Forget;Delay"
-                        Tag="EView:Delay" />
-                    <Button
-                        Classes="Navigation"
-                        Content="ToB:ItemsRegion"
-                        Tag="BView" />
-                    <Button
-                        Classes="Navigation"
-                        Content="ToD:TabRegion"
-                        Tag="DView" />
-                    <Button
-                        Classes="Navigation"
-                        Content="ToC:ChildContentRegion"
-                        Tag="CView" />
-                    <Button
-                        Classes="Navigation"
-                        Content="ToListBoxRegionView"
-                        Tag="ListBoxRegionView" />
-                    <Button
-                        Classes="DialogShow"
-                        Content="ToA:Dialog.Show"
-                        Tag="AView" />
-                    <Button
-                        Classes="DialogShow"
-                        Content="ToE:Dialog.Show"
-                        Tag="EView" />
-                    <Button
-                        Classes="DialogShowDialog"
-                        Content="ToA:Dialog.ShowDialog"
-                        Tag="AView" />
-                    <Button
-                        Classes="DialogShowDialogAsync"
-                        Content="ToE:Dialog.AsyncShowDialog"
-                        Tag="EView" />
-                    <Button
-                        Classes="DialogShowDialogAsyncWithCancelling"
-                        Content="ToA:Dialog.ShowDialogWithCancelling"
-                        Tag="AView" />
-                    <Button
-                        Classes="WindowShow"
-                        Content="ToA:Window.Show"
-                        Tag="AWindow" />
-                    <Button
-                        Command="{Binding CollectCommand}"
-                        Content="Collect"
-                        Tag="" />
-                </StackPanel>
-            </DockPanel>
-        </SplitView.Pane>
+                </DockPanel>
+            </SplitView.Pane>
 
-        <DockPanel>
-            <ContentControl an:RegionManager.RegionName="MainRegion" />
-        </DockPanel>
-    </SplitView>
+            <DockPanel>
+                <ContentControl an:RegionManager.RegionName="MainRegion" />
+            </DockPanel>
+        </SplitView>
+        <SelectableTextBlock
+            Grid.Row="1"
+            HorizontalAlignment="Center"
+            VerticalAlignment="Center"
+            Text="{Binding FooterText}" />
+    </Grid>
 </UserControl>
