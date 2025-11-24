@@ -2,7 +2,7 @@
 
 env:
   PROJECT_PATH: samples/Sample.Avalonia.Browser/Sample.Avalonia.Browser.csproj
-  DEPLOY_DIR: samples/Sample.Avalonia.Browser/bin/Release/net9.0-browser/publish/wwwroot
+  DEPLOY_DIR: samples/Sample.Avalonia.Browser/bin/Release/net10.0-browser/publish/wwwroot
 on:
   workflow_dispatch:
 
@@ -16,8 +16,7 @@ jobs:
       - name: Setup dotnet
         uses: actions/setup-dotnet@v5
         with:
-          dotnet-version: |
-            9.0.x
+          dotnet-version: 10.0.x
 
       - name: Install wasm-tools
         run: dotnet workload install wasm-tools
