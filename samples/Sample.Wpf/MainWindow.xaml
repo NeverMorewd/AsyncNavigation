@@ -11,7 +11,7 @@
     Height="450"
     WindowState="Maximized"
     mc:Ignorable="d">
-    <Grid>
+    <Grid RowDefinitions="*,30">
         <DockPanel LastChildFill="True">
             <StackPanel DockPanel.Dock="Right">
                 <StackPanel
@@ -20,10 +20,10 @@
                     Orientation="Horizontal">
                     <Label VerticalAlignment="Center" Content="Search:" />
                     <ComboBox
-                        Margin="3,0,0,0"
-                        Height="35"
                         Name="SearchBox"
                         Width="245"
+                        Height="35"
+                        Margin="3,0,0,0"
                         HorizontalAlignment="Stretch"
                         VerticalAlignment="Center"
                         ItemsSource="{Binding Views}"
@@ -108,5 +108,10 @@
             </StackPanel>
             <ContentControl an:RegionManager.RegionName="MainRegion" />
         </DockPanel>
+        <TextBlock
+            Grid.Row="1"
+            HorizontalAlignment="Center"
+            VerticalAlignment="Center"
+            Text="{Binding FooterText}" />
     </Grid>
 </Window>
