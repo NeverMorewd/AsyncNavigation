@@ -420,3 +420,4 @@ FodyWeavers.xsd
 # temp
 /.idea
 /tests/AsyncNavigation.Tests/coveragereport
+/src/.idea/.idea.AsyncNavigation/.idea
