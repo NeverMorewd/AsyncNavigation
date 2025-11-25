@@ -16,13 +16,10 @@ public partial class MainView : UserControl
     protected override void OnAttachedToVisualTree(VisualTreeAttachmentEventArgs e)
     {
         base.OnAttachedToVisualTree(e);
-        // SearchBox.Bind(
-        //     AutoCompleteBox.ItemFilterProperty,
-        //     new Binding(nameof(ItemFilter)) { Source = this, Mode = BindingMode.TwoWay });
-        //SearchBox.ItemFilter = ItemFilter;
         if (DataContext is MainWindowViewModel mainWindowViewModel)
         {
             SearchBox.ItemFilter = MainWindowViewModel.FilterPredicate;
+            footer.Text = $"{mainWindowViewModel.FooterText} - Avalonia:{typeof(Application).Assembly.GetName().Version}";
         }
     }
 }
