@@ -145,4 +145,14 @@ public class NavigationOptions
         }
         return base.Equals(obj);
     }
+    public override int GetHashCode()
+    {
+        return HashCode.Combine(
+            MaxCachedViews,
+            MaxHistoryItems,
+            MaxReplayItems,
+            LoadingIndicatorDelay,
+            NavigationJobStrategy,
+            NavigationJobScope);
+    }
 }

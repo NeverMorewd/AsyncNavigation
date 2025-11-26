@@ -79,7 +79,8 @@ public static class DependencyInjectionExtensions
         return services;
     }
 
-    private static IServiceCollection RegisterDialogWindowInternal<TWindow, TViewModel>(
+    private static IServiceCollection RegisterDialogWindowInternal<[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.All)]TWindow,
+        [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.All)] TViewModel>(
         this IServiceCollection services,
         string windowName,
         Func<IServiceProvider, TViewModel>? viewModelBuilder = null)

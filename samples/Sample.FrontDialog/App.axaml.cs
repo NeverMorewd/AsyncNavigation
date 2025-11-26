@@ -5,6 +5,8 @@ using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Markup.Xaml;
 using Microsoft.Extensions.DependencyInjection;
 using Sample.Common;
+using System;
+using System.Diagnostics;
 
 namespace Sample.FrontDialog;
 
@@ -15,34 +17,45 @@ public partial class App : Application
         AvaloniaXamlLoader.Load(this);
     }
 
-    public async override void OnFrameworkInitializationCompleted()
+    public override async void OnFrameworkInitializationCompleted()
     {
-        var services = new ServiceCollection();
-        services.AddNavigationSupport()
-                .AddSingleton<MainWindowViewModel>()
-                .RegisterDialogWindow<DialogWindow, FrontDialogViewModel>("DialogWindow");
-        var sp = services.BuildServiceProvider();
-
-        var dialogService = sp.GetRequiredService<IDialogService>();
-        await dialogService.FrontShowWindowAsync("DialogWindow", result => 
+        try
         {
-            if (result.Result == AsyncNavigation.Core.DialogButtonResult.Done)
+            var services = new ServiceCollection();
+#pragma warning disable IL2026
+            services
+                .AddNavigationSupport()
+                .AddSingletonWitAllMembers<MainWindowViewModel>()
+#pragma warning restore IL2026
+                .RegisterDialogWindow<DialogWindow, FrontDialogViewModel>("DialogWindow");
+        
+            var sp = services.BuildServiceProvider();
+
+            var dialogService = sp.GetRequiredService<IDialogService>();
+            await dialogService.FrontShowWindowAsync("DialogWindow", result =>
             {
-                var win = new MainWindow
+                if (result.Result == AsyncNavigation.Core.DialogButtonResult.Done)
                 {
-                    DataContext = sp.GetRequiredService<MainWindowViewModel>()
-                };
-                return win;
-            }
-            else
-            {
-                if (Current?.ApplicationLifetime is IControlledApplicationLifetime applicationLifetime)
-                {
-                    applicationLifetime.Shutdown();
+                    var win = new MainWindow
+                    {
+                        DataContext = sp.GetRequiredService<MainWindowViewModel>()
+                    };
+                    return win;
                 }
-                return null;
-            }
-        });
-        base.OnFrameworkInitializationCompleted();
+                else
+                {
+                    if (Current?.ApplicationLifetime is IControlledApplicationLifetime applicationLifetime)
+                    {
+                        applicationLifetime.Shutdown();
+                    }
+                    return null;
+                }
+            });
+            base.OnFrameworkInitializationCompleted();
+        }
+        catch (Exception e)
+        {
+            Debug.WriteLine(e);
+        }
     }
 }

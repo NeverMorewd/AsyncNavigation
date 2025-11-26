@@ -1,10 +1,7 @@
-using Avalonia;
-using Avalonia.Controls;
+﻿using Avalonia;
 using Avalonia.iOS;
-using Avalonia.Media;
-using Avalonia.ReactiveUI;
 using Foundation;
-using UIKit;
+using ReactiveUI.Avalonia;
 
 namespace Sample.Avalonia.iOS
 {

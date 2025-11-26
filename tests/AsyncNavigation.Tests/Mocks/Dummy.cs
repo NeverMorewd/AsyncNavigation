@@ -9,7 +9,7 @@ public class DummyNavigationView : IView
 }
 public class DummyNavigationViewModel : INavigationAware
 {
-    public event AsyncEventHandler<AsyncEventArgs> AsyncRequestUnloadEvent;
+    public event AsyncEventHandler<AsyncEventArgs>? AsyncRequestUnloadEvent;
 
     public Task InitializeAsync(NavigationContext context)
     {
