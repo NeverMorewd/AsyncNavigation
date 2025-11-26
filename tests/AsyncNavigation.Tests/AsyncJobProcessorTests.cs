@@ -233,28 +233,29 @@ public class AsyncJobProcessorTests : IClassFixture<ServiceFixture>
     public async Task RunJobAsync_CancelCurrentStrategy_Should_Handle_RapidSuccessiveJobs()
     {
         var processor = _serviceProvider.GetRequiredService<IAsyncJobProcessor>();
-        var iterations = 100;
-        var cancellationDelayMs = 50;
-        var jobDurationMs = 200;
+        const int iterations = 100;
+        const int cancellationDelayMs = 20;
+        const int jobDurationMs = 500;
         var stopwatch = Stopwatch.StartNew();
         List<TestJobContext> jobs = [];
 
         _testOutputHelper.WriteLine($"Starting {iterations} rapid jobs with CancelCurrent strategy...");
 
-        for (int i = 0; i < iterations; i++)
+        for (var i = 0; i < iterations; i++)
         {
             var context = new TestJobContext();
             jobs.Add(context);
-            var task = processor.RunJobAsync(context, async ctx =>
+            var index = i;
+            _ = processor.RunJobAsync(context, async ctx =>
             {
                 try
                 {
                     await Task.Delay(jobDurationMs, ctx.CancellationToken);
-                    _testOutputHelper.WriteLine($"The job '{i}' was completed!");
+                    _testOutputHelper.WriteLine($"The job '{index}' was completed!");
                 }
                 catch (OperationCanceledException)
                 {
-                    _testOutputHelper.WriteLine($"The job '{i}' was canceled!");
+                    _testOutputHelper.WriteLine($"The job '{index}' was canceled!");
                 }
             }, NavigationJobStrategy.CancelCurrent);
 
@@ -266,19 +267,17 @@ public class AsyncJobProcessorTests : IClassFixture<ServiceFixture>
 
         _testOutputHelper.WriteLine($"Rapid cancellation test completed in {stopwatch.ElapsedMilliseconds} ms");
         _testOutputHelper.WriteLine($"Jobs in queue: {processor.JobsCount}");
-        _testOutputHelper.WriteLine($"Jobs cancelled: {jobs.Where(j => j.CancellationToken.IsCancellationRequested).Count()}");
-        _testOutputHelper.WriteLine($"Jobs completed: {jobs.Where(j => !j.CancellationToken.IsCancellationRequested).Count()}");
+        _testOutputHelper.WriteLine($"Jobs cancelled: {jobs.Count(j => j.CancellationToken.IsCancellationRequested)}");
+        _testOutputHelper.WriteLine($"Jobs completed: {jobs.Count(j => !j.CancellationToken.IsCancellationRequested)}");
 
-        if (OperatingSystem.IsWindows())
-            Assert.InRange(jobs.Where(j => !j.CancellationToken.IsCancellationRequested).Count(), 1, 1);
-        else if (OperatingSystem.IsLinux())
-            Assert.InRange(jobs.Where(j => !j.CancellationToken.IsCancellationRequested).Count(), 1, 1);
+        if (OperatingSystem.IsWindows() || OperatingSystem.IsLinux())
+            Assert.InRange(jobs.Count(j => !j.CancellationToken.IsCancellationRequested), 1, 1);
         else if (OperatingSystem.IsMacOS())
-            Assert.InRange(jobs.Where(j => !j.CancellationToken.IsCancellationRequested).Count(), 1, 2);
+            Assert.InRange(jobs.Count(j => !j.CancellationToken.IsCancellationRequested), 1, 2);
         else
         {
             _testOutputHelper.WriteLine($"Unknown OS - {Environment.OSVersion.Platform}");
-            Assert.InRange(jobs.Where(j => !j.CancellationToken.IsCancellationRequested).Count(), 1, 2);
+            Assert.InRange(jobs.Count(j => !j.CancellationToken.IsCancellationRequested), 1, 2);
         }
 
     }
