@@ -15,11 +15,11 @@ on:
   workflow_dispatch:
 
 jobs:
-  test:
+  test-unittests:
    runs-on: ${{ matrix.os }}
    strategy:
     matrix:
-      os: [windows-2022, ubuntu-22.04, macos-13]
+      os: [windows-latest, ubuntu-latest, macos-latest]
    steps:
     - uses: actions/checkout@v5
     
@@ -44,7 +44,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        os: [windows-2022, ubuntu-22.04, macos-13]
+        os: [windows-latest, ubuntu-latest, macos-latest]
     steps:
     - uses: actions/checkout@v5
     - name: Setup .NET
@@ -62,7 +62,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        os: [windows-2022]
+        os: [windows-latest]
     steps:
     - uses: actions/checkout@v5
     - name: Setup .NET
@@ -77,7 +77,7 @@ jobs:
       working-directory: samples/Sample.Avalonia.Browser
       
   build-wpf:
-    runs-on: windows-2022
+    runs-on: windows-latest
     steps:
     - uses: actions/checkout@v5
     - name: Setup .NET 10
