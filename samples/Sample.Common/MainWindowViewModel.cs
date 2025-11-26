@@ -15,12 +15,12 @@ public partial class MainWindowViewModel : ViewModelBase
     private readonly IRegionManager _regionManager;
     private readonly IDialogService _dialogService;
     private readonly IRegistrationTracker _registrationTracker;
-    private readonly IRouter _router;
+    private readonly IRouter? _router;
     
     public MainWindowViewModel(IRegionManager regionManager, 
         IDialogService dialogService,
         IRegistrationTracker registrationTracker,
-        IRouter router)
+        IRouter? router = null)
     {
         _router = router;
         _regionManager = regionManager;
@@ -35,16 +35,22 @@ public partial class MainWindowViewModel : ViewModelBase
         });
 
         Views = _registrationTracker.TryGetViews(out var views) ? [.. views] : [];
-        foreach (var mappedNavigation in _router.Routes)
+
+        if (_router is not null)
         {
-            Views.Add(mappedNavigation.Path);
+            foreach (var mappedNavigation in _router.Routes)
+            {
+                Views.Add(mappedNavigation.Path);
+            }
+            Views.Add("/Tab/Tab_A");
         }
-        Views.Add("/Tab/Tab_A");
 
         this.WhenAnyValue(vm => vm.SelectedView)
             .WhereNotNull()
             .Subscribe(target =>
             {
+                /// If the target starts with "/", we consider it a path navigation.
+                /// This logic can be customized based on your routing conventions.
                 if (target.StartsWith("/",StringComparison.OrdinalIgnoreCase))
                 {
                     AsyncPathNavigateAndForget(target);

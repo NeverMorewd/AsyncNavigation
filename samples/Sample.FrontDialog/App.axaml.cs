@@ -5,6 +5,8 @@ using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Markup.Xaml;
 using Microsoft.Extensions.DependencyInjection;
 using Sample.Common;
+using System;
+using System.Diagnostics;
 
 namespace Sample.FrontDialog;
 
@@ -19,30 +21,38 @@ public partial class App : Application
     {
         var services = new ServiceCollection();
         services.AddNavigationSupport()
-                .AddSingleton<MainWindowViewModel>()
+                .AddSingletonWitAllMembers<MainWindowViewModel>()
                 .RegisterDialogWindow<DialogWindow, FrontDialogViewModel>("DialogWindow");
+        
         var sp = services.BuildServiceProvider();
 
         var dialogService = sp.GetRequiredService<IDialogService>();
-        await dialogService.FrontShowWindowAsync("DialogWindow", result => 
+        try
         {
-            if (result.Result == AsyncNavigation.Core.DialogButtonResult.Done)
+            await dialogService.FrontShowWindowAsync("DialogWindow", result =>
             {
-                var win = new MainWindow
+                if (result.Result == AsyncNavigation.Core.DialogButtonResult.Done)
                 {
-                    DataContext = sp.GetRequiredService<MainWindowViewModel>()
-                };
-                return win;
-            }
-            else
-            {
-                if (Current?.ApplicationLifetime is IControlledApplicationLifetime applicationLifetime)
-                {
-                    applicationLifetime.Shutdown();
+                    var win = new MainWindow
+                    {
+                        DataContext = sp.GetRequiredService<MainWindowViewModel>()
+                    };
+                    return win;
                 }
-                return null;
-            }
-        });
+                else
+                {
+                    if (Current?.ApplicationLifetime is IControlledApplicationLifetime applicationLifetime)
+                    {
+                        applicationLifetime.Shutdown();
+                    }
+                    return null;
+                }
+            });
+        }
+        catch (Exception ex)
+        {
+            Debug.WriteLine(ex);
+        }
         base.OnFrameworkInitializationCompleted();
     }
 }
