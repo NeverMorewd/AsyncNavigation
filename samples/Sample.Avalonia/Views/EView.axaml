@@ -1,51 +1,50 @@
 ﻿<UserControl
-    x:Class="Sample.Avalonia.Views.EView"
-    xmlns="https://github.com/avaloniaui"
-    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-    xmlns:an="https://github.com/NeverMorewd/AsyncNavigation"
-    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-	xmlns:vm="using:Sample.Common"
     d:DesignHeight="450"
     d:DesignWidth="800"
     mc:Ignorable="d"
-	x:DataType="vm:EViewModel">
-	<DockPanel LastChildFill="True">
-		<Border
-            HorizontalAlignment="Stretch"
+    x:Class="Sample.Avalonia.Views.EView"
+    x:DataType="vm:EViewModel"
+    xmlns="https://github.com/avaloniaui"
+    xmlns:an="https://github.com/NeverMorewd/AsyncNavigation"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:vm="using:Sample.Common"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <DockPanel LastChildFill="True">
+        <Border
             Background="DarkOrange"
             BorderBrush="LemonChiffon"
             BorderThickness="1"
-            DockPanel.Dock="Top">
-			<StackPanel>
-				<TextBlock Text="{Binding Name}" />
-				<TextBlock>
-					InstanceNumber:
-					<Run
+            DockPanel.Dock="Top"
+            HorizontalAlignment="Stretch">
+            <StackPanel>
+                <TextBlock Text="{Binding Name}" />
+                <TextBlock>
+                    InstanceNumber:<Run
                         FontSize="15"
                         FontWeight="Bold"
                         Foreground="Blue"
                         Text="{Binding InstanceNumber}" />
-				</TextBlock>
-				<Button Classes="UnloadView"/>
-				<Button Classes="CloseDialog"/>
-				<ItemsControl ItemsSource="{Binding HeavyItems}">
-					<ItemsControl.ItemTemplate>
-						<DataTemplate>
-							<DockPanel LastChildFill="True">
-								<ComboBox Width="50" />
-								<Expander Width="50" />
-								<DatePicker Width="50" />
-							</DockPanel>
-						</DataTemplate>
-					</ItemsControl.ItemTemplate>
-					<ItemsControl.ItemsPanel>
-						<ItemsPanelTemplate>
-							<WrapPanel />
-						</ItemsPanelTemplate>
-					</ItemsControl.ItemsPanel>
-				</ItemsControl>
-			</StackPanel>
-		</Border>
-	</DockPanel>
+                </TextBlock>
+                <Button Classes="UnloadView" />
+                <Button Classes="CloseDialog" />
+                <ItemsControl ItemsSource="{Binding HeavyItems}">
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <DockPanel LastChildFill="True">
+                                <ComboBox Width="50" />
+                                <Expander Width="50" />
+                                <DatePicker Width="50" />
+                            </DockPanel>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                    <ItemsControl.ItemsPanel>
+                        <ItemsPanelTemplate>
+                            <WrapPanel />
+                        </ItemsPanelTemplate>
+                    </ItemsControl.ItemsPanel>
+                </ItemsControl>
+            </StackPanel>
+        </Border>
+    </DockPanel>
 </UserControl>

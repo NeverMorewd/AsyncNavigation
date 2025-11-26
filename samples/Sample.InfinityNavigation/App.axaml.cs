@@ -20,8 +20,10 @@ public partial class App : Application
     public override void OnFrameworkInitializationCompleted()
     {
         var services = new ServiceCollection();
+#pragma warning disable IL2026
         services.AddNavigationSupport()
                 .RegisterView<InfinityView, InfinityViewModel>(nameof(InfinityView));
+#pragma warning restore IL2026
 
         var sp = services.BuildServiceProvider();
 
