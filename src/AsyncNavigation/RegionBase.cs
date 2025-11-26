@@ -21,6 +21,9 @@ public abstract class RegionBase<TRegion, TControl> : IRegion, IRegionPresenter
         _controlAccessor = new WeakRegionControlAccessor<TControl>(control);
         _regionNavigationService = serviceProvider.GetRequiredService<IRegionNavigationServiceFactory>().Create((this as TRegion)!);
         _navigationHistory = serviceProvider.GetRequiredService<IRegionNavigationHistory>();
+
+        RegionControlAccessor.ExecuteOn(InitializeOnRegionCreated);
+
     }
 
     IRegionPresenter IRegion.RegionPresenter => this;
@@ -48,6 +51,17 @@ public abstract class RegionBase<TRegion, TControl> : IRegion, IRegionPresenter
         return Task.FromResult(_navigationHistory.CanGoBack);
     }
 
+    /// <summary>
+    /// Performs initialization logic when a region is created and associated with the specified control.
+    /// Binding logic or setup tasks related to the control can be implemented in this method.
+    /// </summary>
+    /// <remarks>This method is intended to be overridden in a derived class to provide custom initialization
+    /// logic. The base implementation does not perform any actions.</remarks>
+    /// <param name="control">The control associated with the newly created region. This parameter cannot be null.</param>
+    protected virtual void InitializeOnRegionCreated(TControl control)
+    {
+        
+    }
     public async Task GoBackAsync(CancellationToken cancellationToken = default)
     {
         cancellationToken.ThrowIfCancellationRequested();

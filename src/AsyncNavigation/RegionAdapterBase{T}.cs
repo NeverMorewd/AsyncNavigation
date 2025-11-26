@@ -4,6 +4,8 @@ namespace AsyncNavigation;
 
 public abstract class RegionAdapterBase<T> : IRegionAdapter<T>
 {
+    public virtual uint Priority => 0;
+
     public virtual bool IsAdapted(T control)
     {
         if (control == null) return false;

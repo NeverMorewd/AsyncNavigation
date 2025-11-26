@@ -13,36 +13,6 @@ public class ContentRegion : RegionBase<ContentRegion, ContentControl>
         IServiceProvider serviceProvider, 
         bool? useCache) : base(name, contentControl, serviceProvider)
     {
-        ArgumentNullException.ThrowIfNull(contentControl);
-        ArgumentNullException.ThrowIfNull(serviceProvider);
-
-        RegionControlAccessor.ExecuteOn(control => 
-        {
-            control.Tag = this;
-            control.SetBinding(ContentControl.ContentProperty,
-                new Binding(nameof(RegionContext.Selected))
-                {
-                    Source = _context,
-                    Mode = BindingMode.TwoWay
-                });
-        });
-
-        RegionControlAccessor.ExecuteOn(control =>
-        {
-            var dataTemplate = new DataTemplate();
-            var factory = new FrameworkElementFactory(typeof(ContentPresenter));
-            factory.SetBinding(ContentPresenter.ContentProperty,
-                new Binding("IndicatorHost.Value.Host")
-                {
-                    FallbackValue = null
-                });
-            dataTemplate.VisualTree = factory;
-
-            control.ContentTemplate = dataTemplate;
-        });
-
-
-
         EnableViewCache = useCache ?? true;
         IsSinglePageRegion = true;
     }
@@ -50,6 +20,30 @@ public class ContentRegion : RegionBase<ContentRegion, ContentControl>
     {
         get => NavigationPipelineMode.RenderFirst;
     }
+
+    protected override void InitializeOnRegionCreated(ContentControl control)
+    {
+        base.InitializeOnRegionCreated(control);
+        control.Tag = this;
+        control.SetBinding(ContentControl.ContentProperty,
+            new Binding(nameof(RegionContext.Selected))
+            {
+                Source = _context,
+                Mode = BindingMode.TwoWay
+            });
+
+        var dataTemplate = new DataTemplate();
+        var factory = new FrameworkElementFactory(typeof(ContentPresenter));
+        factory.SetBinding(ContentPresenter.ContentProperty,
+            new Binding("IndicatorHost.Value.Host")
+            {
+                FallbackValue = null
+            });
+        dataTemplate.VisualTree = factory;
+
+        control.ContentTemplate = dataTemplate;
+    }
+
     public override void Dispose()
     {
         base.Dispose();
@@ -59,11 +53,6 @@ public class ContentRegion : RegionBase<ContentRegion, ContentControl>
             control.Content = null;
         });
     }
-
-    //public override void RenderIndicator(NavigationContext navigationContext)
-    //{
-    //   _context.Selected = navigationContext;
-    //}
 
     public override void ProcessActivate(NavigationContext navigationContext)
     {
