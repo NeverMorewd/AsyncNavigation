@@ -1,0 +1,38 @@
+<Solution>
+  <Configurations>
+    <Platform Name="Any CPU" />
+    <Platform Name="ARM64" />
+    <Platform Name="x64" />
+    <Platform Name="x86" />
+  </Configurations>
+  <Folder Name="/samples/">
+    <Project Path="../samples/Sample.Common/Sample.Common.csproj" />
+  </Folder>
+  <Folder Name="/samples/avaloniaui/">
+    <Project Path="../samples/Sample.Avalonia.Android/Sample.Avalonia.Android.csproj">
+      <Deploy />
+    </Project>
+    <Project Path="../samples/Sample.Avalonia.Browser/Sample.Avalonia.Browser.csproj" />
+    <Project Path="../samples/Sample.Avalonia.Desktop/Sample.Avalonia.Desktop.csproj" />
+    <Project Path="../samples/Sample.Avalonia.iOS/Sample.Avalonia.iOS.csproj">
+      <Deploy />
+    </Project>
+    <Project Path="../samples/Sample.Avalonia/Sample.Avalonia.csproj" />
+    <Project Path="../samples/Sample.FrontDialog/Sample.FrontDialog.csproj" />
+    <Project Path="../samples/Sample.InfinityNavigation/Sample.InfinityNavigation.csproj" />
+  </Folder>
+  <Folder Name="/samples/wpf/">
+    <Project Path="../samples/Sampe.Wpf.InfinityNavigation/Sampe.Wpf.InfinityNavigation.csproj" />
+    <Project Path="../samples/Sample.Wpf/Sample.Wpf.csproj" />
+  </Folder>
+  <Folder Name="/Solution Items/">
+    <File Path=".editorconfig" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="../tests/AsyncNavigation.Performance.Tests/AsyncNavigation.Performance.Tests.csproj" />
+    <Project Path="../tests/AsyncNavigation.Tests/AsyncNavigation.Tests.csproj" />
+  </Folder>
+  <Project Path="AsyncNavigation.Avalonia/AsyncNavigation.Avalonia.csproj" />
+  <Project Path="AsyncNavigation.Wpf/AsyncNavigation.Wpf.csproj" />
+  <Project Path="AsyncNavigation/AsyncNavigation.csproj" />
+</Solution>
