@@ -1,10 +1,8 @@
 ﻿using AsyncNavigation.Abstractions;
 using Avalonia;
-using Avalonia.Controls;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Markup.Xaml;
 using Microsoft.Extensions.DependencyInjection;
-using ReactiveUI;
 using Sample.Common;
 using Sample.InfinityNavigation.Views;
 

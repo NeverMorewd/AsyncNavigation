@@ -23,7 +23,8 @@ public partial class App : Application
         {
             var services = new ServiceCollection();
 #pragma warning disable IL2026
-            services.AddNavigationSupport()
+            services
+                .AddNavigationSupport()
                 .AddSingletonWitAllMembers<MainWindowViewModel>()
 #pragma warning restore IL2026
                 .RegisterDialogWindow<DialogWindow, FrontDialogViewModel>("DialogWindow");
