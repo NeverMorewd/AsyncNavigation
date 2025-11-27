@@ -2,6 +2,7 @@
 using Avalonia.Controls;
 using Avalonia.Controls.Templates;
 using Avalonia.Data;
+using Avalonia.Threading;
 
 namespace AsyncNavigation.Avalonia;
 
@@ -46,7 +47,8 @@ public abstract class ItemsRegionBase<TRegion, TItemsControl>
             _context.Items.Add(navigationContext);
 
         _context.Selected = navigationContext;
-
+        // https://github.com/AvaloniaUI/Avalonia/issues/17347
+        Dispatcher.UIThread.RunJobs(DispatcherPriority.Loaded);
         RegionControlAccessor.ExecuteOn(control =>
         {
             control.ScrollIntoView(navigationContext);

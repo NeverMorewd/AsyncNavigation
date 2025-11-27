@@ -4,7 +4,11 @@ using Avalonia.Data;
 
 namespace AsyncNavigation.Avalonia;
 
-public class SelectingItemsRegion : ItemsRegionBase<SelectingItemsRegion, SelectingItemsControl>
+/// <summary>
+/// Make this class abstract to avoid direct usage.
+/// Because https://github.com/AvaloniaUI/Avalonia/issues/11139
+/// </summary>
+public abstract class SelectingItemsRegion : ItemsRegionBase<SelectingItemsRegion, SelectingItemsControl>
 {
     public SelectingItemsRegion(string name, 
         SelectingItemsControl selectingItemsControl, 

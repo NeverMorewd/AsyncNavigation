@@ -53,13 +53,13 @@
                 Tag="AView" />
         </StackPanel>
         <ScrollViewer>
-            <SelectingItemsControl an:RegionManager.RegionName="ItemsRegion">
-                <SelectingItemsControl.ItemsPanel>
-                    <ItemsPanelTemplate>
-                        <StackPanel />
-                    </ItemsPanelTemplate>
-                </SelectingItemsControl.ItemsPanel>
-            </SelectingItemsControl>
+            <ItemsControl an:RegionManager.RegionName="ItemsRegion">
+				<ItemsControl.ItemsPanel>
+					<ItemsPanelTemplate>
+						<StackPanel />
+					</ItemsPanelTemplate>
+				</ItemsControl.ItemsPanel>
+            </ItemsControl>
         </ScrollViewer>
     </DockPanel>
 </UserControl>
