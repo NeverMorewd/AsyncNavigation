@@ -10,6 +10,10 @@ public class TestRegion : RegionBase<TestRegion, object>, IRegionPresenter
     {
 
     }
+    public static TestRegion GetOne(IServiceProvider serviceProvider)
+    {
+        return new TestRegion("TestRegion", new object(), serviceProvider);
+    }
     public bool IsActive { get; private set; }
     public NavigationContext? Current { get; private set; }
 

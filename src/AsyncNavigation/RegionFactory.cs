@@ -7,7 +7,7 @@ internal sealed class RegionFactory : IRegionFactory
 {
     private ImmutableArray<IRegionAdapter> _adapters = ImmutableArray<IRegionAdapter>.Empty;
 
-    public RegionFactory(IEnumerable<IRegionAdapter> adapters)
+    public RegionFactory(IEnumerable<IRegionAdapter>? adapters)
     {
         if (adapters != null && adapters.Any())
         {

@@ -10,7 +10,7 @@ namespace AsyncNavigation.Avalonia;
 /// </summary>
 public abstract class SelectingItemsRegion : ItemsRegionBase<SelectingItemsRegion, SelectingItemsControl>
 {
-    public SelectingItemsRegion(string name, 
+    protected SelectingItemsRegion(string name, 
         SelectingItemsControl selectingItemsControl, 
         IServiceProvider serviceProvider, 
         bool? useCache) : base(name, selectingItemsControl, serviceProvider, useCache)
