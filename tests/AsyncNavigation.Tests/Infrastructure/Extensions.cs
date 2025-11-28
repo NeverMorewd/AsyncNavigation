@@ -11,6 +11,7 @@ public static class Extensions
         return serviceDescriptors
             .RegisterNavigationFramework(navigationOptions)
             .AddTransient<IInnerRegionIndicatorHost, TestInnerIndicatorHost>()
+            .AddSingleton<IPlatformService, TestPlatformService>()
             .AddSingleton<IRegionManager, RegionManager>();
     }
 }

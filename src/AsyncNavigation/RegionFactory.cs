@@ -1,29 +1,56 @@
-﻿using AsyncNavigation.Abstractions;
+﻿using System.Collections.Immutable;
+using AsyncNavigation.Abstractions;
 
 namespace AsyncNavigation;
 
 internal sealed class RegionFactory : IRegionFactory
 {
-    private readonly HashSet<IRegionAdapter> _adapters;
+    private ImmutableArray<IRegionAdapter> _adapters = ImmutableArray<IRegionAdapter>.Empty;
 
-    public RegionFactory(IEnumerable<IRegionAdapter> adapters)
+    public RegionFactory(IEnumerable<IRegionAdapter>? adapters)
     {
-        _adapters = [.. adapters];
+        if (adapters != null && adapters.Any())
+        {
+            _adapters = [.. adapters];
+        }
+        else
+        {
+            _adapters = [];
+        }
     }
 
+    /// <summary>
+    /// Registers a region adapter for use in the application.
+    /// </summary>
+    /// <param name="adapter">The region adapter to register. Cannot be <see langword="null"/>.</param>
     public void RegisterAdapter(IRegionAdapter adapter)
     {
-        _adapters.Add(adapter);
+        ArgumentNullException.ThrowIfNull(adapter);
+        _adapters = _adapters.Add(adapter);
     }
 
-    public IRegion CreateRegion(string name, 
-        object control, 
-        IServiceProvider serviceProvider, 
+    private IRegionAdapter? GetAdapter(object control)
+    {
+        var snapshot = _adapters;
+
+        return snapshot
+            .OrderByDescending(a => a.Priority)
+            .ThenBy(a => a.GetType().FullName)
+            .FirstOrDefault(a => a.IsAdapted(control));
+    }
+
+    public IRegion CreateRegion(
+        string name,
+        object control,
+        IServiceProvider serviceProvider,
         bool? useCache = null)
     {
-        var adapter = _adapters.FirstOrDefault(a => a.IsAdapted(control));
-        return adapter == null? 
-            throw new NotSupportedException($"Unsupported control: {control.GetType()}"): 
-            adapter.CreateRegion(name, control, serviceProvider, useCache);
+        ArgumentNullException.ThrowIfNull(control);
+
+        var adapter = GetAdapter(control)
+            ?? throw new NotSupportedException(
+                $"No adapter found for control type: {control.GetType().Name}");
+
+        return adapter.CreateRegion(name, control, serviceProvider, useCache);
     }
 }

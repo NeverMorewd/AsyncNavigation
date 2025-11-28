@@ -1,47 +1,45 @@
 ﻿using AsyncNavigation.Core;
 using Avalonia.Controls;
-using Avalonia.Controls.Primitives;
 using Avalonia.Controls.Templates;
 using Avalonia.Data;
+using Avalonia.Threading;
 
 namespace AsyncNavigation.Avalonia;
 
-public class TabRegion : RegionBase<TabRegion, TabControl>
+public abstract class ItemsRegionBase<TRegion, TItemsControl>
+    : RegionBase<TRegion, TItemsControl>
+    where TRegion : ItemsRegionBase<TRegion, TItemsControl>
+    where TItemsControl : ItemsControl
 {
-    public TabRegion(string name,
-        TabControl tabControl,
+    protected ItemsRegionBase(
+        string name,
+        TItemsControl control,
         IServiceProvider serviceProvider,
-        bool? useCache) : base(name, tabControl, serviceProvider)
-    { 
-        EnableViewCache = useCache ?? false;
-        IsSinglePageRegion = false;
-    }
-    public override NavigationPipelineMode NavigationPipelineMode
+        bool? useCache)
+        : base(name, control, serviceProvider)
     {
-        get => NavigationPipelineMode.ResolveFirst;
+        IsSinglePageRegion = false;
+        EnableViewCache = useCache ?? false;
     }
 
-    protected override void InitializeOnRegionCreated(TabControl control)
+    public override NavigationPipelineMode NavigationPipelineMode
+        => NavigationPipelineMode.RenderFirst;
+
+    protected override void InitializeOnRegionCreated(TItemsControl control)
     {
         base.InitializeOnRegionCreated(control);
+
         control.Tag = this;
-        control.Bind(ItemsControl.ItemsSourceProperty,
-            new Binding(nameof(RegionContext.Items)) { Source = _context });
-
-        control.Bind(SelectingItemsControl.SelectedItemProperty,
-            new Binding(nameof(RegionContext.Selected)) { Source = _context, Mode = BindingMode.TwoWay });
-
-        control.ContentTemplate = new FuncDataTemplate<NavigationContext>((context, _) =>
+        control.ItemTemplate = new FuncDataTemplate<NavigationContext>((context, _) =>
         {
             return context?.IndicatorHost.Value?.Host as Control;
         });
+
+        control.Bind(
+            ItemsControl.ItemsSourceProperty,
+            new Binding(nameof(RegionContext.Items)) { Source = _context });
     }
 
-    public override void Dispose()
-    {
-        base.Dispose();
-        _context.Clear();
-    }
 
     public override void ProcessActivate(NavigationContext navigationContext)
     {
@@ -49,7 +47,8 @@ public class TabRegion : RegionBase<TabRegion, TabControl>
             _context.Items.Add(navigationContext);
 
         _context.Selected = navigationContext;
-
+        // https://github.com/AvaloniaUI/Avalonia/issues/17347
+        Dispatcher.UIThread.RunJobs(DispatcherPriority.Loaded);
         RegionControlAccessor.ExecuteOn(control =>
         {
             control.ScrollIntoView(navigationContext);
@@ -65,6 +64,9 @@ public class TabRegion : RegionBase<TabRegion, TabControl>
         _ = _context.Items.Remove(target);
     }
 
+    public override void Dispose()
+    {
+        base.Dispose();
+        _context.Clear();
+    }
 }
-
-

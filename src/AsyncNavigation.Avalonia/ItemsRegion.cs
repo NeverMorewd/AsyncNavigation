@@ -1,68 +1,17 @@
-﻿using AsyncNavigation.Core;
-using Avalonia.Controls;
-using Avalonia.Controls.Primitives;
-using Avalonia.Controls.Templates;
-using Avalonia.Data;
+﻿using Avalonia.Controls;
 
 namespace AsyncNavigation.Avalonia;
 
-public class ItemsRegion : RegionBase<ItemsRegion, ItemsControl>
+public class ItemsRegion : ItemsRegionBase<ItemsRegion, ItemsControl>
 {
     public ItemsRegion(string name, 
         ItemsControl itemsControl, 
         IServiceProvider serviceProvider, 
-        bool? useCache) : base(name, itemsControl, serviceProvider)
+        bool? useCache) : base(name, itemsControl, serviceProvider, useCache)
     {
-        ArgumentNullException.ThrowIfNull(itemsControl);
-        ArgumentNullException.ThrowIfNull(serviceProvider);
-
-        RegionControlAccessor.ExecuteOn(control =>
-        {
-            // binding the lifetime of region to the control
-            control.Tag = this;
-            control.ItemTemplate = new FuncDataTemplate<NavigationContext>((context, np) =>
-            {
-                return context?.IndicatorHost.Value?.Host as Control;
-            });
-
-            control.Bind(
-               ItemsControl.ItemsSourceProperty,
-               new Binding(nameof(RegionContext.Items)) { Source = _context });
-
-            control.Bind(
-                SelectingItemsControl.SelectedItemProperty,
-                new Binding(nameof(RegionContext.Selected)) { Source = _context, Mode = BindingMode.TwoWay });
-        });
-        EnableViewCache = useCache ?? false;
-        IsSinglePageRegion = false;
-    }
-    public override NavigationPipelineMode NavigationPipelineMode
-    {
-        get => NavigationPipelineMode.RenderFirst;
-    }
-    public override void Dispose()
-    {
-        base.Dispose();
-        _context.Clear();
-    }
-    public override void ProcessActivate(NavigationContext navigationContext)
-    {
-        if (!_context.Items.Contains(navigationContext))
-            _context.Items.Add(navigationContext);
-
-        _context.Selected = navigationContext;
-
-        RegionControlAccessor.ExecuteOn(control =>
-        {
-            control.ScrollIntoView(navigationContext);
-        });
-    }
-
-    public override void ProcessDeactivate(NavigationContext? navigationContext)
-    {
-        var target = navigationContext ?? _context.Selected;
-        if (target == null)
-            return;
-        _ = _context.Items.Remove(target);
+        
     }
 }
+
+
+

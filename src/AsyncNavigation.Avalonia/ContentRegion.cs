@@ -12,25 +12,6 @@ public class ContentRegion : RegionBase<ContentRegion, ContentControl>
         IServiceProvider serviceProvider, 
         bool? useCache) : base(name, contentControl, serviceProvider)
     {
-        ArgumentNullException.ThrowIfNull(contentControl);
-        ArgumentNullException.ThrowIfNull(serviceProvider);
-
-        RegionControlAccessor.ExecuteOn(control =>
-        {
-            control.Tag = this;
-            control.ContentTemplate = new FuncDataTemplate<NavigationContext>((context, np) =>
-            {
-                return context?.IndicatorHost.Value?.Host as Control;
-            });
-
-            control.Bind(
-                ContentControl.ContentProperty,
-                new Binding(nameof(RegionContext.Selected)) { Source = _context, Mode = BindingMode.TwoWay });
-
-        });
-
-        
-
         EnableViewCache = useCache ?? true;
         IsSinglePageRegion = true;
     }
@@ -38,6 +19,20 @@ public class ContentRegion : RegionBase<ContentRegion, ContentControl>
     public override NavigationPipelineMode NavigationPipelineMode
     {
         get => NavigationPipelineMode.RenderFirst;
+    }
+
+    protected override void InitializeOnRegionCreated(ContentControl control)
+    {
+        base.InitializeOnRegionCreated(control);
+        control.Tag = this;
+        control.ContentTemplate = new FuncDataTemplate<NavigationContext>((context, np) =>
+        {
+            return context?.IndicatorHost.Value?.Host as Control;
+        });
+
+        control.Bind(
+            ContentControl.ContentProperty,
+            new Binding(nameof(RegionContext.Selected)) { Source = _context, Mode = BindingMode.TwoWay });
     }
 
     public override void Dispose()

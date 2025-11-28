@@ -29,3 +29,4 @@ public sealed class RegionContext : INotifyPropertyChanged
         Selected = null;
     }
 }
+

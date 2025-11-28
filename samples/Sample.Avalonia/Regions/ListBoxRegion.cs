@@ -1,11 +1,10 @@
-﻿using AsyncNavigation;
-using AsyncNavigation.Avalonia;
+﻿using AsyncNavigation.Avalonia;
 using Avalonia.Controls;
 using System;
 
 namespace Sample.Avalonia.Regions;
 
-public class ListBoxRegion : ItemsRegion
+public class ListBoxRegion : SelectingItemsRegion
 {
     private readonly ListBox _listBox;
     public ListBoxRegion(string name,
@@ -15,9 +14,5 @@ public class ListBoxRegion : ItemsRegion
     {
         _listBox = listBox;
         _listBox.AutoScrollToSelectedItem = true;
-    }
-    public override void ProcessActivate(NavigationContext navigationContext)
-    {
-        base.ProcessActivate(navigationContext);
     }
 }

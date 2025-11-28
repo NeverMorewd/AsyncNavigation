@@ -13,35 +13,6 @@ public class ItemsRegion : RegionBase<ItemsRegion, ItemsControl>
         IServiceProvider serviceProvider, 
         bool? useCache) : base(name, itemsControl, serviceProvider)
     {
-        ArgumentNullException.ThrowIfNull(itemsControl);
-        ArgumentNullException.ThrowIfNull(serviceProvider);
-
-        RegionControlAccessor.ExecuteOn(control =>
-        {
-            control.Tag = this;
-            control.SetBinding(ItemsControl.ItemsSourceProperty,
-                new Binding(nameof(RegionContext.Items))
-                {
-                    Source = _context
-                });
-
-            control.SetBinding(Selector.SelectedItemProperty,
-                new Binding(nameof(RegionContext.Selected))
-                {
-                    Source = _context,
-                    Mode = BindingMode.TwoWay
-                });
-
-            var dataTemplate = new DataTemplate
-            {
-                VisualTree = new FrameworkElementFactory(typeof(ContentPresenter))
-            };
-            dataTemplate.VisualTree.SetBinding(ContentPresenter.ContentProperty,
-                new Binding("IndicatorHost.Value.Host"));
-
-            control.ItemTemplate = dataTemplate;
-        });
-
         EnableViewCache = useCache ?? false;
         IsSinglePageRegion = false;
     }
@@ -49,6 +20,34 @@ public class ItemsRegion : RegionBase<ItemsRegion, ItemsControl>
     {
         get => NavigationPipelineMode.RenderFirst;
     }
+
+    protected override void InitializeOnRegionCreated(ItemsControl control)
+    {
+        base.InitializeOnRegionCreated(control);
+        control.Tag = this;
+        control.SetBinding(ItemsControl.ItemsSourceProperty,
+            new Binding(nameof(RegionContext.Items))
+            {
+                Source = _context
+            });
+
+        control.SetBinding(Selector.SelectedItemProperty,
+            new Binding(nameof(RegionContext.Selected))
+            {
+                Source = _context,
+                Mode = BindingMode.TwoWay
+            });
+
+        var dataTemplate = new DataTemplate
+        {
+            VisualTree = new FrameworkElementFactory(typeof(ContentPresenter))
+        };
+        dataTemplate.VisualTree.SetBinding(ContentPresenter.ContentProperty,
+            new Binding("IndicatorHost.Value.Host"));
+
+        control.ItemTemplate = dataTemplate;
+    }
+
     public override void Dispose()
     {
         base.Dispose();
