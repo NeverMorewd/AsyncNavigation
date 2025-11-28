@@ -22,7 +22,7 @@ public class NavigationResult
         {
             NavigationContext = navigationContext,
             Status = navigationContext.Status,
-            Exception = navigationContext.Errors,
+            Exception = navigationContext.Errors == null ? null : new AggregateException(navigationContext.Errors),
             Duration = navigationContext.Duration.GetValueOrDefault()
         };
     }
@@ -44,7 +44,7 @@ public class NavigationResult
         {
             NavigationContext = navigationContext,
             Status = navigationContext.Status,
-            Exception = navigationContext.Errors,
+            Exception = navigationContext.Errors == null ? null : new AggregateException(navigationContext.Errors),
             Duration = navigationContext.Duration.GetValueOrDefault()
         };
     }
@@ -68,7 +68,7 @@ public class NavigationResult
         {
             NavigationContext = navigationContext,
             Status = navigationContext.Status,
-            Exception = navigationContext.Errors,
+            Exception = navigationContext.Errors == null ? null : new AggregateException(navigationContext.Errors),
             Duration = navigationContext.Duration.GetValueOrDefault()
         };
     }

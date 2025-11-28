@@ -38,6 +38,8 @@ public abstract class RegionBase<TRegion, TControl> : IRegion, IRegionPresenter
         protected set;
     }
 
+    public NavigationContext? Current => _context.Selected;
+    public event EventHandler<NavigationContext>? Navigated;
     #region IRegion Methods
     async Task IRegion.ActivateViewAsync(NavigationContext navigationContext)
     {

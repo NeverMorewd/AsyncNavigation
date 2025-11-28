@@ -3,6 +3,8 @@
 public interface IRegion : IDisposable
 {
     string Name { get; }
+    NavigationContext? Current { get; }
+    event EventHandler<NavigationContext>? Navigated;
     internal IRegionPresenter RegionPresenter { get; }
     Task NavigateFromAsync(NavigationContext navigationContext);
     Task ActivateViewAsync(NavigationContext navigationContext);

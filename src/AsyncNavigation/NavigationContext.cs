@@ -109,7 +109,7 @@ public partial class NavigationContext
     /// <summary>
     /// Gets the error that occurred during navigation, if any.
     /// </summary>
-    public IReadOnlyCollection<Exception> Errors => _errors.ToList().AsReadOnly();
+    public IReadOnlyCollection<Exception>? Errors => !_errors.IsEmpty ? _errors.ToList().AsReadOnly() : null;
 
     /// <summary>
     /// Gets a unique identifier for this navigation context.

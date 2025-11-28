@@ -33,7 +33,13 @@ public partial class MainWindowViewModel : ViewModelBase
                 Debug.WriteLine($"RequestNavigate Failed:{t.Result.Exception}");
             }
         });
-
+        if(_regionManager.TryGetRegion("MainRegion", out var mainRegion))
+        {
+            mainRegion.Navigated += (s, e) =>
+            {
+                Debug.WriteLine($"Navigated to {e}");
+            };
+        }
         Views = _registrationTracker.TryGetViews(out var views) ? [.. views] : [];
 
         if (_router is not null)
