@@ -109,7 +109,7 @@ public partial class NavigationContext
     /// <summary>
     /// Gets the error that occurred during navigation, if any.
     /// </summary>
-    public AggregateException? Errors => new(_errors);
+    public IReadOnlyCollection<Exception> Errors => _errors.ToList().AsReadOnly();
 
     /// <summary>
     /// Gets a unique identifier for this navigation context.
@@ -185,7 +185,7 @@ public partial class NavigationContext
 
         sb.AppendFormat(" - {0}", Duration?.ToString() ?? "N/A");
 
-        if (Errors?.InnerExceptions is { Count: > 0 } exceptions)
+        if (Errors is { Count: > 0 } exceptions)
         {
             sb.AppendFormat(" (Errors: {0})", exceptions.Count);
             sb.AppendLine();
