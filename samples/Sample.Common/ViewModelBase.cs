@@ -62,7 +62,7 @@ public abstract partial class ViewModelBase : ReactiveObject, INavigationAware
         return Task.CompletedTask;
     }
 
-    protected Task RequestUnloadAsync()
+    public Task RequestUnloadAsync(CancellationToken cancellationToken)
     {
         if (AsyncRequestUnloadEvent == null)
         {

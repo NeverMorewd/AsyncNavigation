@@ -21,7 +21,7 @@ public partial class AViewModel : InstanceCounterViewModel<AViewModel>, IDialogA
     [ReactiveCommand]
     private Task UnloadView(string param)
     {
-        return RequestUnloadAsync();
+        return RequestUnloadAsync(CancellationToken.None);
     }
 
     [ReactiveCommand]

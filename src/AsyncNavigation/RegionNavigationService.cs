@@ -138,19 +138,13 @@ internal sealed class RegionNavigationService<T> : IRegionNavigationService<T> w
         {
             var currentAware = (Current.Value.View.DataContext as INavigationAware)!;
             await currentAware.OnNavigatedFromAsync(navigationContext);
-            // todo: why detach?
-            //if (_regionPresenter.IsSinglePageRegion)
-            //{
-            //    _unloadHandler.Detach(currentAware);
-            //}
         }
         navigationContext.CancellationToken.ThrowIfCancellationRequested();
     }
 
     private async Task OnAfterNavigationAsync(NavigationContext navigationContext)
     {
-        if (navigationContext.Target.Value is IView view
-            && view.DataContext is INavigationAware aware)
+        if (navigationContext.TryResolveViewAndAware(out var view,out var aware))
         {
             var contextSnapshot = navigationContext;
             WeakUnloadObserver.Subscribe(aware, a =>

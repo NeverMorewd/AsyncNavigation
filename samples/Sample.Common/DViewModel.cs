@@ -1,4 +1,5 @@
-﻿using AsyncNavigation.Abstractions;
+﻿using AsyncNavigation;
+using AsyncNavigation.Abstractions;
 using AsyncNavigation.Core;
 using ReactiveUI.SourceGenerators;
 namespace Sample.Common;
@@ -34,5 +35,16 @@ public partial class DViewModel : InstanceCounterViewModel<DViewModel>
     private async Task GoBack()
     {
         await _regionManager.GoBack("TabRegion");
+    }
+    [ReactiveCommand]
+    private async Task RequestUnloadView(NavigationContext navigationContext)
+    {
+        if (navigationContext.TryResolveNavigationAware(out var aware))
+        {
+            if (aware is ViewModelBase viewModel)
+            {
+                await viewModel.RequestUnloadAsync(CancellationToken.None);
+            }
+        }
     }
 }
