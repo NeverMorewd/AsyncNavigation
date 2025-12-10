@@ -26,18 +26,21 @@ public partial class MainWindowViewModel : ViewModelBase
         _regionManager = regionManager;
         _dialogService = dialogService;
         _registrationTracker = registrationTracker;
-        _regionManager.RequestNavigateAsync("MainRegion", "AView", replay: false).ContinueWith(t => 
-        {
-            if (t.IsFaulted)
+        _regionManager
+            .RequestNavigateAsync("MainRegion", "AView", replay: false)
+            .ContinueWith(t => 
             {
-                Debug.WriteLine($"RequestNavigate Failed:{t.Result.Exception}");
-            }
-        });
+                if (t.IsFaulted)
+                {
+                    Debug.WriteLine($"RequestNavigate Failed:{t.Result.Exception}");
+                }
+            });
+
         if(_regionManager.TryGetRegion("MainRegion", out var mainRegion))
         {
-            mainRegion.Navigated += (s, e) =>
+            mainRegion.Navigated += (s, e) => 
             {
-                Debug.WriteLine($"Navigated to {e}");
+                Debug.WriteLine($"Navigated:{e.Context}");
             };
         }
         Views = _registrationTracker.TryGetViews(out var views) ? [.. views] : [];

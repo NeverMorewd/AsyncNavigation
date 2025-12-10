@@ -100,9 +100,7 @@ public abstract class RegionManagerBase : IRegionManager, IDisposable
             if (previousRegion is not null && previousRegion != region)
                 await previousRegion.NavigateFromAsync(context);
 
-            await region.ActivateViewAsync(context);
-            Debug.WriteLine($"[Navigate] → {viewName} @ {regionName}");
-            return NavigationResult.Success(context);
+            return await region.ActivateViewAsync(context);
         }
         catch (Exception ex)
         {
@@ -164,9 +162,7 @@ public abstract class RegionManagerBase : IRegionManager, IDisposable
         {
             try
             {
-                await region.GoForwardAsync(cancellationToken);
-                Debug.WriteLine($"[GoForward] {regionName}");
-                return NavigationResult.Success(TimeSpan.Zero);
+                return await region.GoForwardAsync(cancellationToken);
             }
             catch (OperationCanceledException)
             {
@@ -184,9 +180,7 @@ public abstract class RegionManagerBase : IRegionManager, IDisposable
         {
             try
             {
-                await region.GoBackAsync(cancellationToken);
-                Debug.WriteLine($"[GoBack] {regionName}");
-                return NavigationResult.Success(TimeSpan.Zero);
+                return await region.GoBackAsync(cancellationToken);
             }
             catch (OperationCanceledException)
             {
