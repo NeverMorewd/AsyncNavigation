@@ -37,20 +37,8 @@ public abstract class RegionBase<TRegion, TControl> : IRegion, IRegionPresenter
         get;
         protected set;
     }
-
+    public event EventHandler<NavigationEventArgs>? Navigated;
     #region IRegion Methods
-    async Task IRegion.ActivateViewAsync(NavigationContext navigationContext)
-    {
-        await _regionNavigationService.RequestNavigateAsync(navigationContext);
-        _navigationHistory.Add(navigationContext);
-    }
-
-
-    Task<bool> IRegion.CanGoBackAsync()
-    {
-        return Task.FromResult(_navigationHistory.CanGoBack);
-    }
-
     /// <summary>
     /// Performs initialization logic when a region is created and associated with the specified control.
     /// Binding logic or setup tasks related to the control can be implemented in this method.
@@ -62,13 +50,29 @@ public abstract class RegionBase<TRegion, TControl> : IRegion, IRegionPresenter
     {
         
     }
-    public async Task GoBackAsync(CancellationToken cancellationToken = default)
+    async Task<NavigationResult> IRegion.ActivateViewAsync(NavigationContext navigationContext)
+    {
+        await _regionNavigationService.RequestNavigateAsync(navigationContext);
+        _navigationHistory.Add(navigationContext);
+        var result = NavigationResult.Success(navigationContext);
+        RaiseNavigated(navigationContext);
+        return result;
+    }
+    Task<bool> IRegion.CanGoBackAsync()
+    {
+        return Task.FromResult(_navigationHistory.CanGoBack);
+    }
+
+    public async Task<NavigationResult> GoBackAsync(CancellationToken cancellationToken = default)
     {
         cancellationToken.ThrowIfCancellationRequested();
-        var context = _navigationHistory.GoBack() ?? throw new NavigationException("Cannot go back!");
-        context.IsBackNavigation = true;
-        context.LinkCancellationToken(cancellationToken);
-        await _regionNavigationService.RequestNavigateAsync(context);
+        var navigationContext = _navigationHistory.GoBack() ?? throw new NavigationException("Cannot go back!");
+        navigationContext.IsBackNavigation = true;
+        navigationContext.LinkCancellationToken(cancellationToken);
+        await _regionNavigationService.RequestNavigateAsync(navigationContext);
+        var result = NavigationResult.Success(navigationContext);
+        RaiseNavigated(navigationContext);
+        return result;
     }
 
     Task<bool> IRegion.CanGoForwardAsync()
@@ -76,19 +80,28 @@ public abstract class RegionBase<TRegion, TControl> : IRegion, IRegionPresenter
         return Task.FromResult(_navigationHistory.CanGoForward);
     }
 
-    public async Task GoForwardAsync(CancellationToken cancellationToken = default)
+    public async Task<NavigationResult> GoForwardAsync(CancellationToken cancellationToken = default)
     {
         cancellationToken.ThrowIfCancellationRequested();
-        var context = _navigationHistory.GoForward() ?? throw new NavigationException("Cannot go forward!");
-        context.IsForwordNavigation = true;
-        context.LinkCancellationToken(cancellationToken);
-        await _regionNavigationService.RequestNavigateAsync(context);
+        var navigationContext = _navigationHistory.GoForward() ?? throw new NavigationException("Cannot go forward!");
+        navigationContext.IsForwordNavigation = true;
+        navigationContext.LinkCancellationToken(cancellationToken);
+        await _regionNavigationService.RequestNavigateAsync(navigationContext);
+        var result = NavigationResult.Success(navigationContext);
+        RaiseNavigated(navigationContext);
+        return result;
     }
     Task IRegion.NavigateFromAsync(NavigationContext navigationContext)
     {
         return _regionNavigationService.OnNavigateFromAsync(navigationContext);
     }
 
+    /// <summary>
+    /// RevertAsync
+    /// Should not raise Navigated event!
+    /// </summary>
+    /// <param name="navigationContext"></param>
+    /// <returns></returns>
     Task IRegion.RevertAsync(NavigationContext? navigationContext)
     {
         return _regionNavigationService.RevertAsync(navigationContext);
@@ -101,6 +114,12 @@ public abstract class RegionBase<TRegion, TControl> : IRegion, IRegionPresenter
     #endregion
     public abstract void ProcessActivate(NavigationContext navigationContext);
     public abstract void ProcessDeactivate(NavigationContext? navigationContext);
+
+    private void RaiseNavigated(NavigationContext context)
+    {
+        Navigated?.Invoke(this, new NavigationEventArgs(this, context));
+    }
+
 
 #if DEBUG
     ~RegionBase()

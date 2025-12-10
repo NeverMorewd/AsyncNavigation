@@ -544,9 +544,7 @@ public class ServiceCollectionExtensionsTests
     {
         // Arrange
         var services = new ServiceCollection();
-        services.RegisterNavigationFramework();
-        services.AddSingleton<IPlatformService, TestPlatformService>();
-        services.AddTransient<IInnerRegionIndicatorHost, TestInnerRegionIndicatorHost>();
+        services.AddNavigationTestSupport();
         var serviceProvider = services.BuildServiceProvider();
         // Act
 
@@ -581,7 +579,7 @@ public class ServiceCollectionExtensionsTests
 
         //Assert
         Assert.NotNull(jobProcessor1);
-        if (options.NavigationJobScope == Core.NavigationJobScope.Region)
+        if (options.NavigationJobScope == NavigationJobScope.Region)
         {
             _testOutputHelper.WriteLine("NavigationJobScope is Region - expecting transient IAsyncJobProcessor instances.");
             Assert.NotEqual(jobProcessor1, jobProcessor2);
@@ -592,7 +590,7 @@ public class ServiceCollectionExtensionsTests
             Assert.Equal(jobProcessor1, jobProcessor2);
         }
 
-            Assert.NotNull(dialogService1);
+        Assert.NotNull(dialogService1);
         Assert.Equal(dialogService1, dialogService2);
 
         Assert.NotNull(regionNavigationServiceFactory1);

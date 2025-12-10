@@ -31,6 +31,9 @@ public class RegistrationTracker : IRegistrationTracker
         }
         return dict;
     }
+    /// <summary>
+    /// for unit testing purposes only
+    /// </summary>
     internal void Clear()
     {
         _categoryRegistry.Clear();
