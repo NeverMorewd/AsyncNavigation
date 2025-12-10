@@ -20,6 +20,6 @@ public partial class CViewModel : InstanceCounterViewModel<CViewModel>
     [ReactiveCommand]
     private Task UnloadView(string param)
     {
-        return RequestUnloadAsync();
+        return RequestUnloadAsync(CancellationToken.None);
     }
 }
