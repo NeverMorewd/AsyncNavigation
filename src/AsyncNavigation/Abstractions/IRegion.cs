@@ -1,5 +1,4 @@
 ﻿using AsyncNavigation.Core;
-using System.Threading.Tasks;
 
 namespace AsyncNavigation.Abstractions;
 

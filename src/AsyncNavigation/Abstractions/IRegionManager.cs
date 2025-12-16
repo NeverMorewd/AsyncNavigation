@@ -9,8 +9,17 @@ public interface IRegionManager
     void AddRegion(string regionName, IRegion region);
     bool TryGetRegion(string regionName, [MaybeNullWhen(false)] out IRegion region);
     bool TryRemoveRegion(string regionName, [MaybeNullWhen(false)] out IRegion region);
+    event EventHandler<RegionChangeEventArgs> RegionChanged;
 
-
+    /// <summary>
+    /// RequestNavigateAsync
+    /// </summary>
+    /// <param name="regionName"></param>
+    /// <param name="viewName"></param>
+    /// <param name="navigationParameters"></param>
+    /// <param name="replay"></param>
+    /// <param name="cancellationToken"></param>
+    /// <returns></returns>
     Task<NavigationResult> RequestNavigateAsync(string regionName, 
         string viewName,
         INavigationParameters? navigationParameters = null,

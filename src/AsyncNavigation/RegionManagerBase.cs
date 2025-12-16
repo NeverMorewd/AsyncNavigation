@@ -51,7 +51,7 @@ public abstract class RegionManagerBase : IRegionManager, IDisposable
                 .ToDictionary(kv => kv.Key, kv => kv.Value);
         }
     }
-
+    public event EventHandler<RegionChangeEventArgs>? RegionChanged;
     public async Task<NavigationResult> RequestNavigateAsync(
         string regionName,
         string viewName,
@@ -334,4 +334,12 @@ public abstract class RegionManagerBase : IRegionManager, IDisposable
         }
         return NavigationResult.Success(TimeSpan.Zero);
     }
+
+    protected virtual void OnRegionChanged(IRegion region, RegionChangeKind kind)
+    {
+        RegionChanged?.Invoke(
+            this,
+            new RegionChangeEventArgs(region, kind));
+    }
+
 }

@@ -7,6 +7,7 @@ using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Reactive.Linq;
 using System.Runtime.InteropServices;
+using AsyncNavigation.Reactive;
 
 namespace Sample.Common;
 
@@ -58,8 +59,8 @@ public partial class MainWindowViewModel : ViewModelBase
             .WhereNotNull()
             .Subscribe(target =>
             {
-                /// If the target starts with "/", we consider it a path navigation.
-                /// This logic can be customized based on your routing conventions.
+                // If the target starts with "/", we consider it a path navigation.
+                // This logic can be customized based on your routing conventions.
                 if (target.StartsWith("/",StringComparison.OrdinalIgnoreCase))
                 {
                     AsyncPathNavigateAndForget(target);
@@ -69,6 +70,11 @@ public partial class MainWindowViewModel : ViewModelBase
                     AsyncNavigateAndForget(target);
                 }
             });
+
+        _regionManager.NavigationEvents.Subscribe(e =>
+        {
+            Debug.WriteLine($"NavigationEvent:{e}");
+        });
     }
 
     public string FooterText => $"Powered by .NET {Environment.Version} • {RuntimeInformation.OSDescription}";

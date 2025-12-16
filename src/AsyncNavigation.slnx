@@ -35,4 +35,5 @@
   <Project Path="AsyncNavigation.Avalonia/AsyncNavigation.Avalonia.csproj" />
   <Project Path="AsyncNavigation.Wpf/AsyncNavigation.Wpf.csproj" />
   <Project Path="AsyncNavigation/AsyncNavigation.csproj" />
+  <Project Path="AsyncNavigation.Reactive/AsyncNavigation.Reactive.csproj" />
 </Solution>
