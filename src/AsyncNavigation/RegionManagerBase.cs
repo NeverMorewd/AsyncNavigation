@@ -128,7 +128,8 @@ public abstract class RegionManagerBase : IRegionManager, IDisposable
     {
         if (!_regions.TryAdd(regionName, new WeakReference<IRegion>(region)))
             throw new InvalidOperationException($"Duplicated RegionName found: {regionName}");
-
+        
+        OnRegionChanged(region, RegionChangeKind.Added);
         _ = TryReplayPendingNavigations(regionName);
     }
 
@@ -197,14 +198,14 @@ public abstract class RegionManagerBase : IRegionManager, IDisposable
     public Task<bool> CanGoBackAsync(string regionName)
         => GetRegion(regionName).CanGoBackAsync();
 
-    protected IRegion GetRegion(string regionName)
+    private IRegion GetRegion(string regionName)
     {
         if (TryGetRegion(regionName, out var region))
             return region!;
         throw new InvalidOperationException($"Region '{regionName}' not found or has been collected.");
     }
 
-    protected void CreateRegionSafe(string name, object target, IServiceProvider? provider, bool? preferCache)
+    private void CreateRegionSafe(string name, object target, IServiceProvider? provider, bool? preferCache)
     {
         lock (_regionLock)
         {
@@ -284,7 +285,10 @@ public abstract class RegionManagerBase : IRegionManager, IDisposable
     {
         lock (_staticLock)
         {
-            _current?.TryRemoveRegion(name, out _);
+            if (_current != null && _current.TryRemoveRegion(name, out var region))
+            {
+                _current.OnRegionChanged(region, RegionChangeKind.Removed);
+            }
         }
     }
 

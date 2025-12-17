@@ -7,7 +7,6 @@ using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Reactive.Linq;
 using System.Runtime.InteropServices;
-using AsyncNavigation.Reactive;
 
 namespace Sample.Common;
 
@@ -73,7 +72,7 @@ public partial class MainWindowViewModel : ViewModelBase
 
         _regionManager.NavigationEvents.Subscribe(e =>
         {
-            Debug.WriteLine($"NavigationEvent:{e}");
+            Debug.WriteLine($"NavigationEvent:{e.Region.Name}-{e.Context.ViewName}");
         });
     }
 

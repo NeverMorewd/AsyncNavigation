@@ -1,4 +1,5 @@
-﻿using AsyncNavigation.Abstractions;
+﻿using System.Diagnostics;
+using AsyncNavigation.Abstractions;
 
 namespace AsyncNavigation;
 
@@ -11,6 +12,7 @@ public class RegionNavigationHistory : IRegionNavigationHistory
     public RegionNavigationHistory(NavigationOptions navigationOptions)
     {
         _maxHistorySize = navigationOptions.MaxHistoryItems;
+        Debug.WriteLine($"{nameof(_maxHistorySize)}: {_maxHistorySize}");
     }
 
     public bool CanGoBack => _currentIndex > 0;
