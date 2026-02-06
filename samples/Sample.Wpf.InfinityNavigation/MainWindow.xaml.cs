@@ -1,6 +1,6 @@
 ﻿using System.Windows;
 
-namespace Sampe.Wpf.InfinityNavigation;
+namespace Sample.Wpf.InfinityNavigation;
 
 /// <summary>
 /// Interaction logic for MainWindow.xaml

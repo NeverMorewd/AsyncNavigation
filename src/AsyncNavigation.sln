@@ -33,7 +33,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{9858EF92
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Sample.InfinityNavigation", "..\samples\Sample.InfinityNavigation\Sample.InfinityNavigation.csproj", "{22035BCB-20DB-68F4-74D3-4A11192E2D24}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Sampe.Wpf.InfinityNavigation", "..\samples\Sampe.Wpf.InfinityNavigation\Sampe.Wpf.InfinityNavigation.csproj", "{D246E4CC-F3E1-D3FF-90B4-0A07590372F8}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Sample.Wpf.InfinityNavigation", "..\samples\Sample.Wpf.InfinityNavigation\Sample.Wpf.InfinityNavigation.csproj", "{D246E4CC-F3E1-D3FF-90B4-0A07590372F8}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AsyncNavigation.Tests", "..\tests\AsyncNavigation.Tests\AsyncNavigation.Tests.csproj", "{7AD898EB-A800-1391-7E27-CEE9DA9B3FE7}"
 EndProject

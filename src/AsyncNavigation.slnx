@@ -22,7 +22,7 @@
     <Project Path="../samples/Sample.InfinityNavigation/Sample.InfinityNavigation.csproj" />
   </Folder>
   <Folder Name="/samples/wpf/">
-    <Project Path="../samples/Sampe.Wpf.InfinityNavigation/Sampe.Wpf.InfinityNavigation.csproj" />
+    <Project Path="../samples/Sample.Wpf.InfinityNavigation/Sample.Wpf.InfinityNavigation.csproj" />
     <Project Path="../samples/Sample.Wpf/Sample.Wpf.csproj" />
   </Folder>
   <Folder Name="/Solution Items/">
