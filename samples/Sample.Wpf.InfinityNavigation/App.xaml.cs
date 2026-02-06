@@ -18,7 +18,7 @@ public partial class App : Application
     {
         Current.ShutdownMode = ShutdownMode.OnMainWindowClose;
         PlatformRegistrationManager.SetRegistrationNamespaces(RegistrationNamespace.Wpf);
-
+        RxApp.MainThreadScheduler = new DispatcherScheduler(Dispatcher);
         base.OnStartup(e);
 
         var services = new ServiceCollection();
