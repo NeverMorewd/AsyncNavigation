@@ -1,10 +1,12 @@
 ﻿using AsyncNavigation;
 using AsyncNavigation.Abstractions;
+using ReactiveUI;
 using ReactiveUI.SourceGenerators;
+using System.Reactive.Concurrency;
 
 namespace Sample.Common;
 
-public partial class InfinityViewModel: InstanceCounterViewModel<AViewModel>
+public partial class InfinityViewModel : InstanceCounterViewModel<InfinityViewModel>
 {
     [Reactive]
     private string _nextRegionName = "";
