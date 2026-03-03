@@ -27,12 +27,12 @@ internal sealed class InnerIndicatorHost : IInnerRegionIndicatorHost, IInnerIndi
 
     public UIElement GetErrorIndicator(NavigationContext navigationContext)
     {
-        throw new NotImplementedException();
+        return new Grid();
     }
 
     public UIElement GetLoadingIndicator(NavigationContext navigationContext)
     {
-        throw new NotImplementedException();
+        return new Grid();
     }
 
     public bool HasErrorIndicator(NavigationContext navigationContext)
