@@ -27,13 +27,7 @@ public class DialogService : IDialogService
         _platformService.WaitOnDispatcher(openTask);
 
         var closeTask = HandleCloseInternalAsync(dialogWindow, aware);
-        _ = closeTask.ContinueWith(t =>
-        {
-            if (t.Status == TaskStatus.RanToCompletion)
-            {
-                callback?.Invoke(t.Result);
-            }
-        }, cancellationToken);
+        ObserveCloseTask(closeTask, callback);
 
         _platformService.Show(dialogWindow, false);
     }
@@ -98,13 +92,7 @@ public class DialogService : IDialogService
         _platformService.WaitOnDispatcher(openTask);
 
         var closeTask = HandleCloseInternalAsync(dialogWindow, aware);
-        _ = closeTask.ContinueWith(t =>
-        {
-            if (t.Status == TaskStatus.RanToCompletion)
-            {
-                callback?.Invoke(t.Result);
-            }
-        }, cancellationToken);
+        ObserveCloseTask(closeTask, callback);
 
         _platformService.Show(dialogWindow, false);
     }
@@ -153,6 +141,22 @@ public class DialogService : IDialogService
         _platformService.Show(dialogWindow, false);
     }
 
+
+    private static void ObserveCloseTask(Task<IDialogResult> closeTask, Action<IDialogResult>? callback)
+    {
+        _ = closeTask.ContinueWith(t =>
+        {
+            if (t.IsCompletedSuccessfully)
+            {
+                callback?.Invoke(t.Result);
+            }
+
+            if (t.IsFaulted)
+            {
+                _ = t.Exception;
+            }
+        }, CancellationToken.None, TaskContinuationOptions.ExecuteSynchronously, TaskScheduler.Default);
+    }
 
     private IDialogWindow ResolveDialogWindow(string? windowName) =>
         string.IsNullOrEmpty(windowName)
