@@ -45,7 +45,6 @@ public class TimerPrecisionTests
         var countdown = new CountdownEvent(iterations);
         var sw = Stopwatch.StartNew();
         double lastTick = 0;
-
         _output.WriteLine($"Testing System.Threading.Timer({intervalMs}ms) precision, {iterations} iterations");
         _output.WriteLine($"Operating System: {Environment.OSVersion}");
         _output.WriteLine($".NET Version: {Environment.Version}");
@@ -59,11 +58,15 @@ public class TimerPrecisionTests
                 deltas.Add(currentTick - lastTick);
             }
             lastTick = currentTick;
-            countdown.Signal();
+
+            // Guard: prevent over-signaling when timer fires more than expected
+            // This can happen on Linux where timer precision is higher than Windows
+            if (!countdown.IsSet)
+                countdown.Signal();
+
         }, null, 0, intervalMs);
 
         countdown.Wait(TimeSpan.FromSeconds(30));
-
         PrintStatistics("Threading.Timer", deltas, intervalMs);
     }
 
