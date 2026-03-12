@@ -164,6 +164,16 @@ public partial class NavigationContext
         EndTime = DateTimeOffset.UtcNow;
         Duration = EndTime - StartTime;
         _completionTcs.TrySetResult(true);
+
+        // Dispose intermediate linked CTS objects before the final one so that
+        // the chain is torn down in reverse order.
+        if (_linkedCtsList is not null)
+        {
+            foreach (var cts in _linkedCtsList)
+                cts.Dispose();
+            _linkedCtsList = null;
+        }
+
         _cts?.Dispose();
         _cts = null;
     }
