@@ -30,7 +30,7 @@ public sealed class WeakRegionControlAccessor<TControl> : IRegionControlAccessor
         {
             return control;
         }
-        throw new ObjectDisposedException($"The control of region '{control}' has been disposed.");
+        throw new ObjectDisposedException($"The control of type '{typeof(TControl).Name}' has been garbage collected.");
     }
     public bool TryGet([MaybeNullWhen(false)] out TControl control)
     {

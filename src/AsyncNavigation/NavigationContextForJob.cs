@@ -26,8 +26,10 @@ public partial class NavigationContext : IJobContext
         if (!otherToken.CanBeCanceled)
             return;
 
+        var oldCts = _cts;
         _cts = CancellationTokenSource.CreateLinkedTokenSource(CancellationToken, otherToken);
         CancellationToken = _cts.Token;
+        oldCts?.Dispose();
     }
 
     public async Task<bool> CancelAndWaitAsync(TimeSpan? timeout = null)

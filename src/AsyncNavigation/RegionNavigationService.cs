@@ -38,9 +38,6 @@ internal sealed class RegionNavigationService<T> : IRegionNavigationService<T> w
         }
         finally
         {
-#if GC_TEST
-            GC.Collect();
-#endif
         }
     }
 
@@ -134,9 +131,8 @@ internal sealed class RegionNavigationService<T> : IRegionNavigationService<T> w
 
     private async Task OnBeforeNavigationAsync(NavigationContext navigationContext)
     {
-        if (Current.HasValue)
+        if (Current.HasValue && Current.Value.View.DataContext is INavigationAware currentAware)
         {
-            var currentAware = (Current.Value.View.DataContext as INavigationAware)!;
             await currentAware.OnNavigatedFromAsync(navigationContext);
         }
         navigationContext.CancellationToken.ThrowIfCancellationRequested();

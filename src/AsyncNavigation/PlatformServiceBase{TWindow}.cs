@@ -27,7 +27,7 @@ internal abstract class PlatformServiceBase<TWindow> : IPlatformService<TWindow>
         if (!TryGetPlatformWindow(baseWindow, out TWindow? window))
         {
             throw new InvalidOperationException($"Window must be of type {typeof(TWindow).Name}, " +
-                $"but got {window?.GetType().Name ?? "null"}");
+                $"but got {baseWindow?.GetType().Name ?? "null"}");
         }
         Show(window, isModal);
     }
@@ -40,7 +40,7 @@ internal abstract class PlatformServiceBase<TWindow> : IPlatformService<TWindow>
         if (!TryGetPlatformWindow(baseWindow, out TWindow? window))
         {
             throw new InvalidOperationException($"Window must be of type {typeof(TWindow).Name}, " +
-                $"but got {window?.GetType().Name ?? "null"}");
+                $"but got {baseWindow?.GetType().Name ?? "null"}");
         }
         AttachClosing(window, handler);
     }
@@ -51,7 +51,7 @@ internal abstract class PlatformServiceBase<TWindow> : IPlatformService<TWindow>
         if (!TryGetPlatformWindow(mainWindow, out TWindow? window))
         {
             throw new InvalidOperationException($"Window must be of type {typeof(TWindow).Name}, " +
-                $"but got {window?.GetType().Name ?? "null"}");
+                $"but got {mainWindow?.GetType().Name ?? "null"}");
         }
         ShowMainWindow(window);
     }

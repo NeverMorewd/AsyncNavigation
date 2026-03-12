@@ -78,10 +78,10 @@ public partial class NavigationContext
     /// <summary>
     /// Gets a value indicating whether this is a forward navigation operation.
     /// </summary>
-    public bool IsForwordNavigation 
-    { 
-        get; 
-        internal set; 
+    public bool IsForwardNavigation
+    {
+        get;
+        internal set;
     }
 
     /// <summary>
@@ -134,7 +134,7 @@ public partial class NavigationContext
 
     internal NavigationContext UpdateStatus(NavigationStatus newStatus, params Exception[] errors)
     {
-        if (IsCompleted && !IsForwordNavigation && !IsBackNavigation)
+        if (IsCompleted && !IsForwardNavigation && !IsBackNavigation)
             throw new InvalidOperationException("Cannot change status after navigation is completed.");
 
         Status = newStatus;

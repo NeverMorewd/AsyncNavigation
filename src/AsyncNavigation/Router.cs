@@ -7,6 +7,7 @@ namespace AsyncNavigation;
 public class Router : IRouter
 {
     private readonly Dictionary<string, Route> _routes = [];
+    private List<Route>? _sortedRoutes;
 
     public IRouteBuilder MapNavigation(string pathTemplate, params NavigationTarget[] targets)
     {
@@ -31,6 +32,7 @@ public class Router : IRouter
         }
 
         _routes.Add(route.Path, route);
+        _sortedRoutes = null;
     }
 
     public Route? Match(string requestedPath)
@@ -55,10 +57,11 @@ public class Router : IRouter
             ? []
             : cleanPath.Split('/', StringSplitOptions.RemoveEmptyEntries);
 
-        foreach (var kvp in _routes.OrderByDescending(kvp => kvp.Value.Segments.Length))
+        _sortedRoutes ??= [.. _routes.Values.OrderByDescending(r => r.Segments.Length)];
+        foreach (var route in _sortedRoutes)
         {
-            if (TryMatchRoute(kvp.Value, requestSegments))
-                return kvp.Value;
+            if (TryMatchRoute(route, requestSegments))
+                return route;
         }
 
         return null;
