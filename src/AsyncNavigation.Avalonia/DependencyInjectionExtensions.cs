@@ -2,6 +2,7 @@
 using AsyncNavigation.Abstractions;
 using AsyncNavigation.Avalonia;
 using AsyncNavigation.Core;
+using Avalonia.Controls;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using System.Diagnostics.CodeAnalysis;
 
@@ -37,6 +38,10 @@ public static class DependencyInjectionExtensions
     /// <item>
     /// Register region navigation, view factory, cache manager, indicator services, and <see cref="IRegionManager"/>.
     /// </item>
+    /// <item>
+    /// Register <see cref="ITopLevelProvider"/> as a singleton. Pass <paramref name="topLevelResolver"/>
+    /// to override the default application-lifetime-based resolution (useful in headless tests).
+    /// </item>
     /// </list>
     /// This extension method is typically called during application startup:
     /// <code>
@@ -46,9 +51,12 @@ public static class DependencyInjectionExtensions
     /// });
     /// </code>
     /// </remarks>
-    public static IServiceCollection AddNavigationSupport(this IServiceCollection serviceDescriptors, NavigationOptions? navigationOptions = null)
+    public static IServiceCollection AddNavigationSupport(
+        this IServiceCollection serviceDescriptors,
+        NavigationOptions? navigationOptions = null,
+        Func<TopLevel?>? topLevelResolver = null)
     {
-        return serviceDescriptors
+        serviceDescriptors
             .RegisterNavigationFramework(navigationOptions)
             .RegisterRegionAdapter<ContentRegionAdapter>()
             .RegisterRegionAdapter<ItemsRegionAdapter>()
@@ -57,6 +65,13 @@ public static class DependencyInjectionExtensions
             .AddSingleton<IRegionManager, RegionManager>()
             .RegisterDialogContainer<DefaultDialogContainer>(NavigationConstants.DEFAULT_DIALOG_WINDOW_KEY)
             .AddSingleton<IPlatformService, PlatformService>();
+
+        // Register via an instance factory so the internal TopLevelProvider constructor is
+        // callable even though DI cannot discover internal constructors by reflection.
+        // Passing null for topLevelResolver activates the default app-lifetime-based resolution.
+        serviceDescriptors.AddSingleton<ITopLevelProvider>(new TopLevelProvider(topLevelResolver));
+
+        return serviceDescriptors;
     }
 
     /// <summary>
