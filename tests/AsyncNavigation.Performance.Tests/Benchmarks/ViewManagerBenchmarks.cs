@@ -1,8 +1,8 @@
 using AsyncNavigation;
 using AsyncNavigation.Abstractions;
 using AsyncNavigation.Core;
+using AsyncNavigation.Performance.Tests;
 using BenchmarkDotNet.Attributes;
-using BenchmarkDotNet.Jobs;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace AsyncNavigation.Performance.Tests.Benchmarks;
@@ -10,11 +10,9 @@ namespace AsyncNavigation.Performance.Tests.Benchmarks;
 /// <summary>
 /// Measures ViewManager throughput:
 /// - cache-hit resolve (Touch / LRU update path)
-/// - cache-miss resolve (create + AddToLru path)
-/// - LRU eviction under sustained load
+/// - cache-miss resolve (create + AddToLru path + possible eviction)
 /// </summary>
-[SimpleJob(RuntimeMoniker.Net80)]
-[MemoryDiagnoser]
+[Config(typeof(BenchmarkConfig))]
 [HideColumns("Error", "StdDev", "Median", "RatioSD")]
 public class ViewManagerBenchmarks
 {
@@ -27,8 +25,7 @@ public class ViewManagerBenchmarks
     public void Setup()
     {
         var sc = new ServiceCollection();
-        var options = new NavigationOptions { MaxCachedViews = CacheSize };
-        NavigationOptions.Default.MergeFrom(options);
+        NavigationOptions.Default.MaxCachedViews = CacheSize;
         sc.AddSingleton(NavigationOptions.Default);
         sc.AddSingleton<IAsyncJobProcessor, AsyncJobProcessor>();
         sc.AddSingleton<IViewFactory, ViewFactory>();
@@ -38,10 +35,9 @@ public class ViewManagerBenchmarks
         for (int i = 0; i < ViewCount; i++)
             RegisterBenchView(sc, $"View{i}");
 
-        var sp = sc.BuildServiceProvider();
-        _manager = sp.GetRequiredService<IViewManager>();
+        _manager = sc.BuildServiceProvider().GetRequiredService<IViewManager>();
 
-        // Pre-warm the cache with the first CacheSize views
+        // Pre-warm the cache
         for (int i = 0; i < CacheSize; i++)
             _manager.ResolveViewAsync($"View{i}", useCache: true).GetAwaiter().GetResult();
     }
@@ -49,17 +45,9 @@ public class ViewManagerBenchmarks
     [GlobalCleanup]
     public void Cleanup() => _manager.Dispose();
 
-    // -----------------------------------------------------------------------
-    // Cache hit – view already in cache
-    // -----------------------------------------------------------------------
-
     [Benchmark(Baseline = true)]
     public async Task<IView> Resolve_CacheHit()
         => await _manager.ResolveViewAsync("View0", useCache: true);
-
-    // -----------------------------------------------------------------------
-    // Cache miss – forces creation + LRU insert + possible eviction
-    // -----------------------------------------------------------------------
 
     private int _missCounter;
 
@@ -70,10 +58,6 @@ public class ViewManagerBenchmarks
         return await _manager.ResolveViewAsync(key, useCache: false);
     }
 
-    // -----------------------------------------------------------------------
-    // Remove (LRU O(1) path)
-    // -----------------------------------------------------------------------
-
     [Benchmark]
     public void Remove_ExistingKey()
     {
@@ -81,20 +65,9 @@ public class ViewManagerBenchmarks
         _manager.Remove("View0", dispose: false);
     }
 
-    // -----------------------------------------------------------------------
-    // AddView (duplicate key)
-    // -----------------------------------------------------------------------
-
     [Benchmark]
     public void AddView_UpdateDuplicate()
-    {
-        var view = new BenchView();
-        _manager.AddView("View0", view);
-    }
-
-    // -----------------------------------------------------------------------
-    // Helpers
-    // -----------------------------------------------------------------------
+        => _manager.AddView("View0", new BenchView());
 
     private static void RegisterBenchView(IServiceCollection sc, string name)
     {

@@ -1,18 +1,17 @@
 using AsyncNavigation;
 using AsyncNavigation.Abstractions;
 using AsyncNavigation.Core;
+using AsyncNavigation.Performance.Tests;
 using BenchmarkDotNet.Attributes;
-using BenchmarkDotNet.Jobs;
 
 namespace AsyncNavigation.Performance.Tests.Benchmarks;
 
 /// <summary>
 /// Measures NavigationContext construction and cancellation-token chaining cost.
-/// Specifically validates that multiple LinkCancellationToken() calls are cheap
-/// and do not cause unexpected allocations (e.g. from over-eager disposal).
+/// Validates that multiple LinkCancellationToken() calls remain cheap and
+/// do not cause unexpected allocations.
 /// </summary>
-[SimpleJob(RuntimeMoniker.Net80)]
-[MemoryDiagnoser]
+[Config(typeof(BenchmarkConfig))]
 [HideColumns("Error", "StdDev", "Median", "RatioSD")]
 public class NavigationContextBenchmarks
 {
@@ -36,17 +35,9 @@ public class NavigationContextBenchmarks
         _cts3.Dispose();
     }
 
-    // -----------------------------------------------------------------------
-    // Construction
-    // -----------------------------------------------------------------------
-
     [Benchmark(Baseline = true)]
     public NavigationContext Construct()
         => new() { RegionName = "Main", ViewName = "View" };
-
-    // -----------------------------------------------------------------------
-    // Single link
-    // -----------------------------------------------------------------------
 
     [Benchmark]
     public NavigationContext Link_Single()
@@ -55,10 +46,6 @@ public class NavigationContextBenchmarks
         ctx.LinkCancellationToken(_cts1.Token);
         return ctx;
     }
-
-    // -----------------------------------------------------------------------
-    // Double link – the real-world flow (job token + request token)
-    // -----------------------------------------------------------------------
 
     [Benchmark]
     public NavigationContext Link_Double()
@@ -69,10 +56,6 @@ public class NavigationContextBenchmarks
         return ctx;
     }
 
-    // -----------------------------------------------------------------------
-    // Triple link
-    // -----------------------------------------------------------------------
-
     [Benchmark]
     public NavigationContext Link_Triple()
     {
@@ -82,10 +65,6 @@ public class NavigationContextBenchmarks
         ctx.LinkCancellationToken(_cts3.Token);
         return ctx;
     }
-
-    // -----------------------------------------------------------------------
-    // Full lifecycle: link → start → complete (includes CTS disposal)
-    // -----------------------------------------------------------------------
 
     [Benchmark]
     public void FullLifecycle()
