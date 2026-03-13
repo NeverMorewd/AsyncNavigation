@@ -57,7 +57,7 @@ public static class NavigationContextExtensions
     }
     public static NavigationContext WithParameter(this NavigationContext navigationContext, string key, object value)
     {
-        if (navigationContext.IsCompleted && !navigationContext.IsForwordNavigation && !navigationContext.IsBackNavigation)
+        if (navigationContext.IsCompleted && !navigationContext.IsForwardNavigation && !navigationContext.IsBackNavigation)
             throw new InvalidOperationException("Cannot add parameters after navigation is completed.");
 
         navigationContext.Parameters ??= new NavigationParameters();
@@ -68,7 +68,7 @@ public static class NavigationContextExtensions
     public static NavigationContext WithParameters(this NavigationContext navigationContext, IEnumerable<KeyValuePair<string, object>> parameters)
     {
 
-        if (navigationContext.IsCompleted && !navigationContext.IsForwordNavigation && !navigationContext.IsBackNavigation)
+        if (navigationContext.IsCompleted && !navigationContext.IsForwardNavigation && !navigationContext.IsBackNavigation)
             throw new InvalidOperationException("Cannot add parameters after navigation is completed.");
 
         navigationContext.Parameters ??= new NavigationParameters();

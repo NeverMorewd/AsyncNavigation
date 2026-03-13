@@ -44,11 +44,13 @@ public abstract class RegionManagerBase : IRegionManager, IDisposable
         get
         {
             CleanupCollectedRegions();
-            return _regions
-                .Where(kv => kv.Value.TryGetTarget(out _))
-                .ToDictionary(kv => kv.Key, kv => kv.Value.TryGetTarget(out var r) ? r! : null!)
-                .Where(kv => kv.Value is not null)
-                .ToDictionary(kv => kv.Key, kv => kv.Value);
+            var result = new Dictionary<string, IRegion>();
+            foreach (var kv in _regions)
+            {
+                if (kv.Value.TryGetTarget(out var region))
+                    result[kv.Key] = region;
+            }
+            return result;
         }
     }
 
@@ -299,7 +301,11 @@ public abstract class RegionManagerBase : IRegionManager, IDisposable
         _pendingNavigations.Clear();
 
         lock (_staticLock)
+        {
             _tempRegionCache.Clear();
+            if (ReferenceEquals(_current, this))
+                _current = null;
+        }
 
         Debug.WriteLine("[Dispose] RegionManager disposed.");
     }
@@ -325,11 +331,7 @@ public abstract class RegionManagerBase : IRegionManager, IDisposable
             }
             catch (Exception ex) when (route.Fallback is not null)
             {
-                if (route.Fallback is not null)
-                {
-                    return await RequestNavigateAsync(route.Fallback.RegionName, route.Fallback.ViewName, navigationParameters, replay, cancellationToken);
-                }
-                return NavigationResult.Failure(ex);
+                return await RequestNavigateAsync(route.Fallback.RegionName, route.Fallback.ViewName, navigationParameters, replay, cancellationToken);
             }
         }
         return NavigationResult.Success(TimeSpan.Zero);

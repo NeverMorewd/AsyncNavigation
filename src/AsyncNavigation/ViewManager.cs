@@ -9,6 +9,7 @@ internal sealed class ViewManager : IViewManager
 {
     private readonly ConcurrentDictionary<string, WeakReference<IView>> _viewCache = new();
     private readonly LinkedList<string> _lruList = [];
+    private readonly Dictionary<string, LinkedListNode<string>> _lruIndex = [];
     private readonly object _lruLock = new();
     private readonly ViewCacheStrategy _strategy;
     private readonly int _maxCacheSize;
@@ -28,6 +29,7 @@ internal sealed class ViewManager : IViewManager
         lock (_lruLock)
         {
             _lruList.Clear();
+            _lruIndex.Clear();
         }
 
         foreach (var viewRef in values)
@@ -82,7 +84,11 @@ internal sealed class ViewManager : IViewManager
         {
             lock (_lruLock)
             {
-                _lruList.Remove(cacheKey);
+                if (_lruIndex.TryGetValue(cacheKey, out var node))
+                {
+                    _lruList.Remove(node);
+                    _lruIndex.Remove(cacheKey);
+                }
             }
 
             if (dispose && viewRef.TryGetTarget(out var view))
@@ -117,8 +123,12 @@ internal sealed class ViewManager : IViewManager
     {
         lock (_lruLock)
         {
-            _lruList.Remove(key);
-            _lruList.AddFirst(key);
+            if (_lruIndex.TryGetValue(key, out var existingNode))
+            {
+                _lruList.Remove(existingNode);
+            }
+            var node = _lruList.AddFirst(key);
+            _lruIndex[key] = node;
         }
     }
 
@@ -134,6 +144,7 @@ internal sealed class ViewManager : IViewManager
                 if (_lruList.Last != null)
                 {
                     oldestKey = _lruList.Last.Value;
+                    _lruIndex.Remove(oldestKey);
                     _lruList.RemoveLast();
                 }
             }

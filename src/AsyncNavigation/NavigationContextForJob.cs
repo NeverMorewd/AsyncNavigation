@@ -6,6 +6,11 @@ namespace AsyncNavigation;
 public partial class NavigationContext : IJobContext
 {
     private CancellationTokenSource? _cts = null;
+    // Intermediate linked CTS objects created by LinkCancellationToken().
+    // They must stay alive (not disposed) while navigation is in progress so that
+    // cancellation can still propagate through the chain.  All are disposed together
+    // in OnNavigationCompleted().
+    private List<CancellationTokenSource>? _linkedCtsList;
     private readonly object _ctsLock = new();
     Guid IJobContext.JobId
     {
@@ -26,8 +31,18 @@ public partial class NavigationContext : IJobContext
         if (!otherToken.CanBeCanceled)
             return;
 
+        var oldCts = _cts;
         _cts = CancellationTokenSource.CreateLinkedTokenSource(CancellationToken, otherToken);
         CancellationToken = _cts.Token;
+
+        // Do NOT dispose oldCts here.  _cts was created by linking against oldCts.Token,
+        // so disposing oldCts would unregister its callback on the upstream token and break
+        // the cancellation chain.  Defer disposal to OnNavigationCompleted().
+        if (oldCts is not null)
+        {
+            _linkedCtsList ??= [];
+            _linkedCtsList.Add(oldCts);
+        }
     }
 
     public async Task<bool> CancelAndWaitAsync(TimeSpan? timeout = null)

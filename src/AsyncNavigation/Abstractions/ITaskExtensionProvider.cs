@@ -1,6 +1,6 @@
 ﻿namespace AsyncNavigation.Abstractions;
 
-public interface ITaskExentsionProvder
+public interface ITaskExtensionProvider
 {
     public T WaitOnDispatcher<T>(Task<T> task);
     public void WaitOnDispatcher(Task task);

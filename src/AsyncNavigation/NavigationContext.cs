@@ -78,10 +78,10 @@ public partial class NavigationContext
     /// <summary>
     /// Gets a value indicating whether this is a forward navigation operation.
     /// </summary>
-    public bool IsForwordNavigation 
-    { 
-        get; 
-        internal set; 
+    public bool IsForwardNavigation
+    {
+        get;
+        internal set;
     }
 
     /// <summary>
@@ -134,7 +134,7 @@ public partial class NavigationContext
 
     internal NavigationContext UpdateStatus(NavigationStatus newStatus, params Exception[] errors)
     {
-        if (IsCompleted && !IsForwordNavigation && !IsBackNavigation)
+        if (IsCompleted && !IsForwardNavigation && !IsBackNavigation)
             throw new InvalidOperationException("Cannot change status after navigation is completed.");
 
         Status = newStatus;
@@ -164,6 +164,16 @@ public partial class NavigationContext
         EndTime = DateTimeOffset.UtcNow;
         Duration = EndTime - StartTime;
         _completionTcs.TrySetResult(true);
+
+        // Dispose intermediate linked CTS objects before the final one so that
+        // the chain is torn down in reverse order.
+        if (_linkedCtsList is not null)
+        {
+            foreach (var cts in _linkedCtsList)
+                cts.Dispose();
+            _linkedCtsList = null;
+        }
+
         _cts?.Dispose();
         _cts = null;
     }

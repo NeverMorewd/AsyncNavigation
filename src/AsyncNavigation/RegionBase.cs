@@ -84,7 +84,7 @@ public abstract class RegionBase<TRegion, TControl> : IRegion, IRegionPresenter
     {
         cancellationToken.ThrowIfCancellationRequested();
         var navigationContext = _navigationHistory.GoForward() ?? throw new NavigationException("Cannot go forward!");
-        navigationContext.IsForwordNavigation = true;
+        navigationContext.IsForwardNavigation = true;
         navigationContext.LinkCancellationToken(cancellationToken);
         await _regionNavigationService.RequestNavigateAsync(navigationContext);
         var result = NavigationResult.Success(navigationContext);
