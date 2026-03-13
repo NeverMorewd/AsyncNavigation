@@ -1,19 +1,21 @@
-﻿using AsyncNavigation.Abstractions;
+using AsyncNavigation.Abstractions;
 using AsyncNavigation.Core;
 
 namespace AsyncNavigation.Tests.Mocks;
 
 public class TestRegion : RegionBase<TestRegion, object>, IRegionPresenter
 {
-    
-    public TestRegion(string name, object control, IServiceProvider serviceProvider) : base(name, control, serviceProvider)
+    public TestRegion(string name, object control, IServiceProvider serviceProvider, bool isSinglePage = false)
+        : base(name, control, serviceProvider)
     {
-
+        IsSinglePageRegion = isSinglePage;
     }
+
     public static TestRegion GetOne(IServiceProvider serviceProvider)
     {
         return new TestRegion("TestRegion", new object(), serviceProvider);
     }
+
     public bool IsActive { get; private set; }
     public NavigationContext? Current { get; private set; }
 
@@ -31,9 +33,8 @@ public class TestRegion : RegionBase<TestRegion, object>, IRegionPresenter
         Current = null;
     }
 
-    
-    public static TestRegion Build(IServiceProvider serviceProvider)
+    public static TestRegion Build(IServiceProvider serviceProvider, bool isSinglePage = false)
     {
-        return new TestRegion("TestRegion", new object(), serviceProvider);
+        return new TestRegion("TestRegion", new object(), serviceProvider, isSinglePage);
     }
 }

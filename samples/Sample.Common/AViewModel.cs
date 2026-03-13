@@ -4,7 +4,7 @@ using ReactiveUI.SourceGenerators;
 
 namespace Sample.Common;
 
-public partial class AViewModel : InstanceCounterViewModel<AViewModel>, IDialogAware
+public partial class AViewModel : InstanceCounterViewModel<AViewModel>, IDialogAware, IViewAware
 {
     private readonly IRegionManager _regionManager;
 
@@ -58,5 +58,15 @@ public partial class AViewModel : InstanceCounterViewModel<AViewModel>, IDialogA
     public Task OnDialogClosedAsync(IDialogResult? dialogResult, CancellationToken cancellationToken)
     {
         return Task.CompletedTask;
+    }
+
+    public void OnViewAttached(IViewContext context)
+    {
+        //
+    }
+
+    public void OnViewDetached()
+    {
+        //
     }
 }

@@ -102,10 +102,14 @@ public abstract class RegionManagerBase : IRegionManager, IDisposable
             if (previousRegion is not null && previousRegion != region)
                 await previousRegion.NavigateFromAsync(context);
 
-            return await region.ActivateViewAsync(context);
+            OnNavigating(regionName, context);
+            var result = await region.ActivateViewAsync(context);
+            OnNavigated(regionName, context);
+            return result;
         }
         catch (Exception ex)
         {
+            OnNavigationFailed(regionName, context, ex);
             return await HandleNavigationException(ex, region, context);
         }
     }
@@ -335,5 +339,18 @@ public abstract class RegionManagerBase : IRegionManager, IDisposable
             }
         }
         return NavigationResult.Success(TimeSpan.Zero);
+    }
+
+    protected virtual void OnNavigating(string regionName, NavigationContext navigationContext)
+    {
+        
+    }
+    protected virtual void OnNavigated(string regionName, NavigationContext navigationContext)
+    {
+        
+    }
+    protected virtual void OnNavigationFailed(string regionName, NavigationContext navigationContext, Exception exception)
+    {
+        
     }
 }

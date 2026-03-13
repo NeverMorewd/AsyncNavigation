@@ -1,4 +1,4 @@
-﻿using AsyncNavigation.Core;
+using AsyncNavigation.Core;
 using Avalonia.Controls;
 using Avalonia.Controls.Templates;
 using Avalonia.Data;
@@ -7,9 +7,9 @@ namespace AsyncNavigation.Avalonia;
 
 public class ContentRegion : RegionBase<ContentRegion, ContentControl>
 {
-    public ContentRegion(string name, 
-        ContentControl contentControl, 
-        IServiceProvider serviceProvider, 
+    public ContentRegion(string name,
+        ContentControl contentControl,
+        IServiceProvider serviceProvider,
         bool? useCache) : base(name, contentControl, serviceProvider)
     {
         EnableViewCache = useCache ?? true;
@@ -17,9 +17,7 @@ public class ContentRegion : RegionBase<ContentRegion, ContentControl>
     }
 
     public override NavigationPipelineMode NavigationPipelineMode
-    {
-        get => NavigationPipelineMode.RenderFirst;
-    }
+        => NavigationPipelineMode.RenderFirst;
 
     protected override void InitializeOnRegionCreated(ContentControl control)
     {

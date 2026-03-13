@@ -1,4 +1,4 @@
-﻿using AsyncNavigation.Core;
+using AsyncNavigation.Core;
 using Avalonia.Controls;
 using Avalonia.Controls.Templates;
 using Avalonia.Data;
@@ -39,7 +39,6 @@ public abstract class ItemsRegionBase<TRegion, TItemsControl>
             ItemsControl.ItemsSourceProperty,
             new Binding(nameof(RegionContext.Items)) { Source = _context });
     }
-
 
     public override void ProcessActivate(NavigationContext navigationContext)
     {

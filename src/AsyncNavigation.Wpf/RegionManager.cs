@@ -1,10 +1,15 @@
-﻿using AsyncNavigation.Abstractions;
+using AsyncNavigation.Abstractions;
 using System.Windows;
 
 namespace AsyncNavigation.Wpf;
 
 public sealed class RegionManager : RegionManagerBase
 {
+    // Tracks active IViewAware instances per region.
+    // Single-page regions: at most one entry per key.
+    // Multi-page regions (ItemsRegion): accumulates all active entries, cleared on Dispose.
+    private readonly Dictionary<string, List<IViewAware>> _activeViewAwares = [];
+
     #region RegionName
     public static readonly DependencyProperty RegionNameProperty =
          DependencyProperty.RegisterAttached(
@@ -83,5 +88,53 @@ public sealed class RegionManager : RegionManagerBase
     public RegionManager(IRegionFactory regionFactory,
         IServiceProvider serviceProvider) : base(regionFactory, serviceProvider)
     {
+    }
+
+    protected override void OnNavigated(string regionName, NavigationContext navigationContext)
+    {
+        base.OnNavigated(regionName, navigationContext);
+
+        // For single-page regions (ContentRegion), detach the previously active ViewModel.
+        if (TryGetRegion(regionName, out var region) && region.IsSinglePageRegion)
+        {
+            if (_activeViewAwares.TryGetValue(regionName, out var previous))
+            {
+                foreach (var old in previous)
+                    old.OnViewDetached();
+                previous.Clear();
+            }
+        }
+
+        if (navigationContext.Target.Value?.DataContext is not IViewAware aware) return;
+
+        if (!_activeViewAwares.TryGetValue(regionName, out var list))
+            _activeViewAwares[regionName] = list = [];
+        list.Add(aware);
+
+        if (navigationContext.Target.Value is not FrameworkElement element) return;
+
+        if (Window.GetWindow(element) is { } window)
+        {
+            aware.OnViewAttached(new ViewContext(window));
+        }
+        else
+        {
+            element.Loaded += OnLoaded;
+            void OnLoaded(object s, RoutedEventArgs e)
+            {
+                element.Loaded -= OnLoaded;
+                if (Window.GetWindow(element) is { } w)
+                    aware.OnViewAttached(new ViewContext(w));
+            }
+        }
+    }
+
+    public override void Dispose()
+    {
+        foreach (var list in _activeViewAwares.Values)
+            foreach (var aware in list)
+                aware.OnViewDetached();
+        _activeViewAwares.Clear();
+        base.Dispose();
     }
 }

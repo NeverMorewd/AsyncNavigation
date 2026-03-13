@@ -6,6 +6,8 @@ namespace AsyncNavigation.Abstractions;
 public interface IRegion : IDisposable
 {
     string Name { get; }
+    bool EnableViewCache { get;  }
+    bool IsSinglePageRegion { get;  }
     event EventHandler<NavigationEventArgs> Navigated;
     internal IRegionPresenter RegionPresenter { get; }
     Task NavigateFromAsync(NavigationContext navigationContext);

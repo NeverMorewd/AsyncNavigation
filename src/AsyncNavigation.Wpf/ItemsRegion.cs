@@ -1,4 +1,4 @@
-﻿using AsyncNavigation.Core;
+using AsyncNavigation.Core;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
@@ -9,17 +9,16 @@ namespace AsyncNavigation.Wpf;
 public class ItemsRegion : RegionBase<ItemsRegion, ItemsControl>
 {
     public ItemsRegion(string name,
-        ItemsControl itemsControl, 
-        IServiceProvider serviceProvider, 
+        ItemsControl itemsControl,
+        IServiceProvider serviceProvider,
         bool? useCache) : base(name, itemsControl, serviceProvider)
     {
         EnableViewCache = useCache ?? false;
         IsSinglePageRegion = false;
     }
+
     public override NavigationPipelineMode NavigationPipelineMode
-    {
-        get => NavigationPipelineMode.RenderFirst;
-    }
+        => NavigationPipelineMode.RenderFirst;
 
     protected override void InitializeOnRegionCreated(ItemsControl control)
     {
@@ -53,6 +52,7 @@ public class ItemsRegion : RegionBase<ItemsRegion, ItemsControl>
         base.Dispose();
         _context.Clear();
     }
+
     public override void ProcessActivate(NavigationContext navigationContext)
     {
         if (!_context.Items.Contains(navigationContext))

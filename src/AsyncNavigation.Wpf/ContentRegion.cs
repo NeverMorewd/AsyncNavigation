@@ -1,5 +1,4 @@
-﻿using AsyncNavigation.Core;
-using System.Diagnostics;
+using AsyncNavigation.Core;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
@@ -8,18 +7,17 @@ namespace AsyncNavigation.Wpf;
 
 public class ContentRegion : RegionBase<ContentRegion, ContentControl>
 {
-    public ContentRegion(string name, 
-        ContentControl contentControl, 
-        IServiceProvider serviceProvider, 
+    public ContentRegion(string name,
+        ContentControl contentControl,
+        IServiceProvider serviceProvider,
         bool? useCache) : base(name, contentControl, serviceProvider)
     {
         EnableViewCache = useCache ?? true;
         IsSinglePageRegion = true;
     }
+
     public override NavigationPipelineMode NavigationPipelineMode
-    {
-        get => NavigationPipelineMode.RenderFirst;
-    }
+        => NavigationPipelineMode.RenderFirst;
 
     protected override void InitializeOnRegionCreated(ContentControl control)
     {

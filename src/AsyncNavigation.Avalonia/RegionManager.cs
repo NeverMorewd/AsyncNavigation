@@ -1,11 +1,17 @@
-﻿using AsyncNavigation.Abstractions;
+using AsyncNavigation.Abstractions;
 using Avalonia;
+using Avalonia.Controls;
 
 namespace AsyncNavigation.Avalonia;
 
 public sealed class RegionManager : RegionManagerBase
 {
     private static readonly IDisposable _subscription;
+
+    // Tracks active IViewAware instances per region.
+    // Single-page regions: at most one entry per key.
+    // Multi-page regions (ItemsRegion): accumulates all active entries, cleared on Dispose.
+    private readonly Dictionary<string, List<IViewAware>> _activeViewAwares = [];
 
     #region RegionName
     public static readonly AttachedProperty<string> RegionNameProperty =
@@ -56,7 +62,7 @@ public sealed class RegionManager : RegionManagerBase
     {
         _subscription = RegionNameProperty
             .Changed
-            .AddClassHandler<AvaloniaObject, string>((target, args) => 
+            .AddClassHandler<AvaloniaObject, string>((target, args) =>
             {
                 var name = args.NewValue.GetValueOrDefault();
                 var old = args.OldValue.GetValueOrDefault();
@@ -83,15 +89,59 @@ public sealed class RegionManager : RegionManagerBase
             });
     }
 
-    public RegionManager(IRegionFactory regionFactory, 
+    public RegionManager(IRegionFactory regionFactory,
         IServiceProvider serviceProvider) : base(regionFactory, serviceProvider)
     {
+    }
 
+    protected override void OnNavigated(string regionName, NavigationContext navigationContext)
+    {
+        base.OnNavigated(regionName, navigationContext);
+
+        // For single-page regions (ContentRegion), detach the previously active ViewModel.
+        if (TryGetRegion(regionName, out var region) && region.IsSinglePageRegion)
+        {
+            if (_activeViewAwares.TryGetValue(regionName, out var previous))
+            {
+                foreach (var old in previous)
+                    old.OnViewDetached();
+                previous.Clear();
+            }
+        }
+
+        if (navigationContext.Target.Value?.DataContext is not IViewAware aware) return;
+
+        if (!_activeViewAwares.TryGetValue(regionName, out var list))
+            _activeViewAwares[regionName] = list = [];
+        list.Add(aware);
+
+        // NavigationPipelineMode.RenderFirst guarantees the view is in the visual tree
+        // by the time OnNavigated fires. The fallback handles edge cases.
+        if (navigationContext.Target.Value is not Visual visual) return;
+
+        if (TopLevel.GetTopLevel(visual) is { } tl)
+        {
+            aware.OnViewAttached(new ViewContext(tl));
+        }
+        else
+        {
+            visual.AttachedToVisualTree += OnAttached;
+            void OnAttached(object? s, VisualTreeAttachmentEventArgs e)
+            {
+                visual.AttachedToVisualTree -= OnAttached;
+                if (TopLevel.GetTopLevel(visual) is { } topLevel)
+                    aware.OnViewAttached(new ViewContext(topLevel));
+            }
+        }
     }
 
     public override void Dispose()
     {
-        base.Dispose();
         _subscription?.Dispose();
+        foreach (var list in _activeViewAwares.Values)
+            foreach (var aware in list)
+                aware.OnViewDetached();
+        _activeViewAwares.Clear();
+        base.Dispose();
     }
 }
