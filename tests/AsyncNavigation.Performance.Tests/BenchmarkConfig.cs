@@ -25,9 +25,8 @@ public class BenchmarkConfig : ManualConfig
     public BenchmarkConfig()
     {
         var job = IsFull
-            ? Job.Default.WithRuntime(BenchmarkDotNet.Environments.CoreRuntime.Core80)
+            ? Job.Default
             : Job.Default
-                .WithRuntime(BenchmarkDotNet.Environments.CoreRuntime.Core80)
                 .WithWarmupCount(3)
                 .WithIterationCount(10)
                 .WithLaunchCount(1);
