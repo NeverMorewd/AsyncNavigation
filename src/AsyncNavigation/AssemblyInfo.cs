@@ -3,3 +3,4 @@
 [assembly: InternalsVisibleTo("AsyncNavigation.Avalonia")]
 [assembly: InternalsVisibleTo("AsyncNavigation.Wpf")]
 [assembly: InternalsVisibleTo("AsyncNavigation.Tests")]
+[assembly: InternalsVisibleTo("AsyncNavigation.Performance.Tests")]
