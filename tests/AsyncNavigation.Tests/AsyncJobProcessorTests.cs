@@ -4,7 +4,6 @@ using AsyncNavigation.Tests.Infrastructure;
 using AsyncNavigation.Tests.Mocks;
 using Microsoft.Extensions.DependencyInjection;
 using System.Diagnostics;
-using Xunit.Abstractions;
 
 namespace AsyncNavigation.Tests;
 

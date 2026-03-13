@@ -2,7 +2,6 @@
 using AsyncNavigation.Core;
 using AsyncNavigation.Tests.Mocks;
 using Microsoft.Extensions.DependencyInjection;
-using Xunit.Abstractions;
 
 namespace AsyncNavigation.Tests;
 
