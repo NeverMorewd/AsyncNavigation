@@ -172,6 +172,7 @@ internal sealed class Messenger : IMessenger
         where TMessage : class
     {
         ArgumentNullException.ThrowIfNull(message);
+        cancellationToken.ThrowIfCancellationRequested();
 
         List<SubscriptionBase> snapshot;
         lock (_lock)

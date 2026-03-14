@@ -3,6 +3,7 @@ using AsyncNavigation.Abstractions;
 using AsyncNavigation.Core;
 using ReactiveUI;
 using ReactiveUI.SourceGenerators;
+using Sample.Common.Messages;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Reactive.Linq;
@@ -17,15 +18,26 @@ public partial class MainWindowViewModel : ViewModelBase
     private readonly IRegistrationTracker _registrationTracker;
     private readonly IRouter? _router;
     
-    public MainWindowViewModel(IRegionManager regionManager, 
+    public MainWindowViewModel(IRegionManager regionManager,
         IDialogService dialogService,
         IRegistrationTracker registrationTracker,
+        IMessenger messenger,
         IRouter? router = null)
     {
         _router = router;
         _regionManager = regionManager;
         _dialogService = dialogService;
         _registrationTracker = registrationTracker;
+
+        // Async subscription: closure-style handler, awaits a short log delay.
+        // Demonstrates that SendAsync propagates cancellation through async handlers.
+        messenger.Subscribe<MainWindowViewModel, ViewAttachedMessage>(this,
+            static async (self, msg, ct) =>
+            {
+                await Task.Delay(1, ct); // simulate async logging / telemetry
+                Debug.WriteLine(
+                    $"[{nameof(MainWindowViewModel)}] Async notification: {msg.Source} is live on {msg.PlatformContextName}");
+            });
         _regionManager
             .RequestNavigateAsync("MainRegion", "AView", replay: false)
             .ContinueWith(t => 
