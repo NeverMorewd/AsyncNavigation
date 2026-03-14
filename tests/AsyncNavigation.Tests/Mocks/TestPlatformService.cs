@@ -25,6 +25,11 @@ internal class TestPlatformService : IPlatformService
         return;
     }
 
+    public IViewContext CreateDialogViewContext(IDialogWindowBase dialogWindow)
+    {
+        return new TestViewContext();
+    }
+
     public T WaitOnDispatcher<T>(Task<T> task)
     {
         return task.Result;

@@ -1,4 +1,5 @@
-﻿using AsyncNavigation.Core;
+﻿using AsyncNavigation.Abstractions;
+using AsyncNavigation.Core;
 using System.Windows;
 using System.Windows.Threading;
 
@@ -6,6 +7,21 @@ namespace AsyncNavigation.Wpf;
 
 internal class PlatformService : PlatformServiceBase<Window>
 {
+    /// <inheritdoc/>
+    /// <remarks>
+    /// In WPF every dialog window is a <see cref="Window"/>, which carries its own
+    /// <see cref="System.Windows.Threading.Dispatcher"/> and is the natural host for
+    /// platform-level operations.  The context is ready as soon as the Window object
+    /// is constructed — before it is shown on screen.
+    /// </remarks>
+    public override IViewContext CreateDialogViewContext(IDialogWindowBase dialogWindow)
+    {
+        if (dialogWindow is Window window)
+            return new ViewContext(window);
+        throw new InvalidOperationException(
+            $"Dialog window must be a WPF Window, but got {dialogWindow?.GetType().Name ?? "null"}.");
+    }
+
     public override T WaitOnDispatcher<T>(Task<T> task)
     {
         return WaitOnDispatcherFrame(task);

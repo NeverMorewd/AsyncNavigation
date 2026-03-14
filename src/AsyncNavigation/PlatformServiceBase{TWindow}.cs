@@ -13,6 +13,7 @@ internal abstract class PlatformServiceBase<TWindow> : IPlatformService<TWindow>
     public abstract void Show(TWindow window, bool isModal);
     public abstract void AttachClosing(TWindow window, Action<object?, WindowClosingEventArgs> handler);
     public abstract void ShowMainWindow(TWindow mainWindow);
+    public abstract IViewContext CreateDialogViewContext(IDialogWindowBase dialogWindow);
     public Task ShowAsync(IDialogWindowBase baseWindow, bool isModal)
     {
         if(!TryGetPlatformWindow(baseWindow, out TWindow? window))

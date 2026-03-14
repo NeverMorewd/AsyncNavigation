@@ -1,4 +1,4 @@
-﻿using AsyncNavigation.Abstractions;
+using AsyncNavigation.Abstractions;
 using AsyncNavigation.Core;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -26,12 +26,13 @@ public class DialogService : IDialogService
         var openTask = aware.OnDialogOpenedAsync(parameters, cancellationToken);
         _platformService.WaitOnDispatcher(openTask);
 
-        var closeTask = HandleCloseInternalAsync(dialogWindow, aware);
+        var viewAware = AttachDialogViewAware(dialogWindow, aware);
+        var closeTask = HandleCloseInternalAsync(dialogWindow, aware, viewAware: viewAware);
         ObserveCloseTask(closeTask, callback);
 
         _platformService.Show(dialogWindow, false);
     }
-    
+
     public async Task<IDialogResult> ShowDialogAsync(string name,
         string? windowName,
         IDialogParameters? parameters,
@@ -49,14 +50,16 @@ public class DialogService : IDialogService
         {
             return DialogResult.Cancelled;
         }
-        var closeTask = HandleCloseInternalAsync(dialogWindow, aware);
+
+        var viewAware = AttachDialogViewAware(dialogWindow, aware);
+        var closeTask = HandleCloseInternalAsync(dialogWindow, aware, viewAware: viewAware);
         await _platformService.ShowAsync(dialogWindow, true);
         return await closeTask;
     }
 
-    public IDialogResult ShowDialog(string name, 
-        string? windowName, 
-        IDialogParameters? parameters, 
+    public IDialogResult ShowDialog(string name,
+        string? windowName,
+        IDialogParameters? parameters,
         CancellationToken cancellationToken)
     {
         var showTask = ShowDialogAsync(name, windowName, parameters, cancellationToken);
@@ -74,16 +77,17 @@ public class DialogService : IDialogService
         var openTask = aware.OnDialogOpenedAsync(parameters, cancellationToken);
         await openTask;
 
-        var closeTask = HandleCloseInternalAsync(dialogWindow, aware, mainWindowBuilder);
+        var viewAware = AttachDialogViewAware(dialogWindow, aware);
+        var closeTask = HandleCloseInternalAsync(dialogWindow, aware, mainWindowBuilder, viewAware);
 
         _platformService.ShowMainWindow(dialogWindow);
         _platformService.Show(dialogWindow, false);
         await closeTask;
     }
 
-    public void Show(string windowName, 
-        IDialogParameters? parameters, 
-        Action<IDialogResult>? callback, 
+    public void Show(string windowName,
+        IDialogParameters? parameters,
+        Action<IDialogResult>? callback,
         CancellationToken cancellationToken)
     {
         var (dialogWindow, aware) = PrepareDialogWindow(windowName);
@@ -91,14 +95,15 @@ public class DialogService : IDialogService
         var openTask = aware.OnDialogOpenedAsync(parameters, cancellationToken);
         _platformService.WaitOnDispatcher(openTask);
 
-        var closeTask = HandleCloseInternalAsync(dialogWindow, aware);
+        var viewAware = AttachDialogViewAware(dialogWindow, aware);
+        var closeTask = HandleCloseInternalAsync(dialogWindow, aware, viewAware: viewAware);
         ObserveCloseTask(closeTask, callback);
 
         _platformService.Show(dialogWindow, false);
     }
 
-    public async Task<IDialogResult> ShowDialogAsync(string windowName, 
-        IDialogParameters? parameters, 
+    public async Task<IDialogResult> ShowDialogAsync(string windowName,
+        IDialogParameters? parameters,
         CancellationToken cancellationToken)
     {
         var (dialogWindow, aware) = PrepareDialogWindow(windowName);
@@ -113,22 +118,24 @@ public class DialogService : IDialogService
         {
             return DialogResult.Cancelled;
         }
-        var closeTask = HandleCloseInternalAsync(dialogWindow, aware);
+
+        var viewAware = AttachDialogViewAware(dialogWindow, aware);
+        var closeTask = HandleCloseInternalAsync(dialogWindow, aware, viewAware: viewAware);
         await _platformService.ShowAsync(dialogWindow, true);
         return await closeTask;
     }
 
-    public IDialogResult ShowDialog(string windowName, 
-        IDialogParameters? parameters, 
+    public IDialogResult ShowDialog(string windowName,
+        IDialogParameters? parameters,
         CancellationToken cancellationToken)
     {
         var showTask = ShowDialogAsync(windowName, parameters, cancellationToken);
         return _platformService.WaitOnDispatcher(showTask);
     }
 
-    public async Task FrontShowAsync<TWindow>(string windowName, 
-        Func<IDialogResult, TWindow?> mainWindowBuilder, 
-        IDialogParameters? parameters, 
+    public async Task FrontShowAsync<TWindow>(string windowName,
+        Func<IDialogResult, TWindow?> mainWindowBuilder,
+        IDialogParameters? parameters,
         CancellationToken cancellationToken) where TWindow : class
     {
         var (dialogWindow, aware) = PrepareDialogWindow(windowName);
@@ -136,11 +143,32 @@ public class DialogService : IDialogService
         var openTask = aware.OnDialogOpenedAsync(parameters, cancellationToken);
         await openTask;
 
-        _ = HandleCloseInternalAsync(dialogWindow, aware, mainWindowBuilder);
+        var viewAware = AttachDialogViewAware(dialogWindow, aware);
+        _ = HandleCloseInternalAsync(dialogWindow, aware, mainWindowBuilder, viewAware);
         _platformService.ShowMainWindow(dialogWindow);
         _platformService.Show(dialogWindow, false);
     }
 
+    // ── IViewAware helper ─────────────────────────────────────────────────────
+
+    /// <summary>
+    /// If <paramref name="dialogAware"/> implements <see cref="IViewAware"/>, creates a
+    /// platform-specific <see cref="IViewContext"/> from the dialog window and calls
+    /// <see cref="IViewAware.OnViewAttached"/>.  Returns the cast reference so that
+    /// <see cref="HandleCloseInternalAsync"/> can call <see cref="IViewAware.OnViewDetached"/>
+    /// when the dialog closes.
+    /// </summary>
+    private IViewAware? AttachDialogViewAware(IDialogWindowBase dialogWindow, IDialogAware dialogAware)
+    {
+        if (dialogAware is not IViewAware viewAware)
+            return null;
+
+        var context = _platformService.CreateDialogViewContext(dialogWindow);
+        viewAware.OnViewAttached(context);
+        return viewAware;
+    }
+
+    // ── Internal helpers ──────────────────────────────────────────────────────
 
     private static void ObserveCloseTask(Task<IDialogResult> closeTask, Action<IDialogResult>? callback)
     {
@@ -162,6 +190,7 @@ public class DialogService : IDialogService
         string.IsNullOrEmpty(windowName)
             ? _serviceProvider.GetRequiredKeyedService<IDialogWindow>(NavigationConstants.DEFAULT_DIALOG_WINDOW_KEY)
             : _serviceProvider.GetRequiredKeyedService<IDialogWindow>(windowName);
+
     private (IView View, IDialogAware Aware) ResolveDialogView(string name)
     {
         var view = _serviceProvider.GetRequiredKeyedService<IView>(name);
@@ -176,10 +205,12 @@ public class DialogService : IDialogService
             return (view, aware);
         }
     }
+
     private IDialogAware ResolveDialogViewModel(string name)
     {
         return _serviceProvider.GetRequiredKeyedService<IDialogAware>(name);
     }
+
     private (IDialogWindow Window, IDialogAware ViewModel) PrepareDialog(string name, string? windowName)
     {
         var window = ResolveDialogWindow(windowName);
@@ -191,6 +222,7 @@ public class DialogService : IDialogService
 
         return (window, viewModel);
     }
+
     private (IDialogWindow Window, IDialogAware ViewModel) PrepareDialogWindow(string windowName)
     {
         var window = ResolveDialogWindow(windowName);
@@ -211,7 +243,8 @@ public class DialogService : IDialogService
     private async Task<IDialogResult> HandleCloseInternalAsync(
         IDialogWindowBase dialogWindow,
         IDialogAware dialogAware,
-        Func<IDialogResult, object?>? mainWindowBuilder = null)
+        Func<IDialogResult, object?>? mainWindowBuilder = null,
+        IViewAware? viewAware = null)
     {
         var tcs = new TaskCompletionSource<IDialogResult>();
         var closeState = new DialogCloseState();
@@ -275,9 +308,14 @@ public class DialogService : IDialogService
             dialogWindow.Closed -= OnClosed;
             dialogAware.RequestCloseAsync -= OnRequestClose;
 
+            // Mirror the RegionManager pattern: notify the ViewModel that its view
+            // has left the visual tree (dialog window closed).
+            viewAware?.OnViewDetached();
+
             ShowMainWindowIfNeeded(closeState.GetResultOrDefault());
             tcs.TrySetResult(closeState.GetResultOrDefault());
         }
+
         async Task<IDialogResult> FinalizeDialogCloseAsync(IDialogResult dialogResult)
         {
             try
@@ -290,6 +328,7 @@ public class DialogService : IDialogService
             }
             return result;
         }
+
         void ShowMainWindowIfNeeded(IDialogResult dialogResult)
         {
             if (mainWindowBuilder == null)
@@ -302,6 +341,7 @@ public class DialogService : IDialogService
             }
         }
     }
+
     private static void CloseOnUIThread(IDialogWindowBase dialogWindow)
     {
         if (SynchronizationContext.Current is not null)
@@ -347,4 +387,3 @@ public class DialogService : IDialogService
         }
     }
 }
-

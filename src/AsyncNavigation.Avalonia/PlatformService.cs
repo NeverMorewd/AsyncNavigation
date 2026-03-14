@@ -1,4 +1,5 @@
-﻿using Avalonia;
+﻿using AsyncNavigation.Abstractions;
+using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Threading;
@@ -8,6 +9,21 @@ namespace AsyncNavigation.Avalonia;
 
 internal class PlatformService : PlatformServiceBase<Window>
 {
+    /// <inheritdoc/>
+    /// <remarks>
+    /// In Avalonia every dialog window is a <see cref="Window"/>, which is itself a
+    /// <see cref="TopLevel"/>, so platform services (StorageProvider, Clipboard, Launcher)
+    /// are available as soon as the <see cref="Window"/> object is constructed — before it
+    /// is even shown on screen.
+    /// </remarks>
+    public override IViewContext CreateDialogViewContext(IDialogWindowBase dialogWindow)
+    {
+        if (dialogWindow is Window window)
+            return new ViewContext(window);
+        throw new InvalidOperationException(
+            $"Dialog window must be an Avalonia Window, but got {dialogWindow?.GetType().Name ?? "null"}.");
+    }
+
     public override T WaitOnDispatcher<T>(Task<T> task)
     {
         return WaitOnDispatcherFrame(task);
