@@ -6,7 +6,8 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace AsyncNavigation.Tests;
 
-public class RegionManagerTests : IClassFixture<ServiceFixture>
+[Collection(NavigationTestCollection.Name)]
+public class RegionManagerTests
 {
     private readonly IRegionManager _regionManager;
     private readonly IServiceProvider _serviceProvider;

@@ -5,7 +5,8 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace AsyncNavigation.Tests;
 
-public class ViewManagerTests : IClassFixture<ServiceFixture>
+[Collection(NavigationTestCollection.Name)]
+public class ViewManagerTests
 {
     private readonly IServiceProvider _serviceProvider;
     public ViewManagerTests(ServiceFixture fixture)

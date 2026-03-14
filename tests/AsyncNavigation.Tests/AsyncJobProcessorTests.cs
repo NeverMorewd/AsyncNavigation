@@ -7,7 +7,8 @@ using System.Diagnostics;
 
 namespace AsyncNavigation.Tests;
 
-public class AsyncJobProcessorTests : IClassFixture<ServiceFixture>
+[Collection(NavigationTestCollection.Name)]
+public class AsyncJobProcessorTests
 {
     private readonly ITestOutputHelper _testOutputHelper;
     private readonly IServiceProvider _serviceProvider;

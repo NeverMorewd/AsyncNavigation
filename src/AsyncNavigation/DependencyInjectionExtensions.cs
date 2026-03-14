@@ -38,6 +38,7 @@ public static class DependencyInjectionExtensions
         }
         RegistrationTracker.Instance.Clear();
         return serviceDescriptors
+            .AddSingleton<IMessenger, Messenger>()
             .AddSingleton<IDialogService, DialogService>()
             .AddSingleton<IRegionNavigationServiceFactory, RegionNavigationServiceFactory>()
             .AddSingleton<IRegionFactory, RegionFactory>()

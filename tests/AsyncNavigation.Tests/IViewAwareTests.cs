@@ -1,4 +1,5 @@
 using AsyncNavigation.Abstractions;
+using AsyncNavigation.Core;
 using AsyncNavigation.Tests.Infrastructure;
 using AsyncNavigation.Tests.Mocks;
 using Microsoft.Extensions.DependencyInjection;
@@ -9,7 +10,8 @@ namespace AsyncNavigation.Tests;
 /// Tests for the IViewAware lifecycle managed by RegionManagerBase.OnNavigated.
 /// Platform-specific context (TopLevel/Window) is replaced with TestViewContext in the test RegionManager.
 /// </summary>
-public class IViewAwareTests : IClassFixture<ServiceFixture>
+[Collection(NavigationTestCollection.Name)]
+public class IViewAwareTests
 {
     private readonly IRegionManager _regionManager;
     private readonly IServiceProvider _serviceProvider;
