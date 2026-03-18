@@ -141,7 +141,8 @@ public partial class MainWindowViewModel : ViewModelBase
     [ReactiveCommand(CanExecute = nameof(SupportDialog))]
     private async Task AsyncShowDialog(string param)
     {
-       var result = await _dialogService.ShowViewDialogAsync(param);
+        var result = await _dialogService.ShowViewDialogAsync(param);
+        Debug.WriteLine($"ShowViewDialogAsync:{result.Result}");
     }
     [ReactiveCommand(CanExecute = nameof(SupportDialog))]
     private async Task AsyncShowDialogWithCancelling(string param)

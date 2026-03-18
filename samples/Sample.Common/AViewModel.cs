@@ -1,4 +1,4 @@
-using AsyncNavigation.Abstractions;
+﻿using AsyncNavigation.Abstractions;
 using AsyncNavigation.Core;
 using ReactiveUI.SourceGenerators;
 using Sample.Common.Messages;
@@ -89,6 +89,7 @@ public partial class AViewModel : InstanceCounterViewModel<AViewModel>, IDialogA
         {
             await Task.Delay(TimeSpan.FromSeconds(2), cancellationToken);
         }
+        _messenger.Send(new ViewAttachedMessage(Title, nameof(OnDialogOpenedAsync)));
     }
 
     public async Task OnDialogClosingAsync(IDialogResult? dialogResult, CancellationToken cancellationToken)
