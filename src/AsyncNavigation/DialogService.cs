@@ -151,10 +151,9 @@ public class DialogService : IDialogService
             {
                 callback?.Invoke(t.Result);
             }
-
-            if (t.IsFaulted)
+            else if (t.IsFaulted && t.Exception is not null)
             {
-                _ = t.Exception;
+                System.Diagnostics.Debug.WriteLine($"[DialogService] Unhandled exception in fire-and-forget dialog close task: {t.Exception}");
             }
         }, CancellationToken.None, TaskContinuationOptions.ExecuteSynchronously, TaskScheduler.Default);
     }
