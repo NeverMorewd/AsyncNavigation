@@ -55,10 +55,10 @@ public partial class NavigationContext
     public SingleAssignment<IView> Target { get; } = new();
     public SingleAssignment<IInnerRegionIndicatorHost> IndicatorHost { get; } = new();
 
-    public DateTimeOffset StartTime 
-    { 
-        get; 
-    } = DateTime.UtcNow;
+    public DateTimeOffset StartTime
+    {
+        get;
+    } = DateTimeOffset.UtcNow;
 
     public DateTimeOffset EndTime 
     { 
