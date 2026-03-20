@@ -176,6 +176,11 @@ public abstract class RegionManagerBase : IRegionManager, IDisposable
         if (_regions.TryRemove(name, out var weakRef) && weakRef.TryGetTarget(out var target))
         {
             region = target;
+            lock (_regionLock)
+            {
+                if (ReferenceEquals(_currentRegion, region))
+                    _currentRegion = null;
+            }
             return true;
         }
         return false;
