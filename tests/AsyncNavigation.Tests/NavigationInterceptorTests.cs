@@ -7,7 +7,7 @@ using Xunit;
 namespace AsyncNavigation.Tests;
 
 [Collection("RegionManagerCollection")]
-public class NavigationInterceptorTests : IClassFixture<InterceptorServiceFixture>
+public class NavigationInterceptorTests
 {
     private const string RegionName = "InterceptorRegion";
 
@@ -15,7 +15,7 @@ public class NavigationInterceptorTests : IClassFixture<InterceptorServiceFixtur
     private readonly IServiceProvider _serviceProvider;
     private readonly TrackingInterceptor _interceptor;
 
-    public NavigationInterceptorTests(InterceptorServiceFixture fixture)
+    public NavigationInterceptorTests(ServiceFixture fixture)
     {
         _serviceProvider = fixture.ServiceProvider;
         _regionManager = _serviceProvider.GetRequiredService<IRegionManager>();

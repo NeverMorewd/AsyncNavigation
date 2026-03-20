@@ -1,4 +1,5 @@
-﻿using AsyncNavigation.Tests.Mocks;
+﻿using AsyncNavigation.Abstractions;
+using AsyncNavigation.Tests.Mocks;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace AsyncNavigation.Tests.Infrastructure;
@@ -6,9 +7,12 @@ namespace AsyncNavigation.Tests.Infrastructure;
 public class ServiceFixture : IDisposable
 {
     public IServiceProvider ServiceProvider { get; }
+    public TrackingInterceptor Interceptor { get; }
 
     public ServiceFixture()
     {
+        Interceptor = new TrackingInterceptor();
+
         ServiceCollection serviceDescriptors = new();
 
         NavigationOptions navigationOptions = new()
@@ -20,7 +24,8 @@ public class ServiceFixture : IDisposable
         serviceDescriptors.RegisterView<TestView, TestNavigationAware>("TestView");
         serviceDescriptors.RegisterView<AnotherTestView, TestNavigationAware>("AnotherTestView");
         serviceDescriptors.RegisterView<GuardTestView, GuardTestNavigationAware>("GuardTestView");
-        
+        serviceDescriptors.AddSingleton<INavigationInterceptor>(Interceptor);
+
         ServiceProvider = serviceDescriptors.BuildServiceProvider();
     }
 
