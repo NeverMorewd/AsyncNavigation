@@ -40,6 +40,6 @@ public interface IRegionManager
 
     Task<bool> CanGoForwardAsync(string regionName);
     Task<bool> CanGoBackAsync(string regionName);
-    Task<NavigationResult> GoForward(string regionName, CancellationToken cancellationToken = default);
-    Task<NavigationResult> GoBack(string regionName, CancellationToken cancellationToken = default);
+    Task<NavigationResult> GoForwardAsync(string regionName, CancellationToken cancellationToken = default);
+    Task<NavigationResult> GoBackAsync(string regionName, CancellationToken cancellationToken = default);
 }

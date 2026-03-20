@@ -157,7 +157,7 @@ public abstract class RegionManagerBase : IRegionManager, IDisposable
         return false;
     }
 
-    public async Task<NavigationResult> GoForward(string regionName, CancellationToken cancellationToken = default)
+    public async Task<NavigationResult> GoForwardAsync(string regionName, CancellationToken cancellationToken = default)
     {
         var region = GetRegion(regionName);
         if (await region.CanGoForwardAsync())
@@ -175,7 +175,7 @@ public abstract class RegionManagerBase : IRegionManager, IDisposable
         return NavigationResult.Failure(new NavigationException("Cannot go forward."));
     }
 
-    public async Task<NavigationResult> GoBack(string regionName, CancellationToken cancellationToken = default)
+    public async Task<NavigationResult> GoBackAsync(string regionName, CancellationToken cancellationToken = default)
     {
         var region = GetRegion(regionName);
         if (await region.CanGoBackAsync())
