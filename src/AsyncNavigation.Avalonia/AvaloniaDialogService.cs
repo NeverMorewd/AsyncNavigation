@@ -21,13 +21,13 @@ internal sealed class AvaloniaDialogService : DialogService, IAvaloniaDialogServ
         Func<IDialogResult, TWindow?> mainWindowBuilder,
         string? containerName,
         IDialogParameters? parameters,
-        CancellationToken cancellationToken)
+        CancellationToken cancellationToken) where TWindow : class
         => FrontShowAsync(viewName, mainWindowBuilder, containerName, parameters, cancellationToken);
 
     Task IAvaloniaDialogService.FrontShowWindowAsync<TWindow>(
         string windowName,
         Func<IDialogResult, TWindow?> mainWindowBuilder,
         IDialogParameters? parameters,
-        CancellationToken cancellationToken)
+        CancellationToken cancellationToken) where TWindow : class
         => FrontShowAsync(windowName, mainWindowBuilder, parameters, cancellationToken);
 }

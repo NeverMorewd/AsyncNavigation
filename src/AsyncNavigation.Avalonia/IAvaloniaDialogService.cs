@@ -30,7 +30,7 @@ public interface IAvaloniaDialogService : IDialogService
     /// <param name="containerName">Optional container window name; uses the default container if omitted.</param>
     /// <param name="parameters">Optional parameters passed to the dialog view model.</param>
     /// <param name="cancellationToken">Token to cancel the operation.</param>
-    new Task FrontShowViewAsync<TWindow>(
+    Task FrontShowViewAsync<TWindow>(
         string viewName,
         Func<IDialogResult, TWindow?> mainWindowBuilder,
         string? containerName = null,
@@ -49,7 +49,7 @@ public interface IAvaloniaDialogService : IDialogService
     /// </param>
     /// <param name="parameters">Optional parameters passed to the dialog window view model.</param>
     /// <param name="cancellationToken">Token to cancel the operation.</param>
-    new Task FrontShowWindowAsync<TWindow>(
+    Task FrontShowWindowAsync<TWindow>(
         string windowName,
         Func<IDialogResult, TWindow?> mainWindowBuilder,
         IDialogParameters? parameters = null,
