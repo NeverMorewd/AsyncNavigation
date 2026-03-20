@@ -274,6 +274,7 @@ public class DialogService : IDialogService
         {
             dialogWindow.Closed -= OnClosed;
             dialogAware.RequestCloseAsync -= OnRequestClose;
+            _platformService.DetachClosing(dialogWindow, OnWindowClosing);
 
             ShowMainWindowIfNeeded(closeState.GetResultOrDefault());
             tcs.TrySetResult(closeState.GetResultOrDefault());

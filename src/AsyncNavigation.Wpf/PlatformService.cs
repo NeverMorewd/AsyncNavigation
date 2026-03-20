@@ -57,14 +57,16 @@ internal class PlatformService : PlatformServiceBase<Window>
         task.GetAwaiter().GetResult();
     }
 
-    public override void AttachClosing(Window window, Action<object?, WindowClosingEventArgs> handler)
+    public override Action AttachClosingCore(Window window, Action<object?, WindowClosingEventArgs> handler)
     {
-        window.Closing += (s, e) => 
+        EventHandler<System.ComponentModel.CancelEventArgs> wrapper = (s, e) =>
         {
             var args = new WindowClosingEventArgs { Cancel = e.Cancel };
             handler(s, args);
             e.Cancel = args.Cancel;
         };
+        window.Closing += wrapper;
+        return () => window.Closing -= wrapper;
     }
 
     public override void ShowMainWindow(Window mainWindow)

@@ -17,15 +17,18 @@ internal class PlatformService : PlatformServiceBase<Window>
     {
         WaitOnDispatcherFrame(task);
     }
-    public override void AttachClosing(Window window, Action<object?, Core.WindowClosingEventArgs> handler)
+    public override Action AttachClosingCore(Window window, Action<object?, Core.WindowClosingEventArgs> handler)
     {
-        window.Closing += (s, e) => 
+        EventHandler<WindowClosingEventArgs> wrapper = (s, e) =>
         {
             var args = new Core.WindowClosingEventArgs { Cancel = e.Cancel };
             handler(s, args);
             e.Cancel = args.Cancel;
         };
+        window.Closing += wrapper;
+        return () => window.Closing -= wrapper;
     }
+
     public override void ShowMainWindow(Window mainWindow)
     {
         if (TryGetDesktopLifetime(out var lifetime))
@@ -36,11 +39,6 @@ internal class PlatformService : PlatformServiceBase<Window>
         }
         throw new NotSupportedException($"Lifetime: '{Application.Current!.ApplicationLifetime?.GetType()}' is not supported");
     }
-    public void DetachClosing(Window window, Func<object?, Core.WindowClosingEventArgs, Task> handler)
-    {
-       
-    }
-
     public override void Show(Window window, bool isModal)
     {
         ArgumentNullException.ThrowIfNull(window);

@@ -8,10 +8,11 @@ namespace AsyncNavigation;
 internal abstract class PlatformServiceBase<TWindow> : IPlatformService<TWindow>
     where TWindow : class
 {
+    private readonly Dictionary<Action<object?, WindowClosingEventArgs>, Action> _detachers = [];
 
     public abstract Task ShowAsync(TWindow window, bool isModal);
     public abstract void Show(TWindow window, bool isModal);
-    public abstract void AttachClosing(TWindow window, Action<object?, WindowClosingEventArgs> handler);
+    public abstract Action AttachClosingCore(TWindow window, Action<object?, WindowClosingEventArgs> handler);
     public abstract void ShowMainWindow(TWindow mainWindow);
     public Task ShowAsync(IDialogWindowBase baseWindow, bool isModal)
     {
@@ -35,6 +36,13 @@ internal abstract class PlatformServiceBase<TWindow> : IPlatformService<TWindow>
 
     public abstract void WaitOnDispatcher(Task task);
 
+    public void AttachClosing(TWindow window, Action<object?, WindowClosingEventArgs> handler)
+    {
+        var detacher = AttachClosingCore(window, handler);
+        lock (_detachers)
+            _detachers[handler] = detacher;
+    }
+
     public void AttachClosing(IDialogWindowBase baseWindow, Action<object?, WindowClosingEventArgs> handler)
     {
         if (!TryGetPlatformWindow(baseWindow, out TWindow? window))
@@ -43,6 +51,18 @@ internal abstract class PlatformServiceBase<TWindow> : IPlatformService<TWindow>
                 $"but got {baseWindow?.GetType().Name ?? "null"}");
         }
         AttachClosing(window, handler);
+    }
+
+    public void DetachClosing(IDialogWindowBase baseWindow, Action<object?, WindowClosingEventArgs> handler)
+    {
+        Action? detacher;
+        lock (_detachers)
+        {
+            if (!_detachers.TryGetValue(handler, out detacher))
+                return;
+            _detachers.Remove(handler);
+        }
+        detacher?.Invoke();
     }
 
 
