@@ -92,13 +92,13 @@ internal sealed class RegionNavigationService<T> : IRegionNavigationService<T> w
                 [
                     OnRenderIndicatorAsync, 
                     OnBeforeNavigationAsync, 
-                    OnResovleViewAsync, 
+                    OnResolveViewAsync, 
                     OnAfterNavigationAsync
                 ],
             NavigationPipelineMode.ResolveFirst =>
                 [
                     OnBeforeNavigationAsync, 
-                    OnResovleViewAsync, 
+                    OnResolveViewAsync, 
                     OnRenderIndicatorAsync, 
                     OnAfterNavigationAsync
                 ],
@@ -115,7 +115,7 @@ internal sealed class RegionNavigationService<T> : IRegionNavigationService<T> w
         navigationContext.CancellationToken.ThrowIfCancellationRequested();
         return Task.CompletedTask;
     }
-    private async Task OnResovleViewAsync(NavigationContext navigationContext)
+    private async Task OnResolveViewAsync(NavigationContext navigationContext)
     {
         if (navigationContext.Target.IsSet)
         {
