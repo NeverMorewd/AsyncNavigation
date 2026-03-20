@@ -146,6 +146,9 @@ public class NavigationOptions
 
         if (other.MaxReplayItems != DefaultMaxReplayItems)
             MaxReplayItems = other.MaxReplayItems;
+
+        if (other.ViewCacheStrategy != ViewCacheStrategy.IgnoreDuplicateKey)
+            ViewCacheStrategy = other.ViewCacheStrategy;
     }
 
     public override bool Equals(object? obj)

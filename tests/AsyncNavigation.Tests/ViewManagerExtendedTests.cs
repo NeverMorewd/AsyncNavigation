@@ -27,12 +27,8 @@ public class ViewManagerExtendedTests
         int max = 10,
         ViewCacheStrategy strategy = ViewCacheStrategy.IgnoreDuplicateKey)
     {
-        // Reset Default before each helper call to avoid test-ordering issues
-        NavigationOptions.Default.MaxCachedViews = max;
-        NavigationOptions.Default.ViewCacheStrategy = strategy;
-
         var sc = new ServiceCollection();
-        sc.AddNavigationTestSupport();            // uses the updated Default
+        sc.AddNavigationTestSupport(new NavigationOptions { MaxCachedViews = max, ViewCacheStrategy = strategy });
         sc.RegisterView<TestView, TestNavigationAware>("V1");
         sc.RegisterView<AnotherTestView, TestNavigationAware>("V2");
         var sp = sc.BuildServiceProvider();

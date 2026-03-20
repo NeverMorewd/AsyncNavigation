@@ -22,13 +22,17 @@ public static class DependencyInjectionExtensions
     [DynamicDependency(DynamicallyAccessedMemberTypes.All, typeof(RegionContext))]
     internal static IServiceCollection RegisterNavigationFramework(this IServiceCollection serviceDescriptors, NavigationOptions? navigationOptions = null)
     {
+        // Create a fresh options instance from factory defaults so that each service
+        // collection gets its own isolated copy — this prevents cross-test (or
+        // cross-module) contamination of the static NavigationOptions.Default.
+        var effectiveOptions = new NavigationOptions();
         if (navigationOptions is not null)
         {
-            NavigationOptions.Default.MergeFrom(navigationOptions);
+            effectiveOptions.MergeFrom(navigationOptions);
         }
 
-        serviceDescriptors.AddSingleton(NavigationOptions.Default);
-        if (NavigationOptions.Default.NavigationJobScope == NavigationJobScope.App)
+        serviceDescriptors.AddSingleton(effectiveOptions);
+        if (effectiveOptions.NavigationJobScope == NavigationJobScope.App)
         {
             serviceDescriptors.AddSingleton<IAsyncJobProcessor, AsyncJobProcessor>();
         }

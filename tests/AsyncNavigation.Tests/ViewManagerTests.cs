@@ -27,7 +27,6 @@ public class ViewManagerTests
     [Fact]
     public async Task Exceed_MaxCache_Should_Evict_Oldest()
     {
-        NavigationOptions.Default.MaxCachedViews = 1;
         var manager = _serviceProvider.GetRequiredService<IViewManager>();
         var v1 = await manager.ResolveViewAsync("TestView", true);
         var v2 = await manager.ResolveViewAsync("AnotherTestView", true);
