@@ -20,10 +20,10 @@ public class NavigationOptions
     /// Gets or sets the maximum number of cached views in the navigation system.
     /// </summary>
     /// <remarks>
-    /// This property is obsolete. Use <see cref="MaxHistoryItems"/> instead. 
-    /// MaxHistoryItems represents the maximum number of navigation history items globally,
-    /// while MaxCachedViews only controlled per-region view caching in the old design.
+    /// This property is obsolete. Use <see cref="MaxHistoryItems"/> for history size
+    /// or configure caching per-region via the PreferCache attached property.
     /// </remarks>
+    [Obsolete("MaxCachedViews is obsolete. Use MaxHistoryItems for history size or configure caching per-region via the PreferCache attached property.")]
     public int MaxCachedViews { get; set; } = 10;
 
     /// <summary>
@@ -113,8 +113,10 @@ public class NavigationOptions
     {
         if (other == null) return;
 
+#pragma warning disable CS0618 // MaxCachedViews is obsolete but MergeFrom must handle it for backwards compatibility
         if (other.MaxCachedViews != Default.MaxCachedViews)
             MaxCachedViews = other.MaxCachedViews;
+#pragma warning restore CS0618
 
         if (other.MaxHistoryItems != Default.MaxHistoryItems)
             MaxHistoryItems = other.MaxHistoryItems;

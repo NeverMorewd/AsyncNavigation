@@ -18,7 +18,9 @@ internal sealed class ViewManager : IViewManager
     public ViewManager(NavigationOptions options, IViewFactory viewFactory)
     {
         _strategy = options.ViewCacheStrategy;
+#pragma warning disable CS0618 // MaxCachedViews is obsolete but still used internally for view cache size
         _maxCacheSize = options.MaxCachedViews;
+#pragma warning restore CS0618
         _viewFactory = viewFactory;
     }
 
