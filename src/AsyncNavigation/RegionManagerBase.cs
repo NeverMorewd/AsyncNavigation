@@ -88,7 +88,10 @@ public abstract class RegionManagerBase : IRegionManager, IDisposable
         context.LinkCancellationToken(cancellationToken);
 
         if (context.CancellationToken.IsCancellationRequested)
+        {
+            context.UpdateStatus(NavigationStatus.Cancelled);
             return NavigationResult.Cancelled(context);
+        }
 
         try
         {
@@ -260,10 +263,12 @@ public abstract class RegionManagerBase : IRegionManager, IDisposable
         {
             Debug.WriteLine($"[Cancel] {context}");
             await region.RevertAsync(context);
+            context.UpdateStatus(NavigationStatus.Cancelled);
             return NavigationResult.Cancelled(context);
         }
 
         Debug.WriteLine($"[Error] {context} -> {ex}");
+        context.UpdateStatus(NavigationStatus.Failed, ex);
         return NavigationResult.Failure(ex, context);
     }
     protected static void OnAddRegionNameCore(string name, object d, IServiceProvider? sp, bool? preferCache)

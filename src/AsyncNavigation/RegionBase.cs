@@ -54,6 +54,7 @@ public abstract class RegionBase<TRegion, TControl> : IRegion, IRegionPresenter
     {
         await _regionNavigationService.RequestNavigateAsync(navigationContext);
         _navigationHistory.Add(navigationContext);
+        navigationContext.UpdateStatus(NavigationStatus.Succeeded);
         var result = NavigationResult.Success(navigationContext);
         RaiseNavigated(navigationContext);
         return result;
@@ -70,6 +71,7 @@ public abstract class RegionBase<TRegion, TControl> : IRegion, IRegionPresenter
         navigationContext.IsBackNavigation = true;
         navigationContext.LinkCancellationToken(cancellationToken);
         await _regionNavigationService.RequestNavigateAsync(navigationContext);
+        navigationContext.UpdateStatus(NavigationStatus.Succeeded);
         var result = NavigationResult.Success(navigationContext);
         RaiseNavigated(navigationContext);
         return result;
@@ -87,6 +89,7 @@ public abstract class RegionBase<TRegion, TControl> : IRegion, IRegionPresenter
         navigationContext.IsForwardNavigation = true;
         navigationContext.LinkCancellationToken(cancellationToken);
         await _regionNavigationService.RequestNavigateAsync(navigationContext);
+        navigationContext.UpdateStatus(NavigationStatus.Succeeded);
         var result = NavigationResult.Success(navigationContext);
         RaiseNavigated(navigationContext);
         return result;
