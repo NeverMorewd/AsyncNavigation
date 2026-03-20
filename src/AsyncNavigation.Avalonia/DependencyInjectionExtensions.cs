@@ -56,7 +56,13 @@ public static class DependencyInjectionExtensions
             .AddTransient<IInnerRegionIndicatorHost, InnerIndicatorHost>()
             .AddSingleton<IRegionManager, RegionManager>()
             .RegisterDialogContainer<DefaultDialogContainer>(NavigationConstants.DEFAULT_DIALOG_WINDOW_KEY)
-            .AddSingleton<IPlatformService, PlatformService>();
+            .AddSingleton<IPlatformService, PlatformService>()
+            // Register AvaloniaDialogService as both IDialogService and IAvaloniaDialogService
+            // so that users who need FrontShowViewAsync/FrontShowWindowAsync can resolve
+            // IAvaloniaDialogService directly for the clean API.
+            .AddSingleton<AvaloniaDialogService>()
+            .AddSingleton<IDialogService>(sp => sp.GetRequiredService<AvaloniaDialogService>())
+            .AddSingleton<IAvaloniaDialogService>(sp => sp.GetRequiredService<AvaloniaDialogService>());
     }
 
     /// <summary>
