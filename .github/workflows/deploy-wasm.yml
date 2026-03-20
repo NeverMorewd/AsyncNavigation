@@ -1,0 +1,69 @@
+# ─────────────────────────────────────────────────────────────────────────────
+# Deploy WASM — manual trigger only.
+#
+# Use this workflow to (re)deploy the Avalonia Browser sample to GitHub Pages
+# outside of a normal release cycle, e.g. after updating the sample app or
+# fixing a Pages-only issue without cutting a full release.
+# ─────────────────────────────────────────────────────────────────────────────
+name: Deploy WASM Sample
+
+on:
+  workflow_dispatch:
+    inputs:
+      reason:
+        description: 'Reason for manual deploy'
+        required: false
+        default: 'Manual update'
+
+concurrency:
+  group: deploy-wasm
+  cancel-in-progress: false     # never cancel an in-flight deploy
+
+env:
+  DOTNET_VERSION: '10.0.x'
+  DOTNET_SKIP_FIRST_TIME_EXPERIENCE: true
+  DOTNET_NOLOGO: true
+  NUGET_PACKAGES: ${{ github.workspace }}/.nuget/packages
+  WASM_PROJECT: samples/Sample.Avalonia.Browser/Sample.Avalonia.Browser.csproj
+  WASM_PUBLISH_DIR: samples/Sample.Avalonia.Browser/bin/Release/net10.0-browser/publish/wwwroot
+
+jobs:
+  deploy:
+    name: Build & Deploy
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-dotnet@v5
+        with:
+          dotnet-version: ${{ env.DOTNET_VERSION }}
+
+      - name: Cache NuGet packages
+        uses: actions/cache@v4
+        with:
+          path: ${{ env.NUGET_PACKAGES }}
+          key: ${{ runner.os }}-nuget-${{ hashFiles('**/*.csproj', '**/*.props') }}
+          restore-keys: ${{ runner.os }}-nuget-
+
+      - name: Install WASM workload
+        run: dotnet workload install wasm-tools
+
+      - name: Publish WASM
+        run: dotnet publish ${{ env.WASM_PROJECT }} --configuration Release --nologo
+
+      - name: Prepare for GitHub Pages (SPA routing support)
+        run: |
+          cp ${{ env.WASM_PUBLISH_DIR }}/index.html ${{ env.WASM_PUBLISH_DIR }}/404.html
+          touch ${{ env.WASM_PUBLISH_DIR }}/.nojekyll
+
+      - name: Deploy to GitHub Pages
+        uses: JamesIves/github-pages-deploy-action@v4
+        with:
+          branch: page-samplewasm
+          folder: ${{ env.WASM_PUBLISH_DIR }}
+          single-commit: true
+          token: ${{ secrets.GITHUB_TOKEN }}
+          commit-message: "deploy: WASM sample — ${{ github.event.inputs.reason || 'manual' }} [skip ci]"

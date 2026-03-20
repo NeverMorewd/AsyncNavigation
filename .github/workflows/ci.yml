@@ -1,0 +1,217 @@
+# ─────────────────────────────────────────────────────────────────────────────
+# CI — runs on every push to main and every pull-request targeting main.
+#
+# Pipeline stages (each stage waits for the previous one to succeed):
+#   1. test          Unit tests on Linux / Windows / macOS (parallel)
+#   2. build-libs    Build all NuGet library projects (Core + Avalonia + WPF)
+#   3. build-samples Build all sample apps to catch integration regressions
+#   4. pack          Pack NuGet packages and upload as CI artifacts
+# ─────────────────────────────────────────────────────────────────────────────
+name: CI
+
+on:
+  push:
+    branches: [main]
+    paths-ignore:
+      - '**/*.md'
+      - '.github/workflows/release.yml'
+      - '.github/workflows/deploy-wasm.yml'
+  pull_request:
+    branches: [main]
+    paths-ignore:
+      - '**/*.md'
+  workflow_dispatch:
+
+# Cancel redundant in-progress runs for the same branch/PR.
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  DOTNET_VERSION: '10.0.x'
+  DOTNET_SKIP_FIRST_TIME_EXPERIENCE: true
+  DOTNET_NOLOGO: true
+  NUGET_PACKAGES: ${{ github.workspace }}/.nuget/packages
+
+jobs:
+  # ──────────────────────────────────────────────────────────────────────────
+  # Stage 1 – Unit tests (fail-fast guard for the whole pipeline)
+  # ──────────────────────────────────────────────────────────────────────────
+  test:
+    name: Test / ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false          # report all platform failures, not just the first
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-dotnet@v5
+        with:
+          dotnet-version: ${{ env.DOTNET_VERSION }}
+
+      - name: Cache NuGet packages
+        uses: actions/cache@v4
+        with:
+          path: ${{ env.NUGET_PACKAGES }}
+          key: ${{ runner.os }}-nuget-${{ hashFiles('**/*.csproj', '**/*.props') }}
+          restore-keys: ${{ runner.os }}-nuget-
+
+      - name: Restore
+        run: dotnet restore tests/AsyncNavigation.Tests
+
+      - name: Test
+        run: >
+          dotnet test tests/AsyncNavigation.Tests
+          --configuration Release
+          --no-restore
+          --logger "console;verbosity=normal"
+          --logger "trx;LogFileName=results.trx"
+          --results-directory ./test-results
+
+      - name: Upload test results
+        uses: actions/upload-artifact@v4
+        if: always()              # upload even when tests fail so we can inspect
+        with:
+          name: test-results-${{ matrix.os }}
+          path: ./test-results/results.trx
+          if-no-files-found: warn
+
+  # ──────────────────────────────────────────────────────────────────────────
+  # Stage 2a – Build NuGet library projects (Linux for Core + Avalonia)
+  # ──────────────────────────────────────────────────────────────────────────
+  build-libs:
+    name: Build Libraries
+    runs-on: ubuntu-latest
+    needs: test
+
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-dotnet@v5
+        with:
+          dotnet-version: ${{ env.DOTNET_VERSION }}
+
+      - name: Cache NuGet packages
+        uses: actions/cache@v4
+        with:
+          path: ${{ env.NUGET_PACKAGES }}
+          key: ${{ runner.os }}-nuget-${{ hashFiles('**/*.csproj', '**/*.props') }}
+          restore-keys: ${{ runner.os }}-nuget-
+
+      - name: Build Core
+        run: dotnet build src/AsyncNavigation --configuration Release
+
+      - name: Build Avalonia adapter
+        run: dotnet build src/AsyncNavigation.Avalonia --configuration Release
+
+  # ──────────────────────────────────────────────────────────────────────────
+  # Stage 2b – Build WPF library (requires Windows)
+  # ──────────────────────────────────────────────────────────────────────────
+  build-wpf:
+    name: Build WPF Library
+    runs-on: windows-latest
+    needs: test
+
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-dotnet@v5
+        with:
+          dotnet-version: ${{ env.DOTNET_VERSION }}
+
+      - name: Cache NuGet packages
+        uses: actions/cache@v4
+        with:
+          path: ${{ env.NUGET_PACKAGES }}
+          key: ${{ runner.os }}-nuget-${{ hashFiles('**/*.csproj', '**/*.props') }}
+          restore-keys: ${{ runner.os }}-nuget-
+
+      - name: Build WPF adapter
+        run: dotnet build src/AsyncNavigation.Wpf --configuration Release
+
+  # ──────────────────────────────────────────────────────────────────────────
+  # Stage 2c – Build sample applications (validates integration)
+  # ──────────────────────────────────────────────────────────────────────────
+  build-samples:
+    name: Samples / ${{ matrix.name }}
+    runs-on: ${{ matrix.os }}
+    needs: test
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: Avalonia Desktop (Ubuntu)
+            os: ubuntu-latest
+            project: samples/Sample.Avalonia.Desktop
+          - name: Avalonia Desktop (Windows)
+            os: windows-latest
+            project: samples/Sample.Avalonia.Desktop
+          - name: Avalonia Desktop (macOS)
+            os: macos-latest
+            project: samples/Sample.Avalonia.Desktop
+          - name: WPF
+            os: windows-latest
+            project: samples/Sample.Wpf
+          - name: Avalonia Browser (WASM)
+            os: ubuntu-latest
+            project: samples/Sample.Avalonia.Browser
+            wasm: true
+
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-dotnet@v5
+        with:
+          dotnet-version: ${{ env.DOTNET_VERSION }}
+
+      - name: Cache NuGet packages
+        uses: actions/cache@v4
+        with:
+          path: ${{ env.NUGET_PACKAGES }}
+          key: ${{ runner.os }}-nuget-${{ hashFiles('**/*.csproj', '**/*.props') }}
+          restore-keys: ${{ runner.os }}-nuget-
+
+      - name: Install WASM workload
+        if: matrix.wasm == true
+        run: dotnet workload install wasm-tools
+
+      - name: Build ${{ matrix.name }}
+        run: dotnet build ${{ matrix.project }} --configuration Release
+
+  # ──────────────────────────────────────────────────────────────────────────
+  # Stage 3 – Pack NuGet packages (validates .nupkg can be produced cleanly)
+  # These are CI preview packages — NOT published to NuGet.org.
+  # ──────────────────────────────────────────────────────────────────────────
+  pack:
+    name: Pack NuGet (preview)
+    runs-on: ubuntu-latest
+    needs: [build-libs, build-wpf]
+
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-dotnet@v5
+        with:
+          dotnet-version: ${{ env.DOTNET_VERSION }}
+
+      - name: Cache NuGet packages
+        uses: actions/cache@v4
+        with:
+          path: ${{ env.NUGET_PACKAGES }}
+          key: ${{ runner.os }}-nuget-${{ hashFiles('**/*.csproj', '**/*.props') }}
+          restore-keys: ${{ runner.os }}-nuget-
+
+      - name: Pack Core + Avalonia
+        run: |
+          dotnet pack src/AsyncNavigation         --configuration Release -o ./nugets
+          dotnet pack src/AsyncNavigation.Avalonia --configuration Release -o ./nugets
+
+      - name: Upload preview packages
+        uses: actions/upload-artifact@v4
+        with:
+          name: nuget-preview
+          path: ./nugets/*.nupkg
+          if-no-files-found: error
