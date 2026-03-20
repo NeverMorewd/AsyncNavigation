@@ -6,6 +6,7 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace AsyncNavigation.Tests;
 
+[Collection("RegionManagerCollection")]
 public class RegionManagerTests : IClassFixture<ServiceFixture>
 {
     private readonly IRegionManager _regionManager;
@@ -148,5 +149,62 @@ public class RegionManagerTests : IClassFixture<ServiceFixture>
         _ = await _regionManager.RequestNavigateAsync("Main", "AnotherTestView");
         var result = await _regionManager.GoBackAsync("Main", cancellationToken: cancellationTokenSource.Token);
         Assert.True(result.IsCancelled);
+    }
+
+    [Fact]
+    public async Task NavigationGuard_WhenAllowsNavigation_ShouldSucceed()
+    {
+        var region = TestRegion.Build(_serviceProvider);
+        _regionManager.TryRemoveRegion("Guard1", out _);
+        _regionManager.AddRegion("Guard1", region);
+
+        _ = await _regionManager.RequestNavigateAsync("Guard1", "GuardTestView");
+        var guardVm = GuardTestNavigationAware.LastCreated!;
+        guardVm.AllowNavigation = true;
+
+        var result = await _regionManager.RequestNavigateAsync("Guard1", "TestView");
+
+        Assert.True(result.IsSuccessful);
+    }
+
+    [Fact]
+    public async Task NavigationGuard_WhenBlocksNavigation_ShouldCancel()
+    {
+        var region = TestRegion.Build(_serviceProvider);
+        _regionManager.TryRemoveRegion("Guard2", out _);
+        _regionManager.AddRegion("Guard2", region);
+
+        _ = await _regionManager.RequestNavigateAsync("Guard2", "GuardTestView");
+        var guardVm = GuardTestNavigationAware.LastCreated!;
+        guardVm.AllowNavigation = false;
+
+        var result = await _regionManager.RequestNavigateAsync("Guard2", "TestView");
+
+        // Cleanup: reset guard state and clear _currentRegion so subsequent tests are not affected
+        guardVm.AllowNavigation = true;
+        _regionManager.TryRemoveRegion("Guard2", out _);
+
+        Assert.True(result.IsCancelled);
+    }
+
+    [Fact]
+    public async Task NavigationGuard_WhenBlocksNavigation_DoesNotCallOnNavigatedFrom()
+    {
+        var region = TestRegion.Build(_serviceProvider);
+        _regionManager.TryRemoveRegion("Guard3", out _);
+        _regionManager.AddRegion("Guard3", region);
+
+        _ = await _regionManager.RequestNavigateAsync("Guard3", "GuardTestView");
+        var guardVm = GuardTestNavigationAware.LastCreated!;
+        guardVm.AllowNavigation = false;
+
+        _ = await _regionManager.RequestNavigateAsync("Guard3", "TestView");
+
+        // Cleanup: reset guard state and clear _currentRegion so subsequent tests are not affected
+        guardVm.AllowNavigation = true;
+        _regionManager.TryRemoveRegion("Guard3", out _);
+
+        Assert.True(guardVm.GuardWasCalled);
+        Assert.False(guardVm.NavigatedFromWasCalled);
     }
 }

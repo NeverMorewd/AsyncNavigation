@@ -19,6 +19,7 @@ public class ServiceFixture : IDisposable
 
         serviceDescriptors.RegisterView<TestView, TestNavigationAware>("TestView");
         serviceDescriptors.RegisterView<AnotherTestView, TestNavigationAware>("AnotherTestView");
+        serviceDescriptors.RegisterView<GuardTestView, GuardTestNavigationAware>("GuardTestView");
         
         ServiceProvider = serviceDescriptors.BuildServiceProvider();
     }
