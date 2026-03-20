@@ -110,14 +110,10 @@ jobs:
           key: ${{ runner.os }}-nuget-${{ hashFiles('**/*.csproj', '**/*.props') }}
           restore-keys: ${{ runner.os }}-nuget-
 
-      - name: Restore
-        run: dotnet restore src/AsyncNavigation.Avalonia
-
       - name: Pack Core
         run: >
           dotnet pack src/AsyncNavigation
           --configuration Release
-          --no-restore
           -p:Version=${{ steps.version.outputs.value }}
           -o ./nugets
 
@@ -125,7 +121,6 @@ jobs:
         run: >
           dotnet pack src/AsyncNavigation.Avalonia
           --configuration Release
-          --no-restore
           -p:Version=${{ steps.version.outputs.value }}
           -o ./nugets
 
@@ -165,14 +160,10 @@ jobs:
           key: ${{ runner.os }}-nuget-${{ hashFiles('**/*.csproj', '**/*.props') }}
           restore-keys: ${{ runner.os }}-nuget-
 
-      - name: Restore
-        run: dotnet restore src/AsyncNavigation.Wpf
-
       - name: Pack WPF adapter
         run: >
           dotnet pack src/AsyncNavigation.Wpf
           --configuration Release
-          --no-restore
           -p:Version=${{ steps.version.outputs.value }}
           -o ./nugets
 

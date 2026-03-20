@@ -203,13 +203,10 @@ jobs:
           key: ${{ runner.os }}-nuget-${{ hashFiles('**/*.csproj', '**/*.props') }}
           restore-keys: ${{ runner.os }}-nuget-
 
-      - name: Restore
-        run: dotnet restore src/AsyncNavigation.Avalonia
-
       - name: Pack Core + Avalonia
         run: |
-          dotnet pack src/AsyncNavigation         --configuration Release --no-restore -o ./nugets
-          dotnet pack src/AsyncNavigation.Avalonia --configuration Release --no-restore -o ./nugets
+          dotnet pack src/AsyncNavigation         --configuration Release -o ./nugets
+          dotnet pack src/AsyncNavigation.Avalonia --configuration Release -o ./nugets
 
       - name: Upload preview packages
         uses: actions/upload-artifact@v4
