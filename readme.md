@@ -40,8 +40,17 @@ Try it online : [demo](https://nevermorewd.github.io/AsyncNavigation/)
 -  **Fine-grained Control Options**  
   Offers rich configuration options to make navigation behavior align precisely with application needs.
 
--  **Lifecycle Management**  
+-  **Lifecycle Management**
   Automatically handles view creation, caching, and release — effectively preventing memory leaks.
+
+-  **NavigationAwareBase Convenience Class**
+  Derive from `NavigationAwareBase` instead of implementing all `INavigationAware` members manually — override only what you need.
+
+-  **Navigation Guard**
+  Implement `INavigationGuard` on any view model to block navigation away (e.g., unsaved-changes confirmation).
+
+-  **Navigation Interceptors**
+  Register `INavigationInterceptor` implementations to run cross-cutting logic (authentication, analytics, redirects) for every navigation request.
 
 -  **Highly Abstract Core Layer**  
   Core logic is encapsulated within abstractions, minimizing platform-specific code and improving testability.
@@ -77,47 +86,88 @@ dotnet add package AsyncNavigation.Avaloniaui
 #### ViewModel
 <details>
 <summary>Code Examples</summary>
-  
+
 ```csharp
 
-public class SampleViewModel : INavigationAware
+// Derive from NavigationAwareBase and override only what you need.
+// All methods have no-op defaults so you never have to write boilerplate.
+public class SampleViewModel : NavigationAwareBase
 {
-    public event AsyncEventHandler<AsyncEventArgs>? AsyncRequestUnloadEvent;
-
-    public virtual Task InitializeAsync(NavigationContext context)
+    public override async Task OnNavigatedToAsync(NavigationContext context)
     {
-        return Task.CompletedTask;
+        await LoadDataAsync(context.CancellationToken);
     }
 
-    public virtual Task<bool> IsNavigationTargetAsync(NavigationContext context)
+    public override async Task OnNavigatedFromAsync(NavigationContext context)
     {
-        return Task.FromResult(true);
-    }
-
-    public virtual async Task OnNavigatedFromAsync(NavigationContext context)
-    {
-        await Task.Delay(100, context.CancellationToken);
-    }
-
-    public virtual async Task OnNavigatedToAsync(NavigationContext context)
-    {
-        await Task.Delay(100, context.CancellationToken);
-    }
-
-    public virtual Task OnUnloadAsync(CancellationToken cancellationToken)
-    {
-        return Task.CompletedTask;
-    }
-
-    protected Task RequestUnloadAsync()
-    {
-        if (AsyncRequestUnloadEvent == null)
-        {
-            return Task.CompletedTask;
-        }
-        return AsyncRequestUnloadEvent!.Invoke(this, AsyncEventArgs.Empty);
+        await SaveStateAsync(context.CancellationToken);
     }
 }
+
+```
+
+</details>
+
+#### Navigation Guard
+<details>
+<summary>Code Examples</summary>
+
+Implement `INavigationGuard` alongside `NavigationAwareBase` (or `INavigationAware`) to block navigation away from the current view — for example, when the user has unsaved changes.
+
+```csharp
+
+public class EditViewModel : NavigationAwareBase, INavigationGuard
+{
+    public bool HasUnsavedChanges { get; private set; }
+
+    public async Task<bool> CanNavigateAsync(NavigationContext context, CancellationToken cancellationToken)
+    {
+        if (!HasUnsavedChanges)
+            return true;
+
+        // Return false to cancel the navigation.
+        // In a real app you might show a confirmation dialog here.
+        return false;
+    }
+}
+
+```
+
+</details>
+
+#### Navigation Interceptor
+<details>
+<summary>Code Examples</summary>
+
+Implement `INavigationInterceptor` to run cross-cutting logic for every navigation request (e.g., authentication, analytics, global redirects).
+
+```csharp
+
+public class AuthInterceptor : INavigationInterceptor
+{
+    private readonly IAuthService _auth;
+
+    public AuthInterceptor(IAuthService auth) => _auth = auth;
+
+    public Task OnNavigatingAsync(NavigationContext context)
+    {
+        if (!_auth.IsLoggedIn)
+            throw new OperationCanceledException("Not authenticated.");
+        return Task.CompletedTask;
+    }
+
+    public Task OnNavigatedAsync(NavigationContext context) => Task.CompletedTask;
+}
+
+```
+
+Register via the DI extension:
+
+```csharp
+
+services.AddNavigationSupport()
+        .RegisterView<HomeView, HomeViewModel>("Home")
+        .RegisterNavigationInterceptor<AuthInterceptor>();
 
 ```
 
@@ -181,13 +231,13 @@ public class SampleViewModel : INavigationAware
   [ReactiveCommand]
   private async Task GoForward()
   {
-      await _regionManager.GoForward("MainRegion");
+      await _regionManager.GoForwardAsync("MainRegion");
   }
 
   [ReactiveCommand]
   private async Task GoBack()
   {
-      await _regionManager.GoBack("MainRegion");
+      await _regionManager.GoBackAsync("MainRegion");
   }
 
 ```

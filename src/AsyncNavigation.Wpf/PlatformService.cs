@@ -59,7 +59,7 @@ internal class PlatformService : PlatformServiceBase<Window>
 
     public override Action AttachClosingCore(Window window, Action<object?, WindowClosingEventArgs> handler)
     {
-        EventHandler<System.ComponentModel.CancelEventArgs> wrapper = (s, e) =>
+        System.ComponentModel.CancelEventHandler wrapper = (s, e) =>
         {
             var args = new WindowClosingEventArgs { Cancel = e.Cancel };
             handler(s, args);
