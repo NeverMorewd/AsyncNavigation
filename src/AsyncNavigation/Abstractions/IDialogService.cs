@@ -19,19 +19,12 @@ public interface IDialogService
         CancellationToken cancellationToken);
 
     /// <summary>
-    /// Displays a dialog (e.g., splash screen or login window) before showing the main window.
-    /// This method is particularly useful in AvaloniaUI applications, where an initial dialog
-    /// may need to appear before the main window is created or displayed.
+    /// Displays a dialog view before showing the main window.
     /// </summary>
-    /// <typeparam name="TWindow">The main window type to be created after the dialog is closed.</typeparam>
-    /// <param name="name">The name of the dialog view to show.</param>
-    /// <param name="mainWindowBuilder">
-    /// A function that builds the main window based on the <see cref="IDialogResult"/> returned by the dialog.
-    /// </param>
-    /// <param name="containerName">Optional: The name of the window container.</param>
-    /// <param name="parameters">Optional: The parameters passed to the dialog.</param>
-    /// <param name="cancellationToken">Optional: Token to cancel the operation.</param>
-    /// <returns>A task representing the asynchronous operation.</returns>
+    /// <remarks>
+    /// For Avalonia applications, prefer resolving <c>IAvaloniaDialogService</c> and calling
+    /// <c>FrontShowViewAsync</c> which provides a friendlier API with optional parameters.
+    /// </remarks>
     Task FrontShowAsync<TWindow>(string name,
       Func<IDialogResult, TWindow?> mainWindowBuilder,
       string? containerName,
@@ -52,18 +45,12 @@ public interface IDialogService
         CancellationToken cancellationToken);
 
     /// <summary>
-    /// Displays a dialog (e.g., splash screen or login window) before showing the main window.
-    /// This method is particularly useful in AvaloniaUI applications, where an initial dialog
-    /// may need to appear before the main window is created or displayed.
+    /// Displays a dialog window before showing the main window.
     /// </summary>
-    /// <typeparam name="TWindow">The main window type to be created after the dialog is closed.</typeparam>
-    /// <param name="windowName">The name of the dialog window to show.</param>
-    /// <param name="mainWindowBuilder">
-    /// A function that builds the main window based on the <see cref="IDialogResult"/> returned by the dialog.
-    /// </param>
-    /// <param name="parameters">Optional: The parameters passed to the dialog.</param>
-    /// <param name="cancellationToken">Optional: Token to cancel the operation.</param>
-    /// <returns>A task representing the asynchronous operation.</returns>
+    /// <remarks>
+    /// For Avalonia applications, prefer resolving <c>IAvaloniaDialogService</c> and calling
+    /// <c>FrontShowWindowAsync</c> which provides a friendlier API with optional parameters.
+    /// </remarks>
     Task FrontShowAsync<TWindow>(string windowName,
       Func<IDialogResult, TWindow?> mainWindowBuilder,
       IDialogParameters? parameters,

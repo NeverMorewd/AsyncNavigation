@@ -19,6 +19,7 @@ public abstract class RegionManagerBase : IRegionManager, IDisposable
     private readonly IServiceProvider _serviceProvider;
     private readonly IRegionFactory _regionFactory;
     private readonly int _maxReplayCount;
+    private readonly IReadOnlyList<INavigationInterceptor> _interceptors;
     private IRouter? _router;
 
     private IRegion? _currentRegion;
@@ -35,6 +36,7 @@ public abstract class RegionManagerBase : IRegionManager, IDisposable
         _regionFactory = regionFactory;
         _serviceProvider = serviceProvider;
         _maxReplayCount = serviceProvider.GetRequiredService<NavigationOptions>().MaxReplayItems;
+        _interceptors = serviceProvider.GetServices<INavigationInterceptor>().ToList();
 
         RecoverTempRegions();
     }
@@ -88,10 +90,19 @@ public abstract class RegionManagerBase : IRegionManager, IDisposable
         context.LinkCancellationToken(cancellationToken);
 
         if (context.CancellationToken.IsCancellationRequested)
+        {
+            context.UpdateStatus(NavigationStatus.Cancelled);
             return NavigationResult.Cancelled(context);
+        }
 
         try
         {
+            // Run OnNavigating interceptors before the navigation pipeline starts.
+            foreach (var interceptor in _interceptors)
+                await interceptor.OnNavigatingAsync(context);
+
+            context.CancellationToken.ThrowIfCancellationRequested();
+
             IRegion? previousRegion;
             lock (_regionLock)
             {
@@ -102,7 +113,20 @@ public abstract class RegionManagerBase : IRegionManager, IDisposable
             if (previousRegion is not null && previousRegion != region)
                 await previousRegion.NavigateFromAsync(context);
 
-            return await region.ActivateViewAsync(context);
+            var result = await region.ActivateViewAsync(context);
+
+            // Run OnNavigated interceptors after successful navigation.
+            // Exceptions from interceptors are logged but do not affect the result.
+            if (result.IsSuccessful)
+            {
+                foreach (var interceptor in _interceptors)
+                {
+                    try { await interceptor.OnNavigatedAsync(context); }
+                    catch (Exception ex) { Debug.WriteLine($"[Interceptor] OnNavigatedAsync failed: {ex}"); }
+                }
+            }
+
+            return result;
         }
         catch (Exception ex)
         {
@@ -157,7 +181,7 @@ public abstract class RegionManagerBase : IRegionManager, IDisposable
         return false;
     }
 
-    public async Task<NavigationResult> GoForward(string regionName, CancellationToken cancellationToken = default)
+    public async Task<NavigationResult> GoForwardAsync(string regionName, CancellationToken cancellationToken = default)
     {
         var region = GetRegion(regionName);
         if (await region.CanGoForwardAsync())
@@ -175,7 +199,7 @@ public abstract class RegionManagerBase : IRegionManager, IDisposable
         return NavigationResult.Failure(new NavigationException("Cannot go forward."));
     }
 
-    public async Task<NavigationResult> GoBack(string regionName, CancellationToken cancellationToken = default)
+    public async Task<NavigationResult> GoBackAsync(string regionName, CancellationToken cancellationToken = default)
     {
         var region = GetRegion(regionName);
         if (await region.CanGoBackAsync())
@@ -260,10 +284,12 @@ public abstract class RegionManagerBase : IRegionManager, IDisposable
         {
             Debug.WriteLine($"[Cancel] {context}");
             await region.RevertAsync(context);
+            context.UpdateStatus(NavigationStatus.Cancelled);
             return NavigationResult.Cancelled(context);
         }
 
         Debug.WriteLine($"[Error] {context} -> {ex}");
+        context.UpdateStatus(NavigationStatus.Failed, ex);
         return NavigationResult.Failure(ex, context);
     }
     protected static void OnAddRegionNameCore(string name, object d, IServiceProvider? sp, bool? preferCache)

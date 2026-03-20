@@ -20,12 +20,12 @@ public partial class ListBoxRegionViewModel : ViewModelBase
     [ReactiveCommand]
     private async Task GoForward()
     {
-        await _regionManager.GoForward("CustomListBoxRegion");
+        await _regionManager.GoForwardAsync("CustomListBoxRegion");
     }
 
     [ReactiveCommand]
     private async Task GoBack()
     {
-        await _regionManager.GoBack("CustomListBoxRegion");
+        await _regionManager.GoBackAsync("CustomListBoxRegion");
     }
 }

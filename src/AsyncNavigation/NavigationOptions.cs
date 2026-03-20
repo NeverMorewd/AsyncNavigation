@@ -8,6 +8,15 @@ namespace AsyncNavigation;
 /// </summary>
 public class NavigationOptions
 {
+    // Factory defaults used by MergeFrom to detect user-overridden values.
+    // Kept in sync with the property initializers below.
+    internal const int DefaultMaxCachedViews = 10;
+    internal const int DefaultMaxHistoryItems = 10;
+    internal const int DefaultMaxReplayItems = 10;
+    internal static readonly TimeSpan DefaultLoadingIndicatorDelay = TimeSpan.FromMilliseconds(100);
+    internal const NavigationJobStrategy DefaultNavigationJobStrategy = NavigationJobStrategy.CancelCurrent;
+    internal const NavigationJobScope DefaultNavigationJobScope = NavigationJobScope.Region;
+
     private int _loadingIndicatorRegistered;
     private int _errorIndicatorRegistered;
 
@@ -20,10 +29,10 @@ public class NavigationOptions
     /// Gets or sets the maximum number of cached views in the navigation system.
     /// </summary>
     /// <remarks>
-    /// This property is obsolete. Use <see cref="MaxHistoryItems"/> instead. 
-    /// MaxHistoryItems represents the maximum number of navigation history items globally,
-    /// while MaxCachedViews only controlled per-region view caching in the old design.
+    /// This property is obsolete. Use <see cref="MaxHistoryItems"/> for history size
+    /// or configure caching per-region via the PreferCache attached property.
     /// </remarks>
+    [Obsolete("MaxCachedViews is obsolete. Use MaxHistoryItems for history size or configure caching per-region via the PreferCache attached property.")]
     public int MaxCachedViews { get; set; } = 10;
 
     /// <summary>
@@ -106,29 +115,36 @@ public class NavigationOptions
 
     /// <summary>
     /// Merges the properties of another <see cref="NavigationOptions"/> instance into this instance,
-    /// only overwriting properties that differ from the default values.
+    /// only overwriting properties that differ from the factory default values.
     /// </summary>
+    /// <remarks>
+    /// Compares each property on <paramref name="other"/> against the known factory defaults
+    /// (not against <c>Default</c>) so the comparison is stable even when called on the
+    /// <c>Default</c> instance itself.
+    /// </remarks>
     /// <param name="other">The options to merge from. Can be <c>null</c>.</param>
     public void MergeFrom(NavigationOptions other)
     {
         if (other == null) return;
 
-        if (other.MaxCachedViews != Default.MaxCachedViews)
+#pragma warning disable CS0618 // MaxCachedViews is obsolete but MergeFrom must handle it for backwards compatibility
+        if (other.MaxCachedViews != DefaultMaxCachedViews)
             MaxCachedViews = other.MaxCachedViews;
+#pragma warning restore CS0618
 
-        if (other.MaxHistoryItems != Default.MaxHistoryItems)
+        if (other.MaxHistoryItems != DefaultMaxHistoryItems)
             MaxHistoryItems = other.MaxHistoryItems;
 
-        if (other.LoadingIndicatorDelay != Default.LoadingIndicatorDelay)
+        if (other.LoadingIndicatorDelay != DefaultLoadingIndicatorDelay)
             LoadingIndicatorDelay = other.LoadingIndicatorDelay;
 
-        if (other.NavigationJobStrategy != Default.NavigationJobStrategy)
+        if (other.NavigationJobStrategy != DefaultNavigationJobStrategy)
             NavigationJobStrategy = other.NavigationJobStrategy;
 
-        if (other.NavigationJobScope != Default.NavigationJobScope)
+        if (other.NavigationJobScope != DefaultNavigationJobScope)
             NavigationJobScope = other.NavigationJobScope;
 
-        if (other.MaxReplayItems != Default.MaxReplayItems)
+        if (other.MaxReplayItems != DefaultMaxReplayItems)
             MaxReplayItems = other.MaxReplayItems;
     }
 

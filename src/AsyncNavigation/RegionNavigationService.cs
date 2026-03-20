@@ -92,13 +92,13 @@ internal sealed class RegionNavigationService<T> : IRegionNavigationService<T> w
                 [
                     OnRenderIndicatorAsync, 
                     OnBeforeNavigationAsync, 
-                    OnResovleViewAsync, 
+                    OnResolveViewAsync, 
                     OnAfterNavigationAsync
                 ],
             NavigationPipelineMode.ResolveFirst =>
                 [
                     OnBeforeNavigationAsync, 
-                    OnResovleViewAsync, 
+                    OnResolveViewAsync, 
                     OnRenderIndicatorAsync, 
                     OnAfterNavigationAsync
                 ],
@@ -115,7 +115,7 @@ internal sealed class RegionNavigationService<T> : IRegionNavigationService<T> w
         navigationContext.CancellationToken.ThrowIfCancellationRequested();
         return Task.CompletedTask;
     }
-    private async Task OnResovleViewAsync(NavigationContext navigationContext)
+    private async Task OnResolveViewAsync(NavigationContext navigationContext)
     {
         if (navigationContext.Target.IsSet)
         {
@@ -131,9 +131,25 @@ internal sealed class RegionNavigationService<T> : IRegionNavigationService<T> w
 
     private async Task OnBeforeNavigationAsync(NavigationContext navigationContext)
     {
-        if (Current.HasValue && Current.Value.View.DataContext is INavigationAware currentAware)
+        if (Current.HasValue)
         {
-            await currentAware.OnNavigatedFromAsync(navigationContext);
+            var currentDataContext = Current.Value.View.DataContext;
+
+            // Check navigation guard before notifying the current view it is leaving.
+            // If the guard blocks navigation, throw OperationCanceledException so the
+            // pipeline treats this as a cancellation and reverts to the current view.
+            if (currentDataContext is INavigationGuard guard)
+            {
+                var canNavigate = await guard.CanNavigateAsync(navigationContext, navigationContext.CancellationToken);
+                navigationContext.CancellationToken.ThrowIfCancellationRequested();
+                if (!canNavigate)
+                    throw new OperationCanceledException("Navigation was blocked by INavigationGuard.", navigationContext.CancellationToken);
+            }
+
+            if (currentDataContext is INavigationAware currentAware)
+            {
+                await currentAware.OnNavigatedFromAsync(navigationContext);
+            }
         }
         navigationContext.CancellationToken.ThrowIfCancellationRequested();
     }

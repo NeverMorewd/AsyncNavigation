@@ -28,13 +28,13 @@ public partial class DViewModel : InstanceCounterViewModel<DViewModel>
     [ReactiveCommand]
     private async Task GoForward()
     {
-        await _regionManager.GoForward("TabRegion");
+        await _regionManager.GoForwardAsync("TabRegion");
     }
 
     [ReactiveCommand]
     private async Task GoBack()
     {
-        await _regionManager.GoBack("TabRegion");
+        await _regionManager.GoBackAsync("TabRegion");
     }
     [ReactiveCommand]
     private async Task RequestUnloadView(NavigationContext navigationContext)

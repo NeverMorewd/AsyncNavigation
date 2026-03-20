@@ -421,3 +421,4 @@ FodyWeavers.xsd
 /.idea
 /tests/AsyncNavigation.Tests/coveragereport
 /src/.idea/.idea.AsyncNavigation/.idea
+/.claude

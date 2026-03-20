@@ -17,7 +17,6 @@ public class NavigationResult
 
     public static NavigationResult Success(NavigationContext navigationContext)
     {
-        navigationContext.UpdateStatus(NavigationStatus.Succeeded);
         return new NavigationResult
         {
             NavigationContext = navigationContext,
@@ -39,7 +38,6 @@ public class NavigationResult
 
     public static NavigationResult Failure(Exception exception, NavigationContext navigationContext)
     {
-        navigationContext.UpdateStatus(NavigationStatus.Failed, exception);
         return new NavigationResult
         {
             NavigationContext = navigationContext,
@@ -62,8 +60,6 @@ public class NavigationResult
 
     public static NavigationResult Cancelled(NavigationContext navigationContext)
     {
-        navigationContext.UpdateStatus(NavigationStatus.Cancelled);
-
         return new NavigationResult
         {
             NavigationContext = navigationContext,

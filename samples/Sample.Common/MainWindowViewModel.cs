@@ -158,13 +158,13 @@ public partial class MainWindowViewModel : ViewModelBase
     [ReactiveCommand]
     private async Task GoForward()
     {
-        await _regionManager.GoForward("MainRegion");
+        await _regionManager.GoForwardAsync("MainRegion");
     }
 
     [ReactiveCommand]
     private async Task GoBack()
     {
-        await _regionManager.GoBack("MainRegion");
+        await _regionManager.GoBackAsync("MainRegion");
     }
 
     [ReactiveCommand]

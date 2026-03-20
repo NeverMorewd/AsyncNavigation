@@ -57,7 +57,12 @@ internal sealed class AsyncJobProcessor : IAsyncJobProcessor
         switch (navigationJobStrategy)
         {
             case NavigationJobStrategy.CancelCurrent:
+                // Cancel all in-flight jobs, then wait for them to actually finish.
+                // CancelAsync() only signals cancellation; without WaitAllAsync() the
+                // new job could start while previous jobs are still running their
+                // finally/cleanup blocks, leading to concurrent navigation state.
                 await CancelAllAsync();
+                await WaitAllAsync();
                 break;
             case NavigationJobStrategy.Queue:
                 await WaitAllAsync();

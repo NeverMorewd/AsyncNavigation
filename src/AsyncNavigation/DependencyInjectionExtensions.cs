@@ -260,7 +260,7 @@ public static class DependencyInjectionExtensions
     /// <summary>
     /// Registers a service as a singleton with all members dynamically accessible.
     /// </summary>
-    public static IServiceCollection AddSingletonWitAllMembers<[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.All)] T>(
+    public static IServiceCollection AddSingletonWithAllMembers<[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.All)] T>(
         this IServiceCollection serviceDescriptors) where T : class
     {
         return serviceDescriptors.AddSingleton<T>();
@@ -268,7 +268,7 @@ public static class DependencyInjectionExtensions
     /// <summary>
     /// Registers a service as a singleton with all members dynamically accessible.
     /// </summary>
-    public static IServiceCollection AddSingletonWitAllMembers<[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.All)] T>(
+    public static IServiceCollection AddSingletonWithAllMembers<[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.All)] T>(
         this IServiceCollection serviceDescriptors, Func<IServiceProvider, T> builder) where T : class
     {
         return serviceDescriptors.AddSingleton(builder);
@@ -276,7 +276,7 @@ public static class DependencyInjectionExtensions
     /// <summary>
     /// Registers a service as a transient with all members dynamically accessible.
     /// </summary>
-    public static IServiceCollection AddTransientWitAllMembers<[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.All)] T>(
+    public static IServiceCollection AddTransientWithAllMembers<[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.All)] T>(
         this IServiceCollection serviceDescriptors) where T : class
     {
         return serviceDescriptors.AddTransient<T>();
@@ -284,11 +284,35 @@ public static class DependencyInjectionExtensions
     /// <summary>
     /// Registers a service as a transient with all members dynamically accessible.
     /// </summary>
-    public static IServiceCollection AddTransientWitAllMembers<[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.All)] T>(
+    public static IServiceCollection AddTransientWithAllMembers<[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.All)] T>(
         this IServiceCollection serviceDescriptors, Func<IServiceProvider, T> builder) where T : class
     {
         return serviceDescriptors.AddTransient(builder);
     }
+
+    /// <inheritdoc cref="AddSingletonWithAllMembers{T}(IServiceCollection)"/>
+    [Obsolete("Use AddSingletonWithAllMembers instead. This method has a typo in its name.")]
+    public static IServiceCollection AddSingletonWitAllMembers<[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.All)] T>(
+        this IServiceCollection serviceDescriptors) where T : class
+        => AddSingletonWithAllMembers<T>(serviceDescriptors);
+
+    /// <inheritdoc cref="AddSingletonWithAllMembers{T}(IServiceCollection, Func{IServiceProvider, T})"/>
+    [Obsolete("Use AddSingletonWithAllMembers instead. This method has a typo in its name.")]
+    public static IServiceCollection AddSingletonWitAllMembers<[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.All)] T>(
+        this IServiceCollection serviceDescriptors, Func<IServiceProvider, T> builder) where T : class
+        => AddSingletonWithAllMembers(serviceDescriptors, builder);
+
+    /// <inheritdoc cref="AddTransientWithAllMembers{T}(IServiceCollection)"/>
+    [Obsolete("Use AddTransientWithAllMembers instead. This method has a typo in its name.")]
+    public static IServiceCollection AddTransientWitAllMembers<[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.All)] T>(
+        this IServiceCollection serviceDescriptors) where T : class
+        => AddTransientWithAllMembers<T>(serviceDescriptors);
+
+    /// <inheritdoc cref="AddTransientWithAllMembers{T}(IServiceCollection, Func{IServiceProvider, T})"/>
+    [Obsolete("Use AddTransientWithAllMembers instead. This method has a typo in its name.")]
+    public static IServiceCollection AddTransientWitAllMembers<[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.All)] T>(
+        this IServiceCollection serviceDescriptors, Func<IServiceProvider, T> builder) where T : class
+        => AddTransientWithAllMembers(serviceDescriptors, builder);
     /// <summary>
     /// Registers a dialog window and its associated view model using the specified window name as a key.
     /// </summary>
@@ -329,7 +353,7 @@ public static class DependencyInjectionExtensions
     {
         ArgumentNullException.ThrowIfNull(services);
 
-        services.AddSingletonWitAllMembers<IRouter>(sp =>
+        services.AddSingletonWithAllMembers<IRouter>(sp =>
         {
             var router = ActivatorUtilities.CreateInstance<Router>(sp);
             configureRoutes?.Invoke(router, sp);
@@ -337,6 +361,19 @@ public static class DependencyInjectionExtensions
         });
 
         return services;
+    }
+
+    /// <summary>
+    /// Registers a navigation interceptor that will be invoked for every navigation request.
+    /// Multiple interceptors can be registered and are called in registration order.
+    /// </summary>
+    /// <typeparam name="T">The interceptor type, must implement <see cref="INavigationInterceptor"/>.</typeparam>
+    public static IServiceCollection RegisterNavigationInterceptor<[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.All)] T>(
+        this IServiceCollection services)
+        where T : class, INavigationInterceptor
+    {
+        ArgumentNullException.ThrowIfNull(services);
+        return services.AddSingleton<INavigationInterceptor, T>();
     }
 
 }

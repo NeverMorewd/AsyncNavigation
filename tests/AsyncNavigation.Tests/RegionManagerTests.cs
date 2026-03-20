@@ -133,7 +133,7 @@ public class RegionManagerTests : IClassFixture<ServiceFixture>
         _regionManager.AddRegion("Main", region);
         _ = await _regionManager.RequestNavigateAsync("Main", "TestView");
         _ = await _regionManager.RequestNavigateAsync("Main", "AnotherTestView");
-        var result = await _regionManager.GoBack("Main");
+        var result = await _regionManager.GoBackAsync("Main");
         Assert.True(result.IsSuccessful);
     }
     [Fact]
@@ -146,7 +146,7 @@ public class RegionManagerTests : IClassFixture<ServiceFixture>
         cancellationTokenSource.Cancel();
         _ = await _regionManager.RequestNavigateAsync("Main", "TestView");
         _ = await _regionManager.RequestNavigateAsync("Main", "AnotherTestView");
-        var result = await _regionManager.GoBack("Main", cancellationToken: cancellationTokenSource.Token);
+        var result = await _regionManager.GoBackAsync("Main", cancellationToken: cancellationTokenSource.Token);
         Assert.True(result.IsCancelled);
     }
 }
