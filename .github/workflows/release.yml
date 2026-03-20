@@ -32,7 +32,6 @@ env:
   DOTNET_VERSION: '10.0.x'
   DOTNET_SKIP_FIRST_TIME_EXPERIENCE: true
   DOTNET_NOLOGO: true
-  NUGET_PACKAGES: ${{ github.workspace }}/.nuget/packages
   WASM_PROJECT: samples/Sample.Avalonia.Browser/Sample.Avalonia.Browser.csproj
   WASM_PUBLISH_DIR: samples/Sample.Avalonia.Browser/bin/Release/net10.0-browser/publish/wwwroot
 
@@ -58,7 +57,7 @@ jobs:
       - name: Cache NuGet packages
         uses: actions/cache@v4
         with:
-          path: ${{ env.NUGET_PACKAGES }}
+          path: ~/.nuget/packages
           key: ${{ runner.os }}-nuget-${{ hashFiles('**/*.csproj', '**/*.props') }}
           restore-keys: ${{ runner.os }}-nuget-
 
@@ -107,14 +106,18 @@ jobs:
       - name: Cache NuGet packages
         uses: actions/cache@v4
         with:
-          path: ${{ env.NUGET_PACKAGES }}
+          path: ~/.nuget/packages
           key: ${{ runner.os }}-nuget-${{ hashFiles('**/*.csproj', '**/*.props') }}
           restore-keys: ${{ runner.os }}-nuget-
+
+      - name: Restore
+        run: dotnet restore src/AsyncNavigation.Avalonia
 
       - name: Pack Core
         run: >
           dotnet pack src/AsyncNavigation
           --configuration Release
+          --no-restore
           -p:Version=${{ steps.version.outputs.value }}
           -o ./nugets
 
@@ -122,6 +125,7 @@ jobs:
         run: >
           dotnet pack src/AsyncNavigation.Avalonia
           --configuration Release
+          --no-restore
           -p:Version=${{ steps.version.outputs.value }}
           -o ./nugets
 
@@ -157,14 +161,18 @@ jobs:
       - name: Cache NuGet packages
         uses: actions/cache@v4
         with:
-          path: ${{ env.NUGET_PACKAGES }}
+          path: ~/.nuget/packages
           key: ${{ runner.os }}-nuget-${{ hashFiles('**/*.csproj', '**/*.props') }}
           restore-keys: ${{ runner.os }}-nuget-
+
+      - name: Restore
+        run: dotnet restore src/AsyncNavigation.Wpf
 
       - name: Pack WPF adapter
         run: >
           dotnet pack src/AsyncNavigation.Wpf
           --configuration Release
+          --no-restore
           -p:Version=${{ steps.version.outputs.value }}
           -o ./nugets
 
