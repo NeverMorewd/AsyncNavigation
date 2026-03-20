@@ -363,4 +363,17 @@ public static class DependencyInjectionExtensions
         return services;
     }
 
+    /// <summary>
+    /// Registers a navigation interceptor that will be invoked for every navigation request.
+    /// Multiple interceptors can be registered and are called in registration order.
+    /// </summary>
+    /// <typeparam name="T">The interceptor type, must implement <see cref="INavigationInterceptor"/>.</typeparam>
+    public static IServiceCollection RegisterNavigationInterceptor<[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.All)] T>(
+        this IServiceCollection services)
+        where T : class, INavigationInterceptor
+    {
+        ArgumentNullException.ThrowIfNull(services);
+        return services.AddSingleton<INavigationInterceptor, T>();
+    }
+
 }

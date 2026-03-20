@@ -19,6 +19,7 @@ public abstract class RegionManagerBase : IRegionManager, IDisposable
     private readonly IServiceProvider _serviceProvider;
     private readonly IRegionFactory _regionFactory;
     private readonly int _maxReplayCount;
+    private readonly IReadOnlyList<INavigationInterceptor> _interceptors;
     private IRouter? _router;
 
     private IRegion? _currentRegion;
@@ -35,6 +36,7 @@ public abstract class RegionManagerBase : IRegionManager, IDisposable
         _regionFactory = regionFactory;
         _serviceProvider = serviceProvider;
         _maxReplayCount = serviceProvider.GetRequiredService<NavigationOptions>().MaxReplayItems;
+        _interceptors = serviceProvider.GetServices<INavigationInterceptor>().ToList();
 
         RecoverTempRegions();
     }
@@ -95,6 +97,12 @@ public abstract class RegionManagerBase : IRegionManager, IDisposable
 
         try
         {
+            // Run OnNavigating interceptors before the navigation pipeline starts.
+            foreach (var interceptor in _interceptors)
+                await interceptor.OnNavigatingAsync(context);
+
+            context.CancellationToken.ThrowIfCancellationRequested();
+
             IRegion? previousRegion;
             lock (_regionLock)
             {
@@ -105,7 +113,20 @@ public abstract class RegionManagerBase : IRegionManager, IDisposable
             if (previousRegion is not null && previousRegion != region)
                 await previousRegion.NavigateFromAsync(context);
 
-            return await region.ActivateViewAsync(context);
+            var result = await region.ActivateViewAsync(context);
+
+            // Run OnNavigated interceptors after successful navigation.
+            // Exceptions from interceptors are logged but do not affect the result.
+            if (result.IsSuccessful)
+            {
+                foreach (var interceptor in _interceptors)
+                {
+                    try { await interceptor.OnNavigatedAsync(context); }
+                    catch (Exception ex) { Debug.WriteLine($"[Interceptor] OnNavigatedAsync failed: {ex}"); }
+                }
+            }
+
+            return result;
         }
         catch (Exception ex)
         {
