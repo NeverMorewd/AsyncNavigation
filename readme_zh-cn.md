@@ -1,173 +1,131 @@
-# 🚀 AsyncNavigation
+# AsyncNavigation
 
+> 基于 `Microsoft.Extensions.DependencyInjection` 的轻量级 .NET 桌面应用异步导航框架。
 
-> 基于 **Microsoft.Extensions.DependencyInjection** 的轻量级异步导航框架
+[![CI](https://github.com/NeverMorewd/AsyncNavigation/actions/workflows/ci.yml/badge.svg)](https://github.com/NeverMorewd/AsyncNavigation/actions/workflows/ci.yml)
+[![NuGet](https://img.shields.io/nuget/v/AsyncNavigation.svg?label=Core&color=004880)](https://www.nuget.org/packages/AsyncNavigation)
+[![NuGet](https://img.shields.io/nuget/v/AsyncNavigation.Avalonia.svg?label=Avalonia&color=8b45e0)](https://www.nuget.org/packages/AsyncNavigation.Avalonia)
+[![NuGet](https://img.shields.io/nuget/v/AsyncNavigation.Wpf.svg?label=WPF&color=0078d4)](https://www.nuget.org/packages/AsyncNavigation.Wpf)
+[![License: MIT](https://img.shields.io/github/license/NeverMorewd/AsyncNavigation)](LICENSE)
+[![.NET](https://img.shields.io/badge/.NET-8.0%2B-512BD4)](https://dotnet.microsoft.com)
 
-在线体验 : [demo](https://nevermorewd.github.io/AsyncNavigation/)
----
-
-## ✨ 功能特性
-
--  **完全异步导航支持**  
-  原生支持 `async/await`，让页面导航与异步任务协同更加自然与简洁。
-
--  **内置 DialogService**  
-  通过异步方法轻松实现对话框导航。
-
--  **支持取消操作**  
-  内置 `CancellationToken` 支持，可在任意阶段安全地中断导航。
-
--  **可自定义导航指示器**  
-  允许开发者自定义导航过程的视觉反馈，用于指示加载、异常或完成等状态。
-
--  **多种内置 Region 类型**  
-  除常见的基于 `ContentControl` 的单页面导航外，还原生支持 `ItemsControl` 与 `TabControl` 导航。
-
--  **依赖极少**  
-  仅依赖 `Microsoft.Extensions.DependencyInjection.Abstractions (>= 8.0)`。
-
--  **框架无关**  
-  不依赖任何特定 MVVM 框架，可自由集成至任意架构中。
-
--  **支持 Native Aot**  
-  支持avalonia的aot编译和裁剪，无需任何额外配置.
-
-
--  **RegionAdapter 扩展机制**  
-  通过自定义 `RegionAdapter`，可灵活扩展并实现个性化导航逻辑。
-
--  **精细化控制选项**  
-  提供丰富的导航配置选项，让导航行为更贴合业务需求。
-
--  **生命周期自动管理**  
-  自动处理视图的创建、缓存与释放，有效避免内存泄漏。
-
--  **抽象层高度聚合**  
-  核心逻辑高度抽象化，减少平台相关代码，便于扩展与单元测试。
+**[English](readme.md)** · **[在线演示](https://nevermorewd.github.io/AsyncNavigation/)**
 
 ---
 
-## 📦 安装
+## 功能特性
 
-### WPF
+| | |
+|---|---|
+| **原生异步** | 全链路 `async/await`，内置 `CancellationToken` 支持 |
+| **DI 优先** | 视图与视图模型均由 DI 容器解析 |
+| **导航守卫** | 通过 `INavigationGuard` 阻断导航（如未保存提示） |
+| **导航拦截器** | 通过 `INavigationInterceptor` 实现鉴权、埋点等横切逻辑 |
+| **对话框服务** | 内置异步对话框与窗口管理 |
+| **多种 Region 类型** | 支持 `ContentControl`、`ItemsControl`、`TabControl` |
+| **历史导航** | 开箱即用的 `GoForwardAsync` / `GoBackAsync` |
+| **生命周期管理** | 自动处理视图缓存、淘汰与释放，防止内存泄漏 |
+| **Native AOT** | 完整支持 Avalonia AOT 编译与裁剪，无需额外配置 |
+| **框架无关** | 可与任意 MVVM 框架配合使用 |
+| **依赖极少** | 仅依赖 `Microsoft.Extensions.DependencyInjection.Abstractions >= 8.0` |
+
+---
+
+## 安装
+
 ```bash
+# Avalonia
+dotnet add package AsyncNavigation.Avalonia
+
+# WPF
 dotnet add package AsyncNavigation.Wpf
 ```
 
-### Avaloniaui
-```bash
-dotnet add package AsyncNavigation.Avaloniaui
-```
+---
 
-## ⚡ 快速开始
+## 快速开始
 
-### 准备Region
+### 1. 注册服务
 
-##### 设置 Namespace
-```
- xmlns:an="https://github.com/NeverMorewd/AsyncNavigation"
-```
-##### 设置 RegionName
-```xml
- <ContentControl an:RegionManager.RegionName="MainRegion" />
-```
-
-### 准备ViewModel
 ```csharp
-public class SampleViewModel : INavigationAware
+services.AddNavigationSupport()
+        .RegisterView<HomeView, HomeViewModel>("Home")
+        .RegisterView<SettingsView, SettingsViewModel>("Settings")
+        .RegisterDialog<ConfirmView, ConfirmViewModel>("Confirm");
+```
+
+### 2. 在 XAML 中声明 Region
+
+```xml
+xmlns:an="https://github.com/NeverMorewd/AsyncNavigation"
+
+<ContentControl an:RegionManager.RegionName="MainRegion" />
+```
+
+### 3. 执行导航
+
+```csharp
+// 页面导航
+await _regionManager.RequestNavigateAsync("MainRegion", "Home");
+
+// 历史记录
+await _regionManager.GoBackAsync("MainRegion");
+await _regionManager.GoForwardAsync("MainRegion");
+
+// 对话框
+var result = await _dialogService.ShowViewDialogAsync("Confirm");
+```
+
+### 4. 在视图模型中响应导航
+
+```csharp
+// 继承 NavigationAwareBase，按需重写方法即可。
+public class HomeViewModel : NavigationAwareBase
 {
-    public event AsyncEventHandler<AsyncEventArgs>? AsyncRequestUnloadEvent;
-
-    public virtual Task InitializeAsync(NavigationContext context)
+    public override async Task OnNavigatedToAsync(NavigationContext context)
     {
-        return Task.CompletedTask;
-    }
-
-    public virtual Task<bool> IsNavigationTargetAsync(NavigationContext context)
-    {
-        return Task.FromResult(true);
-    }
-
-    public virtual async Task OnNavigatedFromAsync(NavigationContext context)
-    {
-        await Task.Delay(100, context.CancellationToken);
-    }
-
-    public virtual async Task OnNavigatedToAsync(NavigationContext context)
-    {
-        await Task.Delay(100, context.CancellationToken);
-    }
-
-    public virtual Task OnUnloadAsync(CancellationToken cancellationToken)
-    {
-        return Task.CompletedTask;
-    }
-
-    protected Task RequestUnloadAsync()
-    {
-        if (AsyncRequestUnloadEvent == null)
-        {
-            return Task.CompletedTask;
-        }
-        return AsyncRequestUnloadEvent!.Invoke(this, AsyncEventArgs.Empty);
+        await LoadDataAsync(context.CancellationToken);
     }
 }
-
 ```
 
-### 配置
+---
+
+## 导航守卫
+
 ```csharp
-
-  var services = new ServiceCollection();
-  services.AddNavigationSupport()
-          .RegisterView<AView, AViewModel>("AView")
-          .RegisterView<BView, BViewModel>("BView");
-          .RegisterNavigation<CView, NavigationAware>("CNavigation");
-          .RegisterDialog<CView, DialogAware>("CDialog");
-
+public class EditViewModel : NavigationAwareBase, INavigationGuard
+{
+    public async Task<bool> CanNavigateAsync(NavigationContext context, CancellationToken ct)
+    {
+        // 返回 false 可取消导航，通常在此弹出确认对话框
+        return !HasUnsavedChanges;
+    }
+}
 ```
-### 执行
+
+## 导航拦截器
+
 ```csharp
+public class AuthInterceptor : INavigationInterceptor
+{
+    public Task OnNavigatingAsync(NavigationContext context)
+    {
+        if (!_auth.IsLoggedIn)
+            throw new OperationCanceledException("未登录");
+        return Task.CompletedTask;
+    }
 
-  private readonly IRegionManager _regionManager;
-  private readonly IDialogService _dialogService;
+    public Task OnNavigatedAsync(NavigationContext context) => Task.CompletedTask;
+}
 
-  public MainWindowViewModel(IRegionManager regionManager, IDialogService dialogService)
-  {
-      _regionManager = regionManager;
-      _dialogService = dialogService;
-  }
-
-  [ReactiveCommand]
-  private async Task AsyncNavigate(string param)
-  {
-      var result = await _regionManager.RequestNavigateAsync("MainRegion", "AView");
-  }
-
-  [ReactiveCommand]
-  private void Show(string param)
-  {
-      _dialogService.Show("AView", callback: result => 
-      {
-          Debug.WriteLine(result.Result);
-      });
-  }
-  [ReactiveCommand]
-  private async Task AsyncShowDialog(string param)
-  {
-      var result = await _dialogService.ShowDialogAsync("AView");
-  }
-
-  [ReactiveCommand]
-  private async Task GoForward()
-  {
-      await _regionManager.GoForward("MainRegion");
-  }
-
-  [ReactiveCommand]
-  private async Task GoBack()
-  {
-      await _regionManager.GoBack("MainRegion");
-  }
-
+// 注册
+services.AddNavigationSupport()
+        .RegisterNavigationInterceptor<AuthInterceptor>();
 ```
+
+---
+
+## 许可证
+
+MIT
