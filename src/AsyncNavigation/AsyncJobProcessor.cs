@@ -6,7 +6,7 @@ namespace AsyncNavigation;
 
 internal sealed class AsyncJobProcessor : IAsyncJobProcessor
 {
-    private readonly ConcurrentDictionary<Guid, (Lazy<Task> LazyTask, CancellationTokenSource Cts)> _jobs = new();
+    private readonly ConcurrentDictionary<Guid, (Lazy<Task> LazyTask, CancellationTokenSource Cts, TaskCompletionSource Lifecycle)> _jobs = new();
 
     int IAsyncJobProcessor.JobsCount => _jobs.Count;
 
@@ -19,8 +19,11 @@ internal sealed class AsyncJobProcessor : IAsyncJobProcessor
 
         var cts = new CancellationTokenSource();
         jobContext.LinkCancellationToken(cts.Token);
+        // Lifecycle completes only after TryRemove in the finally block, so WaitAllAsync
+        // callers are guaranteed the job is fully gone from _jobs before they proceed.
+        var lifecycle = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
         var lazyTask = new Lazy<Task>(() => jobAction(jobContext));
-        if (!_jobs.TryAdd(jobContext.JobId, (lazyTask, cts)))
+        if (!_jobs.TryAdd(jobContext.JobId, (lazyTask, cts, lifecycle)))
         {
             cts.Dispose();
             throw new InvalidOperationException($"Job with id {jobContext.JobId} is already started.");
@@ -37,10 +40,13 @@ internal sealed class AsyncJobProcessor : IAsyncJobProcessor
             jobContext.OnCompleted();
             if (_jobs.TryRemove(jobContext.JobId, out var jobToAbandon))
                 jobToAbandon.Cts.Dispose();
+            lifecycle.TrySetResult();
         }
     }
 
-    public Task WaitAllAsync() => Task.WhenAll(_jobs.Values.Select(j => j.LazyTask.Value));
+    // Waits for the full lifecycle (including cleanup) of all current jobs so that
+    // callers can be certain _jobs contains no stale entries when they proceed.
+    public Task WaitAllAsync() => Task.WhenAll(_jobs.Values.Select(j => j.Lifecycle.Task));
 
     public Task CancelAllAsync()
     { 

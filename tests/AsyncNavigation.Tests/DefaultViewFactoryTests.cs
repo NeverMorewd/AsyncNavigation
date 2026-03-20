@@ -5,7 +5,8 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace AsyncNavigation.Tests;
 
-public class DefaultViewFactoryTests : IClassFixture<ServiceFixture>
+[Collection("RegionManagerCollection")]
+public class DefaultViewFactoryTests
 {
     private readonly IServiceProvider _serviceProvider;
 

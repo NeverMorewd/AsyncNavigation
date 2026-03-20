@@ -11,6 +11,7 @@ using Xunit;
 
 namespace AsyncNavigation.Tests;
 
+[Collection("RegionManagerCollection")]
 public class RegionFactoryTests
 {
     [Fact]

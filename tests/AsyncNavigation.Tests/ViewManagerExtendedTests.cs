@@ -11,6 +11,7 @@ namespace AsyncNavigation.Tests;
 /// Additional ViewManager tests covering LRU order, cache strategies,
 /// concurrent access, and dispose-on-eviction.
 /// </summary>
+[Collection("RegionManagerCollection")]
 public class ViewManagerExtendedTests
 {
     // -----------------------------------------------------------------------

@@ -7,7 +7,8 @@ using System.Diagnostics;
 
 namespace AsyncNavigation.Tests;
 
-public class AsyncJobProcessorTests : IClassFixture<ServiceFixture>
+[Collection("RegionManagerCollection")]
+public class AsyncJobProcessorTests
 {
     private readonly ITestOutputHelper _testOutputHelper;
     private readonly IServiceProvider _serviceProvider;
@@ -35,22 +36,31 @@ public class AsyncJobProcessorTests : IClassFixture<ServiceFixture>
     }
 
     [Fact]
-    public async Task RunJobAsync_Should_Throw_When_SameJobIdStartedTwice()
+    public async Task RunJobAsync_CancelCurrent_CancelsPreviousJobThenRunsNew()
     {
         var processor = _serviceProvider.GetRequiredService<IAsyncJobProcessor>();
         using var context = new TestJobContext();
+        var firstJobCancelled = false;
+        var secondJobRan = false;
 
-        var task1 = processor.RunJobAsync(context, async ctx =>
+        // Start job1 — will block until its CancellationToken is cancelled
+        var job1 = processor.RunJobAsync(context, async ctx =>
         {
-            await Task.Delay(50);
+            try { await Task.Delay(10_000, ctx.CancellationToken); }
+            catch (OperationCanceledException) { firstJobCancelled = true; }
         }, NavigationJobStrategy.CancelCurrent);
 
-        var ex = await Assert.ThrowsAsync<InvalidOperationException>(() =>
-            processor.RunJobAsync(context,
-            ctx => Task.CompletedTask,
-            NavigationJobStrategy.CancelCurrent));
+        // Start job2 with the same context and CancelCurrent — must cancel job1 first
+        await processor.RunJobAsync(context, ctx =>
+        {
+            secondJobRan = true;
+            return Task.CompletedTask;
+        }, NavigationJobStrategy.CancelCurrent);
 
-        await task1;
+        await job1; // job1 should have completed (via cancellation)
+
+        Assert.True(firstJobCancelled, "First job should have been cancelled.");
+        Assert.True(secondJobRan, "Second job should have run after the first was cancelled.");
     }
 
     [Fact]

@@ -5,6 +5,7 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace AsyncNavigation.Tests;
 
+[Collection("RegionManagerCollection")]
 public class ServiceCollectionExtensionsTests
 {
     private readonly ITestOutputHelper _testOutputHelper;
