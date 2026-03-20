@@ -112,6 +112,7 @@ public abstract class RegionBase<TRegion, TControl> : IRegion, IRegionPresenter
     public virtual void Dispose()
     {
         GC.SuppressFinalize(this);
+        _regionNavigationService.Dispose();
         _navigationHistory.Clear();
     }
     #endregion
