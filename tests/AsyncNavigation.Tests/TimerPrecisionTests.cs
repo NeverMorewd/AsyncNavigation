@@ -66,7 +66,10 @@ public class TimerPrecisionTests
         }, null, 0, intervalMs);
 
         countdown.Wait(TimeSpan.FromSeconds(30));
-        PrintStatistics("Threading.Timer", deltas, intervalMs);
+        // Stop the timer before reading deltas — on Linux the timer keeps firing
+        // after the countdown completes, causing concurrent modification during enumeration.
+        timer.Change(Timeout.Infinite, Timeout.Infinite);
+        PrintStatistics("Threading.Timer", deltas.ToList(), intervalMs);
     }
 
     [Fact]
