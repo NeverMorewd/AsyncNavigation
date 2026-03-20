@@ -126,9 +126,9 @@ public class DialogService : IDialogService
         return _platformService.WaitOnDispatcher(showTask);
     }
 
-    public async Task FrontShowAsync<TWindow>(string windowName, 
-        Func<IDialogResult, TWindow?> mainWindowBuilder, 
-        IDialogParameters? parameters, 
+    public async Task FrontShowAsync<TWindow>(string windowName,
+        Func<IDialogResult, TWindow?> mainWindowBuilder,
+        IDialogParameters? parameters,
         CancellationToken cancellationToken) where TWindow : class
     {
         var (dialogWindow, aware) = PrepareDialogWindow(windowName);
@@ -136,9 +136,10 @@ public class DialogService : IDialogService
         var openTask = aware.OnDialogOpenedAsync(parameters, cancellationToken);
         await openTask;
 
-        _ = HandleCloseInternalAsync(dialogWindow, aware, mainWindowBuilder);
+        var closeTask = HandleCloseInternalAsync(dialogWindow, aware, mainWindowBuilder);
         _platformService.ShowMainWindow(dialogWindow);
         _platformService.Show(dialogWindow, false);
+        await closeTask;
     }
 
 
