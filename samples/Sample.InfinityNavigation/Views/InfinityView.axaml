@@ -25,7 +25,7 @@
             CommandParameter="InfinityView"
             Content="{Binding ButtonText}"
             DockPanel.Dock="{Binding InstanceNumber, Converter={StaticResource NumberToDockConverter}}" />
-        <Border BorderBrush="Red" BorderThickness="1">
+        <Border>
             <Grid>
                 <ContentControl an:RegionManager.RegionName="{Binding NextRegionName}" />
                 <TextBlock
