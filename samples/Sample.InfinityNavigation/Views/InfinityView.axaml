@@ -19,22 +19,22 @@
             VerticalAlignment="Stretch"
             HorizontalContentAlignment="Center"
             VerticalContentAlignment="Center"
-            Background="{Binding IsActive, Converter={StaticResource BoolToBrushConverter}}"
+            Background="{ReflectionBinding IsActive, Converter={StaticResource BoolToBrushConverter}}"
             Classes="Navigation"
-            Command="{Binding AsyncNavigateCommand}"
+            Command="{ReflectionBinding AsyncNavigateCommand}"
             CommandParameter="InfinityView"
-            Content="{Binding ButtonText}"
-            DockPanel.Dock="{Binding InstanceNumber, Converter={StaticResource NumberToDockConverter}}" />
+            Content="{ReflectionBinding ButtonText}"
+            DockPanel.Dock="{ReflectionBinding InstanceNumber, Converter={StaticResource NumberToDockConverter}}" />
         <Border>
             <Grid>
-                <ContentControl an:RegionManager.RegionName="{Binding NextRegionName}" />
+                <ContentControl an:RegionManager.RegionName="{ReflectionBinding NextRegionName}" />
                 <TextBlock
                     HorizontalAlignment="Center"
                     VerticalAlignment="Center"
                     FontSize="35"
                     FontWeight="SemiBold"
-                    IsVisible="{Binding IsActive, Mode=TwoWay}"
-                    Text="{Binding InstanceNumber}" />
+                    IsVisible="{ReflectionBinding IsActive, Mode=TwoWay}"
+                    Text="{ReflectionBinding InstanceNumber}" />
             </Grid>
         </Border>
     </DockPanel>
