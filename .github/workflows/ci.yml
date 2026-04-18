@@ -116,7 +116,7 @@ jobs:
       - name: Build WPF adapter
         run: dotnet build src/AsyncNavigation.Wpf --configuration Release
 
-  build-samples-desktop&wasm:
+  build-samples-desktop-wasm:
     name: Samples / ${{ matrix.name }}
     runs-on: ${{ matrix.os }}
     needs: test
@@ -196,6 +196,10 @@ jobs:
           key: ${{ runner.os }}-nuget-${{ hashFiles('**/*.csproj', '**/*.props') }}
           restore-keys: ${{ runner.os }}-nuget-
 
+      - name: Setup Android SDK
+        if: matrix.platform == 'Android'
+        uses: android-actions/setup-android@v3
+
       - name: Install Android workload
         if: matrix.platform == 'Android'
         run: dotnet workload install android
@@ -212,7 +216,6 @@ jobs:
         run: >
           dotnet build ${{ matrix.project }}
           --configuration Release
-          /p:AndroidSdkDirectory=$ANDROID_HOME
 
       - name: Build iOS (no signing)
         if: matrix.platform == 'iOS'
