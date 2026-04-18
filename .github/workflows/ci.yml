@@ -1,12 +1,6 @@
 # ─────────────────────────────────────────────────────────────────────────────
 # CI — runs on every push to main and every pull-request targeting main.
 #
-# Pipeline stages (each stage waits for the previous one to succeed):
-#   1. test          Unit tests on Linux / Windows / macOS (parallel)
-#   2. build-libs    Build all NuGet library projects (Core + Avalonia + WPF)
-#   3. build-samples Build all sample apps to catch integration regressions
-#   4. pack          Pack NuGet packages and upload as CI artifacts
-# ─────────────────────────────────────────────────────────────────────────────
 name: CI
 
 on:
@@ -33,14 +27,11 @@ env:
   DOTNET_NOLOGO: true
 
 jobs:
-  # ──────────────────────────────────────────────────────────────────────────
-  # Stage 1 – Unit tests (fail-fast guard for the whole pipeline)
-  # ──────────────────────────────────────────────────────────────────────────
   test:
     name: Test / ${{ matrix.os }}
     runs-on: ${{ matrix.os }}
     strategy:
-      fail-fast: false          # report all platform failures, not just the first
+      fail-fast: false
       matrix:
         os: [ubuntu-latest, windows-latest, macos-latest]
 
@@ -78,9 +69,6 @@ jobs:
           path: ./test-results/results.trx
           if-no-files-found: warn
 
-  # ──────────────────────────────────────────────────────────────────────────
-  # Stage 2a – Build NuGet library projects (Linux for Core + Avalonia)
-  # ──────────────────────────────────────────────────────────────────────────
   build-libs:
     name: Build Libraries
     runs-on: ubuntu-latest
@@ -106,9 +94,6 @@ jobs:
       - name: Build Avalonia adapter
         run: dotnet build src/AsyncNavigation.Avalonia --configuration Release
 
-  # ──────────────────────────────────────────────────────────────────────────
-  # Stage 2b – Build WPF library (requires Windows)
-  # ──────────────────────────────────────────────────────────────────────────
   build-wpf:
     name: Build WPF Library
     runs-on: windows-latest
@@ -131,10 +116,7 @@ jobs:
       - name: Build WPF adapter
         run: dotnet build src/AsyncNavigation.Wpf --configuration Release
 
-  # ──────────────────────────────────────────────────────────────────────────
-  # Stage 2c – Build sample applications (validates integration)
-  # ──────────────────────────────────────────────────────────────────────────
-  build-samples:
+  build-samples-desktop-wasm:
     name: Samples / ${{ matrix.name }}
     runs-on: ${{ matrix.os }}
     needs: test
@@ -183,10 +165,64 @@ jobs:
       - name: Build ${{ matrix.name }}
         run: dotnet build ${{ matrix.project }} --configuration Release
 
-  # ──────────────────────────────────────────────────────────────────────────
-  # Stage 3 – Pack NuGet packages (validates .nupkg can be produced cleanly)
-  # These are CI preview packages — NOT published to NuGet.org.
-  # ──────────────────────────────────────────────────────────────────────────
+  build-samples-mobile:
+    name: Mobile / ${{ matrix.platform }}
+    runs-on: ${{ matrix.os }}
+    needs: test
+
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - platform: Android
+            os: ubuntu-latest
+            project: samples/Sample.Avalonia.Android
+
+          - platform: iOS
+            os: macos-latest
+            project: samples/Sample.Avalonia.iOS
+
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-dotnet@v5
+        with:
+          dotnet-version: ${{ env.DOTNET_VERSION }}
+
+      - name: Cache NuGet packages
+        uses: actions/cache@v4
+        with:
+          path: ~/.nuget/packages
+          key: ${{ runner.os }}-nuget-${{ hashFiles('**/*.csproj', '**/*.props') }}
+          restore-keys: ${{ runner.os }}-nuget-
+
+      - name: Setup Android SDK
+        if: matrix.platform == 'Android'
+        uses: android-actions/setup-android@v3
+
+      - name: Install Android workload
+        if: matrix.platform == 'Android'
+        run: dotnet workload install android
+
+      - name: Install iOS workload
+        if: matrix.platform == 'iOS'
+        run: dotnet workload install ios
+
+      - name: Restore
+        run: dotnet restore ${{ matrix.project }}
+
+      - name: Build Android
+        if: matrix.platform == 'Android'
+        run: >
+          dotnet build ${{ matrix.project }}
+          --configuration Release
+
+      - name: Build iOS (no signing)
+        if: matrix.platform == 'iOS'
+        run: >
+          dotnet build ${{ matrix.project }}
+          --configuration Release
+          /p:BuildIpa=false
   pack:
     name: Pack NuGet (preview)
     runs-on: ubuntu-latest
