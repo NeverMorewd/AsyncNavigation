@@ -14,8 +14,8 @@
 	
 	
   <ItemGroup>
-    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="10.0.0" />
-    <PackageReference Include="ReactiveUI.WPF" Version="22.2.1" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection" />
+    <PackageReference Include="ReactiveUI.WPF"/>
   </ItemGroup>
 
   <ItemGroup>

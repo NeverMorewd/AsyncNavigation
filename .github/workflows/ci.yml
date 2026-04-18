@@ -177,6 +177,9 @@ jobs:
         if: matrix.wasm == true
         run: dotnet workload install wasm-tools
 
+      - name: Restore
+        run: dotnet restore ${{ matrix.project }}
+
       - name: Build ${{ matrix.name }}
         run: dotnet build ${{ matrix.project }} --configuration Release
 
