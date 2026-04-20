@@ -1,0 +1,427 @@
+# ─────────────────────────────────────────────────────────────────────────────
+# Auto Release — triggered automatically when a version tag is pushed.
+#
+# Usage:
+#   git tag v2.0.0 && git push --tags
+#   git tag v2.0.0-beta.1 && git push --tags   # pre-release
+#
+# Pipeline:
+#   1. test           Run unit tests on Linux / Windows / macOS
+#   2. pack-linux     Build Core + Avalonia .nupkg (ubuntu)
+#   3. pack-wpf       Build WPF .nupkg (windows, requires Windows SDK)
+#   4. publish-core   Push AsyncNavigation core to NuGet.org
+#   5. publish-libs   Push Avalonia + WPF adapters after Core is indexed
+#   6. github-release Create GitHub Release and attach .nupkg files
+#   7. deploy-wasm    Deploy the WASM sample to GitHub Pages
+#
+# Required secrets:
+#   NUGET_API_KEY  — NuGet.org API key
+#
+# Required repository permissions:
+#   Settings → Actions → Workflow permissions → "Read and write permissions"
+# ─────────────────────────────────────────────────────────────────────────────
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v[0-9]+.[0-9]+.[0-9]+'        # stable:      v2.0.0
+      - 'v[0-9]+.[0-9]+.[0-9]+-*'       # pre-release: v2.0.0-beta.1
+
+env:
+  DOTNET_VERSION: '10.0.x'
+  DOTNET_SKIP_FIRST_TIME_EXPERIENCE: true
+  DOTNET_NOLOGO: true
+  WASM_PROJECT: samples/Sample.Avalonia.Browser/Sample.Avalonia.Browser.csproj
+  WASM_PUBLISH_DIR: samples/Sample.Avalonia.Browser/bin/Release/net10.0-browser/publish/wwwroot
+
+# Only one release pipeline runs at a time.
+concurrency:
+  group: release
+  cancel-in-progress: false
+
+jobs:
+  # ──────────────────────────────────────────────────────────────────────────
+  # Stage 1 – Tests (gate: nothing is published if any test fails)
+  # ──────────────────────────────────────────────────────────────────────────
+  test:
+    name: Test / ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: true
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: ${{ env.DOTNET_VERSION }}
+
+      - name: Cache NuGet packages
+        uses: actions/cache@v4
+        with:
+          path: ~/.nuget/packages
+          key: ${{ runner.os }}-nuget-${{ hashFiles('**/*.csproj', '**/*.props') }}
+          restore-keys: ${{ runner.os }}-nuget-
+
+      - name: Restore
+        run: dotnet restore tests/AsyncNavigation.Tests
+
+      - name: Test
+        run: >
+          dotnet test tests/AsyncNavigation.Tests
+          --configuration Release
+          --no-restore
+          --logger "console;verbosity=normal"
+          --logger "trx;LogFileName=results.trx"
+          --results-directory ./test-results
+
+      - name: Upload test results
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: test-results-${{ matrix.os }}
+          path: ./test-results/results.trx
+          if-no-files-found: warn
+
+  # ──────────────────────────────────────────────────────────────────────────
+  # Stage 2a – Pack Core + Avalonia (Linux)
+  # ──────────────────────────────────────────────────────────────────────────
+  pack-linux:
+    name: Pack Core + Avalonia
+    runs-on: ubuntu-latest
+    needs: test
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: ${{ env.DOTNET_VERSION }}
+
+      - name: Resolve version
+        id: version
+        run: |
+          VERSION="${GITHUB_REF#refs/tags/v}"
+          echo "Resolved version: $VERSION"
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+
+      - name: Cache NuGet packages
+        uses: actions/cache@v4
+        with:
+          path: ~/.nuget/packages
+          key: ${{ runner.os }}-nuget-${{ hashFiles('**/*.csproj', '**/*.props') }}
+          restore-keys: ${{ runner.os }}-nuget-
+
+      - name: Pack Core
+        run: >
+          dotnet pack src/AsyncNavigation
+          --configuration Release
+          -p:Version=${{ steps.version.outputs.version }}
+          --output ./nupkg
+
+      - name: Pack Avalonia adapter
+        run: >
+          dotnet pack src/AsyncNavigation.Avalonia
+          --configuration Release
+          -p:Version=${{ steps.version.outputs.version }}
+          --output ./nupkg
+
+      - name: List produced packages
+        run: ls -lh ./nupkg/
+
+      - name: Upload packages
+        uses: actions/upload-artifact@v4
+        with:
+          name: nuget-linux
+          path: ./nupkg/*.nupkg
+          if-no-files-found: error
+
+  # ──────────────────────────────────────────────────────────────────────────
+  # Stage 2b – Pack WPF adapter (Windows SDK required)
+  # ──────────────────────────────────────────────────────────────────────────
+  pack-wpf:
+    name: Pack WPF
+    runs-on: windows-latest
+    needs: test
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: ${{ env.DOTNET_VERSION }}
+
+      - name: Resolve version
+        id: version
+        shell: bash
+        run: |
+          VERSION="${GITHUB_REF#refs/tags/v}"
+          echo "Resolved version: $VERSION"
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+
+      - name: Cache NuGet packages
+        uses: actions/cache@v4
+        with:
+          path: ~/.nuget/packages
+          key: ${{ runner.os }}-nuget-${{ hashFiles('**/*.csproj', '**/*.props') }}
+          restore-keys: ${{ runner.os }}-nuget-
+
+      - name: Pack WPF adapter
+        run: >
+          dotnet pack src/AsyncNavigation.Wpf
+          --configuration Release
+          -p:Version=${{ steps.version.outputs.version }}
+          --output ./nupkg
+
+      - name: List produced packages
+        shell: bash
+        run: ls -lh ./nupkg/
+
+      - name: Upload packages
+        uses: actions/upload-artifact@v4
+        with:
+          name: nuget-wpf
+          path: ./nupkg/*.nupkg
+          if-no-files-found: error
+
+  # ──────────────────────────────────────────────────────────────────────────
+  # Stage 3 – Publish Core to NuGet.org
+  # ──────────────────────────────────────────────────────────────────────────
+  publish-core:
+    name: Publish Core to NuGet.org
+    runs-on: ubuntu-latest
+    needs: [pack-linux, pack-wpf]
+
+    steps:
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: ${{ env.DOTNET_VERSION }}
+
+      - name: Resolve version
+        id: version
+        run: |
+          VERSION="${GITHUB_REF#refs/tags/v}"
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+
+      - name: Download Core + Avalonia packages
+        uses: actions/download-artifact@v4
+        with:
+          name: nuget-linux
+          path: ./nupkg
+
+      - name: Push AsyncNavigation (Core)
+        run: |
+          dotnet nuget push "./nupkg/AsyncNavigation.${{ steps.version.outputs.version }}.nupkg" \
+            --api-key "${{ secrets.NUGET_API_KEY }}" \
+            --source https://api.nuget.org/v3/index.json \
+            --skip-duplicate
+
+  # ──────────────────────────────────────────────────────────────────────────
+  # Stage 4 – Publish Avalonia + WPF after Core is indexed on NuGet.org
+  # Polls the flat-container API instead of a fixed sleep.
+  # ──────────────────────────────────────────────────────────────────────────
+  publish-avalonia:
+    name: Publish Avalonia to NuGet.org
+    runs-on: ubuntu-latest
+    needs: [pack-linux, publish-core]
+
+    steps:
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: ${{ env.DOTNET_VERSION }}
+
+      - name: Resolve version
+        id: version
+        run: |
+          VERSION="${GITHUB_REF#refs/tags/v}"
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+
+      - name: Download Core + Avalonia packages
+        uses: actions/download-artifact@v4
+        with:
+          name: nuget-linux
+          path: ./nupkg
+
+      - name: Wait for Core to be indexed on NuGet.org
+        run: |
+          VERSION="${{ steps.version.outputs.version }}"
+          URL="https://api.nuget.org/v3-flatcontainer/asyncnavigation/${VERSION}/asyncnavigation.${VERSION}.nupkg"
+          echo "Polling: $URL"
+          for i in $(seq 1 20); do
+            STATUS=$(curl -s -o /dev/null -w "%{http_code}" "$URL")
+            if [ "$STATUS" = "200" ]; then
+              echo "Core $VERSION is indexed (attempt $i)."
+              break
+            fi
+            echo "Attempt $i/20 — HTTP $STATUS, retrying in 30s…"
+            sleep 30
+          done
+          if [ "$(curl -s -o /dev/null -w "%{http_code}" "$URL")" != "200" ]; then
+            echo "Core $VERSION was not indexed within the timeout. Aborting."
+            exit 1
+          fi
+
+      - name: Push AsyncNavigation.Avalonia
+        run: |
+          dotnet nuget push "./nupkg/AsyncNavigation.Avalonia.${{ steps.version.outputs.version }}.nupkg" \
+            --api-key "${{ secrets.NUGET_API_KEY }}" \
+            --source https://api.nuget.org/v3/index.json \
+            --skip-duplicate
+
+  publish-wpf:
+    name: Publish WPF to NuGet.org
+    runs-on: ubuntu-latest
+    needs: [pack-wpf, publish-core]
+
+    steps:
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: ${{ env.DOTNET_VERSION }}
+
+      - name: Resolve version
+        id: version
+        run: |
+          VERSION="${GITHUB_REF#refs/tags/v}"
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+
+      - name: Download WPF packages
+        uses: actions/download-artifact@v4
+        with:
+          name: nuget-wpf
+          path: ./nupkg
+
+      - name: Wait for Core to be indexed on NuGet.org
+        run: |
+          VERSION="${{ steps.version.outputs.version }}"
+          URL="https://api.nuget.org/v3-flatcontainer/asyncnavigation/${VERSION}/asyncnavigation.${VERSION}.nupkg"
+          for i in $(seq 1 20); do
+            STATUS=$(curl -s -o /dev/null -w "%{http_code}" "$URL")
+            if [ "$STATUS" = "200" ]; then
+              echo "Core $VERSION indexed (attempt $i)."
+              break
+            fi
+            echo "Attempt $i/20 — HTTP $STATUS, retrying in 30s…"
+            sleep 30
+          done
+
+      - name: Push AsyncNavigation.Wpf
+        run: |
+          dotnet nuget push "./nupkg/AsyncNavigation.Wpf.${{ steps.version.outputs.version }}.nupkg" \
+            --api-key "${{ secrets.NUGET_API_KEY }}" \
+            --source https://api.nuget.org/v3/index.json \
+            --skip-duplicate
+
+  # ──────────────────────────────────────────────────────────────────────────
+  # Stage 5 – Create GitHub Release and attach .nupkg files
+  # Pre-release is auto-detected: any tag containing '-' (e.g. v2.0.0-beta.1).
+  # ──────────────────────────────────────────────────────────────────────────
+  github-release:
+    name: Create GitHub Release
+    runs-on: ubuntu-latest
+    needs: [publish-avalonia, publish-wpf]
+    permissions:
+      contents: write
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0   # needed for git log changelog generation
+
+      - name: Resolve version and release metadata
+        id: meta
+        run: |
+          VERSION="${GITHUB_REF#refs/tags/v}"
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+
+          # Any version containing '-' is treated as pre-release.
+          if [[ "$VERSION" == *-* ]]; then
+            echo "prerelease=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "prerelease=false" >> "$GITHUB_OUTPUT"
+          fi
+
+          # Generate changelog from commits since the previous tag.
+          PREV_TAG=$(git tag --sort=-version:refname | grep -v "^${GITHUB_REF_NAME}$" | head -n 1 || true)
+          if [ -n "$PREV_TAG" ]; then
+            NOTES=$(git log "${PREV_TAG}..${GITHUB_REF_NAME}" --pretty=format:"- %s" --no-merges)
+          else
+            NOTES=$(git log "${GITHUB_REF_NAME}" --pretty=format:"- %s" --no-merges)
+          fi
+          [ -z "$NOTES" ] && NOTES="No notable changes."
+
+          {
+            echo "notes<<EOF"
+            echo "$NOTES"
+            echo "EOF"
+          } >> "$GITHUB_OUTPUT"
+
+      - name: Download Core + Avalonia packages
+        uses: actions/download-artifact@v4
+        with:
+          name: nuget-linux
+          path: ./release-assets
+
+      - name: Download WPF packages
+        uses: actions/download-artifact@v4
+        with:
+          name: nuget-wpf
+          path: ./release-assets
+
+      - name: List release assets
+        run: ls -lh ./release-assets/
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ github.ref_name }}
+          name: ${{ github.ref_name }}
+          body: ${{ steps.meta.outputs.notes }}
+          prerelease: ${{ steps.meta.outputs.prerelease }}
+          files: ./release-assets/*.nupkg
+          fail_on_unmatched_files: true
+
+  # ──────────────────────────────────────────────────────────────────────────
+  # Stage 6 – Deploy WASM sample to GitHub Pages
+  # ──────────────────────────────────────────────────────────────────────────
+  deploy-wasm:
+    name: Deploy WASM Sample
+    runs-on: ubuntu-latest
+    needs: github-release
+    permissions:
+      contents: write
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: ${{ env.DOTNET_VERSION }}
+
+      - name: Install WASM workload
+        run: dotnet workload install wasm-tools
+
+      - name: Publish WASM
+        run: dotnet publish ${{ env.WASM_PROJECT }} --configuration Release --nologo
+
+      - name: Prepare for GitHub Pages (SPA fallback routing)
+        run: |
+          cp ${{ env.WASM_PUBLISH_DIR }}/index.html ${{ env.WASM_PUBLISH_DIR }}/404.html
+          touch ${{ env.WASM_PUBLISH_DIR }}/.nojekyll
+
+      - name: Deploy to GitHub Pages
+        uses: JamesIves/github-pages-deploy-action@v4
+        with:
+          branch: page-samplewasm
+          folder: ${{ env.WASM_PUBLISH_DIR }}
+          single-commit: true
+          token: ${{ secrets.GITHUB_TOKEN }}
