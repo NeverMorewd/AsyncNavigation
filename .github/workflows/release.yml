@@ -39,10 +39,6 @@ on:
         required: false
         default: false
         type: boolean
-  push:
-    tags:
-      - 'v[0-9]+.[0-9]+.[0-9]+'
-      - 'v[0-9]+.[0-9]+.[0-9]+-*'   # pre-release: v1.0.0-beta.1
 
 # Only one release can run at a time.
 concurrency:
