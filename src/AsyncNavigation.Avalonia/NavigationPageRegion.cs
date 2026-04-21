@@ -15,10 +15,6 @@ internal class NavigationPageRegion : RegionBase<NavigationPageRegion, Navigatio
     }
     public override NavigationPipelineMode NavigationPipelineMode => NavigationPipelineMode.RenderFirst;
 
-    protected override void InitializeOnRegionCreated(NavigationPage control)
-    {
-        base.InitializeOnRegionCreated(control);
-    }
     public override Task ProcessActivateAsync(NavigationContext navigationContext)
     {
         return _navigationPage.PushAsync(new ContentPage 
