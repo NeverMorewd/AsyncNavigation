@@ -49,28 +49,28 @@
                             Tag="AView" />
                         <Button
                             Classes="Navigation"
-                            Content="ToE"
-                            Tag="EView" />
+                            Content="ToHeavyView"
+                            Tag="HeavyView" />
                         <Button
                             Classes="Navigation"
-                            Content="ToE:Delay"
-                            Tag="EView:Delay" />
+                            Content="ToHeavyView:Delay"
+                            Tag="HeavyView:Delay" />
                         <Button
                             Classes="Navigation"
                             Content="ToA:New"
                             Tag="AView:New" />
                         <Button
                             Classes="Navigation"
-                            Content="ToE:Error"
-                            Tag="EView:Error" />
+                            Content="ToHeavyView:Error"
+                            Tag="HeavyView:Error" />
                         <Button
                             Classes="NavigationAndForget"
                             Content="ToA:Forget;New"
                             Tag="AView:New" />
                         <Button
                             Classes="NavigationAndForget"
-                            Content="ToE:Forget;Delay"
-                            Tag="EView:Delay" />
+                            Content="ToHeavyView:Forget;Delay"
+                            Tag="HeavyView:Delay" />
                         <Button
                             Classes="Navigation"
                             Content="ToB:ItemsRegion"
@@ -97,16 +97,16 @@
                             Tag="AView" />
                         <Button
                             Classes="DialogShow"
-                            Content="ToE:Dialog.Show"
-                            Tag="EView" />
+                            Content="ToHeavyView:Dialog.Show"
+                            Tag="HeavyView" />
                         <Button
                             Classes="DialogShowDialog"
                             Content="ToA:Dialog.ShowDialog"
                             Tag="AView" />
                         <Button
                             Classes="DialogShowDialogAsync"
-                            Content="ToE:Dialog.AsyncShowDialog"
-                            Tag="EView" />
+                            Content="ToHeavyView:Dialog.AsyncShowDialog"
+                            Tag="HeavyView" />
                         <Button
                             Classes="DialogShowDialogAsyncWithCancelling"
                             Content="ToA:Dialog.ShowDialogWithCancelling"

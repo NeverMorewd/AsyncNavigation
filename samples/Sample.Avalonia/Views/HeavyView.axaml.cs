@@ -3,9 +3,9 @@ using Avalonia.Controls;
 
 namespace Sample.Avalonia.Views;
 
-public partial class EView : UserControl, IView
+public partial class HeavyView : UserControl, IView
 {
-    public EView()
+    public HeavyView()
     {
         InitializeComponent();
     }

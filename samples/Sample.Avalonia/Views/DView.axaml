@@ -22,20 +22,20 @@
                 Tag="AView" />
             <Button
                 Classes="Navigation"
-                Content="ToE"
-                Tag="EView" />
+                Content="ToHeavyView"
+                Tag="HeavyView" />
             <Button
                 Classes="Navigation"
-                Content="ToE:Delay"
-                Tag="EView:Delay" />
+                Content="ToHeavyView:Delay"
+                Tag="HeavyView:Delay" />
             <Button
                 Classes="Navigation"
                 Content="ToA:New"
                 Tag="AView:New" />
             <Button
                 Classes="Navigation"
-                Content="ToE:New;Delay"
-                Tag="EView:New;Delay" />
+                Content="ToHeavyView:New;Delay"
+                Tag="HeavyView:New;Delay" />
             <Button
                 Classes="NavigationAndForget"
                 Content="ToA:Forget"

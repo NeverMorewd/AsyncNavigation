@@ -39,8 +39,8 @@
             <Button
                 Command="{Binding AsyncPageNavigateCommand}"
                 CommandParameter="{Binding $self.Tag}"
-                Content="ToE"
-                Tag="EView" />
+                Content="ToHeavyView"
+                Tag="HeavyView" />
         </StackPanel>
         <Border>
             <NavigationPage an:RegionManager.RegionName="NavigationPageRegion" BarHeight="30" />

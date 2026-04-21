@@ -28,23 +28,23 @@ namespace Sample.Wpf
                 .RegisterView<BView, BViewModel>(nameof(BView))
                 .RegisterView<CView, CViewModel>(nameof(CView))
                 .RegisterView<DView, DViewModel>(nameof(DView))
-                .RegisterView<EView, EViewModel>(nameof(EView))
+                .RegisterView<HeavyView, HeavyViewModel>(nameof(HeavyView))
                 .RegisterDialogWindow<AWindow, AViewModel>(nameof(AWindow))
                 .RegisterInnerIndicatorProvider<InnerIndicatorProvider>()
                 .RegisterRegionIndicatorProvider<MessageBoxIndicatorProvider>()
                 .RegisterView<ListBoxRegionView, ListBoxRegionViewModel>(nameof(ListBoxRegionView))
                 .RegisterRouter((mapper, sp) =>
                 {
-                    mapper.MapNavigation("Path_ChildEView",
+                    mapper.MapNavigation("Path_ChildHeavyView",
                                          new NavigationTarget("MainRegion", "CView"),
-                                         new NavigationTarget("ChildContentRegion", "EView"));
+                                         new NavigationTarget("ChildContentRegion", "HeavyView"));
 
                     mapper.MapNavigation("Path_ChildAView",
                                          new NavigationTarget("MainRegion", "CView"),
                                          new NavigationTarget("ChildContentRegion", "AView"));
 
-                    mapper.MapNavigation("Path_TabEView", new NavigationTarget("MainRegion", "DView"),
-                                       new NavigationTarget("TabRegion", "EView"));
+                    mapper.MapNavigation("Path_TabHeavyView", new NavigationTarget("MainRegion", "DView"),
+                                       new NavigationTarget("TabRegion", "HeavyView"));
 
                     mapper.MapNavigation("Tab.Tab_A",
                                          new NavigationTarget("MainRegion", "DView"),

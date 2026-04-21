@@ -4,11 +4,11 @@ using System.Windows.Controls;
 namespace Sample.Wpf.Views;
 
 /// <summary>
-/// Interaction logic for EView.xaml
+/// Interaction logic for HeavyView.xaml
 /// </summary>
-public partial class EView : UserControl, IView
+public partial class HeavyView : UserControl, IView
 {
-    public EView()
+    public HeavyView()
     {
         InitializeComponent();
     }

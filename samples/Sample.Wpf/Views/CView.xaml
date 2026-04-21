@@ -35,9 +35,9 @@
                 Style="{StaticResource NavigationButton}"
                 Tag="AView" />
             <Button
-                Content="ToE"
+                Content="ToHeavyView"
                 Style="{StaticResource NavigationButton}"
-                Tag="EView" />
+                Tag="HeavyView" />
         </StackPanel>
         <ContentControl an:RegionManager.RegionName="ChildContentRegion" />
     </DockPanel>

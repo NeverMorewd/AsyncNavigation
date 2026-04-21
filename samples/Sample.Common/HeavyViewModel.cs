@@ -6,14 +6,14 @@ using System.Collections.ObjectModel;
 
 namespace Sample.Common;
 
-public partial class EViewModel : InstanceCounterViewModel<EViewModel>, IDialogAware
+public partial class HeavyViewModel : InstanceCounterViewModel<HeavyViewModel>, IDialogAware
 {
     public ObservableCollection<byte> HeavyItems
     {
         get;
     } = [];
 
-    public string Title => $"{nameof(EViewModel)}:{InstanceNumber}";
+    public string Title => $"{nameof(HeavyViewModel)}:{InstanceNumber}";
 
     public event AsyncEventHandler<DialogCloseEventArgs>? RequestCloseAsync;
 

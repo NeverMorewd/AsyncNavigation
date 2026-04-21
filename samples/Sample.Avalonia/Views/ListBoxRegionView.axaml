@@ -22,8 +22,8 @@
                 Tag="AView" />
 			<Button
                 Classes="Navigation"
-                Content="ToE"
-                Tag="EView" />
+                Content="ToHeavyView"
+                Tag="HeavyView" />
         </StackPanel>
         <ListBox an:RegionManager.RegionName="CustomListBoxRegion" />
     </DockPanel>

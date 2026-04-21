@@ -20,21 +20,21 @@
                 Style="{StaticResource NavigationButton}"
                 Tag="AView" />
             <Button
-                Content="ToE"
+                Content="ToHeavyView"
                 Style="{StaticResource NavigationButton}"
-                Tag="EView" />
+                Tag="HeavyView" />
             <Button
-                Content="ToE:Delay"
+                Content="ToHeavyView:Delay"
                 Style="{StaticResource NavigationButton}"
-                Tag="EView:Delay" />
+                Tag="HeavyView:Delay" />
             <Button
                 Content="ToA:New"
                 Style="{StaticResource NavigationButton}"
                 Tag="AView:New" />
             <Button
-                Content="ToE:New;Delay"
+                Content="ToHeavyView:New;Delay"
                 Style="{StaticResource NavigationButton}"
-                Tag="EView:New;Delay" />
+                Tag="HeavyView:New;Delay" />
             <Button
                 Content="ToA:Forget"
                 Style="{StaticResource NavigationAndForget}"

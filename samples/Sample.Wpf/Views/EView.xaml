@@ -1,5 +1,5 @@
 ﻿<UserControl
-    x:Class="Sample.Wpf.Views.EView"
+    x:Class="Sample.Wpf.Views.HeavyView"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:an="https://github.com/NeverMorewd/AsyncNavigation"

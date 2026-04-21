@@ -34,7 +34,7 @@ public partial class App : Application
                 .RegisterView<BView, BViewModel>(nameof(BView))
                 .RegisterView<CView, CViewModel>(nameof(CView))
                 .RegisterView<DView, DViewModel>(nameof(DView))
-                .RegisterView<EView, EViewModel>(nameof(EView))
+                .RegisterView<HeavyView, HeavyViewModel>(nameof(HeavyView))
                 .RegisterView<NavigationPageView, AViewModel>(nameof(NavigationPageView))
                 .RegisterView<ListBoxRegionView, ListBoxRegionViewModel>(nameof(ListBoxRegionView))
                 .RegisterDialogWindow<AWindow, AViewModel>(nameof(AWindow))
@@ -43,16 +43,16 @@ public partial class App : Application
                 .RegisterRegionAdapter<ListBoxRegionAdapter>()
                 .RegisterRouter((mapper, sp) =>
                 {
-                    mapper.MapNavigation("Path_ChildEView", 
+                    mapper.MapNavigation("Path_ChildHeavyView", 
                                          new NavigationTarget("MainRegion", "CView"),
-                                         new NavigationTarget("ChildContentRegion", "EView"));
+                                         new NavigationTarget("ChildContentRegion", "HeavyView"));
 
                     mapper.MapNavigation("Path_ChildAView",
                                          new NavigationTarget("MainRegion", "CView"),
                                          new NavigationTarget("ChildContentRegion", "AView"));
 
-                    mapper.MapNavigation("Path_TabEView", new NavigationTarget("MainRegion", "DView"),
-                                       new NavigationTarget("TabRegion", "EView"));
+                    mapper.MapNavigation("Path_TabHeavyView", new NavigationTarget("MainRegion", "DView"),
+                                       new NavigationTarget("TabRegion", "HeavyView"));
 
                     mapper.MapNavigation("Tab.Tab_A",
                                          new NavigationTarget("MainRegion", "DView"),

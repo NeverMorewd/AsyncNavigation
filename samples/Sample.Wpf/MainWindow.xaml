@@ -38,29 +38,29 @@
                     Style="{StaticResource NavigationButton}"
                     Tag="AView" />
                 <Button
-                    Content="ToE"
+                    Content="ToHeavyView"
                     Style="{StaticResource NavigationButton}"
-                    Tag="EView" />
+                    Tag="HeavyView" />
                 <Button
-                    Content="ToE:Delay"
+                    Content="ToHeavyView:Delay"
                     Style="{StaticResource NavigationButton}"
-                    Tag="EView:Delay" />
+                    Tag="HeavyView:Delay" />
                 <Button
                     Content="ToA:New"
                     Style="{StaticResource NavigationButton}"
                     Tag="AView:New" />
                 <Button
-                    Content="ToE:Error"
+                    Content="ToHeavyView:Error"
                     Style="{StaticResource NavigationButton}"
-                    Tag="EView:Error" />
+                    Tag="HeavyView:Error" />
                 <Button
                     Content="ToA:Forget;New"
                     Style="{StaticResource NavigationAndForget}"
                     Tag="AView:New" />
                 <Button
-                    Content="ToE:Forget;Delay"
+                    Content="ToHeavyView:Forget;Delay"
                     Style="{StaticResource NavigationAndForget}"
-                    Tag="EView:Delay" />
+                    Tag="HeavyView:Delay" />
                 <Button
                     Content="ToB:ItemsRegion"
                     Style="{StaticResource NavigationButton}"
@@ -82,17 +82,17 @@
                     Style="{StaticResource DialogShow}"
                     Tag="AView" />
                 <Button
-                    Content="ToE:Dialog.Show"
+                    Content="ToHeavyView:Dialog.Show"
                     Style="{StaticResource DialogShow}"
-                    Tag="EView" />
+                    Tag="HeavyView" />
                 <Button
                     Content="ToA:Dialog.ShowDialog"
                     Style="{StaticResource DialogShowDialog}"
                     Tag="AView" />
                 <Button
-                    Content="ToE:Dialog.AsyncShowDialog"
+                    Content="ToHeavyView:Dialog.AsyncShowDialog"
                     Style="{StaticResource DialogShowDialogAsync}"
-                    Tag="EView" />
+                    Tag="HeavyView" />
                 <Button
                     Content="ToA:Dialog.ShowDialogWithCancelling"
                     Style="{StaticResource DialogShowDialogAsyncWithCancelling}"
