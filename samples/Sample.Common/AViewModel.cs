@@ -38,6 +38,12 @@ public partial class AViewModel : InstanceCounterViewModel<AViewModel>, IDialogA
         cts.CancelAfter(TimeSpan.FromSeconds(2));
         return RequestCloseAsync!.Invoke(this, new DialogCloseEventArgs(new DialogResult(DialogButtonResult.OK), cts.Token));
     }
+    [ReactiveCommand]
+    private async Task AsyncPageNavigate(string param)
+    {
+        var (viewName, parameters) = SampleHelper.ParseNavigationParam(param);
+        var ret = await _regionManager.RequestNavigateAsync("NavigationPageRegion", viewName);
+    }
     public async Task OnDialogOpenedAsync(IDialogParameters? parameters, CancellationToken cancellationToken)
     {
         IsDialog = true;

@@ -29,12 +29,13 @@ public partial class App : Application
 
         var services = new ServiceCollection();
         services.AddNavigationSupport(navigationOptions)
-                .AddSingletonWitAllMembers<MainWindowViewModel>()
+                .AddSingletonWithAllMembers<MainWindowViewModel>()
                 .RegisterView<AView, AViewModel>(nameof(AView))
                 .RegisterView<BView, BViewModel>(nameof(BView))
                 .RegisterView<CView, CViewModel>(nameof(CView))
                 .RegisterView<DView, DViewModel>(nameof(DView))
                 .RegisterView<EView, EViewModel>(nameof(EView))
+                .RegisterView<NavigationPageView, AViewModel>(nameof(NavigationPageView))
                 .RegisterView<ListBoxRegionView, ListBoxRegionViewModel>(nameof(ListBoxRegionView))
                 .RegisterDialogWindow<AWindow, AViewModel>(nameof(AWindow))
                 .RegisterRegionIndicatorProvider<NotifyIndicatorProvider>()

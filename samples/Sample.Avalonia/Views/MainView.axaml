@@ -88,6 +88,10 @@
                             Content="ToListBoxRegionView"
                             Tag="ListBoxRegionView" />
                         <Button
+                            Classes="Navigation"
+                            Content="ToNavigationPage"
+                            Tag="NavigationPageView" />
+                        <Button
                             Classes="DialogShow"
                             Content="ToA:Dialog.Show"
                             Tag="AView" />
@@ -124,8 +128,8 @@
             </DockPanel>
         </SplitView>
         <SelectableTextBlock
+            Name="footer"
             Grid.Row="1"
-			Name="footer"
             HorizontalAlignment="Center"
             VerticalAlignment="Center" />
     </Grid>
