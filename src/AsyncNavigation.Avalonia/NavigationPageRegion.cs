@@ -19,13 +19,16 @@ internal class NavigationPageRegion : RegionBase<NavigationPageRegion, Navigatio
     {
         base.InitializeOnRegionCreated(control);
     }
-    public override void ProcessActivate(NavigationContext navigationContext)
+    public override Task ProcessActivateAsync(NavigationContext navigationContext)
     {
-        _navigationPage.PushAsync(new ContentPage { Content = navigationContext?.IndicatorHost.Value?.Host as Control });
+        return _navigationPage.PushAsync(new ContentPage 
+        { 
+            Content = navigationContext?.IndicatorHost.Value?.Host
+        });
     }
 
-    public override void ProcessDeactivate(NavigationContext? navigationContext)
+    public override Task ProcessDeactivateAsync(NavigationContext? navigationContext)
     {
-        _navigationPage.PushAsync(new ContentPage { Content = null });
+        return _navigationPage.PushAsync(new ContentPage { Content = null });
     }
 }

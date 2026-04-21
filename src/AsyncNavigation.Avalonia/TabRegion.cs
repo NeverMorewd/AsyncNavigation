@@ -43,7 +43,7 @@ public class TabRegion : RegionBase<TabRegion, TabControl>
         _context.Clear();
     }
 
-    public override void ProcessActivate(NavigationContext navigationContext)
+    public override Task ProcessActivateAsync(NavigationContext navigationContext)
     {
         if (!_context.Items.Contains(navigationContext))
             _context.Items.Add(navigationContext);
@@ -54,15 +54,17 @@ public class TabRegion : RegionBase<TabRegion, TabControl>
         {
             control.ScrollIntoView(navigationContext);
         });
+        return Task.CompletedTask;
     }
 
-    public override void ProcessDeactivate(NavigationContext? navigationContext)
+    public override Task ProcessDeactivateAsync(NavigationContext? navigationContext)
     {
         var target = navigationContext ?? _context.Selected;
         if (target == null)
-            return;
+            return Task.CompletedTask;
 
         _ = _context.Items.Remove(target);
+        return Task.CompletedTask;
     }
 
 }

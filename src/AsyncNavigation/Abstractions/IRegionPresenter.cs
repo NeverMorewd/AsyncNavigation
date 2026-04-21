@@ -7,6 +7,6 @@ public interface IRegionPresenter
     bool EnableViewCache { get; }
     bool IsSinglePageRegion { get; }
     NavigationPipelineMode NavigationPipelineMode { get; }
-    void ProcessActivate(NavigationContext navigationContext);
-    void ProcessDeactivate(NavigationContext? navigationContext);
+    Task ProcessActivateAsync(NavigationContext navigationContext);
+    Task ProcessDeactivateAsync(NavigationContext? navigationContext);
 }

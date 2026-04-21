@@ -25,7 +25,7 @@ public partial class App : Application
 #pragma warning disable IL2026
             services
                 .AddNavigationSupport()
-                .AddSingletonWitAllMembers<MainWindowViewModel>()
+                .AddSingletonWithAllMembers<MainWindowViewModel>()
 #pragma warning restore IL2026
                 .RegisterDialogWindow<DialogWindow, FrontDialogViewModel>("DialogWindow");
         
