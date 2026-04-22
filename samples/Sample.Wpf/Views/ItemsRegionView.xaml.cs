@@ -4,11 +4,11 @@ using System.Windows.Controls;
 namespace Sample.Wpf.Views;
 
 /// <summary>
-/// Interaction logic for AView.xaml
+/// Interaction logic for ItemsRegionView.xaml
 /// </summary>
-public partial class AView : UserControl, IView
+public partial class ItemsRegionView : UserControl,IView
 {
-    public AView()
+    public ItemsRegionView()
     {
         InitializeComponent();
     }

@@ -4,17 +4,17 @@ using ReactiveUI.SourceGenerators;
 
 namespace Sample.Common;
 
-public partial class AViewModel : InstanceCounterViewModel<AViewModel>, IDialogAware, INavigationMetadata
+public partial class LightViewModel : InstanceCounterViewModel<LightViewModel>, IDialogAware, INavigationMetadata
 {
     private readonly IRegionManager _regionManager;
 
     public event AsyncEventHandler<DialogCloseEventArgs>? RequestCloseAsync;
 
-    public string Title => $"{nameof(AViewModel)}:{InstanceNumber}";
+    public string Title => $"{nameof(LightViewModel)}:{InstanceNumber}";
 
     public IconDescriptor Icon => IconDescriptor.FromFile("Icon.png");
 
-    public AViewModel(IRegionManager regionManager)
+    public LightViewModel(IRegionManager regionManager)
     {
         _regionManager = regionManager;
     }

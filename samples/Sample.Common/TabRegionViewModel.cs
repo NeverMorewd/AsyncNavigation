@@ -1,13 +1,12 @@
 ﻿using AsyncNavigation;
 using AsyncNavigation.Abstractions;
-using AsyncNavigation.Core;
 using ReactiveUI.SourceGenerators;
 namespace Sample.Common;
 
-public partial class DViewModel : InstanceCounterViewModel<DViewModel>
+public partial class TabRegionViewModel : InstanceCounterViewModel<TabRegionViewModel>
 {
     private readonly IRegionManager _regionManager;
-    public DViewModel(IRegionManager regionManager)
+    public TabRegionViewModel(IRegionManager regionManager)
     {
         _regionManager = regionManager;
     }

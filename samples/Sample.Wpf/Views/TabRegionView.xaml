@@ -1,5 +1,5 @@
 ﻿<UserControl
-    x:Class="Sample.Wpf.Views.DView"
+    x:Class="Sample.Wpf.Views.TabRegionView"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:an="https://github.com/NeverMorewd/AsyncNavigation"
@@ -16,9 +16,9 @@
                 <Button Style="{StaticResource GoForward}" />
             </StackPanel>
             <Button
-                Content="ToA"
+                Content="ToLightView"
                 Style="{StaticResource NavigationButton}"
-                Tag="AView" />
+                Tag="LightView" />
             <Button
                 Content="ToHeavyView"
                 Style="{StaticResource NavigationButton}"
@@ -28,21 +28,21 @@
                 Style="{StaticResource NavigationButton}"
                 Tag="HeavyView:Delay" />
             <Button
-                Content="ToA:New"
+                Content="ToLightView:New"
                 Style="{StaticResource NavigationButton}"
-                Tag="AView:New" />
+                Tag="LightView:New" />
             <Button
                 Content="ToHeavyView:New;Delay"
                 Style="{StaticResource NavigationButton}"
                 Tag="HeavyView:New;Delay" />
             <Button
-                Content="ToA:Forget"
+                Content="ToLightView:Forget"
                 Style="{StaticResource NavigationAndForget}"
-                Tag="AView" />
+                Tag="LightView" />
             <Button
-                Content="ToA:Forget;New"
+                Content="ToLightView:Forget;New"
                 Style="{StaticResource NavigationAndForget}"
-                Tag="AView:New" />
+                Tag="LightView:New" />
         </StackPanel>
         <ScrollViewer>
             <TabControl

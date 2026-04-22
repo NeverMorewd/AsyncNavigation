@@ -9,7 +9,7 @@ public partial class FrontDialogViewModel : InstanceCounterViewModel<FrontDialog
     private int _ratio;
     private CancellationTokenSource? _cts;
     public event AsyncEventHandler<DialogCloseEventArgs>? RequestCloseAsync;
-    public string Title => $"{nameof(AViewModel)}:{InstanceNumber}";
+    public string Title => $"{nameof(LightViewModel)}:{InstanceNumber}";
 
     [ReactiveCommand]
     private Task CloseDialog(string param)

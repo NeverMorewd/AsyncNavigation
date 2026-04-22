@@ -16,9 +16,9 @@
                 <Button Style="{StaticResource GoForward}" />
             </StackPanel>
             <Button
-                Content="ToA"
+                Content="ToLightView"
                 Style="{StaticResource NavigationButton}"
-                Tag="AView" />
+                Tag="LightView" />
             <Button
                 Content="ToHeavyView"
                 Style="{StaticResource NavigationButton}"

@@ -3,10 +3,10 @@ using ReactiveUI.SourceGenerators;
 
 namespace Sample.Common;
 
-public partial class CViewModel : InstanceCounterViewModel<CViewModel>
+public partial class ChildContentRegionViewModel : InstanceCounterViewModel<ChildContentRegionViewModel>
 {
     private readonly IRegionManager _regionManager;
-    public CViewModel(IRegionManager regionManager)
+    public ChildContentRegionViewModel(IRegionManager regionManager)
     {
         _regionManager = regionManager;
     }

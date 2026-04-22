@@ -6,10 +6,10 @@ using System.Diagnostics;
 
 namespace Sample.Common;
 
-public partial class BViewModel : InstanceCounterViewModel<BViewModel>
+public partial class ItemsRegionViewModel : InstanceCounterViewModel<ItemsRegionViewModel>
 {
     private readonly IRegionManager _regionManager;
-    public BViewModel(IRegionManager regionManager)
+    public ItemsRegionViewModel(IRegionManager regionManager)
     {
         _regionManager = regionManager;
     }

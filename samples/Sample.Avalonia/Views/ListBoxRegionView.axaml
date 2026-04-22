@@ -18,8 +18,8 @@
 			</StackPanel>
             <Button
                 Classes="Navigation"
-                Content="ToA"
-                Tag="AView" />
+                Content="ToLightView"
+                Tag="LightView" />
 			<Button
                 Classes="Navigation"
                 Content="ToHeavyView"

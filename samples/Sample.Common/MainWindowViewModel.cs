@@ -27,7 +27,7 @@ public partial class MainWindowViewModel : ViewModelBase
         _dialogService = dialogService;
         _registrationTracker = registrationTracker;
         _regionManager
-            .RequestNavigateAsync("MainRegion", "AView", replay: false)
+            .RequestNavigateAsync("MainRegion", "LightView", replay: false)
             .ContinueWith(t => 
             {
                 if (t.IsFaulted)

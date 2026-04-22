@@ -4,11 +4,11 @@ using System.Windows.Controls;
 namespace Sample.Wpf.Views;
 
 /// <summary>
-/// Interaction logic for CView.xaml
+/// Interaction logic for ChildContentRegionView.xaml
 /// </summary>
-public partial class CView : UserControl, IView
+public partial class ChildContentRegionView : UserControl, IView
 {
-    public CView()
+    public ChildContentRegionView()
     {
         InitializeComponent();
     }

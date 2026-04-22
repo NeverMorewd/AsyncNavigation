@@ -3,9 +3,9 @@ using Avalonia.Controls;
 
 namespace Sample.Avalonia.Views;
 
-public partial class AView : UserControl, IView
+public partial class LightView : UserControl, IView
 {
-    public AView()
+    public LightView()
     {
         InitializeComponent();
     }

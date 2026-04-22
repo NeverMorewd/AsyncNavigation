@@ -4,9 +4,9 @@ using Avalonia.Controls;
 
 namespace Sample.Avalonia.Views;
 
-public partial class BView : UserControl, IView
+public partial class ItemsRegionView : UserControl, IView
 {
-    public BView()
+    public ItemsRegionView()
     {
         InitializeComponent();
     }

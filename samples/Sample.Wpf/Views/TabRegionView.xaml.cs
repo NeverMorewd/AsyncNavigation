@@ -4,11 +4,11 @@ using System.Windows.Controls;
 namespace Sample.Wpf.Views;
 
 /// <summary>
-/// Interaction logic for DView.xaml
+/// Interaction logic for TabRegionView.xaml
 /// </summary>
-public partial class DView : UserControl, IView
+public partial class TabRegionView : UserControl, IView
 {
-    public DView()
+    public TabRegionView()
     {
         InitializeComponent();
     }
