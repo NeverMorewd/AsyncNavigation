@@ -120,4 +120,16 @@ public static class DependencyInjectionExtensions
         serviceDescriptors.TryAddTransient<IInnerIndicatorProvider, T>();
         return serviceDescriptors;
     }
+
+    /// <summary>
+    /// Override default IconResolver
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
+    /// <param name="serviceDescriptors"></param>
+    /// <returns></returns>
+    public static IServiceCollection RegisterIconResolver<[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicConstructors)] T>(this IServiceCollection serviceDescriptors)
+        where T : class, IIconResolver<Control>
+    {
+        return serviceDescriptors.AddTransient<IIconResolver<Control>, T>();
+    }
 }

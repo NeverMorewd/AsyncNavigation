@@ -70,7 +70,6 @@ public class IconResolver : IIconResolver<FrameworkElement>
 
     protected virtual TextBlock ResolveThemeIcon(string name, double size)
     {
-        // Suitable for icon fonts like FluentIcons / Material Icons
         return new TextBlock
         {
             Text = name,
@@ -89,7 +88,7 @@ public class IconResolver : IIconResolver<FrameworkElement>
 
         return resource switch
         {
-            Geometry geometry => new System.Windows.Shapes.Path
+            Geometry geometry => new Path
             {
                 Data = geometry,
                 Width = size,
