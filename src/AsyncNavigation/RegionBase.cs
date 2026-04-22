@@ -116,8 +116,8 @@ public abstract class RegionBase<TRegion, TControl> : IRegion, IRegionPresenter
         _navigationHistory.Clear();
     }
     #endregion
-    public abstract void ProcessActivate(NavigationContext navigationContext);
-    public abstract void ProcessDeactivate(NavigationContext? navigationContext);
+    public abstract Task ProcessActivateAsync(NavigationContext navigationContext);
+    public abstract Task ProcessDeactivateAsync(NavigationContext? navigationContext);
 
     private void RaiseNavigated(NavigationContext context)
     {

@@ -1,4 +1,5 @@
 ﻿using AsyncNavigation.Core;
+using AsyncNavigation.Wpf;
 using Microsoft.Extensions.DependencyInjection;
 using ReactiveUI;
 using Sample.Avalonia;
@@ -24,40 +25,41 @@ namespace Sample.Wpf
             services.AddNavigationSupport()
                 .AddSingleton<MainWindowViewModel>()
                 .RegisterRegionAdapter<ListBoxRegionAdapter>()
-                .RegisterView<AView, AViewModel>(nameof(AView))
-                .RegisterView<BView, BViewModel>(nameof(BView))
-                .RegisterView<CView, CViewModel>(nameof(CView))
-                .RegisterView<DView, DViewModel>(nameof(DView))
-                .RegisterView<EView, EViewModel>(nameof(EView))
-                .RegisterDialogWindow<AWindow, AViewModel>(nameof(AWindow))
+                .RegisterView<LightView, LightViewModel>(nameof(LightView))
+                .RegisterView<ItemsRegionView, ItemsRegionViewModel>(nameof(ItemsRegionView))
+                .RegisterView<ChildContentRegionView, ChildContentRegionViewModel>(nameof(ChildContentRegionView))
+                .RegisterView<TabRegionView, TabRegionViewModel>(nameof(TabRegionView))
+                .RegisterView<HeavyView, HeavyViewModel>(nameof(HeavyView))
+                .RegisterDialogWindow<AWindow, LightViewModel>(nameof(AWindow))
                 .RegisterInnerIndicatorProvider<InnerIndicatorProvider>()
                 .RegisterRegionIndicatorProvider<MessageBoxIndicatorProvider>()
                 .RegisterView<ListBoxRegionView, ListBoxRegionViewModel>(nameof(ListBoxRegionView))
                 .RegisterRouter((mapper, sp) =>
                 {
-                    mapper.MapNavigation("Path_ChildEView",
-                                         new NavigationTarget("MainRegion", "CView"),
-                                         new NavigationTarget("ChildContentRegion", "EView"));
+                    mapper.MapNavigation("Path_ChildHeavyView",
+                                         new NavigationTarget("MainRegion", "ChildContentRegionView"),
+                                         new NavigationTarget("ChildContentRegion", "HeavyView"));
 
                     mapper.MapNavigation("Path_ChildAView",
-                                         new NavigationTarget("MainRegion", "CView"),
-                                         new NavigationTarget("ChildContentRegion", "AView"));
+                                         new NavigationTarget("MainRegion", "ChildContentRegionView"),
+                                         new NavigationTarget("ChildContentRegion", "LightView"));
 
-                    mapper.MapNavigation("Path_TabEView", new NavigationTarget("MainRegion", "DView"),
-                                       new NavigationTarget("TabRegion", "EView"));
+                    mapper.MapNavigation("Path_TabHeavyView", new NavigationTarget("MainRegion", "TabRegionView"),
+                                       new NavigationTarget("TabRegion", "HeavyView"));
 
                     mapper.MapNavigation("Tab.Tab_A",
-                                         new NavigationTarget("MainRegion", "DView"),
-                                         new NavigationTarget("TabRegion", "AView"))
+                                         new NavigationTarget("MainRegion", "TabRegionView"),
+                                         new NavigationTarget("TabRegion", "LightView"))
                                          .WithSegments("Tab", "Tab_A");
 
                     mapper.MapNavigation("Path_UnknownView", new NavigationTarget("UnknownRegion", "UnknownView"))
-                          .WithFallback(new NavigationTarget("MainRegion", "AView"));
+                          .WithFallback(new NavigationTarget("MainRegion", "LightView"));
                 });
 
             var sp = services.BuildServiceProvider();
             base.OnStartup(e);
-
+            var converter = sp.GetRequiredService<IconDescriptorConverter>();
+            Application.Current.Resources[nameof(IconDescriptorConverter)] = converter;
             var mainWindow = new MainWindow
             {
                 DataContext = sp.GetRequiredService<MainWindowViewModel>()

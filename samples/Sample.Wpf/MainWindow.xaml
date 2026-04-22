@@ -34,71 +34,71 @@
                     <Button Style="{StaticResource GoForward}" />
                 </StackPanel>
                 <Button
-                    Content="ToA"
+                    Content="ToLightView"
                     Style="{StaticResource NavigationButton}"
-                    Tag="AView" />
+                    Tag="LightView" />
                 <Button
-                    Content="ToE"
+                    Content="ToHeavyView"
                     Style="{StaticResource NavigationButton}"
-                    Tag="EView" />
+                    Tag="HeavyView" />
                 <Button
-                    Content="ToE:Delay"
+                    Content="ToHeavyView:Delay"
                     Style="{StaticResource NavigationButton}"
-                    Tag="EView:Delay" />
+                    Tag="HeavyView:Delay" />
                 <Button
-                    Content="ToA:New"
+                    Content="ToLightView:New"
                     Style="{StaticResource NavigationButton}"
-                    Tag="AView:New" />
+                    Tag="LightView:New" />
                 <Button
-                    Content="ToE:Error"
+                    Content="ToHeavyView:Error"
                     Style="{StaticResource NavigationButton}"
-                    Tag="EView:Error" />
+                    Tag="HeavyView:Error" />
                 <Button
-                    Content="ToA:Forget;New"
+                    Content="ToLightView:Forget;New"
                     Style="{StaticResource NavigationAndForget}"
-                    Tag="AView:New" />
+                    Tag="LightView:New" />
                 <Button
-                    Content="ToE:Forget;Delay"
+                    Content="ToHeavyView:Forget;Delay"
                     Style="{StaticResource NavigationAndForget}"
-                    Tag="EView:Delay" />
+                    Tag="HeavyView:Delay" />
                 <Button
-                    Content="ToB:ItemsRegion"
+                    Content="ToItemsRegionView"
                     Style="{StaticResource NavigationButton}"
-                    Tag="BView" />
+                    Tag="ItemsRegionView" />
                 <Button
-                    Content="ToD:TabRegion"
+                    Content="ToTabRegionView"
                     Style="{StaticResource NavigationButton}"
-                    Tag="DView" />
+                    Tag="TabRegionView" />
                 <Button
-                    Content="ToC:ChildContentRegion"
+                    Content="ToChildContentRegionView"
                     Style="{StaticResource NavigationButton}"
-                    Tag="CView" />
+                    Tag="ChildContentRegionView" />
                 <Button
                     Content="ToListBoxRegionView"
                     Style="{StaticResource NavigationButton}"
                     Tag="ListBoxRegionView" />
                 <Button
-                    Content="ToA:Dialog.Show"
+                    Content="ToLightView:Dialog.Show"
                     Style="{StaticResource DialogShow}"
-                    Tag="AView" />
+                    Tag="LightView" />
                 <Button
-                    Content="ToE:Dialog.Show"
+                    Content="ToHeavyView:Dialog.Show"
                     Style="{StaticResource DialogShow}"
-                    Tag="EView" />
+                    Tag="HeavyView" />
                 <Button
-                    Content="ToA:Dialog.ShowDialog"
+                    Content="ToLightView:Dialog.ShowDialog"
                     Style="{StaticResource DialogShowDialog}"
-                    Tag="AView" />
+                    Tag="LightView" />
                 <Button
-                    Content="ToE:Dialog.AsyncShowDialog"
+                    Content="ToHeavyView:Dialog.AsyncShowDialog"
                     Style="{StaticResource DialogShowDialogAsync}"
-                    Tag="EView" />
+                    Tag="HeavyView" />
                 <Button
-                    Content="ToA:Dialog.ShowDialogWithCancelling"
+                    Content="ToLightView:Dialog.ShowDialogWithCancelling"
                     Style="{StaticResource DialogShowDialogAsyncWithCancelling}"
-                    Tag="AView" />
+                    Tag="LightView" />
                 <Button
-                    Content="ToA:Window.Show"
+                    Content="ToLightView:Window.Show"
                     Style="{StaticResource WindowShow}"
                     Tag="AWindow" />
                 <Button

@@ -2,6 +2,7 @@
 using AsyncNavigation.Abstractions;
 using AsyncNavigation.Avalonia;
 using AsyncNavigation.Core;
+using Avalonia.Controls;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using System.Diagnostics.CodeAnalysis;
 
@@ -53,6 +54,10 @@ public static class DependencyInjectionExtensions
             .RegisterRegionAdapter<ContentRegionAdapter>()
             .RegisterRegionAdapter<ItemsRegionAdapter>()
             .RegisterRegionAdapter<TabRegionAdapter>()
+            .RegisterRegionAdapter<NavigationPageRegionAdapter>()
+            .RegisterRegionAdapter<TabbedPageRegionAdapter>()
+            .AddTransient<IIconResolver<Control>,IconResolver>()
+            .AddSingleton<IconDescriptorConverter>()
             .AddTransient<IInnerRegionIndicatorHost, InnerIndicatorHost>()
             .AddSingleton<IRegionManager, RegionManager>()
             .RegisterDialogContainer<DefaultDialogContainer>(NavigationConstants.DEFAULT_DIALOG_WINDOW_KEY)
@@ -114,5 +119,17 @@ public static class DependencyInjectionExtensions
     {
         serviceDescriptors.TryAddTransient<IInnerIndicatorProvider, T>();
         return serviceDescriptors;
+    }
+
+    /// <summary>
+    /// Override default IconResolver
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
+    /// <param name="serviceDescriptors"></param>
+    /// <returns></returns>
+    public static IServiceCollection RegisterIconResolver<[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicConstructors)] T>(this IServiceCollection serviceDescriptors)
+        where T : class, IIconResolver<Control>
+    {
+        return serviceDescriptors.AddTransient<IIconResolver<Control>, T>();
     }
 }

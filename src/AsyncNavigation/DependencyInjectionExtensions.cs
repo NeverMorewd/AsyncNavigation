@@ -294,29 +294,6 @@ public static class DependencyInjectionExtensions
         return serviceDescriptors.AddTransient(builder);
     }
 
-    /// <inheritdoc cref="AddSingletonWithAllMembers{T}(IServiceCollection)"/>
-    [Obsolete("Use AddSingletonWithAllMembers instead. This method has a typo in its name.")]
-    public static IServiceCollection AddSingletonWitAllMembers<[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.All)] T>(
-        this IServiceCollection serviceDescriptors) where T : class
-        => AddSingletonWithAllMembers<T>(serviceDescriptors);
-
-    /// <inheritdoc cref="AddSingletonWithAllMembers{T}(IServiceCollection, Func{IServiceProvider, T})"/>
-    [Obsolete("Use AddSingletonWithAllMembers instead. This method has a typo in its name.")]
-    public static IServiceCollection AddSingletonWitAllMembers<[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.All)] T>(
-        this IServiceCollection serviceDescriptors, Func<IServiceProvider, T> builder) where T : class
-        => AddSingletonWithAllMembers(serviceDescriptors, builder);
-
-    /// <inheritdoc cref="AddTransientWithAllMembers{T}(IServiceCollection)"/>
-    [Obsolete("Use AddTransientWithAllMembers instead. This method has a typo in its name.")]
-    public static IServiceCollection AddTransientWitAllMembers<[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.All)] T>(
-        this IServiceCollection serviceDescriptors) where T : class
-        => AddTransientWithAllMembers<T>(serviceDescriptors);
-
-    /// <inheritdoc cref="AddTransientWithAllMembers{T}(IServiceCollection, Func{IServiceProvider, T})"/>
-    [Obsolete("Use AddTransientWithAllMembers instead. This method has a typo in its name.")]
-    public static IServiceCollection AddTransientWitAllMembers<[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.All)] T>(
-        this IServiceCollection serviceDescriptors, Func<IServiceProvider, T> builder) where T : class
-        => AddTransientWithAllMembers(serviceDescriptors, builder);
     /// <summary>
     /// Registers a dialog window and its associated view model using the specified window name as a key.
     /// </summary>

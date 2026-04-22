@@ -19,16 +19,18 @@ public class TestRegion : RegionBase<TestRegion, object>, IRegionPresenter
 
     public override NavigationPipelineMode NavigationPipelineMode => NavigationPipelineMode.RenderFirst;
 
-    public override void ProcessActivate(NavigationContext navigationContext)
+    public override Task ProcessActivateAsync(NavigationContext navigationContext)
     {
         IsActive = true;
         Current = navigationContext;
+        return Task.CompletedTask;
     }
 
-    public override void ProcessDeactivate(NavigationContext? navigationContext)
+    public override Task ProcessDeactivateAsync(NavigationContext? navigationContext)
     {
         IsActive = false;
         Current = null;
+        return Task.CompletedTask;
     }
 
     

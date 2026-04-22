@@ -18,7 +18,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Avalonia"/>
+    <PackageReference Include="Avalonia" />
     <PackageReference Include="Avalonia.Themes.Fluent" />
     <PackageReference Include="Avalonia.Fonts.Inter" />
 	<PackageReference Include="AvaloniaUI.DiagnosticsSupport">
@@ -26,7 +26,7 @@
 		<PrivateAssets Condition="'$(Configuration)' != 'Debug'">All</PrivateAssets>
 	</PackageReference>
     <PackageReference Include="Microsoft.Extensions.DependencyInjection" />
-    <PackageReference Include="ReactiveUI.Avalonia"/>
+    <PackageReference Include="ReactiveUI.Avalonia" />
   </ItemGroup>
 
   <ItemGroup>
@@ -35,8 +35,23 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Compile Update="Views\EView.axaml.cs">
-      <DependentUpon>EView.axaml</DependentUpon>
+    <Compile Update="Views\TabRegionViewModel.axaml.cs">
+      <DependentUpon>TabRegionViewModel.axaml</DependentUpon>
+    </Compile>
+    <Compile Update="Views\TabRegionView.axaml.cs">
+      <DependentUpon>TabRegionView.axaml</DependentUpon>
+    </Compile>
+    <Compile Update="Views\ItemsRegionView.axaml.cs">
+      <DependentUpon>ItemsRegionView.axaml</DependentUpon>
+    </Compile>
+    <Compile Update="Views\ChildContentRegionView.axaml.cs">
+      <DependentUpon>ChildContentRegionView.axaml</DependentUpon>
+    </Compile>
+    <Compile Update="Views\HeavyView.axaml.cs">
+      <DependentUpon>HeavyView.axaml</DependentUpon>
+    </Compile>
+    <Compile Update="Views\HeavyView.axaml.cs">
+      <DependentUpon>HeavyView.axaml</DependentUpon>
     </Compile>
     <Compile Update="Views\AWindow.axaml.cs">
       <DependentUpon>AWindow.axaml</DependentUpon>

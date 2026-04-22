@@ -16,13 +16,13 @@
                 <Button Style="{StaticResource GoForward}" />
             </StackPanel>
             <Button
-                Content="ToA"
+                Content="ToLightView"
                 Style="{StaticResource NavigationButton}"
-                Tag="AView" />
+                Tag="LightView" />
             <Button
-                Content="ToE"
+                Content="ToHeavyView"
                 Style="{StaticResource NavigationButton}"
-                Tag="EView" />
+                Tag="HeavyView" />
         </StackPanel>
         <ListBox an:RegionManager.RegionName="CustomListBoxRegion" />
     </DockPanel>

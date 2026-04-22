@@ -9,5 +9,5 @@
     Width="800"
     Height="450"
     mc:Ignorable="d">
-    <local:AView/>
+    <local:LightView/>
 </Window>

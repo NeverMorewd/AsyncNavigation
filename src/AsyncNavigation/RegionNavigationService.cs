@@ -50,13 +50,12 @@ internal sealed class RegionNavigationService<T> : IRegionNavigationService<T> w
     {
         if (Current.HasValue && _regionPresenter.IsSinglePageRegion)
         {
-            _regionPresenter.ProcessActivate(Current.Value.NavigationContext);
+            _regionPresenter.ProcessActivateAsync(Current.Value.NavigationContext);
             return _regionIndicatorManager.Revert(Current.Value.NavigationContext);
         }
         else
         {
-            _regionPresenter.ProcessDeactivate(navigationContext);
-            return Task.CompletedTask;
+            return _regionPresenter.ProcessDeactivateAsync(navigationContext);
         }
     }
     public void Dispose()
@@ -111,7 +110,7 @@ internal sealed class RegionNavigationService<T> : IRegionNavigationService<T> w
     private Task OnRenderIndicatorAsync(NavigationContext navigationContext)
     {
         navigationContext.CancellationToken.ThrowIfCancellationRequested();
-        _regionPresenter.ProcessActivate(navigationContext);
+        _regionPresenter.ProcessActivateAsync(navigationContext);
         navigationContext.CancellationToken.ThrowIfCancellationRequested();
         return Task.CompletedTask;
     }
@@ -159,7 +158,7 @@ internal sealed class RegionNavigationService<T> : IRegionNavigationService<T> w
         if (navigationContext.TryResolveViewAndAware(out var view,out var aware))
         {
             var contextSnapshot = navigationContext;
-            WeakUnloadObserver.Subscribe(aware, a =>
+            WeakUnloadObserver.Subscribe(aware,async a =>
             {
                 if (Current.HasValue)
                 {
@@ -167,7 +166,7 @@ internal sealed class RegionNavigationService<T> : IRegionNavigationService<T> w
                         _current = null;
                 }
 
-                _regionPresenter.ProcessDeactivate(contextSnapshot);
+                await _regionPresenter.ProcessDeactivateAsync(contextSnapshot);
             });
             await aware.OnNavigatedToAsync(navigationContext);
             navigationContext.CancellationToken.ThrowIfCancellationRequested();

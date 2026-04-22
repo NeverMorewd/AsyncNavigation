@@ -8,5 +8,5 @@
         x:Class="Sample.Avalonia.Views.AWindow"
         xmlns:views="using:Sample.Avalonia.Views"
         Title="AWindow">
-  <views:AView/>
+  <views:LightView/>
 </Window>

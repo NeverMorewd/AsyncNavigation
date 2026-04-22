@@ -14,9 +14,10 @@ public class ListBoxRegion : ItemsRegion
     {
         _listBox = listBox;
     }
-    public override void ProcessActivate(NavigationContext navigationContext)
+    public override Task ProcessActivateAsync(NavigationContext navigationContext)
     {
-        base.ProcessActivate(navigationContext);
+        base.ProcessActivateAsync(navigationContext);
         _listBox.ScrollIntoView(navigationContext);
+        return Task.CompletedTask;
     }
 }

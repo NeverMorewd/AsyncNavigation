@@ -4,6 +4,8 @@ using AsyncNavigation.Core;
 using AsyncNavigation.Wpf;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using System.Diagnostics.CodeAnalysis;
+using System.Windows;
+using System.Windows.Controls;
 
 namespace Microsoft.Extensions.DependencyInjection;
 
@@ -56,6 +58,8 @@ public static class DependencyInjectionExtensions
             .RegisterRegionAdapter<TabRegionAdapter>()
             .AddTransient<IInnerRegionIndicatorHost, InnerIndicatorHost>()
             .AddSingleton<RegionManager>()
+            .AddTransient<IIconResolver<FrameworkElement>, IconResolver>()
+            .AddSingleton<IconDescriptorConverter>()
             .AddSingleton<IRegionManager>(sp => sp.GetRequiredService<RegionManager>())
             .RegisterDialogContainer<DefaultDialogContainer>(NavigationConstants.DEFAULT_DIALOG_WINDOW_KEY)
             .AddSingleton<IPlatformService, PlatformService>();
@@ -110,5 +114,18 @@ public static class DependencyInjectionExtensions
     {
         serviceDescriptors.TryAddTransient<IInnerIndicatorProvider, T>();
         return serviceDescriptors;
+    }
+
+
+    /// <summary>
+    /// Override default IconResolver
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
+    /// <param name="serviceDescriptors"></param>
+    /// <returns></returns>
+    public static IServiceCollection RegisterIconResolver<[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicConstructors)] T>(this IServiceCollection serviceDescriptors)
+        where T : class, IIconResolver<FrameworkElement>
+    {
+        return serviceDescriptors.AddTransient<IIconResolver<FrameworkElement>, T>();
     }
 }

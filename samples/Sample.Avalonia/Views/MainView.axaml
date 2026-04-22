@@ -45,71 +45,79 @@
                         </StackPanel>
                         <Button
                             Classes="Navigation"
-                            Content="ToA"
-                            Tag="AView" />
+                            Content="ToLightView"
+                            Tag="LightView" />
                         <Button
                             Classes="Navigation"
-                            Content="ToE"
-                            Tag="EView" />
+                            Content="ToHeavyView"
+                            Tag="HeavyView" />
                         <Button
                             Classes="Navigation"
-                            Content="ToE:Delay"
-                            Tag="EView:Delay" />
+                            Content="ToHeavyView:Delay"
+                            Tag="HeavyView:Delay" />
                         <Button
                             Classes="Navigation"
-                            Content="ToA:New"
-                            Tag="AView:New" />
+                            Content="ToLightView:New"
+                            Tag="LightView:New" />
                         <Button
                             Classes="Navigation"
-                            Content="ToE:Error"
-                            Tag="EView:Error" />
+                            Content="ToHeavyView:Error"
+                            Tag="HeavyView:Error" />
                         <Button
                             Classes="NavigationAndForget"
-                            Content="ToA:Forget;New"
-                            Tag="AView:New" />
+                            Content="ToLightView:Forget;New"
+                            Tag="LightView:New" />
                         <Button
                             Classes="NavigationAndForget"
-                            Content="ToE:Forget;Delay"
-                            Tag="EView:Delay" />
+                            Content="ToHeavyView:Forget;Delay"
+                            Tag="HeavyView:Delay" />
                         <Button
                             Classes="Navigation"
-                            Content="ToB:ItemsRegion"
-                            Tag="BView" />
+                            Content="ToItemsRegionView"
+                            Tag="ItemsRegionView" />
                         <Button
                             Classes="Navigation"
-                            Content="ToD:TabRegion"
-                            Tag="DView" />
+                            Content="ToTabRegionView"
+                            Tag="TabRegionView" />
                         <Button
                             Classes="Navigation"
-                            Content="ToC:ChildContentRegion"
-                            Tag="CView" />
+                            Content="ToChildContentRegionView"
+                            Tag="ChildContentRegionView" />
                         <Button
                             Classes="Navigation"
                             Content="ToListBoxRegionView"
                             Tag="ListBoxRegionView" />
                         <Button
-                            Classes="DialogShow"
-                            Content="ToA:Dialog.Show"
-                            Tag="AView" />
+                            Classes="Navigation"
+                            Content="ToNavigationPage"
+                            Tag="NavigationPageView" />
+                        <Button
+                            Classes="Navigation"
+                            Content="ToTabbedPage"
+                            Tag="TabbedPageView" />
                         <Button
                             Classes="DialogShow"
-                            Content="ToE:Dialog.Show"
-                            Tag="EView" />
+                            Content="ToLightView:Dialog.Show"
+                            Tag="LightView" />
+                        <Button
+                            Classes="DialogShow"
+                            Content="ToHeavyView:Dialog.Show"
+                            Tag="HeavyView" />
                         <Button
                             Classes="DialogShowDialog"
-                            Content="ToA:Dialog.ShowDialog"
-                            Tag="AView" />
+                            Content="ToLightView:Dialog.ShowDialog"
+                            Tag="LightView" />
                         <Button
                             Classes="DialogShowDialogAsync"
-                            Content="ToE:Dialog.AsyncShowDialog"
-                            Tag="EView" />
+                            Content="ToHeavyView:Dialog.AsyncShowDialog"
+                            Tag="HeavyView" />
                         <Button
                             Classes="DialogShowDialogAsyncWithCancelling"
-                            Content="ToA:Dialog.ShowDialogWithCancelling"
-                            Tag="AView" />
+                            Content="ToLightView:Dialog.ShowDialogWithCancelling"
+                            Tag="LightView" />
                         <Button
                             Classes="WindowShow"
-                            Content="ToA:Window.Show"
+                            Content="ToLightView:Window.Show"
                             Tag="AWindow" />
                         <Button
                             Command="{Binding CollectCommand}"
@@ -124,8 +132,8 @@
             </DockPanel>
         </SplitView>
         <SelectableTextBlock
+            Name="footer"
             Grid.Row="1"
-			Name="footer"
             HorizontalAlignment="Center"
             VerticalAlignment="Center" />
     </Grid>

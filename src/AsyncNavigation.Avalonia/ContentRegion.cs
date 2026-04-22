@@ -45,13 +45,15 @@ public class ContentRegion : RegionBase<ContentRegion, ContentControl>
         });
     }
 
-    public override void ProcessActivate(NavigationContext navigationContext)
+    public override Task ProcessActivateAsync(NavigationContext navigationContext)
     {
         _context.Selected = navigationContext;
+        return Task.CompletedTask;
     }
 
-    public override void ProcessDeactivate(NavigationContext? navigationContext)
+    public override Task ProcessDeactivateAsync(NavigationContext? navigationContext)
     {
         _context.Selected = null;
+        return Task.CompletedTask;
     }
 }
