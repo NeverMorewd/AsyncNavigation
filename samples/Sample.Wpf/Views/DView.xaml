@@ -53,6 +53,7 @@
                 <TabControl.ItemTemplate>
                     <DataTemplate>
                         <StackPanel Margin="2" Orientation="Horizontal">
+                            <ContentControl Content="{Binding Target.Value.DataContext.Icon, Converter={StaticResource IconDescriptorConverter}}" />
                             <TextBlock VerticalAlignment="Center" Text="{Binding ViewName}" />
                             <Button
                                 Margin="10"

@@ -30,11 +30,13 @@
                 <ItemsControl ItemsSource="{Binding HeavyItems}">
                     <ItemsControl.ItemTemplate>
                         <DataTemplate>
-                            <DockPanel LastChildFill="True">
-                                <ComboBox Width="50" />
-                                <Expander Width="50" />
-                                <DatePicker Width="50" />
-                            </DockPanel>
+                            <Border BorderBrush="Black" BorderThickness="1">
+                                <DockPanel LastChildFill="True">
+                                    <ComboBox Width="50" />
+                                    <Expander Width="50" />
+                                    <DatePicker Width="50" />
+                                </DockPanel>
+                            </Border>
                         </DataTemplate>
                     </ItemsControl.ItemTemplate>
                     <ItemsControl.ItemsPanel>

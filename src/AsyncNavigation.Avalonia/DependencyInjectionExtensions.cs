@@ -2,6 +2,7 @@
 using AsyncNavigation.Abstractions;
 using AsyncNavigation.Avalonia;
 using AsyncNavigation.Core;
+using Avalonia.Controls;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using System.Diagnostics.CodeAnalysis;
 
@@ -54,6 +55,9 @@ public static class DependencyInjectionExtensions
             .RegisterRegionAdapter<ItemsRegionAdapter>()
             .RegisterRegionAdapter<TabRegionAdapter>()
             .RegisterRegionAdapter<NavigationPageRegionAdapter>()
+            .RegisterRegionAdapter<TabbedPageRegionAdapter>()
+            .AddTransient<IIconResolver<Control>,IconResolver>()
+            .AddSingleton<IconDescriptorConverter>()
             .AddTransient<IInnerRegionIndicatorHost, InnerIndicatorHost>()
             .AddSingleton<IRegionManager, RegionManager>()
             .RegisterDialogContainer<DefaultDialogContainer>(NavigationConstants.DEFAULT_DIALOG_WINDOW_KEY)

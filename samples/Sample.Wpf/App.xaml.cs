@@ -1,4 +1,5 @@
 ﻿using AsyncNavigation.Core;
+using AsyncNavigation.Wpf;
 using Microsoft.Extensions.DependencyInjection;
 using ReactiveUI;
 using Sample.Avalonia;
@@ -57,7 +58,8 @@ namespace Sample.Wpf
 
             var sp = services.BuildServiceProvider();
             base.OnStartup(e);
-
+            var converter = sp.GetRequiredService<IconDescriptorConverter>();
+            Application.Current.Resources[nameof(IconDescriptorConverter)] = converter;
             var mainWindow = new MainWindow
             {
                 DataContext = sp.GetRequiredService<MainWindowViewModel>()

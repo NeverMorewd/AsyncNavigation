@@ -1,4 +1,5 @@
 ﻿using AsyncNavigation;
+using AsyncNavigation.Avalonia;
 using AsyncNavigation.Core;
 using Avalonia;
 using Avalonia.Controls;
@@ -36,6 +37,7 @@ public partial class App : Application
                 .RegisterView<DView, DViewModel>(nameof(DView))
                 .RegisterView<HeavyView, HeavyViewModel>(nameof(HeavyView))
                 .RegisterView<NavigationPageView, AViewModel>(nameof(NavigationPageView))
+                .RegisterView<TabbedPageView, AViewModel>(nameof(TabbedPageView))
                 .RegisterView<ListBoxRegionView, ListBoxRegionViewModel>(nameof(ListBoxRegionView))
                 .RegisterDialogWindow<AWindow, AViewModel>(nameof(AWindow))
                 .RegisterRegionIndicatorProvider<NotifyIndicatorProvider>()
@@ -63,6 +65,10 @@ public partial class App : Application
                           .WithFallback(new NavigationTarget("MainRegion", "AView"));
                 });
         var sp = services.BuildServiceProvider();
+
+        var converter = sp.GetRequiredService<IconDescriptorConverter>();
+        Resources[nameof(IconDescriptorConverter)] = converter;
+
         #region setup lifetime
 
 

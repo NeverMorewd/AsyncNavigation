@@ -7,7 +7,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="ReactiveUI"/>
+    <PackageReference Include="ReactiveUI" />
     <PackageReference Include="ReactiveUI.SourceGenerators">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
@@ -16,6 +16,12 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\src\AsyncNavigation\AsyncNavigation.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="Icon.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
 
 </Project>

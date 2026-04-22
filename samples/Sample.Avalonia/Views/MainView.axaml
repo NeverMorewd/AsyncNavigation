@@ -92,6 +92,10 @@
                             Content="ToNavigationPage"
                             Tag="NavigationPageView" />
                         <Button
+                            Classes="Navigation"
+                            Content="ToTabbedPage"
+                            Tag="TabbedPageView" />
+                        <Button
                             Classes="DialogShow"
                             Content="ToA:Dialog.Show"
                             Tag="AView" />

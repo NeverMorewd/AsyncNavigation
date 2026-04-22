@@ -6,7 +6,7 @@ using System.Collections.ObjectModel;
 
 namespace Sample.Common;
 
-public partial class HeavyViewModel : InstanceCounterViewModel<HeavyViewModel>, IDialogAware
+public partial class HeavyViewModel : InstanceCounterViewModel<HeavyViewModel>, IDialogAware, INavigationMetadata
 {
     public ObservableCollection<byte> HeavyItems
     {
@@ -14,6 +14,8 @@ public partial class HeavyViewModel : InstanceCounterViewModel<HeavyViewModel>, 
     } = [];
 
     public string Title => $"{nameof(HeavyViewModel)}:{InstanceNumber}";
+
+    public IconDescriptor Icon => IconDescriptor.FromPathData("M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z");
 
     public event AsyncEventHandler<DialogCloseEventArgs>? RequestCloseAsync;
 

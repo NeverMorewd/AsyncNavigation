@@ -4,13 +4,15 @@ using ReactiveUI.SourceGenerators;
 
 namespace Sample.Common;
 
-public partial class AViewModel : InstanceCounterViewModel<AViewModel>, IDialogAware
+public partial class AViewModel : InstanceCounterViewModel<AViewModel>, IDialogAware, INavigationMetadata
 {
     private readonly IRegionManager _regionManager;
 
     public event AsyncEventHandler<DialogCloseEventArgs>? RequestCloseAsync;
 
     public string Title => $"{nameof(AViewModel)}:{InstanceNumber}";
+
+    public IconDescriptor Icon => IconDescriptor.FromFile("Icon.png");
 
     public AViewModel(IRegionManager regionManager)
     {
@@ -43,6 +45,12 @@ public partial class AViewModel : InstanceCounterViewModel<AViewModel>, IDialogA
     {
         var (viewName, parameters) = SampleHelper.ParseNavigationParam(param);
         var ret = await _regionManager.RequestNavigateAsync("NavigationPageRegion", viewName);
+    }
+    [ReactiveCommand]
+    private async Task AsyncTabbedPageNavigate(string param)
+    {
+        var (viewName, parameters) = SampleHelper.ParseNavigationParam(param);
+        var ret = await _regionManager.RequestNavigateAsync("TabbedPageRegion", viewName);
     }
     public async Task OnDialogOpenedAsync(IDialogParameters? parameters, CancellationToken cancellationToken)
     {
