@@ -21,7 +21,7 @@ internal sealed class Program
         => AppBuilder.Configure<App>()
             .UsePlatformDetect()
             .WithInterFont()
-            .UseReactiveUI()
+            .UseReactiveUI(_ => { })
             .LogToTrace();
 
     [DllImport("kernel32", SetLastError = true, CharSet = CharSet.Unicode)]
