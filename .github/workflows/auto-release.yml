@@ -20,7 +20,7 @@
 # Required repository permissions:
 #   Settings → Actions → Workflow permissions → "Read and write permissions"
 # ─────────────────────────────────────────────────────────────────────────────
-name: Release
+name: Auto-Release
 
 on:
   push:

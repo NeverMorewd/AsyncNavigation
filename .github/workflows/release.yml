@@ -21,7 +21,7 @@
 # Required repository permissions:
 #   Settings → Actions → Workflow permissions → "Read and write permissions"
 # ─────────────────────────────────────────────────────────────────────────────
-name: Release
+name: Manual-Release
 
 on:
   workflow_dispatch:
