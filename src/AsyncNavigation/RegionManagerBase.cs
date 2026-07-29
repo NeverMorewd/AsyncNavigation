@@ -7,7 +7,7 @@ using System.Diagnostics.CodeAnalysis;
 
 namespace AsyncNavigation;
 
-public abstract class RegionManagerBase : IRegionManager, IDisposable
+public abstract class RegionManagerBase : IRegionManager
 {
     private static readonly object _staticLock = new();
     private static RegionManagerBase? _current;

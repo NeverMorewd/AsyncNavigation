@@ -74,7 +74,7 @@ public partial class MainWindowViewModel : ViewModelBase
     public string FooterText => $"Powered by .NET {Environment.Version} • {RuntimeInformation.OSDescription}";
 
     [Reactive]
-    private bool _isSplitViewPaneOpen = false;
+    private bool _isSplitViewPaneOpen = true;
     public IObservable<bool> SupportDialog { get; } = Observable.Return(!OperatingSystem.IsBrowser());
 
     public ObservableCollection<string> Views { get; }

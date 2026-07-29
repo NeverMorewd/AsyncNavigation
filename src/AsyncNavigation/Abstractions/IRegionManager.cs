@@ -3,7 +3,7 @@ using System.Diagnostics.CodeAnalysis;
 
 namespace AsyncNavigation.Abstractions;
 
-public interface IRegionManager
+public interface IRegionManager : IDisposable
 {
     IReadOnlyDictionary<string, IRegion> Regions { get; }
     void AddRegion(string regionName, IRegion region);

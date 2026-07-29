@@ -1,5 +1,4 @@
-using AsyncNavigation.Abstractions;
-using AsyncNavigation.Core;
+﻿using AsyncNavigation.Tests.Infrastructure;
 
 namespace AsyncNavigation.Tests;
 

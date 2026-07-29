@@ -1,7 +1,7 @@
-using AsyncNavigation.Abstractions;
+﻿using AsyncNavigation.Abstractions;
 using AsyncNavigation.Core;
 
-namespace AsyncNavigation;
+namespace AsyncNavigation.Tests.Infrastructure;
 
 /// <summary>
 /// Abstract base class that provides no-op default implementations of all
