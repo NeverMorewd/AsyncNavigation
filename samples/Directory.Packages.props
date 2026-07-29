@@ -2,7 +2,7 @@
   <PropertyGroup>
     <ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
     <AvaloniaVersion>12.1.0</AvaloniaVersion>
-    <SkiaSharpVersion>3.119.3-preview.1.1</SkiaSharpVersion>
+    <SkiaSharpVersion>4.150.1</SkiaSharpVersion>
   </PropertyGroup>
   <ItemGroup>
     <PackageVersion Include="Avalonia" Version="$(AvaloniaVersion)" />
@@ -16,10 +16,10 @@
     <PackageVersion Include="AvaloniaUI.DiagnosticsSupport" Version="2.2.3" />
     <PackageVersion Include="SkiaSharp" Version="$(SkiaSharpVersion)" />
     <PackageVersion Include="SkiaSharp.NativeAssets.WebAssembly" Version="$(SkiaSharpVersion)" />
-    <PackageVersion Include="Xamarin.AndroidX.Core.SplashScreen" Version="1.2.0.2" />
+    <PackageVersion Include="Xamarin.AndroidX.Core.SplashScreen" Version="1.2.0.3" />
     <PackageVersion Include="ReactiveUI.Avalonia" Version="12.0.1" />
     <PackageVersion Include="Microsoft.Extensions.DependencyInjection" Version="10.0.6" />
-    <PackageVersion Include="Pipboy.Avalonia" Version="0.0.4-beta" />
+    <PackageVersion Include="Pipboy.Avalonia" Version="1.0.0" />
     <PackageVersion Include="ReactiveUI" Version="22.2.1" />
     <PackageVersion Include="ReactiveUI.SourceGenerators" Version="2.5.1" />
     <PackageVersion Include="ReactiveUI.WPF" Version="23.2.19" />
