@@ -1,0 +1,72 @@
+﻿using AsyncNavigation.Core;
+using Microsoft.UI.Xaml.Controls;
+using System;
+using System.Threading.Tasks;
+
+namespace AsyncNavigation.WinUI;
+
+public partial class ItemsRegion : RegionBase<ItemsRegion, ItemsControl>
+{
+    public ItemsRegion(string name,
+        ItemsControl itemsControl, 
+        IServiceProvider serviceProvider, 
+        bool? useCache) : base(name, itemsControl, serviceProvider)
+    {
+        EnableViewCache = useCache ?? false;
+        IsSinglePageRegion = false;
+    }
+    public override NavigationPipelineMode NavigationPipelineMode
+    {
+        get => NavigationPipelineMode.RenderFirst;
+    }
+
+    protected override void InitializeOnRegionCreated(ItemsControl control)
+    {
+        base.InitializeOnRegionCreated(control);
+        control.Tag = this;
+        control.SetBinding(ItemsControl.ItemsSourceProperty,
+            new Binding(nameof(RegionContext.Items))
+            {
+                Source = _context
+            });
+
+        control.SetBinding(Selector.SelectedItemProperty,
+            new Binding(nameof(RegionContext.Selected))
+            {
+                Source = _context,
+                Mode = BindingMode.TwoWay
+            });
+
+        var dataTemplate = new DataTemplate
+        {
+            VisualTree = new FrameworkElementFactory(typeof(ContentPresenter))
+        };
+        dataTemplate.VisualTree.SetBinding(ContentPresenter.ContentProperty,
+            new Binding("IndicatorHost.Value.Host"));
+
+        control.ItemTemplate = dataTemplate;
+    }
+
+    public override void Dispose()
+    {
+        base.Dispose();
+        _context.Clear();
+    }
+    public override Task ProcessActivateAsync(NavigationContext navigationContext)
+    {
+        if (!_context.Items.Contains(navigationContext))
+            _context.Items.Add(navigationContext);
+        _context.Selected = navigationContext;
+
+        return Task.CompletedTask;
+    }
+
+    public override Task ProcessDeactivateAsync(NavigationContext? navigationContext)
+    {
+        var target = navigationContext ?? _context.Selected;
+        if (target == null)
+            return Task.CompletedTask;
+        _ = _context.Items.Remove(target);
+        return Task.CompletedTask;
+    }
+}

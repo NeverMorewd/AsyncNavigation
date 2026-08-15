@@ -1,0 +1,78 @@
+﻿using AsyncNavigation.Core;
+using Microsoft.UI.Xaml;
+using System;
+using System.Threading.Tasks;
+
+namespace AsyncNavigation.WinUI;
+
+internal class PlatformService : PlatformServiceBase<Window>
+{
+    public override T WaitOnDispatcher<T>(Task<T> task)
+    {
+        return WaitOnDispatcherFrame(task);
+    }
+
+    public override void WaitOnDispatcher(Task task)
+    {
+        WaitOnDispatcherFrame(task);
+    }
+    public override void Show(Window window, bool isModal)
+    {
+        ArgumentNullException.ThrowIfNull(window);
+
+        if (isModal)
+        {
+            window.ShowDialog();
+        }
+        else
+        {
+            window.Show();
+        }
+    }
+
+    public override Task ShowAsync(Window window, bool isModal)
+    {
+        Show(window, isModal);
+        return Task.CompletedTask;
+    }
+
+    private static T WaitOnDispatcherFrame<T>(Task<T> task)
+    {
+        if (!task.IsCompleted)
+        {
+            var frame = new DispatcherFrame();
+            task.ContinueWith(static (_, s) => ((DispatcherFrame)s!).Continue = false, frame);
+            Dispatcher.PushFrame(frame);
+        }
+        return task.GetAwaiter().GetResult();
+    }
+
+    private static void WaitOnDispatcherFrame(Task task)
+    {
+        if (!task.IsCompleted)
+        {
+            var frame = new DispatcherFrame();
+            task.ContinueWith(static (_, s) => ((DispatcherFrame)s!).Continue = false, frame);
+            Dispatcher.PushFrame(frame);
+        }
+        task.GetAwaiter().GetResult();
+    }
+
+    public override Action AttachClosingCore(Window window, Action<object?, WindowClosingEventArgs> handler)
+    {
+        System.ComponentModel.CancelEventHandler wrapper = (s, e) =>
+        {
+            var args = new WindowClosingEventArgs { Cancel = e.Cancel };
+            handler(s, args);
+            e.Cancel = args.Cancel;
+        };
+        window.Closing += wrapper;
+        return () => window.Closing -= wrapper;
+    }
+
+    public override void ShowMainWindow(Window mainWindow)
+    {
+        Application.Current.MainWindow = mainWindow;
+        mainWindow.Show();
+    }
+}
