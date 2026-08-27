@@ -13,7 +13,7 @@ internal class PlatformService : PlatformServiceBase<Window>
         Microsoft.UI.Dispatching.DispatcherQueue.GetForCurrentThread()
         ?? throw new InvalidOperationException("AddNavigationSupport must be called on the WinUI UI thread.");
 
-    public void PostToUIThread(Action action)
+    public override void PostToUIThread(Action action)
     {
         ArgumentNullException.ThrowIfNull(action);
         // Always enqueue, even when already on the UI thread. Closing a WinUI

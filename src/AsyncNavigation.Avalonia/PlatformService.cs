@@ -150,4 +150,9 @@ internal class PlatformService : PlatformServiceBase<Window>
         classicDesktopStyleApplicationLifetime = null;
         return false;
     }
+
+    public override void PostToUIThread(Action action)
+    {
+        Dispatcher.UIThread.Post(action);
+    }
 }
