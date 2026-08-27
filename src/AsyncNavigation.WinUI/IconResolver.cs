@@ -2,10 +2,12 @@
 using AsyncNavigation.Core;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
+using Microsoft.UI.Xaml.Markup;
+using Microsoft.UI.Xaml.Media;
 using Microsoft.UI.Xaml.Media.Imaging;
+using Microsoft.UI.Xaml.Shapes;
 using System;
 using System.Collections.Generic;
-using System.IO;
 
 namespace AsyncNavigation.WinUI;
 
@@ -44,26 +46,19 @@ public class IconResolver : IIconResolver<FrameworkElement>
         };
     }
 
-    protected virtual Path? ResolvePathData(string data, double size)
+    protected virtual Microsoft.UI.Xaml.Shapes.Path? ResolvePathData(string data, double size)
     {
         if (string.IsNullOrWhiteSpace(data)) return null;
 
-        var path = new Path
+        var geometry = (Geometry)XamlReader.Load($"<Geometry xmlns='http://schemas.microsoft.com/winfx/2006/xaml/presentation'>{data}</Geometry>");
+        var path = new Microsoft.UI.Xaml.Shapes.Path
         {
-            Data = Geometry.Parse(data),
+            Data = geometry,
             Width = size,
             Height = size,
             Stretch = Stretch.Uniform,
+            Fill = ResolvePathFill(),
         };
-
-        // Bind Fill to ancestor Foreground so it follows theme color automatically
-        path.SetBinding(Path.FillProperty, new Binding("Foreground")
-        {
-            RelativeSource = new RelativeSource(
-                RelativeSourceMode.FindAncestor,
-                typeof(Control),
-                1)
-        });
 
         return path;
     }
@@ -83,23 +78,17 @@ public class IconResolver : IIconResolver<FrameworkElement>
     {
         if (Application.Current is null) return null;
 
-        var resource = Application.Current.TryFindResource(resourceKey);
-        if (resource is null) return null;
+        if (!Application.Current.Resources.TryGetValue(resourceKey, out var resource)) return null;
 
         return resource switch
         {
-            Geometry geometry => new Path
+            Geometry geometry => new Microsoft.UI.Xaml.Shapes.Path
             {
                 Data = geometry,
                 Width = size,
                 Height = size,
                 Stretch = Stretch.Uniform,
-            },
-            DrawingImage drawing => new Image
-            {
-                Source = drawing,
-                Width = size,
-                Height = size
+                Fill = ResolvePathFill(),
             },
             ImageSource imageSource => new Image
             {
@@ -110,5 +99,16 @@ public class IconResolver : IIconResolver<FrameworkElement>
             string pathData => ResolvePathData(pathData, size),
             _ => null
         };
+    }
+
+    private static Brush ResolvePathFill()
+    {
+        if (Application.Current?.Resources.TryGetValue("TextFillColorPrimaryBrush", out var resource) == true
+            && resource is Brush brush)
+        {
+            return brush;
+        }
+
+        return new SolidColorBrush(Microsoft.UI.Colors.Black);
     }
 }

@@ -5,7 +5,5 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:local="clr-namespace:AsyncNavigation.WinUI"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-    Title="{Binding Title}"
-    Width="800"
-    Height="450"
+    Title="AsyncNavigation Dialog"
     mc:Ignorable="d" />

@@ -25,6 +25,9 @@
     <Project Path="../samples/Sample.Wpf.InfinityNavigation/Sample.Wpf.InfinityNavigation.csproj" />
     <Project Path="../samples/Sample.Wpf/Sample.Wpf.csproj" />
   </Folder>
+  <Folder Name="/samples/winui/">
+    <Project Path="../samples/Sample.WinUI/Sample.WinUI.csproj" />
+  </Folder>
   <Folder Name="/Solution Items/">
     <File Path=".editorconfig" />
   </Folder>

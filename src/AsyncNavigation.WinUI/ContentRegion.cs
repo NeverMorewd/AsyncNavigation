@@ -25,6 +25,8 @@ public partial class ContentRegion : RegionBase<ContentRegion, ContentControl>
     {
         base.InitializeOnRegionCreated(control);
         control.Tag = this;
+        control.HorizontalContentAlignment = Microsoft.UI.Xaml.HorizontalAlignment.Stretch;
+        control.VerticalContentAlignment = Microsoft.UI.Xaml.VerticalAlignment.Stretch;
         control.SetBinding(ContentControl.ContentProperty, new Binding
         {
             Path = new Microsoft.UI.Xaml.PropertyPath(nameof(RegionContext.Selected)),

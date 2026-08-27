@@ -232,7 +232,7 @@ public class DialogService : IDialogService
                 args.CancellationToken.ThrowIfCancellationRequested();
 
                 closeState.SetResult(args.DialogResult);
-                dialogWindow.Close();
+                _platformService.PostToUIThread(dialogWindow.Close);
             }
             catch (OperationCanceledException)
             {
@@ -253,7 +253,7 @@ public class DialogService : IDialogService
                 await dialogAware.OnDialogClosingAsync(state, CancellationToken.None);
 
                 closeState.SetResult(state);
-                CloseOnUIThread(dialogWindow);
+                _platformService.PostToUIThread(dialogWindow.Close);
             }
             catch (OperationCanceledException)
             {
@@ -266,7 +266,7 @@ public class DialogService : IDialogService
             catch (Exception)
             {
                 closeState.SetResultIfNotSet(new DialogResult(DialogButtonResult.None));
-                dialogWindow.Close();
+                _platformService.PostToUIThread(dialogWindow.Close);
             }
         }
 
@@ -303,21 +303,6 @@ public class DialogService : IDialogService
             }
         }
     }
-    private static void CloseOnUIThread(IDialogWindowBase dialogWindow)
-    {
-        if (SynchronizationContext.Current is not null)
-        {
-            SynchronizationContext.Current.Post(_ => dialogWindow.Close(), null);
-        }
-        else
-        {
-            throw new NotSupportedException(
-                "Cannot close the window on the current thread: no SynchronizationContext detected. " +
-                "This operation must be performed on the UI thread. " +
-                "Please switch to the UI thread using Dispatcher or an appropriate synchronization context before calling this method.");
-        }
-    }
-
     private class DialogCloseState
     {
         private IDialogResult? _result;

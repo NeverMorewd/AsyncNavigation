@@ -1,5 +1,6 @@
 ﻿using AsyncNavigation;
 using AsyncNavigation.Abstractions;
+using AsyncNavigation.Core;
 using AsyncNavigation.WinUI;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.UI.Xaml;
@@ -54,6 +55,7 @@ public static class DependencyInjectionExtensions
             .RegisterRegionAdapter<ContentRegionAdapter>()
             .RegisterRegionAdapter<ItemsRegionAdapter>()
             .RegisterRegionAdapter<TabRegionAdapter>()
+            .RegisterRegionAdapter<NavigationViewRegionAdapter>()
             .AddTransient<IInnerRegionIndicatorHost, InnerIndicatorHost>()
             .AddSingleton<RegionManager>()
             .AddTransient<IIconResolver<FrameworkElement>, IconResolver>()

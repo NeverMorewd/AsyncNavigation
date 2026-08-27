@@ -155,6 +155,12 @@ public partial class MainWindowViewModel : ViewModelBase
         var result = _dialogService.ShowWindowDialog(param);
     }
 
+    [ReactiveCommand(CanExecute = nameof(SupportDialog))]
+    private async Task AsyncShowWindow(string param)
+    {
+        await _dialogService.ShowWindowDialogAsync(param);
+    }
+
     [ReactiveCommand]
     private async Task GoForward()
     {

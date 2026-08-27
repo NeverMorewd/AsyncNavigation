@@ -1,0 +1,26 @@
+<UserControl
+    x:Class="Sample.WinUI.Views.NavigationViewRegionView"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:an="using:AsyncNavigation.WinUI">
+    <Grid>
+        <NavigationView
+            x:Name="NavigationHost"
+            AutomationProperties.Name="NavigationView region host"
+            an:RegionManager.RegionName="NavigationViewRegion"
+            AlwaysShowHeader="True"
+            IsBackButtonVisible="Visible"
+            IsSettingsVisible="False"
+            PaneDisplayMode="Auto"
+            PaneTitle="Region navigation">
+            <NavigationView.MenuItems>
+                <NavigationViewItem Content="Light view" Icon="Home" Tag="LightView" />
+                <NavigationViewItem Content="Views" Icon="AllApps" IsExpanded="True">
+                    <NavigationViewItem.MenuItems>
+                        <NavigationViewItem Content="Heavy view" Icon="Document" Tag="HeavyView" />
+                    </NavigationViewItem.MenuItems>
+                </NavigationViewItem>
+            </NavigationView.MenuItems>
+        </NavigationView>
+    </Grid>
+</UserControl>

@@ -1,6 +1,6 @@
 ﻿using AsyncNavigation.Abstractions;
 using System;
-using System.Windows;
+using Microsoft.UI.Xaml;
 
 namespace AsyncNavigation.WinUI;
 
@@ -31,7 +31,15 @@ public sealed class RegionManager : RegionManagerBase
 
         var serviceProvider = GetServiceProvider(d);
         var preferCache = GetPreferCache(d);
-        OnAddRegionNameCore(name, d, serviceProvider, preferCache);
+        try
+        {
+            OnAddRegionNameCore(name, d, serviceProvider, preferCache);
+        }
+        catch (Exception ex)
+        {
+            throw new InvalidOperationException(
+                $"Failed to create WinUI region '{name}' for control '{d.GetType().FullName}'.", ex);
+        }
     }
 
     public static string GetRegionName(DependencyObject obj)

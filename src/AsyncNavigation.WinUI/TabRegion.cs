@@ -1,11 +1,16 @@
 ﻿using AsyncNavigation.Core;
 
+using Microsoft.UI.Xaml.Controls;
+using Microsoft.UI.Xaml.Data;
+using System;
+using System.Threading.Tasks;
+
 namespace AsyncNavigation.WinUI;
 
-public class TabRegion : RegionBase<TabRegion, TabControl>
+public class TabRegion : RegionBase<TabRegion, TabView>
 {
     public TabRegion(string name, 
-        TabControl tabControl, 
+        TabView tabControl,
         IServiceProvider serviceProvider, 
         bool? useCache = null) : base(name, tabControl, serviceProvider)
     {
@@ -17,31 +22,26 @@ public class TabRegion : RegionBase<TabRegion, TabControl>
         get => NavigationPipelineMode.ResolveFirst;
     }
 
-    protected override void InitializeOnRegionCreated(TabControl control)
+    protected override void InitializeOnRegionCreated(TabView control)
     {
         base.InitializeOnRegionCreated(control);
         control.Tag = this;
-        control.SetBinding(ItemsControl.ItemsSourceProperty,
-            new Binding(nameof(RegionContext.Items))
+        control.SetBinding(TabView.TabItemsSourceProperty,
+            new Binding
             {
+                Path = new Microsoft.UI.Xaml.PropertyPath(nameof(RegionContext.Items)),
                 Source = _context
             });
 
-        control.SetBinding(Selector.SelectedItemProperty,
-            new Binding(nameof(RegionContext.Selected))
+        control.SetBinding(TabView.SelectedItemProperty,
+            new Binding
             {
+                Path = new Microsoft.UI.Xaml.PropertyPath(nameof(RegionContext.Selected)),
                 Source = _context,
                 Mode = BindingMode.TwoWay
             });
 
-        var dataTemplate = new DataTemplate
-        {
-            VisualTree = new FrameworkElementFactory(typeof(ContentPresenter))
-        };
-        dataTemplate.VisualTree.SetBinding(ContentPresenter.ContentProperty,
-            new Binding("IndicatorHost.Value.Host"));
-
-        control.ContentTemplate = dataTemplate;
+        control.TabItemTemplate = XamlTemplateHelper.CreateTabItemTemplate();
     }
 
     public override void Dispose()

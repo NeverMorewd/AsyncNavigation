@@ -1,5 +1,7 @@
 ﻿using AsyncNavigation.Core;
 using Microsoft.UI.Xaml.Controls;
+using Microsoft.UI.Xaml.Controls.Primitives;
+using Microsoft.UI.Xaml.Data;
 using System;
 using System.Threading.Tasks;
 
@@ -24,27 +26,25 @@ public partial class ItemsRegion : RegionBase<ItemsRegion, ItemsControl>
     {
         base.InitializeOnRegionCreated(control);
         control.Tag = this;
+        control.HorizontalContentAlignment = Microsoft.UI.Xaml.HorizontalAlignment.Stretch;
+        control.VerticalContentAlignment = Microsoft.UI.Xaml.VerticalAlignment.Stretch;
         control.SetBinding(ItemsControl.ItemsSourceProperty,
-            new Binding(nameof(RegionContext.Items))
+            new Binding
             {
+                Path = new Microsoft.UI.Xaml.PropertyPath(nameof(RegionContext.Items)),
                 Source = _context
             });
 
-        control.SetBinding(Selector.SelectedItemProperty,
-            new Binding(nameof(RegionContext.Selected))
+        if (control is Selector selector)
+            selector.SetBinding(Selector.SelectedItemProperty,
+            new Binding
             {
+                Path = new Microsoft.UI.Xaml.PropertyPath(nameof(RegionContext.Selected)),
                 Source = _context,
                 Mode = BindingMode.TwoWay
             });
 
-        var dataTemplate = new DataTemplate
-        {
-            VisualTree = new FrameworkElementFactory(typeof(ContentPresenter))
-        };
-        dataTemplate.VisualTree.SetBinding(ContentPresenter.ContentProperty,
-            new Binding("IndicatorHost.Value.Host"));
-
-        control.ItemTemplate = dataTemplate;
+        control.ItemTemplate = XamlTemplateHelper.CreateIndicatorHostTemplate();
     }
 
     public override void Dispose()

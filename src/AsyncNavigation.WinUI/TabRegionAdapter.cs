@@ -1,15 +1,16 @@
 ﻿using AsyncNavigation.Abstractions;
-using System.Windows.Controls;
+using Microsoft.UI.Xaml.Controls;
+using System;
 
 namespace AsyncNavigation.WinUI;
 
-public class TabRegionAdapter : RegionAdapterBase<TabControl>
+public class TabRegionAdapter : RegionAdapterBase<TabView>
 {
-    public override bool IsAdapted(TabControl control)
+    public override bool IsAdapted(TabView control)
     {
         return base.IsAdapted(control);
     }
-    public override IRegion CreateRegion(string name, TabControl control, IServiceProvider serviceProvider, bool? useCache = null)
+    public override IRegion CreateRegion(string name, TabView control, IServiceProvider serviceProvider, bool? useCache = null)
     {
        return new TabRegion(name, control, serviceProvider, useCache);
     }
