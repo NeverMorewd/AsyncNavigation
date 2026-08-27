@@ -6,6 +6,7 @@
 [![NuGet](https://img.shields.io/nuget/v/AsyncNavigation.svg?label=Core&color=004880)](https://www.nuget.org/packages/AsyncNavigation)
 [![NuGet](https://img.shields.io/nuget/v/AsyncNavigation.Avalonia.svg?label=Avalonia&color=8b45e0)](https://www.nuget.org/packages/AsyncNavigation.Avalonia)
 [![NuGet](https://img.shields.io/nuget/v/AsyncNavigation.Wpf.svg?label=WPF&color=0078d4)](https://www.nuget.org/packages/AsyncNavigation.Wpf)
+[![WinUI 3](https://img.shields.io/badge/WinUI%203-in%20development-orange)](samples/Sample.WinUI)
 [![License: MIT](https://img.shields.io/github/license/NeverMorewd/AsyncNavigation)](LICENSE)
 [![.NET](https://img.shields.io/badge/.NET-8.0%2B-512BD4)](https://dotnet.microsoft.com)
 
@@ -31,6 +32,19 @@
 
 ---
 
+## Platform Support
+
+| Platform | Status | Package / Sample |
+|---|---|---|
+| Avalonia | Stable | `AsyncNavigation.Avalonia` |
+| WPF | Stable | `AsyncNavigation.Wpf` |
+| WinUI 3 | **In development** | [`Sample.WinUI`](samples/Sample.WinUI) |
+
+> [!WARNING]
+> WinUI 3 support is under active development. It includes content, items, tab, `NavigationView`, dialog, window, and indicator support, but its APIs and behavior may still change. Test it carefully before using it in production.
+
+---
+
 ## Installation
 
 ```bash
@@ -40,6 +54,8 @@ dotnet add package AsyncNavigation.Avalonia
 # WPF
 dotnet add package AsyncNavigation.Wpf
 ```
+
+WinUI 3 is currently available from source and through the repository sample while development continues.
 
 ---
 

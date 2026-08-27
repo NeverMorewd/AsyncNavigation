@@ -74,4 +74,9 @@ internal class PlatformService : PlatformServiceBase<Window>
         Application.Current.MainWindow = mainWindow;
         mainWindow.Show();
     }
+
+    public override void PostToUIThread(Action action)
+    {
+        Application.Current.Dispatcher.BeginInvoke(action);
+    }
 }

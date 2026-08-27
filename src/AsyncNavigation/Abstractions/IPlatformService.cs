@@ -7,4 +7,5 @@ public interface IPlatformService : ITaskExtensionProvider
     void AttachClosing(IDialogWindowBase window, Action<object?, Core.WindowClosingEventArgs> handler);
     void DetachClosing(IDialogWindowBase window, Action<object?, Core.WindowClosingEventArgs> handler) { }
     void ShowMainWindow(object mainWindow);
+    void PostToUIThread(Action action);
 }

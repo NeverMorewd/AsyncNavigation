@@ -1,0 +1,42 @@
+<Page
+    x:Class="Sample.WinUI.MainPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:an="using:AsyncNavigation.WinUI">
+    <Grid ColumnDefinitions="260,*" RowDefinitions="*,Auto">
+        <ScrollViewer Grid.Column="0" Padding="16">
+            <StackPanel Spacing="8">
+                <TextBlock FontSize="24" FontWeight="SemiBold" Text="Navigation" />
+                <ComboBox
+                    Header="Registered view"
+                    ItemsSource="{Binding Views}"
+                    SelectedItem="{Binding SelectedView, Mode=TwoWay}" />
+                <Button Command="{Binding GoBackCommand}" Content="Go back" />
+                <Button Command="{Binding GoForwardCommand}" Content="Go forward" />
+                <Button Command="{Binding AsyncNavigateCommand}" CommandParameter="LightView" Content="Light view" />
+                <Button Command="{Binding AsyncNavigateCommand}" CommandParameter="HeavyView" Content="Heavy view" />
+                <Button Command="{Binding AsyncNavigateCommand}" CommandParameter="HeavyView:Delay" Content="Heavy view (delayed)" />
+                <Button Command="{Binding AsyncNavigateCommand}" CommandParameter="LightView:New" Content="New light view" />
+                <Button Command="{Binding AsyncNavigateCommand}" CommandParameter="HeavyView:Error" Content="Heavy view (error)" />
+                <Button Command="{Binding AsyncNavigateAndForgetCommand}" CommandParameter="LightView:New" Content="Light view (forget/new)" />
+                <Button Command="{Binding AsyncNavigateAndForgetCommand}" CommandParameter="HeavyView:Delay" Content="Heavy view (forget/delayed)" />
+                <Button Command="{Binding AsyncNavigateCommand}" CommandParameter="ItemsRegionView" Content="Items region" />
+                <Button Command="{Binding AsyncNavigateCommand}" CommandParameter="TabRegionView" Content="TabView region" />
+                <Button Command="{Binding AsyncNavigateCommand}" CommandParameter="NavigationViewRegionView" Content="NavigationView region" />
+                <Button Command="{Binding AsyncNavigateCommand}" CommandParameter="ChildContentRegionView" Content="Child content region" />
+                <Button Command="{Binding AsyncNavigateCommand}" CommandParameter="ListBoxRegionView" Content="Custom ListBox region" />
+                <Button Command="{Binding ShowCommand}" CommandParameter="LightView" Content="Show light dialog" />
+                <Button Command="{Binding ShowCommand}" CommandParameter="HeavyView" Content="Show heavy dialog" />
+                <Button Command="{Binding AsyncShowDialogCommand}" CommandParameter="LightView" Content="Show dialog async" />
+                <Button Command="{Binding AsyncShowDialogWithCancellingCommand}" CommandParameter="LightView" Content="Show dialog async (cancel after 2s)" />
+                <Button Content="ShowDialog sync (not supported by WinUI)" IsEnabled="False" />
+                <Button Command="{Binding AsyncShowWindowCommand}" CommandParameter="AWindow" Content="Show custom window" />
+                <Button Command="{Binding CollectCommand}" Content="Collect cached views" />
+            </StackPanel>
+        </ScrollViewer>
+        <Border Grid.Column="1" Margin="0,16,16,0" BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" BorderThickness="1" CornerRadius="8">
+            <ContentControl an:RegionManager.RegionName="MainRegion" />
+        </Border>
+        <TextBlock Grid.Row="1" Grid.ColumnSpan="2" Margin="16,10" HorizontalAlignment="Center" Text="{Binding FooterText}" />
+    </Grid>
+</Page>

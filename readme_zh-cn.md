@@ -6,6 +6,7 @@
 [![NuGet](https://img.shields.io/nuget/v/AsyncNavigation.svg?label=Core&color=004880)](https://www.nuget.org/packages/AsyncNavigation)
 [![NuGet](https://img.shields.io/nuget/v/AsyncNavigation.Avalonia.svg?label=Avalonia&color=8b45e0)](https://www.nuget.org/packages/AsyncNavigation.Avalonia)
 [![NuGet](https://img.shields.io/nuget/v/AsyncNavigation.Wpf.svg?label=WPF&color=0078d4)](https://www.nuget.org/packages/AsyncNavigation.Wpf)
+[![WinUI 3](https://img.shields.io/badge/WinUI%203-%E5%BC%80%E5%8F%91%E4%B8%AD-orange)](samples/Sample.WinUI)
 [![License: MIT](https://img.shields.io/github/license/NeverMorewd/AsyncNavigation)](LICENSE)
 [![.NET](https://img.shields.io/badge/.NET-8.0%2B-512BD4)](https://dotnet.microsoft.com)
 
@@ -31,6 +32,19 @@
 
 ---
 
+## 平台支持
+
+| 平台 | 状态 | 包 / 示例 |
+|---|---|---|
+| Avalonia | 稳定 | `AsyncNavigation.Avalonia` |
+| WPF | 稳定 | `AsyncNavigation.Wpf` |
+| WinUI 3 | **开发中** | [`Sample.WinUI`](samples/Sample.WinUI) |
+
+> [!WARNING]
+> WinUI 3 支持仍处于积极开发阶段。目前已包含 Content、Items、Tab、`NavigationView`、对话框、窗口和加载指示器支持，但 API 与行为仍可能发生变化。在生产环境使用前请充分测试。
+
+---
+
 ## 安装
 
 ```bash
@@ -40,6 +54,8 @@ dotnet add package AsyncNavigation.Avalonia
 # WPF
 dotnet add package AsyncNavigation.Wpf
 ```
+
+WinUI 3 目前可通过源码和仓库中的示例项目进行体验，正式包仍在开发中。
 
 ---
 

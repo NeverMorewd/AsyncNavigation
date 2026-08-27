@@ -25,6 +25,11 @@ internal class TestPlatformService : IPlatformService
         return;
     }
 
+    public void PostToUIThread(Action action)
+    {
+        action();
+    }
+
     public T WaitOnDispatcher<T>(Task<T> task)
     {
         return task.Result;
