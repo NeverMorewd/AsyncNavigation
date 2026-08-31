@@ -1,5 +1,4 @@
 ﻿using Avalonia;
-using ReactiveUI.Avalonia;
 using System;
 
 namespace Sample.FrontDialog;
@@ -18,6 +17,5 @@ internal class Program
         => AppBuilder.Configure<App>()
             .UsePlatformDetect()
             .WithInterFont()
-            .LogToTrace()
-            .UseReactiveUI(_ => { });
+            .LogToTrace();
 }

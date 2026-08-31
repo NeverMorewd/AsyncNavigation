@@ -1,17 +1,18 @@
 ﻿using AsyncNavigation.Abstractions;
 using AsyncNavigation.Core;
-using ReactiveUI.SourceGenerators;
+using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Input;
 
 namespace Sample.Common;
 public partial class FrontDialogViewModel : InstanceCounterViewModel<FrontDialogViewModel>, IDialogAware
 {
-    [Reactive]
+    [ObservableProperty]
     private int _ratio;
     private CancellationTokenSource? _cts;
     public event AsyncEventHandler<DialogCloseEventArgs>? RequestCloseAsync;
     public string Title => $"{nameof(LightViewModel)}:{InstanceNumber}";
 
-    [ReactiveCommand]
+    [RelayCommand]
     private Task CloseDialog(string param)
     {
         if (RequestCloseAsync != null)

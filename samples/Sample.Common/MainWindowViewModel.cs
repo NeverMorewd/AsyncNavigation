@@ -1,11 +1,10 @@
 ﻿using AsyncNavigation;
 using AsyncNavigation.Abstractions;
 using AsyncNavigation.Core;
-using ReactiveUI;
-using ReactiveUI.SourceGenerators;
+using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Input;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
-using System.Reactive.Linq;
 using System.Runtime.InteropServices;
 
 namespace Sample.Common;
@@ -54,32 +53,30 @@ public partial class MainWindowViewModel : ViewModelBase
             Views.Add("/Tab/Tab_A");
         }
 
-        this.WhenAnyValue(vm => vm.SelectedView)
-            .WhereNotNull()
-            .Subscribe(target =>
-            {
-                /// If the target starts with "/", we consider it a path navigation.
-                /// This logic can be customized based on your routing conventions.
-                if (target.StartsWith("/",StringComparison.OrdinalIgnoreCase))
-                {
-                    AsyncPathNavigateAndForget(target);
-                }
-                else
-                {
-                    AsyncNavigateAndForget(target);
-                }
-            });
     }
 
     public string FooterText => $"Powered by .NET {Environment.Version} • {RuntimeInformation.OSDescription}";
 
-    [Reactive]
+    [ObservableProperty]
     private bool _isSplitViewPaneOpen = true;
-    public IObservable<bool> SupportDialog { get; } = Observable.Return(!OperatingSystem.IsBrowser());
 
     public ObservableCollection<string> Views { get; }
-    [Reactive]
+    [ObservableProperty]
     private string? _selectedView;
+
+    partial void OnSelectedViewChanged(string? value)
+    {
+        if (string.IsNullOrWhiteSpace(value))
+            return;
+
+        // Paths use router navigation; all other values are registered view names.
+        if (value.StartsWith("/", StringComparison.OrdinalIgnoreCase))
+            AsyncPathNavigateAndForget(value);
+        else
+            AsyncNavigateAndForget(value);
+    }
+
+    private bool CanUseDialogs() => !OperatingSystem.IsBrowser();
 
     public static bool FilterPredicate(string? search, object? item)
     {
@@ -91,7 +88,7 @@ public partial class MainWindowViewModel : ViewModelBase
     }
         
 
-    [ReactiveCommand]
+    [RelayCommand]
     private async Task AsyncNavigate(string param)
     {
         var (viewName, parameters) = SampleHelper.ParseNavigationParam(param);
@@ -99,7 +96,7 @@ public partial class MainWindowViewModel : ViewModelBase
         Debug.WriteLine(result.Duration.TotalMilliseconds);
     }
 
-    [ReactiveCommand]
+    [RelayCommand]
     private void AsyncNavigateAndForget(string param)
     {
         var (viewName, parameters) = SampleHelper.ParseNavigationParam(param);
@@ -117,7 +114,7 @@ public partial class MainWindowViewModel : ViewModelBase
             Debug.WriteLine($"RequestPathNavigateAsync:{result.Duration.TotalMilliseconds}");
         });
     }
-    [ReactiveCommand(CanExecute = nameof(SupportDialog))]
+    [RelayCommand(CanExecute = nameof(CanUseDialogs))]
     private void Show(string param)
     {
         _dialogService.ShowView(param, callBack: result => 
@@ -126,12 +123,12 @@ public partial class MainWindowViewModel : ViewModelBase
         });
     }
 
-    [ReactiveCommand(CanExecute = nameof(SupportDialog))]
+    [RelayCommand(CanExecute = nameof(CanUseDialogs))]
     private async Task AsyncShowDialog(string param)
     {
        var result = await _dialogService.ShowViewDialogAsync(param);
     }
-    [ReactiveCommand(CanExecute = nameof(SupportDialog))]
+    [RelayCommand(CanExecute = nameof(CanUseDialogs))]
     private async Task AsyncShowDialogWithCancelling(string param)
     {
         var cts = new CancellationTokenSource();
@@ -144,36 +141,36 @@ public partial class MainWindowViewModel : ViewModelBase
             Debug.WriteLine("Dialog was cancelled");
         }
     }
-    [ReactiveCommand(CanExecute = nameof(SupportDialog))]
+    [RelayCommand(CanExecute = nameof(CanUseDialogs))]
     private void ShowDialog(string param)
     {
         var result = _dialogService.ShowViewDialog(param);
     }
-    [ReactiveCommand(CanExecute = nameof(SupportDialog))]
+    [RelayCommand(CanExecute = nameof(CanUseDialogs))]
     private void ShowWindow(string param)
     {
         var result = _dialogService.ShowWindowDialog(param);
     }
 
-    [ReactiveCommand(CanExecute = nameof(SupportDialog))]
+    [RelayCommand(CanExecute = nameof(CanUseDialogs))]
     private async Task AsyncShowWindow(string param)
     {
         await _dialogService.ShowWindowDialogAsync(param);
     }
 
-    [ReactiveCommand]
+    [RelayCommand]
     private async Task GoForward()
     {
         await _regionManager.GoForwardAsync("MainRegion");
     }
 
-    [ReactiveCommand]
+    [RelayCommand]
     private async Task GoBack()
     {
         await _regionManager.GoBackAsync("MainRegion");
     }
 
-    [ReactiveCommand]
+    [RelayCommand]
     private void Collect()
     {
         var beforeCollect = GC.GetTotalMemory(false);

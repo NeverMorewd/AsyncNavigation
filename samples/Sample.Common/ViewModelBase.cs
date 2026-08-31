@@ -1,17 +1,16 @@
 ﻿using AsyncNavigation;
 using AsyncNavigation.Abstractions;
 using AsyncNavigation.Core;
-using ReactiveUI;
-using ReactiveUI.SourceGenerators;
+using CommunityToolkit.Mvvm.ComponentModel;
 using System.Diagnostics.CodeAnalysis;
 
 namespace Sample.Common;
 
-public abstract partial class ViewModelBase : ReactiveObject, INavigationAware
+public abstract partial class ViewModelBase : ObservableObject, INavigationAware
 {
-    [Reactive]
+    [ObservableProperty]
     private string _name;
-    [Reactive]
+    [ObservableProperty]
     private bool _isDialog = false;
     public ViewModelBase()
     {

@@ -1,6 +1,5 @@
 ﻿using AsyncNavigation.Abstractions;
 using Microsoft.Extensions.DependencyInjection;
-using ReactiveUI.Builder;
 using Sample.Common;
 using Sample.Wpf.InfinityNavigation.Views;
 using System.Windows;
@@ -15,9 +14,6 @@ public partial class App : Application
 
     protected override void OnStartup(StartupEventArgs e)
     {
-        RxAppBuilder.CreateReactiveUIBuilder()
-                    .WithWpf()
-                    .BuildApp();
         Current.ShutdownMode = ShutdownMode.OnMainWindowClose;
 
         base.OnStartup(e);

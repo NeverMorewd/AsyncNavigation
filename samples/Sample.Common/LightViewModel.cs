@@ -1,6 +1,6 @@
 ﻿using AsyncNavigation.Abstractions;
 using AsyncNavigation.Core;
-using ReactiveUI.SourceGenerators;
+using CommunityToolkit.Mvvm.Input;
 
 namespace Sample.Common;
 
@@ -20,33 +20,33 @@ public partial class LightViewModel : InstanceCounterViewModel<LightViewModel>, 
     }
 
 
-    [ReactiveCommand]
+    [RelayCommand]
     private Task UnloadView(string param)
     {
         return RequestUnloadAsync(CancellationToken.None);
     }
 
-    [ReactiveCommand]
+    [RelayCommand]
     private Task CloseDialog(string param)
     {
         return RequestCloseAsync!.Invoke(this, 
             new DialogCloseEventArgs(new DialogResult(DialogButtonResult.OK), 
             CancellationToken.None));
     }
-    [ReactiveCommand]
+    [RelayCommand]
     private Task CloseDialogWithCancelling(string param)
     {
         var cts = new CancellationTokenSource();
         cts.CancelAfter(TimeSpan.FromSeconds(2));
         return RequestCloseAsync!.Invoke(this, new DialogCloseEventArgs(new DialogResult(DialogButtonResult.OK), cts.Token));
     }
-    [ReactiveCommand]
+    [RelayCommand]
     private async Task AsyncPageNavigate(string param)
     {
         var (viewName, parameters) = SampleHelper.ParseNavigationParam(param);
         var ret = await _regionManager.RequestNavigateAsync("NavigationPageRegion", viewName);
     }
-    [ReactiveCommand]
+    [RelayCommand]
     private async Task AsyncTabbedPageNavigate(string param)
     {
         var (viewName, parameters) = SampleHelper.ParseNavigationParam(param);

@@ -1,5 +1,4 @@
 ﻿using Avalonia;
-using ReactiveUI.Avalonia;
 using System;
 using System.Runtime.InteropServices;
 
@@ -21,7 +20,6 @@ internal sealed class Program
         => AppBuilder.Configure<App>()
             .UsePlatformDetect()
             .WithInterFont()
-            .UseReactiveUI(_ => { })
             .LogToTrace();
 
     [DllImport("kernel32", SetLastError = true, CharSet = CharSet.Unicode)]

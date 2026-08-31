@@ -1,7 +1,6 @@
 ﻿using AsyncNavigation;
 using AsyncNavigation.Abstractions;
-using ReactiveUI;
-using ReactiveUI.SourceGenerators;
+using CommunityToolkit.Mvvm.Input;
 using System.Diagnostics;
 
 namespace Sample.Common;
@@ -13,14 +12,14 @@ public partial class ItemsRegionViewModel : InstanceCounterViewModel<ItemsRegion
     {
         _regionManager = regionManager;
     }
-    [ReactiveCommand]
+    [RelayCommand]
     private async Task AsyncNavigate(string param)
     {
         var (viewName, parameters) = SampleHelper.ParseNavigationParam(param);
         var ret = await _regionManager.RequestNavigateAsync("ItemsRegion", viewName, parameters);
         Debug.WriteLine(ret);
     }
-    [ReactiveCommand]
+    [RelayCommand]
     private Task AsyncNavigateAndForget(string param)
     {
         var (viewName, parameters) = SampleHelper.ParseNavigationParam(param);
@@ -31,7 +30,7 @@ public partial class ItemsRegionViewModel : InstanceCounterViewModel<ItemsRegion
         });
         return Task.CompletedTask;
     }
-    [ReactiveCommand]
+    [RelayCommand]
     private Task UnloadView(string param)
     {
         return RequestUnloadAsync(CancellationToken.None);
