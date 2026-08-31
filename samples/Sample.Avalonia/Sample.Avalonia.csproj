@@ -30,6 +30,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\src\AsyncNavigation.Avalonia\AsyncNavigation.Avalonia.csproj" />
+    <ProjectReference Include="..\..\src\AsyncNavigation.Avalonia.Floating\AsyncNavigation.Avalonia.Floating.csproj" />
     <ProjectReference Include="..\Sample.Common\Sample.Common.csproj" />
   </ItemGroup>
 

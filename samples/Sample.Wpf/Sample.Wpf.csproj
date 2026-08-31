@@ -19,6 +19,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\src\AsyncNavigation.Wpf\AsyncNavigation.Wpf.csproj" />
+    <ProjectReference Include="..\..\src\AsyncNavigation.Wpf.Floating\AsyncNavigation.Wpf.Floating.csproj" />
     <ProjectReference Include="..\Sample.Common\Sample.Common.csproj" />
   </ItemGroup>
 

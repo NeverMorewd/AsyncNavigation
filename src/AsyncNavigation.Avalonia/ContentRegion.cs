@@ -1,11 +1,12 @@
 ﻿using AsyncNavigation.Core;
+using AsyncNavigation.Abstractions;
 using Avalonia.Controls;
 using Avalonia.Controls.Templates;
 using Avalonia.Data;
 
 namespace AsyncNavigation.Avalonia;
 
-public class ContentRegion : RegionBase<ContentRegion, ContentControl>
+public class ContentRegion : RegionBase<ContentRegion, ContentControl>, IRegionPlacementParticipant
 {
     public ContentRegion(string name, 
         ContentControl contentControl, 
@@ -55,5 +56,30 @@ public class ContentRegion : RegionBase<ContentRegion, ContentControl>
     {
         _context.Selected = null;
         return Task.CompletedTask;
+    }
+
+    public RegionPlacementItem Capture(Guid? navigationId = null)
+    {
+        var context = _context.Selected;
+        if (context is null || navigationId.HasValue && context.NavigationId != navigationId.Value)
+            throw new InvalidOperationException($"Region '{Name}' does not contain the requested navigation item.");
+
+        return new RegionPlacementItem(context, 0, true);
+    }
+
+    public void Detach(RegionPlacementItem item)
+    {
+        ArgumentNullException.ThrowIfNull(item);
+        if (!ReferenceEquals(_context.Selected, item.Context))
+            throw new InvalidOperationException($"The navigation item is not attached to region '{Name}'.");
+        _context.Selected = null;
+    }
+
+    public void Attach(RegionPlacementItem item, bool activate = true)
+    {
+        ArgumentNullException.ThrowIfNull(item);
+        if (_context.Selected is not null)
+            throw new InvalidOperationException($"Region '{Name}' already contains a navigation item.");
+        _context.Selected = item.Context;
     }
 }

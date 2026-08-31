@@ -30,6 +30,7 @@ public partial class App : Application
 
         var services = new ServiceCollection();
         services.AddNavigationSupport(navigationOptions)
+                .AddFloatingSupport()
                 .AddSingletonWithAllMembers<MainWindowViewModel>()
                 .RegisterView<LightView, LightViewModel>(nameof(LightView))
                 .RegisterView<ItemsRegionView, ItemsRegionViewModel>(nameof(ItemsRegionView))

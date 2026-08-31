@@ -36,7 +36,10 @@
     <Project Path="../tests/AsyncNavigation.Tests/AsyncNavigation.Tests.csproj" />
   </Folder>
   <Project Path="AsyncNavigation.Avalonia/AsyncNavigation.Avalonia.csproj" />
+  <Project Path="AsyncNavigation.Avalonia.Floating/AsyncNavigation.Avalonia.Floating.csproj" />
+  <Project Path="AsyncNavigation.Floating/AsyncNavigation.Floating.csproj" />
   <Project Path="AsyncNavigation.WinUI/AsyncNavigation.WinUI.csproj" Id="c655a876-8f02-42e2-b29e-68e893f26170" />
   <Project Path="AsyncNavigation.Wpf/AsyncNavigation.Wpf.csproj" />
+  <Project Path="AsyncNavigation.Wpf.Floating/AsyncNavigation.Wpf.Floating.csproj" />
   <Project Path="AsyncNavigation/AsyncNavigation.csproj" />
 </Solution>

@@ -45,6 +45,16 @@
                 Classes="NavigationAndForget"
                 Content="ToLightView:Forget;New"
                 Tag="LightView:New" />
+            <Separator Margin="4" />
+            <Button
+                Padding="8,4"
+                Click="FloatCurrent_Click"
+                Content="Float current tab" />
+            <TextBlock
+                Width="150"
+                Margin="4"
+                Text="Close the floating window to restore the tab."
+                TextWrapping="Wrap" />
         </StackPanel>
         <ScrollViewer>
             <TabControl

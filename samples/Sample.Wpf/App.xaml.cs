@@ -21,6 +21,7 @@ public partial class App : Application
 
         var services = new ServiceCollection();
         services.AddNavigationSupport()
+            .AddFloatingSupport()
             .AddSingleton<MainWindowViewModel>()
             .RegisterRegionAdapter<ListBoxRegionAdapter>()
             .RegisterView<LightView, LightViewModel>(nameof(LightView))
