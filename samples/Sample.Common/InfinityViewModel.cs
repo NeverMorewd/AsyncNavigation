@@ -1,18 +1,17 @@
 ﻿using AsyncNavigation;
 using AsyncNavigation.Abstractions;
-using ReactiveUI;
-using ReactiveUI.SourceGenerators;
-using System.Reactive.Concurrency;
+using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Input;
 
 namespace Sample.Common;
 
 public partial class InfinityViewModel : InstanceCounterViewModel<InfinityViewModel>
 {
-    [Reactive]
+    [ObservableProperty]
     private string _nextRegionName = "";
-    [Reactive]
+    [ObservableProperty]
     private string _buttonText = "Next";
-    [Reactive]
+    [ObservableProperty]
     private bool _isActive = true;
     private readonly IRegionManager _regionManager;
 
@@ -22,7 +21,7 @@ public partial class InfinityViewModel : InstanceCounterViewModel<InfinityViewMo
         _regionManager = regionManager;
     }
 
-    [ReactiveCommand]
+    [RelayCommand]
     private async Task AsyncNavigate(string param)
     {
         await _regionManager.RequestNavigateAsync(NextRegionName, param);

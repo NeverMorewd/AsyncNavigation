@@ -1,5 +1,4 @@
 ﻿using Avalonia;
-using ReactiveUI.Avalonia;
 using System;
 
 namespace Sample.InfinityNavigation;
@@ -18,6 +17,5 @@ internal sealed class Program
         => AppBuilder.Configure<App>()
             .UsePlatformDetect()
             .WithInterFont()
-            .LogToTrace()
-            .UseReactiveUI(_ => { });
+            .LogToTrace();
 }

@@ -1,7 +1,7 @@
 ﻿using AsyncNavigation;
 using AsyncNavigation.Abstractions;
 using AsyncNavigation.Core;
-using ReactiveUI.SourceGenerators;
+using CommunityToolkit.Mvvm.Input;
 using System.Collections.ObjectModel;
 
 namespace Sample.Common;
@@ -19,13 +19,13 @@ public partial class HeavyViewModel : InstanceCounterViewModel<HeavyViewModel>, 
 
     public event AsyncEventHandler<DialogCloseEventArgs>? RequestCloseAsync;
 
-    [ReactiveCommand]
+    [RelayCommand]
     private Task UnloadView(string param)
     {
         return RequestUnloadAsync(CancellationToken.None);
     }
 
-    [ReactiveCommand]
+    [RelayCommand]
     private Task CloseDialog(string param)
     {
         return RequestCloseAsync!.Invoke(this, 

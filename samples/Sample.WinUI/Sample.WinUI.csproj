@@ -15,7 +15,6 @@
     <PackageReference Include="Microsoft.Extensions.DependencyInjection" />
     <PackageReference Include="Microsoft.WindowsAppSDK" />
     <PackageReference Include="Microsoft.Windows.SDK.BuildTools" />
-    <PackageReference Include="ReactiveUI.WinUI" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\src\AsyncNavigation.WinUI\AsyncNavigation.WinUI.csproj" />

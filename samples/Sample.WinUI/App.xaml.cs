@@ -3,7 +3,6 @@ using AsyncNavigation.Core;
 using AsyncNavigation.WinUI;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.UI.Xaml;
-using ReactiveUI.Builder;
 using Sample.Common;
 using Sample.WinUI.Views;
 using Sample.WinUI.Regions;
@@ -21,9 +20,6 @@ public partial class App : Application
 
     protected override void OnLaunched(LaunchActivatedEventArgs args)
     {
-        RxAppBuilder.CreateReactiveUIBuilder()
-            .WithWinUI()
-            .BuildApp();
         var services = new ServiceCollection();
         services.AddNavigationSupport()
             .AddSingleton<MainWindowViewModel>()

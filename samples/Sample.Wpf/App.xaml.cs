@@ -1,7 +1,6 @@
 ﻿using AsyncNavigation.Core;
 using AsyncNavigation.Wpf;
 using Microsoft.Extensions.DependencyInjection;
-using ReactiveUI.Builder;
 using Sample.Avalonia;
 using Sample.Common;
 using Sample.Wpf.Regions;
@@ -17,10 +16,6 @@ public partial class App : Application
 {
     protected override void OnStartup(StartupEventArgs e)
     {
-        RxAppBuilder.CreateReactiveUIBuilder()
-                    .WithWpf()
-                    .BuildApp();
-
         Current.ShutdownMode = ShutdownMode.OnMainWindowClose;
 
 

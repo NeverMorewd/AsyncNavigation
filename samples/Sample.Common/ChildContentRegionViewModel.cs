@@ -1,5 +1,5 @@
 ﻿using AsyncNavigation.Abstractions;
-using ReactiveUI.SourceGenerators;
+using CommunityToolkit.Mvvm.Input;
 
 namespace Sample.Common;
 
@@ -11,13 +11,13 @@ public partial class ChildContentRegionViewModel : InstanceCounterViewModel<Chil
         _regionManager = regionManager;
     }
 
-    [ReactiveCommand]
+    [RelayCommand]
     private async Task AsyncNavigate(string param)
     {
         var (viewName, parameters) = SampleHelper.ParseNavigationParam(param);
         await _regionManager.RequestNavigateAsync("ChildContentRegion", viewName, parameters);
     }
-    [ReactiveCommand]
+    [RelayCommand]
     private Task UnloadView(string param)
     {
         return RequestUnloadAsync(CancellationToken.None);

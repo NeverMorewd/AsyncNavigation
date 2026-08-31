@@ -1,7 +1,6 @@
 ﻿using Avalonia;
 using Avalonia.iOS;
 using Foundation;
-using ReactiveUI.Avalonia;
 
 namespace Sample.Avalonia.iOS;
 
@@ -16,7 +15,6 @@ public partial class AppDelegate : AvaloniaAppDelegate<App>
     protected override AppBuilder CustomizeAppBuilder(AppBuilder builder)
     {
         return base.CustomizeAppBuilder(builder)
-            .WithInterFont()
-            .UseReactiveUI(_ => { });
+            .WithInterFont();
     }
 }

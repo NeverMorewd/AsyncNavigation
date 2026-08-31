@@ -2,7 +2,6 @@
 using Android.Runtime;
 using Avalonia;
 using Avalonia.Android;
-using ReactiveUI.Avalonia;
 
 namespace Sample.Avalonia.Android;
 
@@ -14,6 +13,6 @@ public class Application : AvaloniaAndroidApplication<App>
     }
     protected override AppBuilder CustomizeAppBuilder(AppBuilder builder)
     {
-        return base.CustomizeAppBuilder(builder).UseReactiveUI(_ => { });
+        return base.CustomizeAppBuilder(builder);
     }
 }
