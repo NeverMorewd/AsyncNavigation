@@ -77,7 +77,7 @@
                             Tag="ItemsRegionView" />
                         <Button
                             Classes="Navigation"
-                            Content="ToTabRegionView"
+                            Content="Floating demo (tabs)"
                             Tag="TabRegionView" />
                         <Button
                             Classes="Navigation"
