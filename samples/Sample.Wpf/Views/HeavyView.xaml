@@ -5,6 +5,7 @@
     xmlns:an="https://github.com/NeverMorewd/AsyncNavigation"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:local="clr-namespace:Sample.Wpf.Views"
+    xmlns:vm="clr-namespace:Sample.Common;assembly=Sample.Common"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     d:DesignHeight="450"
     d:DesignWidth="800"
@@ -29,12 +30,22 @@
                 <Button Style="{StaticResource CloseDialog}" />
                 <ItemsControl ItemsSource="{Binding HeavyItems}">
                     <ItemsControl.ItemTemplate>
-                        <DataTemplate>
+                        <DataTemplate DataType="{x:Type vm:HeavyItemViewModel}">
                             <Border BorderBrush="Black" BorderThickness="1">
                                 <DockPanel LastChildFill="True">
-                                    <ComboBox Width="50" />
-                                    <Expander Width="50" />
-                                    <DatePicker Width="50" />
+                                    <ComboBox
+                                        Width="100"
+                                        ItemsSource="{Binding Options}"
+                                        SelectedItem="{Binding SelectedOption}" />
+                                    <Expander
+                                        Width="100"
+                                        Header="Details"
+                                        IsExpanded="{Binding IsExpanded}">
+                                        <TextBlock Text="{Binding Value}" />
+                                    </Expander>
+                                    <DatePicker
+                                        Width="140"
+                                        SelectedDate="{Binding WpfSelectedDate}" />
                                 </DockPanel>
                             </Border>
                         </DataTemplate>

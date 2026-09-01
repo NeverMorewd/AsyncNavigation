@@ -30,15 +30,25 @@
                 <Button Classes="CloseDialog" />
                 <ItemsControl ItemsSource="{Binding HeavyItems}">
                     <ItemsControl.ItemTemplate>
-                        <DataTemplate>
+                        <DataTemplate x:DataType="vm:HeavyItemViewModel">
                             <Border
                                 Margin="2"
                                 BorderBrush="Black"
                                 BorderThickness="1">
                                 <DockPanel LastChildFill="True">
-                                    <ComboBox Width="50" />
-                                    <Expander Width="50" />
-                                    <DatePicker Width="50" />
+                                    <ComboBox
+                                        Width="100"
+                                        ItemsSource="{Binding Options}"
+                                        SelectedItem="{Binding SelectedOption}" />
+                                    <Expander
+                                        Width="100"
+                                        Header="Details"
+                                        IsExpanded="{Binding IsExpanded}">
+                                        <TextBlock Text="{Binding Value}" />
+                                    </Expander>
+                                    <DatePicker
+                                        Width="140"
+                                        SelectedDate="{Binding AvaloniaSelectedDate}" />
                                 </DockPanel>
                             </Border>
                         </DataTemplate>
