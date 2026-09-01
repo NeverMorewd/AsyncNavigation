@@ -44,12 +44,23 @@
                 Style="{StaticResource NavigationAndForget}"
                 Tag="LightView:New" />
             <Separator Margin="4" />
+            <TextBlock
+                Width="170"
+                Margin="4"
+                FontWeight="SemiBold"
+                Text="Floating region demo"
+                TextWrapping="Wrap" />
+            <TextBlock
+                Width="170"
+                Margin="4"
+                Text="1. Open LightView or HeavyView.&#x0a;2. Select the tab.&#x0a;3. Float the selected tab."
+                TextWrapping="Wrap" />
             <Button
                 Padding="8,4"
                 Click="FloatCurrent_Click"
-                Content="Float current tab" />
+                Content="Float selected tab" />
             <TextBlock
-                Width="150"
+                Width="170"
                 Margin="4"
                 Text="Close the floating window to restore the tab."
                 TextWrapping="Wrap" />
