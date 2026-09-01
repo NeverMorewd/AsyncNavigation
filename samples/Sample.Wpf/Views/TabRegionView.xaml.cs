@@ -36,7 +36,7 @@ public partial class TabRegionView : UserControl, IView
                 Height = 480
             });
         }
-        catch (InvalidOperationException ex)
+        catch (Exception ex) when (ex is InvalidOperationException or NotSupportedException)
         {
             MessageBox.Show(ex.Message, "Cannot float tab", MessageBoxButton.OK, MessageBoxImage.Information);
         }

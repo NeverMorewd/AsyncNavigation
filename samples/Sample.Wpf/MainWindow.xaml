@@ -36,7 +36,7 @@
                 <Button
                     Padding="8,4"
                     Click="FloatMainRegion_Click"
-                    Content="Float current MainRegion view" />
+                    Content="Floating: current MainRegion view" />
                 <Button
                     Content="ToLightView"
                     Style="{StaticResource NavigationButton}"
@@ -70,7 +70,7 @@
                     Style="{StaticResource NavigationButton}"
                     Tag="ItemsRegionView" />
                 <Button
-                    Content="Floating demo (tabs)"
+                    Content="Floating demo: TabRegion"
                     Style="{StaticResource NavigationButton}"
                     Tag="TabRegionView" />
                 <Button

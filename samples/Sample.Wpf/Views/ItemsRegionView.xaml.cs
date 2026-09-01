@@ -36,7 +36,7 @@ public partial class ItemsRegionView : UserControl,IView
                 Height = 480
             });
         }
-        catch (InvalidOperationException ex)
+        catch (Exception ex) when (ex is InvalidOperationException or NotSupportedException)
         {
             MessageBox.Show(ex.Message, "Cannot float ItemsRegion", MessageBoxButton.OK, MessageBoxImage.Information);
         }

@@ -1,6 +1,7 @@
 using AsyncNavigation.Floating;
 using System.ComponentModel;
 using System.Windows;
+using System.Windows.Threading;
 
 namespace AsyncNavigation.Wpf.Floating;
 
@@ -72,7 +73,9 @@ internal sealed class WpfFloatingWindowHost : IFloatingWindowHost
         if (_allowClose)
             return;
         e.Cancel = true;
-        RestoreRequested?.Invoke(this, EventArgs.Empty);
+        _ = _window.Dispatcher.InvokeAsync(
+            () => RestoreRequested?.Invoke(this, EventArgs.Empty),
+            DispatcherPriority.Normal);
     }
 
     private Task InvokeAsync(Action action, CancellationToken cancellationToken)

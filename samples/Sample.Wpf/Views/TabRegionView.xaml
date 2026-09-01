@@ -58,7 +58,7 @@
             <Button
                 Padding="8,4"
                 Click="FloatCurrent_Click"
-                Content="Float selected tab" />
+                Content="Floating: selected TabRegion view" />
             <TextBlock
                 Width="170"
                 Margin="4"

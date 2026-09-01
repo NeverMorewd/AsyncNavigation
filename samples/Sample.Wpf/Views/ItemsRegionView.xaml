@@ -53,7 +53,7 @@
             <Button
                 Padding="8,4"
                 Click="FloatSelectedItem_Click"
-                Content="Float selected ItemsRegion view" />
+                Content="Floating: selected ItemsRegion view" />
         </StackPanel>
         <ScrollViewer>
             <ItemsControl an:RegionManager.RegionName="ItemsRegion">

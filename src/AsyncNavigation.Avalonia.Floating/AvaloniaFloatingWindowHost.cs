@@ -73,8 +73,11 @@ internal sealed class AvaloniaFloatingWindowHost : IFloatingWindowHost
     {
         if (_allowClose)
             return;
+
         e.Cancel = true;
-        RestoreRequested?.Invoke(this, EventArgs.Empty);
+        Dispatcher.UIThread.Post(
+            () => RestoreRequested?.Invoke(this, EventArgs.Empty),
+            DispatcherPriority.Normal);
     }
 
     private async Task InvokeAsync(Action action, CancellationToken cancellationToken)

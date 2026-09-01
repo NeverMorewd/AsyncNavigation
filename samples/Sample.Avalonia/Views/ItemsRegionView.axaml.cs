@@ -1,6 +1,5 @@
 ﻿using AsyncNavigation.Abstractions;
 using AsyncNavigation.Floating;
-using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Interactivity;
 using System;
@@ -21,11 +20,6 @@ public partial class ItemsRegionView : UserControl, IView
         _placementService = placementService;
         InitializeComponent();
     }
-    protected override void OnAttachedToVisualTree(VisualTreeAttachmentEventArgs e)
-    {
-        base.OnAttachedToVisualTree(e);
-    }
-
     private async void FloatSelectedItem_Click(object? sender, RoutedEventArgs e)
     {
         if (_placementService is null)
@@ -40,7 +34,7 @@ public partial class ItemsRegionView : UserControl, IView
                 Height = 480
             });
         }
-        catch (InvalidOperationException ex)
+        catch (Exception ex) when (ex is InvalidOperationException or NotSupportedException)
         {
             Debug.WriteLine($"Cannot float ItemsRegion: {ex.Message}");
         }

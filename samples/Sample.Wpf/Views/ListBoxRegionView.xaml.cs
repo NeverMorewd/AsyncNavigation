@@ -1,29 +1,41 @@
-﻿using AsyncNavigation.Abstractions;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using AsyncNavigation.Abstractions;
+using AsyncNavigation.Floating;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
 
-namespace Sample.Wpf.Views
+namespace Sample.Wpf.Views;
+
+public partial class ListBoxRegionView : UserControl, IView
 {
-    /// <summary>
-    /// Interaction logic for ListBoxRegionView.xaml
-    /// </summary>
-    public partial class ListBoxRegionView : UserControl,IView
+    private readonly IViewPlacementService? _placementService;
+
+    public ListBoxRegionView() : this(null)
     {
-        public ListBoxRegionView()
+    }
+
+    public ListBoxRegionView(IViewPlacementService? placementService)
+    {
+        _placementService = placementService;
+        InitializeComponent();
+    }
+
+    private async void FloatSelectedItem_Click(object sender, RoutedEventArgs e)
+    {
+        if (_placementService is null)
+            return;
+
+        try
         {
-            InitializeComponent();
+            await _placementService.FloatAsync("CustomListBoxRegion", options: new FloatingWindowOptions
+            {
+                Title = "AsyncNavigation floating CustomListBoxRegion item",
+                Width = 720,
+                Height = 480
+            });
+        }
+        catch (Exception ex) when (ex is InvalidOperationException or NotSupportedException)
+        {
+            MessageBox.Show(ex.Message, "Cannot float CustomListBoxRegion", MessageBoxButton.OK, MessageBoxImage.Information);
         }
     }
 }
