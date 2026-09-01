@@ -16,7 +16,8 @@ public sealed class ViewPlacementServiceTests
         var session = await fixture.Service.FloatAsync("main", fixture.Context.NavigationId);
 
         Assert.Equal(1, fixture.Region.DetachCount);
-        Assert.Same(fixture.RenderedHost, fixture.Window.Content);
+        Assert.Same(fixture.RenderedView, fixture.Window.Content);
+        Assert.Null(fixture.Indicator.Content);
         Assert.True(fixture.Window.WasShown);
         Assert.Single(fixture.Service.FloatingViews);
 
@@ -24,6 +25,8 @@ public sealed class ViewPlacementServiceTests
 
         Assert.Equal(1, fixture.Region.AttachCount);
         Assert.Null(fixture.Window.Content);
+        Assert.Same(fixture.RenderedView, fixture.Indicator.Content);
+        Assert.Equal("selected-value", fixture.RenderedView.Selection);
         Assert.True(fixture.Window.WasClosed);
         Assert.Empty(fixture.Service.FloatingViews);
         Assert.Equal(ViewPlacementState.Restored, session.State);
@@ -54,6 +57,7 @@ public sealed class ViewPlacementServiceTests
 
         Assert.Equal(1, fixture.Region.AttachCount);
         Assert.Null(fixture.Window.Content);
+        Assert.Same(fixture.RenderedView, fixture.Indicator.Content);
         Assert.Empty(fixture.Service.FloatingViews);
         Assert.True(fixture.Window.WasDisposed);
     }
@@ -62,11 +66,10 @@ public sealed class ViewPlacementServiceTests
     {
         public Fixture()
         {
-            RenderedHost = new object();
+            RenderedView = new StatefulRenderedView { Selection = "selected-value" };
             Context = new NavigationContext { RegionName = "main", ViewName = "editor" };
-            var indicator = new Mock<IInnerRegionIndicatorHost>();
-            indicator.SetupGet(x => x.Host).Returns(RenderedHost);
-            Context.IndicatorHost.Value = indicator.Object;
+            Indicator = new FakeIndicatorHost(RenderedView);
+            Context.IndicatorHost.Value = Indicator;
             Item = new RegionPlacementItem(Context, 2, true);
 
             Region = new FakeRegion(Item);
@@ -87,12 +90,47 @@ public sealed class ViewPlacementServiceTests
             Service = provider.GetRequiredService<IViewPlacementService>();
         }
 
-        public object RenderedHost { get; }
+        public StatefulRenderedView RenderedView { get; }
+        public FakeIndicatorHost Indicator { get; }
         public NavigationContext Context { get; }
         public RegionPlacementItem Item { get; }
         public FakeRegion Region { get; }
         public FakeWindowHost Window { get; }
         public IViewPlacementService Service { get; }
+    }
+
+    private sealed class StatefulRenderedView
+    {
+        public string? Selection { get; set; }
+    }
+
+    private sealed class FakeIndicatorHost(object content)
+        : IInnerRegionIndicatorHost, IRegionPlacementContentHost
+    {
+        private readonly object _host = new();
+
+        public object Host => _host;
+        public object? Content { get; private set; } = content;
+
+        public object DetachContent()
+        {
+            var current = Content ?? throw new InvalidOperationException();
+            Content = null;
+            return current;
+        }
+
+        public void AttachContent(object content)
+        {
+            if (Content is not null)
+                throw new InvalidOperationException();
+            Content = content;
+        }
+
+        public Task ShowContentAsync(NavigationContext context) => Task.CompletedTask;
+        public Task ShowLoadingAsync(NavigationContext context) => Task.CompletedTask;
+        public Task ShowErrorAsync(NavigationContext context, Exception? innerException) => Task.CompletedTask;
+        public Task OnLoadedAsync(NavigationContext context) => Task.CompletedTask;
+        public Task OnCancelledAsync(NavigationContext context) => Task.CompletedTask;
     }
 
     private sealed class FakeRegion : IRegion, IRegionPlacementParticipant

@@ -52,7 +52,8 @@ internal sealed class ViewPlacementService : IViewPlacementService, IDisposable
 
         options = (options ?? new FloatingWindowOptions()).WithDefaultTitle(item.Context.ViewName);
         var host = _windowFactory.Create(options);
-        var session = new FloatingViewSession(this, Guid.NewGuid(), regionName, item, host);
+        var contentOwner = item.Context.IndicatorHost.Value as IRegionPlacementContentHost;
+        var session = new FloatingViewSession(this, Guid.NewGuid(), regionName, item, contentOwner, host);
 
         if (!_sessionsByNavigationId.TryAdd(item.Context.NavigationId, session.Id))
         {
@@ -74,11 +75,15 @@ internal sealed class ViewPlacementService : IViewPlacementService, IDisposable
 
         host.RestoreRequested += session.OnRestoreRequested;
         var detached = false;
+        var contentDetached = false;
         try
         {
+            var content = contentOwner?.DetachContent() ?? GetContentHost(item);
+            contentDetached = contentOwner is not null;
+            session.SetContent(content);
             participant.Detach(item);
             detached = true;
-            await host.SetContentAsync(GetContentHost(item), cancellationToken);
+            await host.SetContentAsync(content, cancellationToken);
             await host.ShowAsync(cancellationToken);
             return session;
         }
@@ -92,6 +97,8 @@ internal sealed class ViewPlacementService : IViewPlacementService, IDisposable
                 await host.SetContentAsync(null, CancellationToken.None);
                 if (detached)
                     participant.Attach(item);
+                if (contentDetached)
+                    contentOwner!.AttachContent(session.Content);
             }
             finally
             {
@@ -127,10 +134,22 @@ internal sealed class ViewPlacementService : IViewPlacementService, IDisposable
         try
         {
             participant.Attach(session.Item);
+            session.ContentOwner?.AttachContent(session.Content);
         }
         catch
         {
-            await session.Host.SetContentAsync(GetContentHost(session.Item), CancellationToken.None);
+            if (session.ContentOwner is not null)
+            {
+                try
+                {
+                    participant.Detach(session.Item);
+                }
+                catch (Exception ex)
+                {
+                    Debug.WriteLine($"Could not roll back region attachment for '{session.NavigationId}': {ex}");
+                }
+            }
+            await session.Host.SetContentAsync(session.Content, CancellationToken.None);
             throw;
         }
 
@@ -166,12 +185,13 @@ internal sealed class ViewPlacementService : IViewPlacementService, IDisposable
         private readonly SemaphoreSlim _gate = new(1, 1);
 
         internal FloatingViewSession(ViewPlacementService owner, Guid id, string originRegionName,
-            RegionPlacementItem item, IFloatingWindowHost host)
+            RegionPlacementItem item, IRegionPlacementContentHost? contentOwner, IFloatingWindowHost host)
         {
             _owner = owner;
             Id = id;
             OriginRegionName = originRegionName;
             Item = item;
+            ContentOwner = contentOwner;
             Host = host;
         }
 
@@ -180,7 +200,16 @@ internal sealed class ViewPlacementService : IViewPlacementService, IDisposable
         public string OriginRegionName { get; }
         public ViewPlacementState State { get; private set; } = ViewPlacementState.Floating;
         internal RegionPlacementItem Item { get; }
+        internal object Content { get; private set; } = null!;
+        internal IRegionPlacementContentHost? ContentOwner { get; }
         internal IFloatingWindowHost Host { get; }
+
+        internal void SetContent(object content)
+        {
+            if (Content is not null)
+                throw new InvalidOperationException("Floating session content has already been assigned.");
+            Content = content;
+        }
 
         public async Task RestoreAsync(CancellationToken cancellationToken = default)
         {

@@ -34,6 +34,10 @@
                     <Button Style="{StaticResource GoForward}" />
                 </StackPanel>
                 <Button
+                    Padding="8,4"
+                    Click="FloatMainRegion_Click"
+                    Content="Float current MainRegion view" />
+                <Button
                     Content="ToLightView"
                     Style="{StaticResource NavigationButton}"
                     Tag="LightView" />

@@ -4,7 +4,7 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace AsyncNavigation.Avalonia;
 
-internal sealed class InnerIndicatorHost : IInnerRegionIndicatorHost, IInnerIndicatorProvider
+internal sealed class InnerIndicatorHost : IInnerRegionIndicatorHost, IInnerIndicatorProvider, IRegionPlacementContentHost
 {
     private readonly ContentControl _host;
     private readonly IInnerIndicatorProvider _innerIndicatorProvider;
@@ -23,6 +23,22 @@ internal sealed class InnerIndicatorHost : IInnerRegionIndicatorHost, IInnerIndi
     }
 
     public object Host => _host;
+
+    object IRegionPlacementContentHost.DetachContent()
+    {
+        var content = _host.Content
+            ?? throw new InvalidOperationException("The region indicator host does not contain a rendered view.");
+        _host.Content = null;
+        return content;
+    }
+
+    void IRegionPlacementContentHost.AttachContent(object content)
+    {
+        ArgumentNullException.ThrowIfNull(content);
+        if (_host.Content is not null)
+            throw new InvalidOperationException("The region indicator host already contains content.");
+        _host.Content = content;
+    }
 
     Task IRegionIndicator.OnCancelledAsync(NavigationContext context)
     {
