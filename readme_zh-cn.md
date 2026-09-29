@@ -94,7 +94,7 @@ var result = await _dialogService.ShowViewDialogAsync("Confirm");
 
 ### 4. 在视图模型中响应导航
 
-视图模型直接实现 `INavigationAware`。库不提供导航基类；如需复用默认实现，可以在应用中定义自己的基类。
+视图模型直接实现 `INavigationAware`。`NavigationAwareBase` 为兼容旧代码而保留，但已标记弃用，建议新代码实现 `INavigationAware`。如需复用默认实现，可以在应用中定义自己的基类。
 
 ```csharp
 using AsyncNavigation;

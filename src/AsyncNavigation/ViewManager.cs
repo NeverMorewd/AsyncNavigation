@@ -28,13 +28,29 @@ internal sealed class ViewManager : IViewManager, IViewPlacementCache
 
     public void Clear()
     {
-        foreach (var entry in _viewCache.ToArray())
+        var removedViews = new List<IView>();
+        // Remove all eligible entries before invoking user disposal code. A throwing
+        // Dispose must not leave unrelated old entries available for reuse.
+        lock (_lruLock)
         {
-            if (entry.Value.TryGetTarget(out var view) && _placement?.IsFloating(view) == true)
-                continue;
-            Remove(entry.Key, dispose: true);
+            foreach (var entry in _viewCache.ToArray())
+            {
+                entry.Value.TryGetTarget(out var view);
+                if (view is not null && _placement?.IsFloating(view) == true)
+                    continue;
+                if (!((ICollection<KeyValuePair<string, WeakReference<IView>>>)_viewCache).Remove(entry))
+                    continue;
+                if (_lruIndex.Remove(entry.Key, out var node))
+                    _lruList.Remove(node);
+                if (view is not null)
+                    removedViews.Add(view);
+            }
         }
+
+        foreach (var view in removedViews)
+            DisposeView(view);
     }
+
     public async Task<IView?> FindCachedViewAsync(string key, Func<IView, Task<bool>> isNavigationTarget)
     {
         if (_viewCache.TryGetValue(key, out var reference) &&
@@ -205,7 +221,7 @@ internal sealed class ViewManager : IViewManager, IViewPlacementCache
             }
             catch (Exception ex)
             {
-                Debug.Fail($"Dispose {name} error.", ex.ToString());
+                Debug.WriteLine($"Dispose {name} error: {ex}");
                 throw;
             }
         }

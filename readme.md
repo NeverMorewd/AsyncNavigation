@@ -94,7 +94,7 @@ var result = await _dialogService.ShowViewDialogAsync("Confirm");
 
 ### 4. React to navigation in view models
 
-View models implement `INavigationAware` directly. The library does not provide a navigation base class; you can define one in your application to share default implementations.
+View models implement `INavigationAware` directly. `NavigationAwareBase` remains available for compatibility but is obsolete; new code should implement `INavigationAware`. You can define an application base class to share default implementations.
 
 ```csharp
 using AsyncNavigation;

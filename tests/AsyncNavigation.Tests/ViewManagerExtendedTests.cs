@@ -25,10 +25,12 @@ public class ViewManagerExtendedTests
     /// </summary>
     private static (IViewManager Manager, IServiceProvider Provider) BuildManager(
         int max = 10,
-        ViewCacheStrategy strategy = ViewCacheStrategy.IgnoreDuplicateKey)
+        ViewCacheStrategy strategy = ViewCacheStrategy.IgnoreDuplicateKey,
+        ViewPlacementCoordinator? placement = null)
     {
         var sc = new ServiceCollection();
         sc.AddNavigationTestSupport(new NavigationOptions { MaxCachedViews = max, ViewCacheStrategy = strategy });
+        if (placement is not null) sc.AddSingleton(placement);
         sc.RegisterView<TestView, TestNavigationAware>("V1");
         sc.RegisterView<AnotherTestView, TestNavigationAware>("V2");
         var sp = sc.BuildServiceProvider();
@@ -147,6 +149,42 @@ public class ViewManagerExtendedTests
 
         Assert.True(spy1.Disposed);
         Assert.True(spy2.Disposed);
+    }
+
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public async Task Clear_DisposeFailure_RemovesAllNonFloatingEntries(bool withFloating)
+    {
+        var placement = withFloating ? new ViewPlacementCoordinator() : null;
+        var (manager, _) = BuildManager(placement: placement);
+        var first = await manager.ResolveViewAsync("V1", true);
+        var second = await manager.ResolveViewAsync("V2", true);
+        first.DataContext = new ThrowingDisposable();
+        second.DataContext = new ThrowingDisposable();
+        var floating = new TestView { DataContext = new DisposableSpy() };
+        if (placement is not null)
+        {
+            manager.AddView("floating", floating);
+            placement.Register(floating, _ => Task.CompletedTask);
+        }
+
+        Assert.Throws<InvalidOperationException>(() => manager.Clear());
+        if (placement is not null)
+        {
+            Assert.Same(floating, await manager.ResolveViewAsync("floating", true));
+            Assert.False(((DisposableSpy)floating.DataContext!).Disposed);
+        }
+
+        Assert.Null(await ((IViewPlacementCache)manager).FindCachedViewAsync("V1", _ => Task.FromResult(true)));
+        Assert.Null(await ((IViewPlacementCache)manager).FindCachedViewAsync("V2", _ => Task.FromResult(true)));
+        Assert.NotSame(first, await manager.ResolveViewAsync("V1", true));
+        Assert.NotSame(second, await manager.ResolveViewAsync("V2", true));
+    }
+
+    private sealed class ThrowingDisposable : IDisposable
+    {
+        public void Dispose() => throw new InvalidOperationException("Disposal failed.");
     }
 
     // -----------------------------------------------------------------------

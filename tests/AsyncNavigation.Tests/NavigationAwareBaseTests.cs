@@ -1,9 +1,21 @@
-﻿using AsyncNavigation.Tests.Infrastructure;
+﻿using System.Reflection;
+
+#pragma warning disable CS0618 // Exercise the retained compatibility API.
 
 namespace AsyncNavigation.Tests;
 
 public class NavigationAwareBaseTests
 {
+    [Fact]
+    public void CompatibilityBase_IsInLibraryAndObsoleteWithWarningOnly()
+    {
+        Assert.Same(typeof(NavigationContext).Assembly, typeof(NavigationAwareBase).Assembly);
+        var obsolete = typeof(NavigationAwareBase).GetCustomAttribute<ObsoleteAttribute>();
+        Assert.NotNull(obsolete);
+        Assert.False(obsolete.IsError);
+        Assert.Contains("INavigationAware", obsolete.Message);
+    }
+
     private sealed class TestAware : NavigationAwareBase
     {
         public Task RequestUnload(CancellationToken ct = default) => RequestUnloadAsync(ct);
