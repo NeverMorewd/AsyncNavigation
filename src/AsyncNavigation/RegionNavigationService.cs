@@ -30,10 +30,15 @@ internal sealed class RegionNavigationService<T> : IRegionNavigationService<T> w
     public async Task RequestNavigateAsync(NavigationContext navigationContext, Action? onCompleted = null, bool coordinatePlacement = true)
     {
         navigationContext.ActivatedExternally = false;
+        // Set up the indicator host before anything that could throw (job scheduling, lease
+        // acquisition), so the catch block below can always show an error indicator - not just
+        // when the navigation got far enough to reach CreateNavigateTask's own Setup() call.
+        _regionIndicatorManager.Setup(navigationContext, _regionPresenter.IsSinglePageRegion);
         try
         {
             await _navigationJobScheduler.RunJobAsync(navigationContext, async context =>
             {
+                using var flow = !coordinatePlacement || _placement is null ? null : _placement.EnsureFlow();
                 using var lease = !coordinatePlacement || _placement is null ? null :
                     await _placement.EnterAsync(context.RegionName, context.CancellationToken);
                 await CreateNavigateTask(context);
