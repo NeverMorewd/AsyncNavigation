@@ -10,8 +10,15 @@
     d:DesignWidth="800"
     x:DataType="vm:MainWindowViewModel"
     mc:Ignorable="d">
-    <Grid RowDefinitions="*,30">
+    <Grid RowDefinitions="Auto,*,30">
+        <Border Grid.Row="0" Padding="8">
+            <StackPanel Orientation="Horizontal" Spacing="8">
+                <Button Click="FloatMainRegion_Click" Content="Floating: current MainRegion view" />
+                <TextBlock VerticalAlignment="Center" Text="The same UserControl instance moves to the window; use Dock to region to return it. Closing closes the view." />
+            </StackPanel>
+        </Border>
         <SplitView
+            Grid.Row="1"
             DisplayMode="CompactInline"
             IsPaneOpen="{Binding IsSplitViewPaneOpen}"
             OpenPaneLength="310"
@@ -133,7 +140,7 @@
         </SplitView>
         <SelectableTextBlock
             Name="footer"
-            Grid.Row="1"
+            Grid.Row="2"
             HorizontalAlignment="Center"
             VerticalAlignment="Center" />
     </Grid>

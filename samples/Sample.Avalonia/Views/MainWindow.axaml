@@ -11,16 +11,6 @@
     xmlns:vm="using:Sample.Common"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-    xmlns:views="clr-namespace:Sample.Avalonia.Views"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     x:DataType="vm:MainWindowViewModel">
-    <DockPanel LastChildFill="True">
-        <Border Padding="8" DockPanel.Dock="Top">
-            <StackPanel Orientation="Horizontal" Spacing="8">
-                <Button Click="FloatMainRegion_Click" Content="Floating: current MainRegion view" />
-                <TextBlock VerticalAlignment="Center" Text="The same UserControl instance moves to the window; use Dock to region to return it. Closing closes the view." />
-            </StackPanel>
-        </Border>
-        <views:MainView />
-    </DockPanel>
 </Window>
