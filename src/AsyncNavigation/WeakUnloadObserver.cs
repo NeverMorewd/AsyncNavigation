@@ -14,15 +14,10 @@ internal sealed class WeakUnloadObserver
     // INavigationAware (e.g. after floating and docking a view back) replaces the previous
     // handler instead of stacking a second one that would fire alongside it.
     private static readonly ConditionalWeakTable<INavigationAware, AsyncEventHandler<AsyncEventArgs>> _subscriptions = new();
+    private static readonly object _subscriptionsLock = new();
 
     public static void Subscribe(INavigationAware navigationAware, Action<INavigationAware> onUnloadCallback)
     {
-        if (_subscriptions.TryGetValue(navigationAware, out var previousHandler))
-        {
-            navigationAware.AsyncRequestUnloadEvent -= previousHandler;
-            _subscriptions.Remove(navigationAware);
-        }
-
         var weakReference = new WeakReference<INavigationAware>(navigationAware);
 
         async Task HandleRequestUnloadAsync(object? sender, AsyncEventArgs args)
@@ -40,7 +35,20 @@ internal sealed class WeakUnloadObserver
             onUnloadCallback?.Invoke(target);
         }
 
-        _subscriptions.Add(navigationAware, HandleRequestUnloadAsync);
+        // TryGetValue/Remove/Add aren't individually atomic against each other, and
+        // ConditionalWeakTable.Add throws on a duplicate key - serialize the read-modify-write
+        // so two concurrent Subscribe calls for the same instance can't both pass the
+        // TryGetValue check and race on Add.
+        AsyncEventHandler<AsyncEventArgs>? previousHandler;
+        lock (_subscriptionsLock)
+        {
+            _subscriptions.TryGetValue(navigationAware, out previousHandler);
+            if (previousHandler is not null)
+                _subscriptions.Remove(navigationAware);
+            _subscriptions.Add(navigationAware, HandleRequestUnloadAsync);
+        }
+        if (previousHandler is not null)
+            navigationAware.AsyncRequestUnloadEvent -= previousHandler;
         navigationAware.AsyncRequestUnloadEvent += HandleRequestUnloadAsync;
     }
 }

@@ -30,6 +30,7 @@ internal sealed class ViewPlacementService : IViewPlacementService, IDisposable
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(regionName);
         cancellationToken.ThrowIfCancellationRequested();
+        using var flow = _placement.EnsureFlow();
         using var lease = await _placement.EnterAsync(regionName, cancellationToken);
 
         if (navigationId.HasValue &&
@@ -137,6 +138,7 @@ internal sealed class ViewPlacementService : IViewPlacementService, IDisposable
 
     internal async Task RestoreCoreAsync(FloatingViewSession session, CancellationToken cancellationToken)
     {
+        using var flow = _placement.EnsureFlow();
         using var lease = await _placement.EnterAsync(session.OriginRegionName, cancellationToken);
         if (!session.OriginRegion.TryGetTarget(out var originalRegion) ||
             !_regionManager.TryGetRegion(session.OriginRegionName, out var region) ||
@@ -198,6 +200,7 @@ internal sealed class ViewPlacementService : IViewPlacementService, IDisposable
 
     internal async Task CloseCoreAsync(FloatingViewSession session, CancellationToken cancellationToken)
     {
+        using var flow = _placement.EnsureFlow();
         using var lease = await _placement.EnterAsync(session.OriginRegionName, cancellationToken);
         await session.Host.SetContentAsync(null, cancellationToken);
         try

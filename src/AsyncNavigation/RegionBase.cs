@@ -72,6 +72,7 @@ public abstract class RegionBase<TRegion, TControl> : IRegion, IRegionPresenter,
 
     public async Task<NavigationResult> GoBackAsync(CancellationToken cancellationToken = default)
     {
+        using var flow = _placement?.EnsureFlow();
         using var lease = _placement is null ? null : await _placement.EnterAsync(Name, cancellationToken);
         cancellationToken.ThrowIfCancellationRequested();
         var navigationContext = _navigationHistory.GoBack() ?? throw new NavigationException("Cannot go back!");
@@ -102,6 +103,7 @@ public abstract class RegionBase<TRegion, TControl> : IRegion, IRegionPresenter,
 
     public async Task<NavigationResult> GoForwardAsync(CancellationToken cancellationToken = default)
     {
+        using var flow = _placement?.EnsureFlow();
         using var lease = _placement is null ? null : await _placement.EnterAsync(Name, cancellationToken);
         cancellationToken.ThrowIfCancellationRequested();
         var navigationContext = _navigationHistory.GoForward() ?? throw new NavigationException("Cannot go forward!");
