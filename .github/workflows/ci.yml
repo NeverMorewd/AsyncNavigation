@@ -69,6 +69,48 @@ jobs:
           path: ./test-results/results.trx
           if-no-files-found: warn
 
+  test-e2e:
+    name: E2E (Avalonia headless) / ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-dotnet@v5
+        with:
+          dotnet-version: ${{ env.DOTNET_VERSION }}
+
+      - name: Cache NuGet packages
+        uses: actions/cache@v4
+        with:
+          path: ~/.nuget/packages
+          key: ${{ runner.os }}-nuget-${{ hashFiles('**/*.csproj', '**/*.props') }}
+          restore-keys: ${{ runner.os }}-nuget-
+
+      - name: Restore
+        run: dotnet restore tests/AsyncNavigation.E2E.Tests
+
+      - name: Test
+        run: >
+          dotnet test tests/AsyncNavigation.E2E.Tests
+          --configuration Release
+          --no-restore
+          --logger "console;verbosity=normal"
+          --logger "trx;LogFileName=results.trx"
+          --results-directory ./test-results
+
+      - name: Upload test results
+        uses: actions/upload-artifact@v4
+        if: always()              # upload even when tests fail so we can inspect
+        with:
+          name: e2e-test-results-${{ matrix.os }}
+          path: ./test-results/results.trx
+          if-no-files-found: warn
+
   build-libs:
     name: Build Libraries
     runs-on: ubuntu-latest
