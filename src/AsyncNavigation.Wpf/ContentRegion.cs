@@ -63,7 +63,8 @@ public class ContentRegion : RegionBase<ContentRegion, ContentControl>, IRegionP
 
     public override Task ProcessDeactivateAsync(NavigationContext? navigationContext)
     {
-        _context.Selected = null;
+        if (navigationContext is null || ReferenceEquals(_context.Selected, navigationContext))
+            _context.Selected = null;
         return Task.CompletedTask;
     }
 

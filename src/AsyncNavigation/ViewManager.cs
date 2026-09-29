@@ -5,7 +5,7 @@ using System.Diagnostics;
 
 namespace AsyncNavigation;
 
-internal sealed class ViewManager : IViewManager
+internal sealed class ViewManager : IViewManager, IViewPlacementCache
 {
     private readonly ConcurrentDictionary<string, WeakReference<IView>> _viewCache = new();
     private readonly LinkedList<string> _lruList = [];
@@ -14,9 +14,11 @@ internal sealed class ViewManager : IViewManager
     private readonly ViewCacheStrategy _strategy;
     private readonly int _maxCacheSize;
     private readonly IViewFactory _viewFactory;
+    private readonly ViewPlacementCoordinator? _placement;
 
-    public ViewManager(NavigationOptions options, IViewFactory viewFactory)
+    public ViewManager(NavigationOptions options, IViewFactory viewFactory, ViewPlacementCoordinator? placement = null)
     {
+        _placement = placement;
         _strategy = options.ViewCacheStrategy;
 #pragma warning disable CS0618 // MaxCachedViews is obsolete but still used internally for view cache size
         _maxCacheSize = options.MaxCachedViews;
@@ -26,22 +28,24 @@ internal sealed class ViewManager : IViewManager
 
     public void Clear()
     {
-        var values = _viewCache.Values.ToArray();
-        _viewCache.Clear();
-        lock (_lruLock)
+        foreach (var entry in _viewCache.ToArray())
         {
-            _lruList.Clear();
-            _lruIndex.Clear();
-        }
-
-        foreach (var viewRef in values)
-        {
-            if (viewRef.TryGetTarget(out var view))
-            {
-                DisposeView(view);
-            }
+            if (entry.Value.TryGetTarget(out var view) && _placement?.IsFloating(view) == true)
+                continue;
+            Remove(entry.Key, dispose: true);
         }
     }
+    public async Task<IView?> FindCachedViewAsync(string key, Func<IView, Task<bool>> isNavigationTarget)
+    {
+        if (_viewCache.TryGetValue(key, out var reference) &&
+            reference.TryGetTarget(out var view) && await isNavigationTarget(view))
+        {
+            Touch(key);
+            return view;
+        }
+        return null;
+    }
+
     public async Task<IView> ResolveViewAsync(string key,
         bool useCache,
         Func<IView, Task<bool>>? isNavigationTarget = null,
@@ -82,6 +86,8 @@ internal sealed class ViewManager : IViewManager
 
     public void Remove(string cacheKey, bool dispose = false)
     {
+        if (_viewCache.TryGetValue(cacheKey, out var pinned) &&
+            pinned.TryGetTarget(out var active) && _placement?.IsFloating(active) == true) return;
         if (_viewCache.TryRemove(cacheKey, out var viewRef))
         {
             lock (_lruLock)
@@ -97,6 +103,15 @@ internal sealed class ViewManager : IViewManager
             {
                 DisposeView(view);
             }
+        }
+    }
+
+    public void RemoveInstance(IView view)
+    {
+        foreach (var entry in _viewCache)
+        {
+            if (entry.Value.TryGetTarget(out var cached) && ReferenceEquals(cached, view))
+                Remove(entry.Key);
         }
     }
 
@@ -118,7 +133,7 @@ internal sealed class ViewManager : IViewManager
             }
         }
 
-        TrimCache();
+        TrimCache(cacheKey);
     }
 
     private void AddToLru(string key)
@@ -136,19 +151,26 @@ internal sealed class ViewManager : IViewManager
 
     private void Touch(string key) => AddToLru(key);
 
-    private void TrimCache()
+    private void TrimCache(string protectedKey)
     {
         while (_viewCache.Count > _maxCacheSize)
         {
             string? oldestKey = null;
             lock (_lruLock)
             {
-                if (_lruList.Last != null)
+                var node = _lruList.Last;
+                while (node is not null)
                 {
-                    oldestKey = _lruList.Last.Value;
-                    _lruIndex.Remove(oldestKey);
-                    _lruList.RemoveLast();
+                    if (node.Value != protectedKey &&
+                        (!_viewCache.TryGetValue(node.Value, out var candidate) ||
+                         !candidate.TryGetTarget(out var view) || _placement?.IsFloating(view) != true))
+                        break;
+                    node = node.Previous;
                 }
+                if (node is null) break; // Active windows are pinned, even above the cache limit.
+                oldestKey = node.Value;
+                _lruIndex.Remove(oldestKey);
+                _lruList.Remove(node);
             }
 
             if (oldestKey != null && _viewCache.TryRemove(oldestKey, out var viewRef))
@@ -166,8 +188,9 @@ internal sealed class ViewManager : IViewManager
         Clear();
     }
 
-    private static void DisposeView(IView view)
+    private void DisposeView(IView view)
     {
+        if (_placement?.IsFloating(view) == true) return;
         SafeDispose(view, nameof(view));
         SafeDispose(view.DataContext, nameof(view.DataContext));
     }

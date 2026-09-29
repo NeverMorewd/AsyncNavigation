@@ -10,6 +10,7 @@ public static class FloatingServiceCollectionExtensions
     public static IServiceCollection AddFloatingSupportCore(this IServiceCollection services)
     {
         ArgumentNullException.ThrowIfNull(services);
+        services.TryAddSingleton<ViewPlacementCoordinator>();
         services.TryAddSingleton<IViewPlacementService, ViewPlacementService>();
         return services;
     }

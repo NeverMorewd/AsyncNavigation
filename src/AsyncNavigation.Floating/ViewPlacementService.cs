@@ -6,13 +6,15 @@ namespace AsyncNavigation.Floating;
 
 internal sealed class ViewPlacementService : IViewPlacementService, IDisposable
 {
+    private readonly ViewPlacementCoordinator _placement;
     private readonly IRegionManager _regionManager;
     private readonly IFloatingWindowHostFactory _windowFactory;
     private readonly ConcurrentDictionary<Guid, FloatingViewSession> _sessions = [];
     private readonly ConcurrentDictionary<Guid, Guid> _sessionsByNavigationId = [];
 
-    public ViewPlacementService(IRegionManager regionManager, IFloatingWindowHostFactory windowFactory)
+    public ViewPlacementService(IRegionManager regionManager, IFloatingWindowHostFactory windowFactory, ViewPlacementCoordinator placement)
     {
+        _placement = placement;
         _regionManager = regionManager;
         _windowFactory = windowFactory;
     }
@@ -28,6 +30,7 @@ internal sealed class ViewPlacementService : IViewPlacementService, IDisposable
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(regionName);
         cancellationToken.ThrowIfCancellationRequested();
+        using var lease = await _placement.EnterAsync(regionName, cancellationToken);
 
         if (navigationId.HasValue &&
             _sessionsByNavigationId.TryGetValue(navigationId.Value, out var activeSessionId) &&
@@ -53,7 +56,7 @@ internal sealed class ViewPlacementService : IViewPlacementService, IDisposable
         options = (options ?? new FloatingWindowOptions()).WithDefaultTitle(item.Context.ViewName);
         var host = _windowFactory.Create(options);
         var contentOwner = item.Context.IndicatorHost.Value as IRegionPlacementContentHost;
-        var session = new FloatingViewSession(this, Guid.NewGuid(), regionName, item, contentOwner, host);
+        var session = new FloatingViewSession(this, Guid.NewGuid(), regionName, region, item, contentOwner, host);
 
         if (!_sessionsByNavigationId.TryAdd(item.Context.NavigationId, session.Id))
         {
@@ -74,10 +77,17 @@ internal sealed class ViewPlacementService : IViewPlacementService, IDisposable
         }
 
         host.RestoreRequested += session.OnRestoreRequested;
+        host.CloseRequested += session.OnCloseRequested;
+        var registered = false;
         var detached = false;
         var contentDetached = false;
         try
         {
+            if (item.Context.Target.Value is { } view)
+            {
+                _placement.Register(view, session.ActivateAsync);
+                registered = true;
+            }
             var content = contentOwner?.DetachContent() ?? GetContentHost(item);
             contentDetached = contentOwner is not null;
             session.SetContent(content);
@@ -85,11 +95,14 @@ internal sealed class ViewPlacementService : IViewPlacementService, IDisposable
             detached = true;
             await host.SetContentAsync(content, cancellationToken);
             await host.ShowAsync(cancellationToken);
+            (region as IRegionPlacementNavigation)?.OnViewDetached(item);
             return session;
         }
         catch
         {
+            if (registered && item.Context.Target.Value is { } view) _placement.Unregister(view);
             host.RestoreRequested -= session.OnRestoreRequested;
+            host.CloseRequested -= session.OnCloseRequested;
             _sessions.TryRemove(session.Id, out _);
             _sessionsByNavigationId.TryRemove(item.Context.NavigationId, out _);
             try
@@ -124,38 +137,54 @@ internal sealed class ViewPlacementService : IViewPlacementService, IDisposable
 
     internal async Task RestoreCoreAsync(FloatingViewSession session, CancellationToken cancellationToken)
     {
-        if (!_regionManager.TryGetRegion(session.OriginRegionName, out var region) ||
-            region is not IRegionPlacementParticipant participant)
+        using var lease = await _placement.EnterAsync(session.OriginRegionName, cancellationToken);
+        if (!session.OriginRegion.TryGetTarget(out var originalRegion) ||
+            !_regionManager.TryGetRegion(session.OriginRegionName, out var region) ||
+            region is not IRegionPlacementParticipant participant || !ReferenceEquals(region, originalRegion))
         {
             throw new InvalidOperationException($"Origin region '{session.OriginRegionName}' is not available.");
         }
 
-        await session.Host.SetContentAsync(null, cancellationToken);
-        try
+        var contentAttached = false;
+        async Task TransferContent()
         {
-            participant.Attach(session.Item);
+            await session.Host.SetContentAsync(null, cancellationToken);
             session.ContentOwner?.AttachContent(session.Content);
+            contentAttached = true;
         }
-        catch
+        async Task RollbackContent()
         {
-            if (session.ContentOwner is not null)
-            {
-                try
-                {
-                    participant.Detach(session.Item);
-                }
-                catch (Exception ex)
-                {
-                    Debug.WriteLine($"Could not roll back region attachment for '{session.NavigationId}': {ex}");
-                }
-            }
+            if (contentAttached && session.ContentOwner is not null)
+                session.ContentOwner.DetachContent();
             await session.Host.SetContentAsync(session.Content, CancellationToken.None);
-            throw;
         }
 
+        if (region is IRegionPlacementNavigation navigation)
+        {
+            await navigation.RestorePlacementAsync(session.Item, TransferContent, RollbackContent, cancellationToken);
+        }
+        else
+        {
+            var attached = false;
+            try
+            {
+                await TransferContent();
+                participant.Attach(session.Item);
+                attached = true;
+            }
+            catch
+            {
+                if (attached) participant.Detach(session.Item);
+                await RollbackContent();
+                throw;
+            }
+        }
+
+        if (session.Item.Context.Target.Value is { } restoredView) _placement.Unregister(restoredView);
         _sessions.TryRemove(session.Id, out _);
         _sessionsByNavigationId.TryRemove(session.NavigationId, out _);
         session.Host.RestoreRequested -= session.OnRestoreRequested;
+        session.Host.CloseRequested -= session.OnCloseRequested;
         try
         {
             await session.Host.CloseAsync(CancellationToken.None);
@@ -167,10 +196,58 @@ internal sealed class ViewPlacementService : IViewPlacementService, IDisposable
         }
     }
 
+    internal async Task CloseCoreAsync(FloatingViewSession session, CancellationToken cancellationToken)
+    {
+        using var lease = await _placement.EnterAsync(session.OriginRegionName, cancellationToken);
+        await session.Host.SetContentAsync(null, cancellationToken);
+        try
+        {
+            await session.Host.CloseAsync(CancellationToken.None);
+        }
+        catch
+        {
+            await session.Host.SetContentAsync(session.Content, CancellationToken.None);
+            throw;
+        }
+
+        if (session.Item.Context.Target.Value is { } closedView)
+        {
+            _placement.Unregister(closedView);
+            if (session.OriginRegion.TryGetTarget(out var origin))
+                (origin as IRegionPlacementNavigation)?.OnViewClosed(session.Item);
+            DisposeClosedView(closedView);
+        }
+        _sessions.TryRemove(session.Id, out _);
+        _sessionsByNavigationId.TryRemove(session.NavigationId, out _);
+        session.Host.RestoreRequested -= session.OnRestoreRequested;
+        session.Host.CloseRequested -= session.OnCloseRequested;
+        try
+        {
+            await session.Host.DisposeAsync();
+        }
+        catch (Exception ex)
+        {
+            Debug.WriteLine($"Could not dispose floating window for '{session.NavigationId}': {ex}");
+        }
+    }
+
+    private static void DisposeClosedView(IView view)
+    {
+        foreach (var value in new object?[] { view, view.DataContext }.Distinct(ReferenceEqualityComparer.Instance))
+        {
+            try { (value as IDisposable)?.Dispose(); }
+            catch (Exception ex) { Debug.WriteLine($"Could not dispose closed view: {ex}"); }
+        }
+    }
+
     public void Dispose()
     {
         foreach (var session in _sessions.Values)
+        {
+            if (session.Item.Context.Target.Value is { } view) _placement.Unregister(view);
             session.Host.RestoreRequested -= session.OnRestoreRequested;
+            session.Host.CloseRequested -= session.OnCloseRequested;
+        }
         _sessions.Clear();
         _sessionsByNavigationId.Clear();
     }
@@ -184,12 +261,13 @@ internal sealed class ViewPlacementService : IViewPlacementService, IDisposable
         private readonly ViewPlacementService _owner;
         private readonly SemaphoreSlim _gate = new(1, 1);
 
-        internal FloatingViewSession(ViewPlacementService owner, Guid id, string originRegionName,
+        internal FloatingViewSession(ViewPlacementService owner, Guid id, string originRegionName, IRegion originRegion,
             RegionPlacementItem item, IRegionPlacementContentHost? contentOwner, IFloatingWindowHost host)
         {
             _owner = owner;
             Id = id;
             OriginRegionName = originRegionName;
+            OriginRegion = new WeakReference<IRegion>(originRegion);
             Item = item;
             ContentOwner = contentOwner;
             Host = host;
@@ -199,6 +277,7 @@ internal sealed class ViewPlacementService : IViewPlacementService, IDisposable
         public Guid NavigationId => Item.Context.NavigationId;
         public string OriginRegionName { get; }
         public ViewPlacementState State { get; private set; } = ViewPlacementState.Floating;
+        internal WeakReference<IRegion> OriginRegion { get; }
         internal RegionPlacementItem Item { get; }
         internal object Content { get; private set; } = null!;
         internal IRegionPlacementContentHost? ContentOwner { get; }
@@ -216,7 +295,7 @@ internal sealed class ViewPlacementService : IViewPlacementService, IDisposable
             await _gate.WaitAsync(cancellationToken);
             try
             {
-                if (State == ViewPlacementState.Restored)
+                if (State is ViewPlacementState.Restored or ViewPlacementState.Closed)
                     return;
                 State = ViewPlacementState.Restoring;
                 try
@@ -233,6 +312,43 @@ internal sealed class ViewPlacementService : IViewPlacementService, IDisposable
             finally
             {
                 _gate.Release();
+            }
+        }
+
+        public async Task CloseAsync(CancellationToken cancellationToken = default)
+        {
+            await _gate.WaitAsync(cancellationToken);
+            try
+            {
+                if (State is ViewPlacementState.Restored or ViewPlacementState.Closed)
+                    return;
+                State = ViewPlacementState.Closing;
+                try
+                {
+                    await _owner.CloseCoreAsync(this, cancellationToken);
+                    State = ViewPlacementState.Closed;
+                }
+                catch
+                {
+                    State = ViewPlacementState.Floating;
+                    throw;
+                }
+            }
+            finally
+            {
+                _gate.Release();
+            }
+        }
+
+        internal async void OnCloseRequested(object? sender, EventArgs e)
+        {
+            try
+            {
+                await CloseAsync();
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"Could not close floating view '{NavigationId}': {ex}");
             }
         }
 

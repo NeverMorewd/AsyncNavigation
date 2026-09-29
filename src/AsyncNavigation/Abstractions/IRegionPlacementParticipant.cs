@@ -5,8 +5,8 @@ namespace AsyncNavigation.Abstractions;
 /// navigation item out of a region and later put it back.
 /// </summary>
 /// <remarks>
-/// Placement changes are not navigation operations and therefore must not
-/// invoke navigation lifecycle callbacks or modify navigation history.
+/// These are low-level visual operations. Use IRegionPlacementNavigation to
+/// coordinate a placement change with current-view state and navigation history.
 /// </remarks>
 public interface IRegionPlacementParticipant
 {

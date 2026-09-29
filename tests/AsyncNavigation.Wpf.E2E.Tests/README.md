@@ -16,7 +16,15 @@ check the generated `DatePicker` instance and its date before floating, while
 floating, and after restoration. Both unbound UI state and TwoWay-bound MVVM
 state are covered.
 
-The lifecycle regression test also closes a floating window through its normal
-close button path and verifies that its content is restored and the now-empty
-window actually closes. This protects against re-entering `Window.Close()` from
+The lifecycle regression tests verify that the Dock to region button requests
+restoration, while the normal window close button requests closure without
+restoring content. Closure is deferred to avoid re-entering `Window.Close()`
 inside WPF's synchronous `Closing` event.
+
+The navigation integration tests exercise both ContentRegion and TabRegion with
+real views and windows. They verify that navigating to a cached floating instance
+activates its existing window, while a new instance can open in the main region.
+Docking into an occupied content region switches to the original instance and
+keeps the previous view available through Back. Docking into a tab region keeps
+other tabs and selects the restored tab. Equivalent tests run in the Avalonia
+headless suite with Fluent templates.

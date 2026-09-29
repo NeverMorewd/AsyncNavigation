@@ -64,7 +64,7 @@
             <TextBlock
                 Width="170"
                 Margin="4"
-                Text="Close the floating window to restore the tab."
+                Text="Use Dock to region to restore the tab; closing the window closes it."
                 TextWrapping="Wrap" />
         </StackPanel>
         <ScrollViewer>

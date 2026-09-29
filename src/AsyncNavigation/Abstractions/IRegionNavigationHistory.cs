@@ -10,4 +10,5 @@ internal interface IRegionNavigationHistory
     NavigationContext? GoBack();
     NavigationContext? GoForward();
     void Clear();
+    void RemoveView(IView view);
 }

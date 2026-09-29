@@ -5,10 +5,11 @@ using System.Diagnostics;
 
 namespace AsyncNavigation;
 
-public abstract class RegionBase<TRegion, TControl> : IRegion, IRegionPresenter
+public abstract class RegionBase<TRegion, TControl> : IRegion, IRegionPresenter, IRegionPlacementNavigation
     where TRegion : class, IRegionPresenter
     where TControl : class
 {
+    private readonly ViewPlacementCoordinator? _placement;
     private readonly IRegionNavigationService<TRegion> _regionNavigationService;
     private readonly IRegionNavigationHistory _navigationHistory;
     private readonly IRegionControlAccessor<TControl> _controlAccessor;
@@ -17,6 +18,7 @@ public abstract class RegionBase<TRegion, TControl> : IRegion, IRegionPresenter
     {
         ArgumentNullException.ThrowIfNull(control);
         ArgumentNullException.ThrowIfNull(serviceProvider);
+        _placement = serviceProvider.GetService<ViewPlacementCoordinator>();
         Name = name;
         _controlAccessor = new WeakRegionControlAccessor<TControl>(control);
         _regionNavigationService = serviceProvider.GetRequiredService<IRegionNavigationServiceFactory>().Create((this as TRegion)!);
@@ -52,11 +54,15 @@ public abstract class RegionBase<TRegion, TControl> : IRegion, IRegionPresenter
     }
     async Task<NavigationResult> IRegion.ActivateViewAsync(NavigationContext navigationContext)
     {
-        await _regionNavigationService.RequestNavigateAsync(navigationContext);
-        _navigationHistory.Add(navigationContext);
-        navigationContext.UpdateStatus(NavigationStatus.Succeeded);
+        await _regionNavigationService.RequestNavigateAsync(navigationContext, () =>
+        {
+            if (!navigationContext.ActivatedExternally)
+                _navigationHistory.Add(navigationContext);
+            navigationContext.UpdateStatus(NavigationStatus.Succeeded);
+        });
         var result = NavigationResult.Success(navigationContext);
-        RaiseNavigated(navigationContext);
+        if (!navigationContext.ActivatedExternally)
+            RaiseNavigated(navigationContext);
         return result;
     }
     Task<bool> IRegion.CanGoBackAsync()
@@ -66,14 +72,26 @@ public abstract class RegionBase<TRegion, TControl> : IRegion, IRegionPresenter
 
     public async Task<NavigationResult> GoBackAsync(CancellationToken cancellationToken = default)
     {
+        using var lease = _placement is null ? null : await _placement.EnterAsync(Name, cancellationToken);
         cancellationToken.ThrowIfCancellationRequested();
         var navigationContext = _navigationHistory.GoBack() ?? throw new NavigationException("Cannot go back!");
         navigationContext.IsBackNavigation = true;
         navigationContext.LinkCancellationToken(cancellationToken);
-        await _regionNavigationService.RequestNavigateAsync(navigationContext);
+        try
+        {
+            await _regionNavigationService.RequestNavigateAsync(navigationContext, coordinatePlacement: false);
+        }
+        catch
+        {
+            _navigationHistory.GoForward();
+            throw;
+        }
+        if (navigationContext.ActivatedExternally)
+            _navigationHistory.GoForward();
         navigationContext.UpdateStatus(NavigationStatus.Succeeded);
         var result = NavigationResult.Success(navigationContext);
-        RaiseNavigated(navigationContext);
+        if (!navigationContext.ActivatedExternally)
+            RaiseNavigated(navigationContext);
         return result;
     }
 
@@ -84,14 +102,26 @@ public abstract class RegionBase<TRegion, TControl> : IRegion, IRegionPresenter
 
     public async Task<NavigationResult> GoForwardAsync(CancellationToken cancellationToken = default)
     {
+        using var lease = _placement is null ? null : await _placement.EnterAsync(Name, cancellationToken);
         cancellationToken.ThrowIfCancellationRequested();
         var navigationContext = _navigationHistory.GoForward() ?? throw new NavigationException("Cannot go forward!");
         navigationContext.IsForwardNavigation = true;
         navigationContext.LinkCancellationToken(cancellationToken);
-        await _regionNavigationService.RequestNavigateAsync(navigationContext);
+        try
+        {
+            await _regionNavigationService.RequestNavigateAsync(navigationContext, coordinatePlacement: false);
+        }
+        catch
+        {
+            _navigationHistory.GoBack();
+            throw;
+        }
+        if (navigationContext.ActivatedExternally)
+            _navigationHistory.GoBack();
         navigationContext.UpdateStatus(NavigationStatus.Succeeded);
         var result = NavigationResult.Success(navigationContext);
-        RaiseNavigated(navigationContext);
+        if (!navigationContext.ActivatedExternally)
+            RaiseNavigated(navigationContext);
         return result;
     }
     Task IRegion.NavigateFromAsync(NavigationContext navigationContext)
@@ -109,6 +139,83 @@ public abstract class RegionBase<TRegion, TControl> : IRegion, IRegionPresenter
     {
         return _regionNavigationService.RevertAsync(navigationContext);
     }
+    public void OnViewDetached(RegionPlacementItem item)
+    {
+        _regionNavigationService.DetachCurrent(item.Context.Target.Value);
+        // Multi-item regions can select a different view when an item is detached.
+        if (!IsSinglePageRegion && this is IRegionPlacementParticipant participant)
+        {
+            try { _regionNavigationService.SetCurrent(participant.Capture().Context); }
+            catch (InvalidOperationException) { }
+        }
+    }
+
+    public void OnViewClosed(RegionPlacementItem item)
+    {
+        if (item.Context.Target.Value is not { } view) return;
+        _regionNavigationService.ForgetView(view);
+        _navigationHistory.RemoveView(view);
+    }
+
+    public async Task RestorePlacementAsync(RegionPlacementItem item, Func<Task> transferContent,
+        Func<Task> rollbackContent, CancellationToken cancellationToken = default)
+    {
+        if (this is not IRegionPlacementParticipant participant)
+            throw new NotSupportedException("The region does not support placement.");
+        RegionPlacementItem? previous = null;
+        try { previous = participant.Capture(); }
+        catch (InvalidOperationException) { }
+
+        var context = new NavigationContext
+        {
+            RegionName = Name,
+            ViewName = item.Context.ViewName,
+            Parameters = item.Context.Parameters
+        };
+        context.Target.Value = item.Context.Target.Value!;
+        context.IndicatorHost.Value = item.Context.IndicatorHost.Value!;
+        context.LinkCancellationToken(cancellationToken);
+        var restored = new RegionPlacementItem(context, item.Index, item.WasSelected);
+        var attached = false;
+        var detached = false;
+        var transferred = false;
+        object? displacedContent = null;
+        var sharedHost = previous is not null &&
+            ReferenceEquals(previous.Context.IndicatorHost.Value, item.Context.IndicatorHost.Value)
+            ? previous.Context.IndicatorHost.Value as IRegionPlacementContentHost : null;
+        try
+        {
+            if (previous is not null)
+                await _regionNavigationService.PreparePlacementAsync(context);
+            cancellationToken.ThrowIfCancellationRequested();
+            if (IsSinglePageRegion && previous is not null)
+            {
+                participant.Detach(previous);
+                detached = true;
+                displacedContent = sharedHost?.DetachContent();
+            }
+            transferred = true;
+            await transferContent();
+            participant.Attach(restored);
+            attached = true;
+            await _regionNavigationService.CommitPlacementAsync(context, notify: previous is not null);
+            cancellationToken.ThrowIfCancellationRequested();
+            _navigationHistory.Add(context);
+            context.UpdateStatus(NavigationStatus.Succeeded);
+        }
+        catch (Exception ex)
+        {
+            if (attached) participant.Detach(restored);
+            if (transferred) await rollbackContent();
+            if (displacedContent is not null) sharedHost!.AttachContent(displacedContent);
+            if (detached) participant.Attach(previous!);
+            else if (previous is not null) await ProcessActivateAsync(previous.Context);
+            _regionNavigationService.SetCurrent(previous?.Context);
+            context.UpdateStatus(ex is OperationCanceledException ? NavigationStatus.Cancelled : NavigationStatus.Failed, ex);
+            throw;
+        }
+    }
+
     public virtual void Dispose()
     {
         GC.SuppressFinalize(this);

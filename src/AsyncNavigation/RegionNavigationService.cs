@@ -7,6 +7,7 @@ namespace AsyncNavigation;
 
 internal sealed class RegionNavigationService<T> : IRegionNavigationService<T> where T : IRegionPresenter
 {
+    private readonly ViewPlacementCoordinator? _placement;
     private readonly IViewManager _viewCacheManager;
     private readonly IRegionIndicatorManager _regionIndicatorManager;
     private readonly IAsyncJobProcessor _navigationJobScheduler;
@@ -15,6 +16,7 @@ internal sealed class RegionNavigationService<T> : IRegionNavigationService<T> w
     private readonly NavigationJobStrategy _navigationJobStrategy;
     public RegionNavigationService(T regionPresenter, IServiceProvider serviceProvider)
     {
+        _placement = serviceProvider.GetService<ViewPlacementCoordinator>();
         _regionPresenter = regionPresenter;
         _navigationJobScheduler = serviceProvider.GetRequiredService<IAsyncJobProcessor>();
         _viewCacheManager = serviceProvider.GetRequiredService<IViewManager>();
@@ -25,19 +27,24 @@ internal sealed class RegionNavigationService<T> : IRegionNavigationService<T> w
     {
         get => _current;
     }
-    public async Task RequestNavigateAsync(NavigationContext navigationContext)
+    public async Task RequestNavigateAsync(NavigationContext navigationContext, Action? onCompleted = null, bool coordinatePlacement = true)
     {
+        navigationContext.ActivatedExternally = false;
         try
         {
-            await _navigationJobScheduler.RunJobAsync(navigationContext, CreateNavigateTask, _navigationJobStrategy);
+            await _navigationJobScheduler.RunJobAsync(navigationContext, async context =>
+            {
+                using var lease = !coordinatePlacement || _placement is null ? null :
+                    await _placement.EnterAsync(context.RegionName, context.CancellationToken);
+                await CreateNavigateTask(context);
+                onCompleted?.Invoke();
+            }, _navigationJobStrategy);
         }
         catch (Exception ex) when (ex is not OperationCanceledException)
         {
-            await _regionIndicatorManager.ShowErrorAsync(navigationContext, ex);
+            if (navigationContext.IndicatorHost.IsSet)
+                await _regionIndicatorManager.ShowErrorAsync(navigationContext, ex);
             throw;
-        }
-        finally
-        {
         }
     }
 
@@ -58,6 +65,32 @@ internal sealed class RegionNavigationService<T> : IRegionNavigationService<T> w
             return _regionPresenter.ProcessDeactivateAsync(navigationContext);
         }
     }
+    public void SetCurrent(NavigationContext? context) =>
+        _current = context?.Target.Value is { } view ? (view, context) : null;
+
+    public void DetachCurrent(IView? view)
+    {
+        if (Current.HasValue && ReferenceEquals(Current.Value.View, view))
+            _current = null;
+    }
+
+    public void ForgetView(IView view)
+    {
+        DetachCurrent(view);
+        (_viewCacheManager as IViewPlacementCache)?.RemoveInstance(view);
+    }
+
+    public Task PreparePlacementAsync(NavigationContext context) => OnBeforeNavigationAsync(context);
+    public async Task CommitPlacementAsync(NavigationContext context, bool notify)
+    {
+        if (notify) await OnAfterNavigationAsync(context);
+        else
+        {
+            SubscribeUnload(context);
+            SetCurrent(context);
+        }
+    }
+
     public void Dispose()
     {
         try
@@ -74,6 +107,25 @@ internal sealed class RegionNavigationService<T> : IRegionNavigationService<T> w
     private async Task CreateNavigateTask(NavigationContext navigationContext)
     {
         var isSinglePageRegion = _regionPresenter!.IsSinglePageRegion;
+        if (_placement is not null)
+        {
+            // Inspect reusable instances before leaving or rendering the current region.
+            // New views still initialize in the normal pipeline, after the leave guard.
+            if (!navigationContext.Target.IsSet && _regionPresenter.EnableViewCache &&
+                _viewCacheManager is IViewPlacementCache cache)
+            {
+                var cached = await cache.FindCachedViewAsync(navigationContext.ViewName,
+                    view => HandleIsNavigationTargetAsync(view, navigationContext));
+                navigationContext.CacheLookupCompleted = true;
+                if (cached is not null) navigationContext.Target.Value = cached;
+            }
+            if (navigationContext.Target.IsSet && navigationContext.Target.Value is { } target &&
+                await _placement.TryActivateAsync(target, navigationContext.CancellationToken))
+            {
+                navigationContext.ActivatedExternally = true;
+                return;
+            }
+        }
         _regionIndicatorManager.Setup(navigationContext, isSinglePageRegion);
 
         var navigationTask = RunNavigationAsync(navigationContext, _regionPresenter.NavigationPipelineMode);
@@ -121,7 +173,7 @@ internal sealed class RegionNavigationService<T> : IRegionNavigationService<T> w
             return;
         }
         var view = await _viewCacheManager.ResolveViewAsync(navigationContext.ViewName,
-                                _regionPresenter.EnableViewCache,
+                                _regionPresenter.EnableViewCache && !navigationContext.CacheLookupCompleted,
                                 view => RegionNavigationService<T>.HandleIsNavigationTargetAsync(view, navigationContext),
                                 view => RegionNavigationService<T>.HandleInitializeAsync(view, navigationContext));
         navigationContext.CancellationToken.ThrowIfCancellationRequested();
@@ -157,22 +209,30 @@ internal sealed class RegionNavigationService<T> : IRegionNavigationService<T> w
     {
         if (navigationContext.TryResolveViewAndAware(out var view,out var aware))
         {
-            var contextSnapshot = navigationContext;
-            WeakUnloadObserver.Subscribe(aware,async a =>
-            {
-                if (Current.HasValue)
-                {
-                    if (ReferenceEquals(Current.Value.View.DataContext, a))
-                        _current = null;
-                }
-
-                await _regionPresenter.ProcessDeactivateAsync(contextSnapshot);
-            });
+            SubscribeUnload(navigationContext);
             await aware.OnNavigatedToAsync(navigationContext);
             navigationContext.CancellationToken.ThrowIfCancellationRequested();
             _current = (view, navigationContext);
         }
+        if (navigationContext.Target.Value is { } target)
+            _current = (target, navigationContext);
         navigationContext.CancellationToken.ThrowIfCancellationRequested();
+    }
+
+    private void SubscribeUnload(NavigationContext navigationContext)
+    {
+        if (!navigationContext.TryResolveNavigationAware(out var aware)) return;
+        var contextSnapshot = navigationContext;
+        WeakUnloadObserver.Subscribe(aware,async a =>
+        {
+            if (Current.HasValue)
+            {
+                if (ReferenceEquals(Current.Value.View.DataContext, a))
+                    _current = null;
+            }
+
+            await _regionPresenter.ProcessDeactivateAsync(contextSnapshot);
+        });
     }
 
     private static Task<bool> HandleIsNavigationTargetAsync(IView view, NavigationContext navigationContext)

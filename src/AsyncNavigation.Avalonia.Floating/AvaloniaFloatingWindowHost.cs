@@ -22,6 +22,7 @@ internal sealed class AvaloniaFloatingWindowHost : IFloatingWindowHost
 {
     private readonly Window _window;
     private bool _allowClose;
+    private readonly ContentControl _content = new();
 
     public AvaloniaFloatingWindowHost(FloatingWindowOptions options)
     {
@@ -35,13 +36,21 @@ internal sealed class AvaloniaFloatingWindowHost : IFloatingWindowHost
         };
         if (options.Width.HasValue) _window.Width = options.Width.Value;
         if (options.Height.HasValue) _window.Height = options.Height.Value;
+        var dockButton = new Button { Content = "Dock to region", Margin = new Thickness(8) };
+        dockButton.Click += (_, _) => RestoreRequested?.Invoke(this, EventArgs.Empty);
+        DockPanel.SetDock(dockButton, Dock.Top);
+        var panel = new DockPanel { LastChildFill = true };
+        panel.Children.Add(dockButton);
+        panel.Children.Add(_content);
+        _window.Content = panel;
         _window.Closing += OnClosing;
     }
 
     public event EventHandler? RestoreRequested;
+    public event EventHandler? CloseRequested;
 
     public Task SetContentAsync(object? content, CancellationToken cancellationToken = default) =>
-        InvokeAsync(() => _window.Content = content, cancellationToken);
+        InvokeAsync(() => _content.Content = content, cancellationToken);
 
     public Task ShowAsync(CancellationToken cancellationToken = default) =>
         InvokeAsync(_window.Show, cancellationToken);
@@ -76,7 +85,7 @@ internal sealed class AvaloniaFloatingWindowHost : IFloatingWindowHost
 
         e.Cancel = true;
         Dispatcher.UIThread.Post(
-            () => RestoreRequested?.Invoke(this, EventArgs.Empty),
+            () => CloseRequested?.Invoke(this, EventArgs.Empty),
             DispatcherPriority.Normal);
     }
 

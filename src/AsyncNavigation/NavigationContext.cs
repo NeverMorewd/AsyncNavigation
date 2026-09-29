@@ -11,6 +11,9 @@ namespace AsyncNavigation;
 /// </summary>
 public partial class NavigationContext
 {
+    internal bool CacheLookupCompleted { get; set; }
+    internal bool ActivatedExternally { get; set; }
+
     private readonly TaskCompletionSource<bool> _completionTcs = new();
     private readonly ConcurrentBag<Exception> _errors = [];
 

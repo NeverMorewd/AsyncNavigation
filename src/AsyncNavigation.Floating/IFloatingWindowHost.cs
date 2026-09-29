@@ -3,6 +3,7 @@ namespace AsyncNavigation.Floating;
 public interface IFloatingWindowHost : IAsyncDisposable
 {
     event EventHandler? RestoreRequested;
+    event EventHandler? CloseRequested;
     Task SetContentAsync(object? content, CancellationToken cancellationToken = default);
     Task ShowAsync(CancellationToken cancellationToken = default);
     Task ActivateAsync(CancellationToken cancellationToken = default);

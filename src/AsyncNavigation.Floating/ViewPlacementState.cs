@@ -4,5 +4,7 @@ public enum ViewPlacementState
 {
     Floating,
     Restoring,
-    Restored
+    Restored,
+    Closing,
+    Closed
 }

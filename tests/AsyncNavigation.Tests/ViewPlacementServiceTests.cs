@@ -62,6 +62,41 @@ public sealed class ViewPlacementServiceTests
         Assert.True(fixture.Window.WasDisposed);
     }
 
+    [Fact]
+    public async Task UserClose_RemovesSessionWithoutRestoringContent()
+    {
+        var fixture = new Fixture();
+        var session = await fixture.Service.FloatAsync("main", fixture.Context.NavigationId);
+
+        fixture.Window.RequestClose();
+        await session.CloseAsync();
+        await session.RestoreAsync();
+
+        Assert.Equal(ViewPlacementState.Closed, session.State);
+        Assert.Equal(0, fixture.Region.AttachCount);
+        Assert.Null(fixture.Window.Content);
+        Assert.Null(fixture.Indicator.Content);
+        Assert.True(fixture.Window.WasClosed);
+        Assert.True(fixture.Window.WasDisposed);
+        Assert.Empty(fixture.Service.FloatingViews);
+        Assert.False(fixture.Service.TryGetSession(session.Id, out _));
+    }
+
+    [Fact]
+    public async Task DockRequest_RestoresContentWithoutClosingSessionAsClosed()
+    {
+        var fixture = new Fixture();
+        var session = await fixture.Service.FloatAsync("main", fixture.Context.NavigationId);
+
+        fixture.Window.RequestRestore();
+        await session.RestoreAsync();
+        await session.CloseAsync();
+
+        Assert.Equal(ViewPlacementState.Restored, session.State);
+        Assert.Equal(1, fixture.Region.AttachCount);
+        Assert.Same(fixture.RenderedView, fixture.Indicator.Content);
+    }
+
     private sealed class Fixture
     {
         public Fixture()
@@ -70,6 +105,7 @@ public sealed class ViewPlacementServiceTests
             Context = new NavigationContext { RegionName = "main", ViewName = "editor" };
             Indicator = new FakeIndicatorHost(RenderedView);
             Context.IndicatorHost.Value = Indicator;
+            Context.Target.Value = RenderedView;
             Item = new RegionPlacementItem(Context, 2, true);
 
             Region = new FakeRegion(Item);
@@ -99,8 +135,9 @@ public sealed class ViewPlacementServiceTests
         public IViewPlacementService Service { get; }
     }
 
-    private sealed class StatefulRenderedView
+    private sealed class StatefulRenderedView : IView
     {
+        public object? DataContext { get; set; }
         public string? Selection { get; set; }
     }
 
@@ -167,6 +204,8 @@ public sealed class ViewPlacementServiceTests
     private sealed class FakeWindowHost : IFloatingWindowHost
     {
         public event EventHandler? RestoreRequested;
+        public event EventHandler? CloseRequested;
+        public void RequestClose() => CloseRequested?.Invoke(this, EventArgs.Empty);
         public object? Content { get; private set; }
         public bool WasShown { get; private set; }
         public bool WasClosed { get; private set; }
