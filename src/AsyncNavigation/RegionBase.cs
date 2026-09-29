@@ -162,6 +162,9 @@ public abstract class RegionBase<TRegion, TControl> : IRegion, IRegionPresenter,
     {
         if (this is not IRegionPlacementParticipant participant)
             throw new NotSupportedException("The region does not support placement.");
+        if (_placement is not null && !_placement.IsHeld(Name))
+            throw new InvalidOperationException(
+                $"RestorePlacementAsync for region '{Name}' must be called while holding the region's placement lease.");
         RegionPlacementItem? previous = null;
         try { previous = participant.Capture(); }
         catch (InvalidOperationException) { }
@@ -196,7 +199,9 @@ public abstract class RegionBase<TRegion, TControl> : IRegion, IRegionPresenter,
             }
             transferred = true;
             await transferContent();
-            participant.Attach(restored);
+            // Let the attach honor whether the item was selected/active when it was originally
+            // detached (restored.WasSelected), instead of forcing selection on every restore.
+            participant.Attach(restored, activate: false);
             attached = true;
             await _regionNavigationService.CommitPlacementAsync(context, notify: previous is not null);
             cancellationToken.ThrowIfCancellationRequested();
@@ -209,7 +214,11 @@ public abstract class RegionBase<TRegion, TControl> : IRegion, IRegionPresenter,
             if (transferred) await rollbackContent();
             if (displacedContent is not null) sharedHost!.AttachContent(displacedContent);
             if (detached) participant.Attach(previous!);
-            else if (previous is not null) await ProcessActivateAsync(previous.Context);
+            // Attach(restored, activate: false) only disturbed the current selection when the
+            // restored item itself was selected before it was detached; only then does the
+            // Detach(restored) above (which may have picked an unrelated neighbor) need correcting.
+            else if (attached && restored.WasSelected && previous is not null)
+                await ProcessActivateAsync(previous.Context);
             _regionNavigationService.SetCurrent(previous?.Context);
             context.UpdateStatus(ex is OperationCanceledException ? NavigationStatus.Cancelled : NavigationStatus.Failed, ex);
             throw;

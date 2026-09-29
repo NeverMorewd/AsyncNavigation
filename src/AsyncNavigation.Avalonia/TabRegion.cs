@@ -72,7 +72,7 @@ public class TabRegion : RegionBase<TabRegion, TabControl>, IRegionPlacementPart
     {
         var context = navigationId.HasValue
             ? _context.Items.FirstOrDefault(item => item.NavigationId == navigationId.Value)
-            : _context.Selected;
+            : _context.Selected ?? _context.Items.LastOrDefault();
 
         if (context is null)
             throw new InvalidOperationException($"Region '{Name}' does not contain the requested navigation item.");

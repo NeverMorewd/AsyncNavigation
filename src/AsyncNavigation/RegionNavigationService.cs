@@ -107,6 +107,11 @@ internal sealed class RegionNavigationService<T> : IRegionNavigationService<T> w
     private async Task CreateNavigateTask(NavigationContext navigationContext)
     {
         var isSinglePageRegion = _regionPresenter!.IsSinglePageRegion;
+        // Set up the indicator host up front so it is always available - even if the
+        // fast path below (cache lookup / TryActivateAsync) throws or short-circuits -
+        // so a failed navigation can still show an error and a successful NavigationResult
+        // always carries a usable IndicatorHost.
+        _regionIndicatorManager.Setup(navigationContext, isSinglePageRegion);
         if (_placement is not null)
         {
             // Inspect reusable instances before leaving or rendering the current region.
@@ -126,7 +131,6 @@ internal sealed class RegionNavigationService<T> : IRegionNavigationService<T> w
                 return;
             }
         }
-        _regionIndicatorManager.Setup(navigationContext, isSinglePageRegion);
 
         var navigationTask = RunNavigationAsync(navigationContext, _regionPresenter.NavigationPipelineMode);
 

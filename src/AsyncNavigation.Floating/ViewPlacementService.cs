@@ -109,7 +109,7 @@ internal sealed class ViewPlacementService : IViewPlacementService, IDisposable
             {
                 await host.SetContentAsync(null, CancellationToken.None);
                 if (detached)
-                    participant.Attach(item);
+                    participant.Attach(item, activate: false);
                 if (contentDetached)
                     contentOwner!.AttachContent(session.Content);
             }
@@ -169,7 +169,7 @@ internal sealed class ViewPlacementService : IViewPlacementService, IDisposable
             try
             {
                 await TransferContent();
-                participant.Attach(session.Item);
+                participant.Attach(session.Item, activate: false);
                 attached = true;
             }
             catch
@@ -252,9 +252,17 @@ internal sealed class ViewPlacementService : IViewPlacementService, IDisposable
         _sessionsByNavigationId.Clear();
     }
 
-    private static object GetContentHost(RegionPlacementItem item) =>
-        item.Context.IndicatorHost.Value?.Host
-        ?? throw new InvalidOperationException("The navigation item does not have an indicator host.");
+    private static object GetContentHost(RegionPlacementItem item)
+    {
+        if (item.Context.IndicatorHost.Value is not { } host)
+            throw new InvalidOperationException("The navigation item does not have an indicator host.");
+        // Reaching here means the host isn't an IRegionPlacementContentHost, so its content
+        // cannot be detached from its current visual parent. Fail fast instead of proceeding
+        // as if detachment succeeded, which would corrupt the visual tree.
+        throw new NotSupportedException(
+            $"Indicator host '{host.GetType()}' does not implement {nameof(IRegionPlacementContentHost)} " +
+            "and cannot be detached for floating placement.");
+    }
 
     internal sealed class FloatingViewSession : IFloatingViewSession
     {
