@@ -94,14 +94,32 @@ var result = await _dialogService.ShowViewDialogAsync("Confirm");
 
 ### 4. 在视图模型中响应导航
 
+视图模型直接实现 `INavigationAware`。库不提供导航基类；如需复用默认实现，可以在应用中定义自己的基类。
+
 ```csharp
-// 继承 NavigationAwareBase，按需重写方法即可。
-public class HomeViewModel : NavigationAwareBase
+using AsyncNavigation;
+using AsyncNavigation.Abstractions;
+using AsyncNavigation.Core;
+using System.Threading;
+using System.Threading.Tasks;
+
+public class HomeViewModel : INavigationAware
 {
-    public override async Task OnNavigatedToAsync(NavigationContext context)
+    public event AsyncEventHandler<AsyncEventArgs>? AsyncRequestUnloadEvent;
+
+    public Task InitializeAsync(NavigationContext context) => Task.CompletedTask;
+
+    public Task OnNavigatedToAsync(NavigationContext context)
     {
-        await LoadDataAsync(context.CancellationToken);
+        // 在此加载页面数据；异步操作可使用 context.CancellationToken。
+        return Task.CompletedTask;
     }
+
+    public Task OnNavigatedFromAsync(NavigationContext context) => Task.CompletedTask;
+    public Task OnUnloadAsync(CancellationToken cancellationToken) => Task.CompletedTask;
+
+    // 启用缓存时，允许复用此实例；返回 false 可请求新实例。
+    public Task<bool> IsNavigationTargetAsync(NavigationContext context) => Task.FromResult(true);
 }
 ```
 
@@ -110,12 +128,21 @@ public class HomeViewModel : NavigationAwareBase
 ## 导航守卫
 
 ```csharp
-public class EditViewModel : NavigationAwareBase, INavigationGuard
+public class EditViewModel : INavigationAware, INavigationGuard
 {
-    public async Task<bool> CanNavigateAsync(NavigationContext context, CancellationToken ct)
+    public bool HasUnsavedChanges { get; set; }
+    public event AsyncEventHandler<AsyncEventArgs>? AsyncRequestUnloadEvent;
+
+    public Task InitializeAsync(NavigationContext context) => Task.CompletedTask;
+    public Task OnNavigatedToAsync(NavigationContext context) => Task.CompletedTask;
+    public Task OnNavigatedFromAsync(NavigationContext context) => Task.CompletedTask;
+    public Task OnUnloadAsync(CancellationToken cancellationToken) => Task.CompletedTask;
+    public Task<bool> IsNavigationTargetAsync(NavigationContext context) => Task.FromResult(true);
+
+    public Task<bool> CanNavigateAsync(NavigationContext context, CancellationToken ct)
     {
-        // 返回 false 可取消导航，通常在此弹出确认对话框
-        return !HasUnsavedChanges;
+        // 返回 false 可取消导航；如需确认，可在此异步显示对话框。
+        return Task.FromResult(!HasUnsavedChanges);
     }
 }
 ```

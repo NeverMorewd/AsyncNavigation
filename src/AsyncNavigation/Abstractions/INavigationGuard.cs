@@ -6,14 +6,14 @@ namespace AsyncNavigation.Abstractions;
 /// navigations away from the current view (e.g., unsaved-changes confirmation).
 /// </summary>
 /// <example>
+/// Add the following members to a view model implementing both
+/// <see cref="INavigationAware"/> and <see cref="INavigationGuard"/>:
 /// <code>
-/// public class EditViewModel : NavigationAwareBase, INavigationGuard
+/// public bool HasUnsavedChanges { get; set; }
+///
+/// public Task&lt;bool&gt; CanNavigateAsync(NavigationContext context, CancellationToken ct)
 /// {
-///     public async Task&lt;bool&gt; CanNavigateAsync(NavigationContext context, CancellationToken ct)
-///     {
-///         if (!HasUnsavedChanges) return true;
-///         return await _dialogService.ConfirmAsync("Discard unsaved changes?", ct);
-///     }
+///     return Task.FromResult(!HasUnsavedChanges);
 /// }
 /// </code>
 /// </example>
