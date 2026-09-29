@@ -12,9 +12,19 @@ internal sealed class AvaloniaFloatingWindowHostFactory : IFloatingWindowHostFac
     {
         if (!Dispatcher.UIThread.CheckAccess())
             throw new InvalidOperationException("Floating windows must be created on the Avalonia UI thread.");
-        if (Application.Current?.ApplicationLifetime is not IClassicDesktopStyleApplicationLifetime)
-            throw new NotSupportedException("Floating windows require Avalonia's classic desktop lifetime.");
-        return new AvaloniaFloatingWindowHost(options);
+
+        // Classic desktop hosts get a real OS window; everything else (browser/WASM, mobile
+        // single-view apps) has no windowing system, so floating content is rendered as an
+        // in-page overlay panel instead.
+        return Application.Current?.ApplicationLifetime switch
+        {
+            IClassicDesktopStyleApplicationLifetime => new AvaloniaFloatingWindowHost(options),
+            ISingleViewApplicationLifetime { MainView: { } mainView } => new AvaloniaOverlayFloatingWindowHost(options, mainView),
+            ISingleViewApplicationLifetime => throw new InvalidOperationException(
+                "The single-view application lifetime does not have a MainView to host floating content in."),
+            _ => throw new NotSupportedException(
+                "Floating windows require Avalonia's classic desktop or single-view application lifetime.")
+        };
     }
 }
 
