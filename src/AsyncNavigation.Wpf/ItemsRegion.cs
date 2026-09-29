@@ -1,4 +1,5 @@
 ﻿using AsyncNavigation.Core;
+using AsyncNavigation.Abstractions;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
@@ -6,7 +7,7 @@ using System.Windows.Data;
 
 namespace AsyncNavigation.Wpf;
 
-public class ItemsRegion : RegionBase<ItemsRegion, ItemsControl>
+public class ItemsRegion : RegionBase<ItemsRegion, ItemsControl>, IRegionPlacementParticipant
 {
     public ItemsRegion(string name,
         ItemsControl itemsControl, 
@@ -69,5 +70,41 @@ public class ItemsRegion : RegionBase<ItemsRegion, ItemsControl>
             return Task.CompletedTask;
         _ = _context.Items.Remove(target);
         return Task.CompletedTask;
+    }
+
+    public RegionPlacementItem Capture(Guid? navigationId = null)
+    {
+        var context = navigationId.HasValue
+            ? _context.Items.FirstOrDefault(item => item.NavigationId == navigationId.Value)
+            : _context.Selected ?? _context.Items.LastOrDefault();
+        if (context is null)
+            throw new InvalidOperationException($"Region '{Name}' does not contain the requested navigation item.");
+
+        return new RegionPlacementItem(context, _context.Items.IndexOf(context),
+            ReferenceEquals(_context.Selected, context));
+    }
+
+    public void Detach(RegionPlacementItem item)
+    {
+        ArgumentNullException.ThrowIfNull(item);
+        var index = _context.Items.IndexOf(item.Context);
+        if (index < 0)
+            throw new InvalidOperationException($"The navigation item is not attached to region '{Name}'.");
+
+        var wasSelected = ReferenceEquals(_context.Selected, item.Context);
+        _context.Items.RemoveAt(index);
+        if (wasSelected)
+            _context.Selected = _context.Items.Count == 0 ? null : _context.Items[Math.Min(index, _context.Items.Count - 1)];
+    }
+
+    public void Attach(RegionPlacementItem item, bool activate = true)
+    {
+        ArgumentNullException.ThrowIfNull(item);
+        if (_context.Items.Contains(item.Context))
+            throw new InvalidOperationException($"The navigation item is already attached to region '{Name}'.");
+
+        _context.Items.Insert(Math.Clamp(item.Index, 0, _context.Items.Count), item.Context);
+        if (activate || item.WasSelected)
+            _context.Selected = item.Context;
     }
 }

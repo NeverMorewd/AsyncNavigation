@@ -30,6 +30,7 @@ public partial class App : Application
 
         var services = new ServiceCollection();
         services.AddNavigationSupport(navigationOptions)
+                .AddFloatingSupport()
                 .AddSingletonWithAllMembers<MainWindowViewModel>()
                 .RegisterView<LightView, LightViewModel>(nameof(LightView))
                 .RegisterView<ItemsRegionView, ItemsRegionViewModel>(nameof(ItemsRegionView))
@@ -74,7 +75,7 @@ public partial class App : Application
 
         if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
         {
-            desktop.MainWindow = new MainWindow
+            desktop.MainWindow = new MainWindow(sp.GetRequiredService<AsyncNavigation.Floating.IViewPlacementService>())
             {
                 DataContext = sp.GetRequiredService<MainWindowViewModel>()
             };
@@ -82,7 +83,7 @@ public partial class App : Application
         }
         else if (ApplicationLifetime is ISingleViewApplicationLifetime singleViewPlatform)
         {
-            singleViewPlatform.MainView = new MainView
+            singleViewPlatform.MainView = new MainView(sp.GetRequiredService<AsyncNavigation.Floating.IViewPlacementService>())
             {
                 DataContext = sp.GetRequiredService<MainWindowViewModel>()
             };

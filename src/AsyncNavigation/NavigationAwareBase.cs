@@ -1,7 +1,7 @@
-﻿using AsyncNavigation.Abstractions;
+using AsyncNavigation.Abstractions;
 using AsyncNavigation.Core;
 
-namespace AsyncNavigation.Tests.Infrastructure;
+namespace AsyncNavigation;
 
 /// <summary>
 /// Abstract base class that provides no-op default implementations of all
@@ -9,6 +9,7 @@ namespace AsyncNavigation.Tests.Infrastructure;
 /// need to override a subset of the navigation lifecycle methods, avoiding the
 /// boilerplate of empty implementations for the rest.
 /// </summary>
+/// <remarks>Retained for compatibility. New view models should implement INavigationAware directly.</remarks>
 /// <example>
 /// <code>
 /// public class HomeViewModel : NavigationAwareBase
@@ -21,6 +22,7 @@ namespace AsyncNavigation.Tests.Infrastructure;
 /// }
 /// </code>
 /// </example>
+[Obsolete("NavigationAwareBase is retained for compatibility. Implement INavigationAware directly instead.", false)]
 public abstract class NavigationAwareBase : INavigationAware
 {
     /// <inheritdoc/>

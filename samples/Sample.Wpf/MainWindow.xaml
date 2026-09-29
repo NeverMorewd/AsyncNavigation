@@ -34,6 +34,10 @@
                     <Button Style="{StaticResource GoForward}" />
                 </StackPanel>
                 <Button
+                    Padding="8,4"
+                    Click="FloatMainRegion_Click"
+                    Content="Floating: current MainRegion view" />
+                <Button
                     Content="ToLightView"
                     Style="{StaticResource NavigationButton}"
                     Tag="LightView" />
@@ -66,7 +70,7 @@
                     Style="{StaticResource NavigationButton}"
                     Tag="ItemsRegionView" />
                 <Button
-                    Content="ToTabRegionView"
+                    Content="Floating demo: TabRegion"
                     Style="{StaticResource NavigationButton}"
                     Tag="TabRegionView" />
                 <Button

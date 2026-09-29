@@ -50,6 +50,10 @@
                 Content="ToLightView:Forget"
                 Style="{StaticResource NavigationAndForget}"
                 Tag="LightView" />
+            <Button
+                Padding="8,4"
+                Click="FloatSelectedItem_Click"
+                Content="Floating: selected ItemsRegion view" />
         </StackPanel>
         <ScrollViewer>
             <ItemsControl an:RegionManager.RegionName="ItemsRegion">

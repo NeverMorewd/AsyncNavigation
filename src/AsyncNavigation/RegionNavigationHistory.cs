@@ -58,6 +58,16 @@ public class RegionNavigationHistory : IRegionNavigationHistory
         return _history[_currentIndex];
     }
 
+    public void RemoveView(IView view)
+    {
+        for (var i = _history.Count - 1; i >= 0; i--)
+        {
+            if (!ReferenceEquals(_history[i].Target.Value, view)) continue;
+            _history.RemoveAt(i);
+            if (i <= _currentIndex) _currentIndex--;
+        }
+    }
+
     public void Clear()
     {
         _history.Clear();

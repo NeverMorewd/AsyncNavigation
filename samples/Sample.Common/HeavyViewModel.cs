@@ -2,13 +2,14 @@
 using AsyncNavigation.Abstractions;
 using AsyncNavigation.Core;
 using CommunityToolkit.Mvvm.Input;
+using CommunityToolkit.Mvvm.ComponentModel;
 using System.Collections.ObjectModel;
 
 namespace Sample.Common;
 
 public partial class HeavyViewModel : InstanceCounterViewModel<HeavyViewModel>, IDialogAware, INavigationMetadata
 {
-    public ObservableCollection<byte> HeavyItems
+    public ObservableCollection<HeavyItemViewModel> HeavyItems
     {
         get;
     } = [];
@@ -60,7 +61,26 @@ public partial class HeavyViewModel : InstanceCounterViewModel<HeavyViewModel>, 
         var rnd = new Random();
         for (int i = 0; i < count; i++)
         {
-            HeavyItems.Add((byte)rnd.Next(0, 256));
+            HeavyItems.Add(new HeavyItemViewModel((byte)rnd.Next(0, 256)));
         }
     }
+}
+
+public partial class HeavyItemViewModel(byte value) : ObservableObject
+{
+    public byte Value { get; } = value;
+
+    public IReadOnlyList<string> Options { get; } = ["Alpha", "Beta", "Gamma"];
+
+    [ObservableProperty]
+    private string? _selectedOption;
+
+    [ObservableProperty]
+    private DateTimeOffset? _avaloniaSelectedDate;
+
+    [ObservableProperty]
+    private DateTime? _wpfSelectedDate;
+
+    [ObservableProperty]
+    private bool _isExpanded;
 }

@@ -1,0 +1,12 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <Import Project="../../package.props" />
+  <PropertyGroup>
+    <TargetFrameworks>net8.0;net10.0</TargetFrameworks>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\AsyncNavigation.Avalonia\AsyncNavigation.Avalonia.csproj" />
+    <ProjectReference Include="..\AsyncNavigation.Floating\AsyncNavigation.Floating.csproj" />
+  </ItemGroup>
+</Project>

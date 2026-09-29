@@ -94,14 +94,32 @@ var result = await _dialogService.ShowViewDialogAsync("Confirm");
 
 ### 4. React to navigation in view models
 
+View models implement `INavigationAware` directly. `NavigationAwareBase` remains available for compatibility but is obsolete; new code should implement `INavigationAware`. You can define an application base class to share default implementations.
+
 ```csharp
-// Derive from NavigationAwareBase and override only what you need.
-public class HomeViewModel : NavigationAwareBase
+using AsyncNavigation;
+using AsyncNavigation.Abstractions;
+using AsyncNavigation.Core;
+using System.Threading;
+using System.Threading.Tasks;
+
+public class HomeViewModel : INavigationAware
 {
-    public override async Task OnNavigatedToAsync(NavigationContext context)
+    public event AsyncEventHandler<AsyncEventArgs>? AsyncRequestUnloadEvent;
+
+    public Task InitializeAsync(NavigationContext context) => Task.CompletedTask;
+
+    public Task OnNavigatedToAsync(NavigationContext context)
     {
-        await LoadDataAsync(context.CancellationToken);
+        // Load page data here; use context.CancellationToken for async operations.
+        return Task.CompletedTask;
     }
+
+    public Task OnNavigatedFromAsync(NavigationContext context) => Task.CompletedTask;
+    public Task OnUnloadAsync(CancellationToken cancellationToken) => Task.CompletedTask;
+
+    // Allow reuse when caching is enabled; return false to request a new instance.
+    public Task<bool> IsNavigationTargetAsync(NavigationContext context) => Task.FromResult(true);
 }
 ```
 
@@ -110,12 +128,21 @@ public class HomeViewModel : NavigationAwareBase
 ## Navigation Guard
 
 ```csharp
-public class EditViewModel : NavigationAwareBase, INavigationGuard
+public class EditViewModel : INavigationAware, INavigationGuard
 {
-    public async Task<bool> CanNavigateAsync(NavigationContext context, CancellationToken ct)
+    public bool HasUnsavedChanges { get; set; }
+    public event AsyncEventHandler<AsyncEventArgs>? AsyncRequestUnloadEvent;
+
+    public Task InitializeAsync(NavigationContext context) => Task.CompletedTask;
+    public Task OnNavigatedToAsync(NavigationContext context) => Task.CompletedTask;
+    public Task OnNavigatedFromAsync(NavigationContext context) => Task.CompletedTask;
+    public Task OnUnloadAsync(CancellationToken cancellationToken) => Task.CompletedTask;
+    public Task<bool> IsNavigationTargetAsync(NavigationContext context) => Task.FromResult(true);
+
+    public Task<bool> CanNavigateAsync(NavigationContext context, CancellationToken ct)
     {
-        // Return false to cancel — show a confirmation dialog here if needed.
-        return !HasUnsavedChanges;
+        // Return false to cancel; show a confirmation dialog asynchronously here if needed.
+        return Task.FromResult(!HasUnsavedChanges);
     }
 }
 ```
