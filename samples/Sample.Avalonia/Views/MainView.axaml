@@ -120,6 +120,19 @@
                             Classes="WindowShow"
                             Content="ToLightView:Window.Show"
                             Tag="AWindow" />
+                        <Separator Margin="4" />
+                        <Button
+                            Classes="RouterNavigation"
+                            Content="Router: Path_ChildHeavyView"
+                            Tag="Path_ChildHeavyView" />
+                        <Button
+                            Classes="RouterNavigation"
+                            Content="Router: Tab/Tab_A (segments)"
+                            Tag="/Tab/Tab_A" />
+                        <Button
+                            Classes="RouterNavigation"
+                            Content="Router: unknown path (fallback)"
+                            Tag="Path_UnknownView" />
                         <Button
                             Command="{Binding CollectCommand}"
                             Content="Collect"

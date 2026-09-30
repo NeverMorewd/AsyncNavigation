@@ -67,6 +67,13 @@
 			<Setter Property="CommandParameter" Value="{ReflectionBinding $self.Tag}" />
 			<Setter Property="VerticalContentAlignment" Value="Center" />
 		</Style>
+		<Style Selector="Button.RouterNavigation">
+			<Setter Property="Height" Value="30" />
+			<Setter Property="Width" Value="300" />
+			<Setter Property="Command" Value="{ReflectionBinding AsyncPathNavigateAndForgetCommand}" />
+			<Setter Property="CommandParameter" Value="{ReflectionBinding $self.Tag}" />
+			<Setter Property="VerticalContentAlignment" Value="Center" />
+		</Style>
 		<Style Selector="Button.DialogShow">
 			<Setter Property="Height" Value="30" />
 			<Setter Property="Width" Value="300" />

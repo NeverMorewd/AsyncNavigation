@@ -14,20 +14,17 @@ public partial class MainWindowViewModel : ViewModelBase
     private readonly IRegionManager _regionManager;
     private readonly IDialogService _dialogService;
     private readonly IRegistrationTracker _registrationTracker;
-    private readonly IRouter? _router;
-    
-    public MainWindowViewModel(IRegionManager regionManager, 
+
+    public MainWindowViewModel(IRegionManager regionManager,
         IDialogService dialogService,
-        IRegistrationTracker registrationTracker,
-        IRouter? router = null)
+        IRegistrationTracker registrationTracker)
     {
-        _router = router;
         _regionManager = regionManager;
         _dialogService = dialogService;
         _registrationTracker = registrationTracker;
         _regionManager
             .RequestNavigateAsync("MainRegion", "LightView", replay: false)
-            .ContinueWith(t => 
+            .ContinueWith(t =>
             {
                 if (t.IsFaulted)
                 {
@@ -37,22 +34,12 @@ public partial class MainWindowViewModel : ViewModelBase
 
         if(_regionManager.TryGetRegion("MainRegion", out var mainRegion))
         {
-            mainRegion.Navigated += (s, e) => 
+            mainRegion.Navigated += (s, e) =>
             {
                 Debug.WriteLine($"Navigated:{e.Context}");
             };
         }
         Views = _registrationTracker.TryGetViews(out var views) ? [.. views] : [];
-
-        if (_router is not null)
-        {
-            foreach (var mappedNavigation in _router.Routes)
-            {
-                Views.Add(mappedNavigation.Path);
-            }
-            Views.Add("/Tab/Tab_A");
-        }
-
     }
 
     public string FooterText => $"Powered by .NET {Environment.Version} • {RuntimeInformation.OSDescription}";
@@ -69,11 +56,7 @@ public partial class MainWindowViewModel : ViewModelBase
         if (string.IsNullOrWhiteSpace(value))
             return;
 
-        // Paths use router navigation; all other values are registered view names.
-        if (value.StartsWith("/", StringComparison.OrdinalIgnoreCase))
-            AsyncPathNavigateAndForget(value);
-        else
-            AsyncNavigateAndForget(value);
+        AsyncNavigateAndForget(value);
     }
 
     private bool CanUseDialogs() => !OperatingSystem.IsBrowser();
@@ -92,26 +75,39 @@ public partial class MainWindowViewModel : ViewModelBase
     private async Task AsyncNavigate(string param)
     {
         var (viewName, parameters) = SampleHelper.ParseNavigationParam(param);
-        var result = await _regionManager.RequestNavigateAsync("MainRegion", viewName, parameters);
-        Debug.WriteLine(result.Duration.TotalMilliseconds);
+        try
+        {
+            var result = await _regionManager.RequestNavigateAsync("MainRegion", viewName, parameters);
+            Debug.WriteLine(result.Duration.TotalMilliseconds);
+        }
+        catch (OperationCanceledException ex)
+        {
+            Debug.WriteLine($"Navigation to '{viewName}' was blocked: {ex.Message}");
+        }
     }
 
     [RelayCommand]
     private void AsyncNavigateAndForget(string param)
     {
         var (viewName, parameters) = SampleHelper.ParseNavigationParam(param);
-        _ = _regionManager.RequestNavigateAsync("MainRegion", viewName, parameters).ContinueWith(t => 
+        _ = _regionManager.RequestNavigateAsync("MainRegion", viewName, parameters).ContinueWith(t =>
         {
-            var result = t.Result;
-            Debug.WriteLine(result.Duration.TotalMilliseconds);
+            if (t.IsFaulted || t.IsCanceled)
+                Debug.WriteLine($"Navigation to '{viewName}' was blocked: {t.Exception?.GetBaseException().Message}");
+            else
+                Debug.WriteLine(t.Result.Duration.TotalMilliseconds);
         });
     }
+
+    [RelayCommand]
     private void AsyncPathNavigateAndForget(string path)
     {
         _ = _regionManager.RequestPathNavigateAsync(path).ContinueWith(t =>
         {
-            var result = t.Result;
-            Debug.WriteLine($"RequestPathNavigateAsync:{result.Duration.TotalMilliseconds}");
+            if (t.IsFaulted || t.IsCanceled)
+                Debug.WriteLine($"Router navigation to '{path}' failed: {t.Exception?.GetBaseException().Message}");
+            else
+                Debug.WriteLine($"RequestPathNavigateAsync:{t.Result.Duration.TotalMilliseconds}");
         });
     }
     [RelayCommand(CanExecute = nameof(CanUseDialogs))]
@@ -161,13 +157,27 @@ public partial class MainWindowViewModel : ViewModelBase
     [RelayCommand]
     private async Task GoForward()
     {
-        await _regionManager.GoForwardAsync("MainRegion");
+        try
+        {
+            await _regionManager.GoForwardAsync("MainRegion");
+        }
+        catch (OperationCanceledException ex)
+        {
+            Debug.WriteLine($"GoForward was blocked: {ex.Message}");
+        }
     }
 
     [RelayCommand]
     private async Task GoBack()
     {
-        await _regionManager.GoBackAsync("MainRegion");
+        try
+        {
+            await _regionManager.GoBackAsync("MainRegion");
+        }
+        catch (OperationCanceledException ex)
+        {
+            Debug.WriteLine($"GoBack was blocked: {ex.Message}");
+        }
     }
 
     [RelayCommand]

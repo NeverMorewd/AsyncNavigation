@@ -28,6 +28,10 @@
                 <Button Style="{StaticResource FloatView}" />
                 <Button Style="{StaticResource CloseDialog}" />
                 <Button Style="{StaticResource CloseDialogWithCancelling}" />
+                <CheckBox
+                    Margin="4"
+                    Content="Block leaving (INavigationGuard)"
+                    IsChecked="{Binding PreventLeave}" />
             </StackPanel>
         </Border>
     </DockPanel>

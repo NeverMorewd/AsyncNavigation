@@ -101,6 +101,19 @@
                     Content="ToLightView:Window.Show"
                     Style="{StaticResource WindowShow}"
                     Tag="AWindow" />
+                <Separator Margin="4" />
+                <Button
+                    Content="Router: Path_ChildHeavyView"
+                    Style="{StaticResource RouterNavigation}"
+                    Tag="Path_ChildHeavyView" />
+                <Button
+                    Content="Router: Tab/Tab_A (segments)"
+                    Style="{StaticResource RouterNavigation}"
+                    Tag="/Tab/Tab_A" />
+                <Button
+                    Content="Router: unknown path (fallback)"
+                    Style="{StaticResource RouterNavigation}"
+                    Tag="Path_UnknownView" />
                 <Button
                     Command="{Binding CollectCommand}"
                     Content="Collect"

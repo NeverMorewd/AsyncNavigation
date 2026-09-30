@@ -32,6 +32,7 @@ public partial class App : Application
         services.AddNavigationSupport(navigationOptions)
                 .AddFloatingSupport()
                 .AddSingletonWithAllMembers<MainWindowViewModel>()
+                .RegisterNavigationInterceptor<SampleNavigationInterceptor>()
                 .RegisterView<LightView, LightViewModel>(nameof(LightView))
                 .RegisterView<ItemsRegionView, ItemsRegionViewModel>(nameof(ItemsRegionView))
                 .RegisterView<ChildContentRegionView, ChildContentRegionViewModel>(nameof(ChildContentRegionView))

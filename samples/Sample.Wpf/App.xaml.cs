@@ -1,7 +1,6 @@
 ﻿using AsyncNavigation.Core;
 using AsyncNavigation.Wpf;
 using Microsoft.Extensions.DependencyInjection;
-using Sample.Avalonia;
 using Sample.Common;
 using Sample.Wpf.Regions;
 using Sample.Wpf.Views;
@@ -23,6 +22,7 @@ public partial class App : Application
         services.AddNavigationSupport()
             .AddFloatingSupport()
             .AddSingleton<MainWindowViewModel>()
+            .RegisterNavigationInterceptor<SampleNavigationInterceptor>()
             .RegisterRegionAdapter<ListBoxRegionAdapter>()
             .RegisterView<LightView, LightViewModel>(nameof(LightView))
             .RegisterView<ItemsRegionView, ItemsRegionViewModel>(nameof(ItemsRegionView))
