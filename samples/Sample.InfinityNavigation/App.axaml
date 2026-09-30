@@ -2,9 +2,8 @@
     x:Class="Sample.InfinityNavigation.App"
     xmlns="https://github.com/avaloniaui"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-    xmlns:pipboy="clr-namespace:Pipboy.Avalonia;assembly=Pipboy.Avalonia"
     RequestedThemeVariant="Default">
     <Application.Styles>
-		<pipboy:PipboyTheme />
+        <FluentTheme />
     </Application.Styles>
 </Application>
