@@ -175,7 +175,8 @@ public abstract class RegionBase<TRegion, TControl> : IRegion, IRegionPresenter,
         {
             RegionName = Name,
             ViewName = item.Context.ViewName,
-            Parameters = item.Context.Parameters
+            Parameters = item.Context.Parameters,
+            NavigationId = item.Context.NavigationId
         };
         context.Target.Value = item.Context.Target.Value!;
         context.IndicatorHost.Value = item.Context.IndicatorHost.Value!;
