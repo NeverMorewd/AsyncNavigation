@@ -1,6 +1,7 @@
 ﻿using AsyncNavigation;
 using AsyncNavigation.Abstractions;
 using AsyncNavigation.Core;
+using AsyncNavigation.Floating;
 using CommunityToolkit.Mvvm.ComponentModel;
 using System.Diagnostics.CodeAnalysis;
 
@@ -18,6 +19,9 @@ public abstract partial class ViewModelBase : ObservableObject, INavigationAware
     }
 
     public event AsyncEventHandler<AsyncEventArgs>? AsyncRequestUnloadEvent;
+
+    public string? RegionName { get; private set; }
+    public Guid NavigationId { get; private set; }
 
     public virtual Task InitializeAsync(NavigationContext context)
     {
@@ -46,6 +50,8 @@ public abstract partial class ViewModelBase : ObservableObject, INavigationAware
 
     public virtual async Task OnNavigatedToAsync(NavigationContext context)
     {
+        RegionName = context.RegionName;
+        NavigationId = context.NavigationId;
         if (GetRaiseError(context))
         {
             throw new Exception($"I am an Exception from {GetType()}");
@@ -68,6 +74,12 @@ public abstract partial class ViewModelBase : ObservableObject, INavigationAware
             return Task.CompletedTask;
         }
         return AsyncRequestUnloadEvent!.Invoke(this, AsyncEventArgs.Empty);
+    }
+
+    protected Task UnloadOrCloseFloatingAsync(IViewPlacementService? viewPlacementService, CancellationToken cancellationToken = default)
+    {
+        var session = viewPlacementService?.FloatingViews.FirstOrDefault(s => s.NavigationId == NavigationId);
+        return session is not null ? session.CloseAsync(cancellationToken) : RequestUnloadAsync(cancellationToken);
     }
 
     private static bool TryGetDelay(NavigationContext navigationContext, [MaybeNullWhen(false)] out TimeSpan? delayTime)

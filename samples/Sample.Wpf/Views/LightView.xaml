@@ -25,6 +25,7 @@
                         Text="{Binding InstanceNumber, Mode=OneWay}" />
                 </TextBlock>
                 <Button Style="{StaticResource UnloadView}" />
+                <Button Style="{StaticResource FloatView}" />
                 <Button Style="{StaticResource CloseDialog}" />
                 <Button Style="{StaticResource CloseDialogWithCancelling}" />
             </StackPanel>

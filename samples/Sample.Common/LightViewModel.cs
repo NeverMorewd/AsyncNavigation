@@ -1,5 +1,6 @@
 ﻿using AsyncNavigation.Abstractions;
 using AsyncNavigation.Core;
+using AsyncNavigation.Floating;
 using CommunityToolkit.Mvvm.Input;
 
 namespace Sample.Common;
@@ -7,6 +8,7 @@ namespace Sample.Common;
 public partial class LightViewModel : InstanceCounterViewModel<LightViewModel>, IDialogAware, INavigationMetadata
 {
     private readonly IRegionManager _regionManager;
+    private readonly IViewPlacementService? _viewPlacementService;
 
     public event AsyncEventHandler<DialogCloseEventArgs>? RequestCloseAsync;
 
@@ -14,16 +16,23 @@ public partial class LightViewModel : InstanceCounterViewModel<LightViewModel>, 
 
     public IconDescriptor Icon => IconDescriptor.FromFile("Icon.png");
 
-    public LightViewModel(IRegionManager regionManager)
+    public LightViewModel(IRegionManager regionManager, IViewPlacementService? viewPlacementService = null)
     {
         _regionManager = regionManager;
+        _viewPlacementService = viewPlacementService;
     }
 
 
     [RelayCommand]
     private Task UnloadView(string param)
     {
-        return RequestUnloadAsync(CancellationToken.None);
+        return UnloadOrCloseFloatingAsync(_viewPlacementService);
+    }
+
+    [RelayCommand]
+    private Task FloatView(string param)
+    {
+        return _viewPlacementService?.FloatAsync(RegionName!, NavigationId) ?? Task.CompletedTask;
     }
 
     [RelayCommand]

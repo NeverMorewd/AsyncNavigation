@@ -59,7 +59,7 @@ public partial class App : Application
         base.OnStartup(e);
         var converter = sp.GetRequiredService<IconDescriptorConverter>();
         Application.Current.Resources[nameof(IconDescriptorConverter)] = converter;
-        var mainWindow = new MainWindow(sp.GetRequiredService<AsyncNavigation.Floating.IViewPlacementService>())
+        var mainWindow = new MainWindow
         {
             DataContext = sp.GetRequiredService<MainWindowViewModel>()
         };

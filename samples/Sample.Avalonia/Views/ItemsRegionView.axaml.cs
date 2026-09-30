@@ -1,42 +1,12 @@
-﻿using AsyncNavigation.Abstractions;
-using AsyncNavigation.Floating;
+using AsyncNavigation.Abstractions;
 using Avalonia.Controls;
-using Avalonia.Interactivity;
-using System;
-using System.Diagnostics;
 
 namespace Sample.Avalonia.Views;
 
 public partial class ItemsRegionView : UserControl, IView
 {
-    private readonly IViewPlacementService? _placementService;
-
-    public ItemsRegionView() : this(null)
+    public ItemsRegionView()
     {
-    }
-
-    public ItemsRegionView(IViewPlacementService? placementService)
-    {
-        _placementService = placementService;
         InitializeComponent();
-    }
-    private async void FloatSelectedItem_Click(object? sender, RoutedEventArgs e)
-    {
-        if (_placementService is null)
-            return;
-
-        try
-        {
-            await _placementService.FloatAsync("ItemsRegion", options: new FloatingWindowOptions
-            {
-                Title = "AsyncNavigation floating ItemsRegion item",
-                Width = 720,
-                Height = 480
-            });
-        }
-        catch (Exception ex) when (ex is InvalidOperationException or NotSupportedException)
-        {
-            Debug.WriteLine($"Cannot float ItemsRegion: {ex.Message}");
-        }
     }
 }

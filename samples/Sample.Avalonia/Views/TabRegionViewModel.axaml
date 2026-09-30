@@ -27,6 +27,7 @@
                         Text="{Binding InstanceNumber}" />
                 </TextBlock>
                 <Button Classes="UnloadView" />
+                <Button Classes="FloatView" />
                 <Button Classes="CloseDialog" />
                 <Button Classes="CloseDialogWithCancelling" />
             </StackPanel>

@@ -75,7 +75,7 @@ public partial class App : Application
 
         if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
         {
-            desktop.MainWindow = new MainWindow(sp.GetRequiredService<AsyncNavigation.Floating.IViewPlacementService>())
+            desktop.MainWindow = new MainWindow
             {
                 DataContext = sp.GetRequiredService<MainWindowViewModel>()
             };
@@ -83,7 +83,7 @@ public partial class App : Application
         }
         else if (ApplicationLifetime is ISingleViewApplicationLifetime singleViewPlatform)
         {
-            singleViewPlatform.MainView = new MainView(sp.GetRequiredService<AsyncNavigation.Floating.IViewPlacementService>())
+            singleViewPlatform.MainView = new MainView
             {
                 DataContext = sp.GetRequiredService<MainWindowViewModel>()
             };

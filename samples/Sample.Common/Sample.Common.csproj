@@ -12,6 +12,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\src\AsyncNavigation\AsyncNavigation.csproj" />
+    <ProjectReference Include="..\..\src\AsyncNavigation.Floating\AsyncNavigation.Floating.csproj" />
   </ItemGroup>
 
   <ItemGroup>
