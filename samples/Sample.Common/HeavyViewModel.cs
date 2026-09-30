@@ -37,7 +37,7 @@ public partial class HeavyViewModel : InstanceCounterViewModel<HeavyViewModel>, 
     [RelayCommand]
     private Task FloatView(string param)
     {
-        return _viewPlacementService?.FloatAsync(RegionName!, NavigationId) ?? Task.CompletedTask;
+        return FloatOrDockAsync(_viewPlacementService);
     }
 
     [RelayCommand]

@@ -13,6 +13,12 @@ public abstract partial class ViewModelBase : ObservableObject, INavigationAware
     private string _name;
     [ObservableProperty]
     private bool _isDialog = false;
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(FloatButtonText))]
+    private bool _isFloating;
+
+    public string FloatButtonText => IsFloating ? "Dock to region" : "Float";
+
     public ViewModelBase()
     {
         _name = GetType().Name;
@@ -78,9 +84,42 @@ public abstract partial class ViewModelBase : ObservableObject, INavigationAware
 
     protected Task UnloadOrCloseFloatingAsync(IViewPlacementService? viewPlacementService, CancellationToken cancellationToken = default)
     {
-        var session = viewPlacementService?.FloatingViews.FirstOrDefault(s => s.NavigationId == NavigationId);
+        var session = FindFloatingSession(viewPlacementService);
         return session is not null ? session.CloseAsync(cancellationToken) : RequestUnloadAsync(cancellationToken);
     }
+
+    /// <summary>
+    /// Floats this view if it isn't already floating, or docks it back into its region if it is.
+    /// Drives the floating window's own dock affordance (<see cref="FloatingWindowOptions.ShowDockButton"/>
+    /// is set to <see langword="false"/>), so the view controls both directions through one button.
+    /// </summary>
+    protected async Task FloatOrDockAsync(IViewPlacementService? viewPlacementService, CancellationToken cancellationToken = default)
+    {
+        var session = FindFloatingSession(viewPlacementService);
+        if (session is not null)
+        {
+            await session.RestoreAsync(cancellationToken);
+            return;
+        }
+        if (viewPlacementService is null || RegionName is null)
+            return;
+
+        var newSession = await viewPlacementService.FloatAsync(
+            RegionName, NavigationId, new FloatingWindowOptions { ShowDockButton = false }, cancellationToken);
+        IsFloating = true;
+        newSession.StateChanged += OnFloatingSessionStateChanged;
+    }
+
+    private void OnFloatingSessionStateChanged(object? sender, EventArgs e)
+    {
+        if (sender is not IFloatingViewSession { State: ViewPlacementState.Restored or ViewPlacementState.Closed } session)
+            return;
+        session.StateChanged -= OnFloatingSessionStateChanged;
+        IsFloating = false;
+    }
+
+    private IFloatingViewSession? FindFloatingSession(IViewPlacementService? viewPlacementService) =>
+        viewPlacementService?.FloatingViews.FirstOrDefault(s => s.NavigationId == NavigationId);
 
     private static bool TryGetDelay(NavigationContext navigationContext, [MaybeNullWhen(false)] out TimeSpan? delayTime)
     {

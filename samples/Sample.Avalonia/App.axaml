@@ -48,7 +48,7 @@
 			<Setter Property="Width" Value="300" />
 			<Setter Property="IsVisible" Value="{ReflectionBinding !IsDialog}" />
 			<Setter Property="Command" Value="{ReflectionBinding FloatViewCommand}" />
-			<Setter Property="Content" Value="Float"/>
+			<Setter Property="Content" Value="{ReflectionBinding FloatButtonText}"/>
 			<Setter Property="CommandParameter" Value="{ReflectionBinding $self.Tag}" />
 			<Setter Property="VerticalContentAlignment" Value="Center" />
 			<Setter Property="HorizontalContentAlignment" Value="Center" />

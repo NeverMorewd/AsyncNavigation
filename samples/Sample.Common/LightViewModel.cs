@@ -37,7 +37,7 @@ public partial class LightViewModel : InstanceCounterViewModel<LightViewModel>, 
     [RelayCommand]
     private Task FloatView(string param)
     {
-        return _viewPlacementService?.FloatAsync(RegionName!, NavigationId) ?? Task.CompletedTask;
+        return FloatOrDockAsync(_viewPlacementService);
     }
 
     public Task<bool> CanNavigateAsync(NavigationContext context, CancellationToken cancellationToken) =>

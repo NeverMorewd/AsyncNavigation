@@ -2,6 +2,7 @@ using AsyncNavigation.Floating;
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Controls.ApplicationLifetimes;
+using Avalonia.Layout;
 using Avalonia.Threading;
 
 namespace AsyncNavigation.Avalonia.Floating;
@@ -46,11 +47,21 @@ internal sealed class AvaloniaFloatingWindowHost : IFloatingWindowHost
         };
         if (options.Width.HasValue) _window.Width = options.Width.Value;
         if (options.Height.HasValue) _window.Height = options.Height.Value;
-        var dockButton = new Button { Content = "Dock to region", Margin = new Thickness(8) };
-        dockButton.Click += (_, _) => RestoreRequested?.Invoke(this, EventArgs.Empty);
-        DockPanel.SetDock(dockButton, Dock.Top);
         var panel = new DockPanel { LastChildFill = true };
-        panel.Children.Add(dockButton);
+        if (options.ShowDockButton)
+        {
+            var dockButton = new Button
+            {
+                Content = "Dock to region",
+                Height = 30,
+                Margin = new Thickness(8),
+                HorizontalContentAlignment = HorizontalAlignment.Center,
+                VerticalContentAlignment = VerticalAlignment.Center
+            };
+            dockButton.Click += (_, _) => RestoreRequested?.Invoke(this, EventArgs.Empty);
+            DockPanel.SetDock(dockButton, Dock.Top);
+            panel.Children.Add(dockButton);
+        }
         panel.Children.Add(_content);
         _window.Content = panel;
         _window.Closing += OnClosing;

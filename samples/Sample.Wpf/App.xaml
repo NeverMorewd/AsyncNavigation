@@ -88,7 +88,7 @@
             <Setter Property="Width" Value="300" />
             <Setter Property="Visibility" Value="{Binding IsDialog, Converter={StaticResource BoolToVisibilityInverted}}" />
             <Setter Property="Command" Value="{Binding FloatViewCommand}" />
-            <Setter Property="Content" Value="Float" />
+            <Setter Property="Content" Value="{Binding FloatButtonText}" />
             <Setter Property="CommandParameter" Value="{Binding RelativeSource={RelativeSource Mode=Self}, Path=Tag}" />
             <Setter Property="VerticalContentAlignment" Value="Center" />
             <Setter Property="HorizontalContentAlignment" Value="Center" />
