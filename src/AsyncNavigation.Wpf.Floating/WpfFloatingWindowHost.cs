@@ -21,7 +21,7 @@ internal sealed class WpfFloatingWindowHostFactory : IFloatingWindowHostFactory
 internal sealed class WpfFloatingWindowHost : IFloatingWindowHost
 {
     private readonly Window _window;
-    private bool _allowClose;
+    private readonly FloatingWindowCloseGuard _closeGuard = new();
     private readonly ContentControl _content = new();
 
     public WpfFloatingWindowHost(FloatingWindowOptions options)
@@ -61,7 +61,7 @@ internal sealed class WpfFloatingWindowHost : IFloatingWindowHost
     public Task CloseAsync(CancellationToken cancellationToken = default) =>
         InvokeAsync(() =>
         {
-            _allowClose = true;
+            _closeGuard.AllowClose();
             _window.Close();
         }, cancellationToken);
 
@@ -72,7 +72,7 @@ internal sealed class WpfFloatingWindowHost : IFloatingWindowHost
             _window.Closing -= OnClosing;
             if (_window.IsVisible)
             {
-                _allowClose = true;
+                _closeGuard.AllowClose();
                 _window.Close();
             }
         }, CancellationToken.None);
@@ -80,7 +80,7 @@ internal sealed class WpfFloatingWindowHost : IFloatingWindowHost
 
     private void OnClosing(object? sender, CancelEventArgs e)
     {
-        if (_allowClose)
+        if (!_closeGuard.ShouldCancelAndNotify())
             return;
         e.Cancel = true;
         _ = _window.Dispatcher.InvokeAsync(
