@@ -30,6 +30,10 @@
                 <Button Classes="FloatView" />
                 <Button Classes="CloseDialog" />
                 <Button Classes="CloseDialogWithCancelling" />
+                <CheckBox
+                    Margin="4"
+                    Content="Block leaving (INavigationGuard)"
+                    IsChecked="{Binding PreventLeave}" />
             </StackPanel>
         </Border>
     </DockPanel>
