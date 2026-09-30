@@ -23,10 +23,6 @@
                 Content="ToHeavyView"
                 Style="{StaticResource NavigationButton}"
                 Tag="HeavyView" />
-            <Button
-                Padding="8,4"
-                Click="FloatSelectedItem_Click"
-                Content="Floating: selected CustomListBoxRegion view" />
         </StackPanel>
         <ListBox an:RegionManager.RegionName="CustomListBoxRegion" />
     </DockPanel>

@@ -50,16 +50,18 @@ internal sealed class AvaloniaOverlayFloatingWindowHost : IFloatingWindowHost
             FontWeight = FontWeight.SemiBold
         };
 
-        var dockButton = new Button { Content = "Dock", Margin = new Thickness(4, 2) };
-        dockButton.Click += (_, _) => RestoreRequested?.Invoke(this, EventArgs.Empty);
-
         // A plain ASCII glyph, not "✕": the default WASM/browser font set doesn't cover it and
         // renders tofu instead.
         var closeButton = new Button { Content = "X", Margin = new Thickness(0, 2, 4, 2) };
         closeButton.Click += (_, _) => CloseRequested?.Invoke(this, EventArgs.Empty);
 
         var titleBarButtons = new StackPanel { Orientation = Orientation.Horizontal };
-        titleBarButtons.Children.Add(dockButton);
+        if (options.ShowDockButton)
+        {
+            var dockButton = new Button { Content = "Dock", Margin = new Thickness(4, 2) };
+            dockButton.Click += (_, _) => RestoreRequested?.Invoke(this, EventArgs.Empty);
+            titleBarButtons.Children.Add(dockButton);
+        }
         titleBarButtons.Children.Add(closeButton);
         Grid.SetColumn(titleBarButtons, 1);
 
