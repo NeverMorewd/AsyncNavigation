@@ -100,10 +100,10 @@ internal sealed class ViewManager : IViewManager, IViewPlacementCache
         }
     }
 
-    public void Remove(string cacheKey, bool dispose = false)
+    public bool Remove(string cacheKey, bool dispose = false)
     {
         if (_viewCache.TryGetValue(cacheKey, out var pinned) &&
-            pinned.TryGetTarget(out var active) && _placement?.IsFloating(active) == true) return;
+            pinned.TryGetTarget(out var active) && _placement?.IsFloating(active) == true) return false;
         if (_viewCache.TryRemove(cacheKey, out var viewRef))
         {
             lock (_lruLock)
@@ -119,7 +119,9 @@ internal sealed class ViewManager : IViewManager, IViewPlacementCache
             {
                 DisposeView(view);
             }
+            return true;
         }
+        return false;
     }
 
     public void RemoveInstance(IView view)
@@ -169,12 +171,18 @@ internal sealed class ViewManager : IViewManager, IViewPlacementCache
 
     private void TrimCache(string protectedKey)
     {
+        // Resume scanning from wherever the previous eviction in this call left off, instead of
+        // restarting from the tail every outer-loop iteration - floating (pinned) entries don't
+        // change status mid-call, so re-walking past the same ones on every eviction is wasted
+        // work that turns this into O(evictions * pinned) when floating views sit at the tail.
+        LinkedListNode<string>? node = null;
         while (_viewCache.Count > _maxCacheSize)
         {
             string? oldestKey = null;
             lock (_lruLock)
             {
-                var node = _lruList.Last;
+                if (node?.List != _lruList)
+                    node = _lruList.Last;
                 while (node is not null)
                 {
                     if (node.Value != protectedKey &&
@@ -185,8 +193,10 @@ internal sealed class ViewManager : IViewManager, IViewPlacementCache
                 }
                 if (node is null) break; // Active windows are pinned, even above the cache limit.
                 oldestKey = node.Value;
+                var toRemove = node;
+                node = node.Previous;
                 _lruIndex.Remove(oldestKey);
-                _lruList.Remove(node);
+                _lruList.Remove(toRemove);
             }
 
             if (oldestKey != null && _viewCache.TryRemove(oldestKey, out var viewRef))

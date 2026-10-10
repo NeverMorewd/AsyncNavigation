@@ -207,4 +207,35 @@ public class RegionManagerTests
         Assert.True(guardVm.GuardWasCalled);
         Assert.False(guardVm.NavigatedFromWasCalled);
     }
+
+    [Fact]
+    public async Task Navigation_CancelledRightAfterActivation_StillCallsOnNavigatedFrom()
+    {
+        var region = TestRegion.Build(_serviceProvider);
+        _regionManager.TryRemoveRegion("Guard4", out _);
+        _regionManager.AddRegion("Guard4", region);
+
+        using var cts = new CancellationTokenSource();
+        var callbackRan = false;
+        // Simulates cancellation racing in right after OnNavigatedToAsync succeeds but before the
+        // pipeline's own cancellation check - the view was told it's active, so it must also be
+        // told it's leaving when the operation is rolled back, or its lifecycle state goes out of
+        // sync with the region reverting.
+        GuardTestNavigationAware.NextActivatedCallback = () =>
+        {
+            callbackRan = true;
+            cts.Cancel();
+        };
+
+        var result = await _regionManager.RequestNavigateAsync("Guard4", "GuardTestView", cancellationToken: cts.Token);
+        var guardVm = GuardTestNavigationAware.LastCreated!;
+        GuardTestNavigationAware.NextActivatedCallback = null;
+
+        _regionManager.TryRemoveRegion("Guard4", out _);
+
+        Assert.True(callbackRan, "activation callback never ran");
+        Assert.True(cts.IsCancellationRequested, "cts was not cancelled");
+        Assert.True(result.IsCancelled, result.ToString());
+        Assert.True(guardVm.NavigatedFromWasCalled);
+    }
 }

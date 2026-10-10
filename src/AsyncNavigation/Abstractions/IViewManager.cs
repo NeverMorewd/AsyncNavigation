@@ -8,5 +8,7 @@ public interface IViewManager : IDisposable
         Func<IView, Task>? initialize = null);
     void AddView(string key, IView view);
     void Clear();
-    void Remove(string key, bool dispose = false);
+    /// <summary>Removes the cache entry for <paramref name="key"/>. Returns false without removing
+    /// anything if the cached instance is currently floating (pinned) or the key isn't cached.</summary>
+    bool Remove(string key, bool dispose = false);
 }

@@ -220,7 +220,14 @@ internal sealed class RegionNavigationService<T> : IRegionNavigationService<T> w
         {
             SubscribeUnload(navigationContext);
             await aware.OnNavigatedToAsync(navigationContext);
-            navigationContext.CancellationToken.ThrowIfCancellationRequested();
+            if (navigationContext.CancellationToken.IsCancellationRequested)
+            {
+                // Activation succeeded but the operation is being cancelled/rolled back right
+                // after - notify the view it's leaving too, so its lifecycle state doesn't end
+                // up out of sync with the region reverting to whatever was active before.
+                await aware.OnNavigatedFromAsync(navigationContext);
+                navigationContext.CancellationToken.ThrowIfCancellationRequested();
+            }
             _current = (view, navigationContext);
         }
         if (navigationContext.Target.Value is { } target)

@@ -31,7 +31,7 @@ internal sealed class AvaloniaFloatingWindowHostFactory : IFloatingWindowHostFac
 internal sealed class AvaloniaFloatingWindowHost : IFloatingWindowHost
 {
     private readonly Window _window;
-    private bool _allowClose;
+    private readonly FloatingWindowCloseGuard _closeGuard = new();
     private readonly ContentControl _content = new();
 
     public AvaloniaFloatingWindowHost(FloatingWindowOptions options)
@@ -71,7 +71,7 @@ internal sealed class AvaloniaFloatingWindowHost : IFloatingWindowHost
     public Task CloseAsync(CancellationToken cancellationToken = default) =>
         InvokeAsync(() =>
         {
-            _allowClose = true;
+            _closeGuard.AllowClose();
             _window.Close();
         }, cancellationToken);
 
@@ -82,7 +82,7 @@ internal sealed class AvaloniaFloatingWindowHost : IFloatingWindowHost
             _window.Closing -= OnClosing;
             if (_window.IsVisible)
             {
-                _allowClose = true;
+                _closeGuard.AllowClose();
                 _window.Close();
             }
         }, CancellationToken.None);
@@ -90,7 +90,7 @@ internal sealed class AvaloniaFloatingWindowHost : IFloatingWindowHost
 
     private void OnClosing(object? sender, WindowClosingEventArgs e)
     {
-        if (_allowClose)
+        if (!_closeGuard.ShouldCancelAndNotify())
             return;
 
         e.Cancel = true;

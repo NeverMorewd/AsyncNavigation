@@ -16,7 +16,7 @@ internal sealed class WeakUnloadObserver
     private static readonly ConditionalWeakTable<INavigationAware, AsyncEventHandler<AsyncEventArgs>> _subscriptions = new();
     private static readonly object _subscriptionsLock = new();
 
-    public static void Subscribe(INavigationAware navigationAware, Action<INavigationAware> onUnloadCallback)
+    public static void Subscribe(INavigationAware navigationAware, Func<INavigationAware, Task> onUnloadCallback)
     {
         var weakReference = new WeakReference<INavigationAware>(navigationAware);
 
@@ -32,7 +32,7 @@ internal sealed class WeakUnloadObserver
             }
 
             await target.OnUnloadAsync(args.CancellationToken);
-            onUnloadCallback?.Invoke(target);
+            await onUnloadCallback(target);
         }
 
         // TryGetValue/Remove/Add aren't individually atomic against each other, and
