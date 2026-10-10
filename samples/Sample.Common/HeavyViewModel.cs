@@ -1,6 +1,7 @@
 ﻿using AsyncNavigation;
 using AsyncNavigation.Abstractions;
 using AsyncNavigation.Core;
+using AsyncNavigation.Floating;
 using CommunityToolkit.Mvvm.Input;
 using CommunityToolkit.Mvvm.ComponentModel;
 using System.Collections.ObjectModel;
@@ -9,6 +10,13 @@ namespace Sample.Common;
 
 public partial class HeavyViewModel : InstanceCounterViewModel<HeavyViewModel>, IDialogAware, INavigationMetadata
 {
+    private readonly IViewPlacementService? _viewPlacementService;
+
+    public HeavyViewModel(IViewPlacementService? viewPlacementService = null)
+    {
+        _viewPlacementService = viewPlacementService;
+    }
+
     public ObservableCollection<HeavyItemViewModel> HeavyItems
     {
         get;
@@ -23,7 +31,13 @@ public partial class HeavyViewModel : InstanceCounterViewModel<HeavyViewModel>, 
     [RelayCommand]
     private Task UnloadView(string param)
     {
-        return RequestUnloadAsync(CancellationToken.None);
+        return UnloadOrCloseFloatingAsync(_viewPlacementService);
+    }
+
+    [RelayCommand]
+    private Task FloatView(string param)
+    {
+        return FloatOrDockAsync(_viewPlacementService);
     }
 
     [RelayCommand]

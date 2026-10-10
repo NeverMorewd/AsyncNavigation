@@ -287,7 +287,19 @@ internal sealed class ViewPlacementService : IViewPlacementService, IDisposable
         public Guid Id { get; }
         public Guid NavigationId => Item.Context.NavigationId;
         public string OriginRegionName { get; }
-        public ViewPlacementState State { get; private set; } = ViewPlacementState.Floating;
+
+        private ViewPlacementState _state = ViewPlacementState.Floating;
+        public ViewPlacementState State
+        {
+            get => _state;
+            private set
+            {
+                if (_state == value) return;
+                _state = value;
+                StateChanged?.Invoke(this, EventArgs.Empty);
+            }
+        }
+        public event EventHandler? StateChanged;
         internal WeakReference<IRegion> OriginRegion { get; }
         internal RegionPlacementItem Item { get; }
         internal object Content { get; private set; } = null!;

@@ -3,7 +3,7 @@ using AsyncNavigation.Abstractions;
 using AsyncNavigation.Core;
 using System.Windows;
 
-namespace Sample.Avalonia;
+namespace Sample.Wpf;
 
 internal class MessageBoxIndicatorProvider : IRegionIndicatorProvider
 {

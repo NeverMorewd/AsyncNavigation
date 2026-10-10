@@ -39,10 +39,6 @@
                 Classes="Navigation"
                 Content="ToHeavyView"
                 Tag="HeavyView" />
-            <Button
-                Padding="8,4"
-                Click="FloatChildRegion_Click"
-                Content="Floating: current ChildContentRegion view" />
         </StackPanel>
         <ContentControl an:RegionManager.RegionName="ChildContentRegion" />
     </DockPanel>

@@ -21,6 +21,13 @@
             <Setter Property="CommandParameter" Value="{Binding RelativeSource={RelativeSource Mode=Self}, Path=Tag}" />
             <Setter Property="VerticalContentAlignment" Value="Center" />
         </Style>
+        <Style x:Key="RouterNavigation" TargetType="{x:Type Button}">
+            <Setter Property="Height" Value="30" />
+            <Setter Property="Width" Value="300" />
+            <Setter Property="Command" Value="{Binding AsyncPathNavigateAndForgetCommand}" />
+            <Setter Property="CommandParameter" Value="{Binding RelativeSource={RelativeSource Mode=Self}, Path=Tag}" />
+            <Setter Property="VerticalContentAlignment" Value="Center" />
+        </Style>
         <Style x:Key="DialogShow" TargetType="{x:Type Button}">
             <Setter Property="Height" Value="30" />
             <Setter Property="Width" Value="300" />
@@ -72,6 +79,16 @@
             <Setter Property="Visibility" Value="{Binding IsDialog, Converter={StaticResource BoolToVisibilityInverted}}" />
             <Setter Property="Command" Value="{Binding UnloadViewCommand}" />
             <Setter Property="Content" Value="UnloadView" />
+            <Setter Property="CommandParameter" Value="{Binding RelativeSource={RelativeSource Mode=Self}, Path=Tag}" />
+            <Setter Property="VerticalContentAlignment" Value="Center" />
+            <Setter Property="HorizontalContentAlignment" Value="Center" />
+        </Style>
+        <Style x:Key="FloatView" TargetType="{x:Type Button}">
+            <Setter Property="Height" Value="30" />
+            <Setter Property="Width" Value="300" />
+            <Setter Property="Visibility" Value="{Binding IsDialog, Converter={StaticResource BoolToVisibilityInverted}}" />
+            <Setter Property="Command" Value="{Binding FloatViewCommand}" />
+            <Setter Property="Content" Value="{Binding FloatButtonText}" />
             <Setter Property="CommandParameter" Value="{Binding RelativeSource={RelativeSource Mode=Self}, Path=Tag}" />
             <Setter Property="VerticalContentAlignment" Value="Center" />
             <Setter Property="HorizontalContentAlignment" Value="Center" />

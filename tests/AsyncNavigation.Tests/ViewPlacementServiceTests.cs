@@ -33,6 +33,54 @@ public sealed class ViewPlacementServiceTests
     }
 
     [Fact]
+    public async Task StateChanged_ReportsEachTransitionAndStopsAfterRestored()
+    {
+        var fixture = new Fixture();
+        var session = await fixture.Service.FloatAsync("main", fixture.Context.NavigationId);
+        var states = new List<ViewPlacementState>();
+        session.StateChanged += (s, _) => states.Add(((IFloatingViewSession)s!).State);
+
+        await session.RestoreAsync();
+        Assert.Equal([ViewPlacementState.Restoring, ViewPlacementState.Restored], states);
+
+        await session.RestoreAsync();
+        Assert.Equal([ViewPlacementState.Restoring, ViewPlacementState.Restored], states);
+    }
+
+    [Fact]
+    public async Task StateChanged_ReportsEachTransitionOnClose()
+    {
+        var fixture = new Fixture();
+        var session = await fixture.Service.FloatAsync("main", fixture.Context.NavigationId);
+        var states = new List<ViewPlacementState>();
+        session.StateChanged += (s, _) => states.Add(((IFloatingViewSession)s!).State);
+
+        await session.CloseAsync();
+        Assert.Equal([ViewPlacementState.Closing, ViewPlacementState.Closed], states);
+    }
+
+    [Fact]
+    public async Task FloatAsync_DefaultOptions_ShowsDockButton()
+    {
+        var fixture = new Fixture();
+
+        await fixture.Service.FloatAsync("main", fixture.Context.NavigationId);
+
+        Assert.True(fixture.CapturedOptions!.ShowDockButton);
+    }
+
+    [Fact]
+    public async Task FloatAsync_WithShowDockButtonFalse_PassesItThroughToTheHostFactory()
+    {
+        var fixture = new Fixture();
+
+        await fixture.Service.FloatAsync("main", fixture.Context.NavigationId,
+            options: new FloatingWindowOptions { ShowDockButton = false });
+
+        Assert.False(fixture.CapturedOptions!.ShowDockButton);
+    }
+
+    [Fact]
     public async Task FloatWithSameNavigationId_ActivatesExistingSession()
     {
         var fixture = new Fixture();
@@ -116,7 +164,9 @@ public sealed class ViewPlacementServiceTests
 
             Window = new FakeWindowHost();
             var factory = new Mock<IFloatingWindowHostFactory>();
-            factory.Setup(x => x.Create(It.IsAny<FloatingWindowOptions>())).Returns(Window);
+            factory.Setup(x => x.Create(It.IsAny<FloatingWindowOptions>()))
+                .Callback<FloatingWindowOptions>(o => CapturedOptions = o)
+                .Returns(Window);
 
             var provider = new ServiceCollection()
                 .AddSingleton(manager.Object)
@@ -133,6 +183,7 @@ public sealed class ViewPlacementServiceTests
         public FakeRegion Region { get; }
         public FakeWindowHost Window { get; }
         public IViewPlacementService Service { get; }
+        public FloatingWindowOptions? CapturedOptions { get; private set; }
     }
 
     private sealed class StatefulRenderedView : IView

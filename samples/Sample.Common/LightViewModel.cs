@@ -1,12 +1,19 @@
-﻿using AsyncNavigation.Abstractions;
+﻿using AsyncNavigation;
+using AsyncNavigation.Abstractions;
 using AsyncNavigation.Core;
+using AsyncNavigation.Floating;
+using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 
 namespace Sample.Common;
 
-public partial class LightViewModel : InstanceCounterViewModel<LightViewModel>, IDialogAware, INavigationMetadata
+public partial class LightViewModel : InstanceCounterViewModel<LightViewModel>, IDialogAware, INavigationMetadata, INavigationGuard
 {
     private readonly IRegionManager _regionManager;
+    private readonly IViewPlacementService? _viewPlacementService;
+
+    [ObservableProperty]
+    private bool _preventLeave;
 
     public event AsyncEventHandler<DialogCloseEventArgs>? RequestCloseAsync;
 
@@ -14,17 +21,27 @@ public partial class LightViewModel : InstanceCounterViewModel<LightViewModel>, 
 
     public IconDescriptor Icon => IconDescriptor.FromFile("Icon.png");
 
-    public LightViewModel(IRegionManager regionManager)
+    public LightViewModel(IRegionManager regionManager, IViewPlacementService? viewPlacementService = null)
     {
         _regionManager = regionManager;
+        _viewPlacementService = viewPlacementService;
     }
 
 
     [RelayCommand]
     private Task UnloadView(string param)
     {
-        return RequestUnloadAsync(CancellationToken.None);
+        return UnloadOrCloseFloatingAsync(_viewPlacementService);
     }
+
+    [RelayCommand]
+    private Task FloatView(string param)
+    {
+        return FloatOrDockAsync(_viewPlacementService);
+    }
+
+    public Task<bool> CanNavigateAsync(NavigationContext context, CancellationToken cancellationToken) =>
+        Task.FromResult(!PreventLeave);
 
     [RelayCommand]
     private Task CloseDialog(string param)

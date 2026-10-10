@@ -117,7 +117,7 @@ public partial class NavigationContext
     /// <summary>
     /// Gets a unique identifier for this navigation context.
     /// </summary>
-    public Guid NavigationId { get; } = Guid.NewGuid();
+    public Guid NavigationId { get; init; } = Guid.NewGuid();
 
     /// <summary>
     /// Gets the duration of the navigation operation.

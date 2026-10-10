@@ -182,6 +182,27 @@ jobs:
             os: ubuntu-latest
             project: samples/Sample.Avalonia.Browser
             wasm: true
+          - name: FrontDialog (Ubuntu)
+            os: ubuntu-latest
+            project: samples/Sample.FrontDialog
+          - name: FrontDialog (Windows)
+            os: windows-latest
+            project: samples/Sample.FrontDialog
+          - name: FrontDialog (macOS)
+            os: macos-latest
+            project: samples/Sample.FrontDialog
+          - name: InfinityNavigation (Ubuntu)
+            os: ubuntu-latest
+            project: samples/Sample.InfinityNavigation
+          - name: InfinityNavigation (Windows)
+            os: windows-latest
+            project: samples/Sample.InfinityNavigation
+          - name: InfinityNavigation (macOS)
+            os: macos-latest
+            project: samples/Sample.InfinityNavigation
+          - name: WPF InfinityNavigation
+            os: windows-latest
+            project: samples/Sample.Wpf.InfinityNavigation
 
     steps:
       - uses: actions/checkout@v5

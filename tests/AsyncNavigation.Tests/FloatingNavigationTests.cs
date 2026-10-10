@@ -58,6 +58,24 @@ public sealed class FloatingNavigationTests
         Assert.Equal(1, a.Model.FromCount);
     }
 
+    [Fact]
+    public async Task RestoredView_KeepsOriginalNavigationIdAndCanBeFloatedAgain()
+    {
+        using var f = new Fixture();
+        var a = await f.Navigate("A");
+        var navigationId = f.Region.Selected!.NavigationId;
+
+        var session = await f.Placement.FloatAsync("main", navigationId);
+        await session.RestoreAsync();
+
+        Assert.Equal(navigationId, f.Region.Selected!.NavigationId);
+
+        var secondSession = await f.Placement.FloatAsync("main", navigationId);
+
+        Assert.Equal(ViewPlacementState.Floating, secondSession.State);
+        Assert.Same(a, f.Windows[1].Content);
+    }
+
     [Theory]
     [InlineData(false)]
     [InlineData(true)]
@@ -263,8 +281,13 @@ public sealed class FloatingNavigationTests
             if (context is null || ReferenceEquals(Selected, context)) Selected = null;
             return Task.CompletedTask;
         }
-        public RegionPlacementItem Capture(Guid? id = null) =>
-            new(Selected ?? throw new InvalidOperationException("empty"), 0, true);
+        public RegionPlacementItem Capture(Guid? id = null)
+        {
+            var context = Selected ?? throw new InvalidOperationException("empty");
+            if (id.HasValue && context.NavigationId != id.Value)
+                throw new InvalidOperationException($"Region '{Name}' does not contain the requested navigation item.");
+            return new(context, 0, true);
+        }
         public void Detach(RegionPlacementItem item)
         {
             Assert.Same(Selected, item.Context);

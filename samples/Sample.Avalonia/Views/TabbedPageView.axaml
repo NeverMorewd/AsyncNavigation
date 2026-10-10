@@ -43,13 +43,7 @@
                 Tag="HeavyView" />
         </StackPanel>
         <Border>
-            <TabbedPage an:RegionManager.RegionName="TabbedPageRegion" TabPlacement="Top">
-                <!--<TabbedPage.IconTemplate>
-                    <DataTemplate>
-                        <Image Source="{Binding}" />
-                    </DataTemplate>
-                </TabbedPage.IconTemplate>-->
-            </TabbedPage>
+            <TabbedPage an:RegionManager.RegionName="TabbedPageRegion" TabPlacement="Top" />
         </Border>
     </DockPanel>
 

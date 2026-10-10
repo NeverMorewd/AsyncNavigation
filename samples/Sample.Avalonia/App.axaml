@@ -43,6 +43,16 @@
 			<Setter Property="VerticalContentAlignment" Value="Center" />
 			<Setter Property="HorizontalContentAlignment" Value="Center" />
 		</Style>
+		<Style Selector="Button.FloatView">
+			<Setter Property="Height" Value="30" />
+			<Setter Property="Width" Value="300" />
+			<Setter Property="IsVisible" Value="{ReflectionBinding !IsDialog}" />
+			<Setter Property="Command" Value="{ReflectionBinding FloatViewCommand}" />
+			<Setter Property="Content" Value="{ReflectionBinding FloatButtonText}"/>
+			<Setter Property="CommandParameter" Value="{ReflectionBinding $self.Tag}" />
+			<Setter Property="VerticalContentAlignment" Value="Center" />
+			<Setter Property="HorizontalContentAlignment" Value="Center" />
+		</Style>
 		<Style Selector="Button.Navigation">
 			<Setter Property="Height" Value="30" />
 			<Setter Property="Width" Value="300" />
@@ -54,6 +64,13 @@
 			<Setter Property="Height" Value="30" />
 			<Setter Property="Width" Value="300" />
 			<Setter Property="Command" Value="{ReflectionBinding AsyncNavigateAndForgetCommand}" />
+			<Setter Property="CommandParameter" Value="{ReflectionBinding $self.Tag}" />
+			<Setter Property="VerticalContentAlignment" Value="Center" />
+		</Style>
+		<Style Selector="Button.RouterNavigation">
+			<Setter Property="Height" Value="30" />
+			<Setter Property="Width" Value="300" />
+			<Setter Property="Command" Value="{ReflectionBinding AsyncPathNavigateAndForgetCommand}" />
 			<Setter Property="CommandParameter" Value="{ReflectionBinding $self.Tag}" />
 			<Setter Property="VerticalContentAlignment" Value="Center" />
 		</Style>
